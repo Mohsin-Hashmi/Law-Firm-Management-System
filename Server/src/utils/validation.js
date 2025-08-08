@@ -1,7 +1,7 @@
 const validator = require("validator");
 const UserSignUpValidation = (req, res) => {
-  const { name, email, password } = req.body;
-  if (!name || !email || !password) {
+  const { name, email, password, confirmPassword } = req.body;
+  if (!name || !email || !password || !confirmPassword) {
     return res.status(400).json({
       success: false,
       message: "All fields are required",
@@ -11,12 +11,12 @@ const UserSignUpValidation = (req, res) => {
       success: false,
       message: "Email format is invalid",
     });
-  } else if (!validator.isStrongPassword(password)) {
-    return res.status(400).josn({
-      success: false,
-      message: "Password is weak make a strong password",
-    });
-  } else if (password.legth < 5) {
+  // } else if (!validator.isStrongPassword(password)) {
+  //   return res.status(400).json({
+  //     success: false,
+  //     message: "Password is weak make a strong password",
+  //   });
+  // } else if (password.legth < 5) {
     return res.status(400).json({
       success: false,
       message: "password should atleast five characters",

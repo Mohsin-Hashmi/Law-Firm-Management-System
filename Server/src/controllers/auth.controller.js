@@ -10,14 +10,21 @@ const { where } = require("sequelize");
 const jwt = require("jsonwebtoken");
 const SignUp = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, confirmPassword } = req.body;
     let role = "Lawyer";
     const validationResult = UserSignUpValidation(req, res);
     if (validationResult) return;
     if (req.path === "/signup/firm-admin") {
       role = "Firm Admin";
     }
+     if(password!=confirmPassword){
+      return res.status(400).json({
+        success:false,
+        error: "Password and Confirm Password do not match"
+      })
+    }
     const HASHED_PASSWORD = await bcrypt.hash(password, 10);
+   
     const user = await User.create({
       name,
       email,
