@@ -8,6 +8,8 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { loginUser, signupUser } from "../service/authAPI";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import { useAppDispatch } from "../store/hooks";
+import { addUser } from "../store/userSlice";
 type AuthFormProps = {
   type: "login" | "signup";
 };
@@ -27,6 +29,7 @@ export default function AuthForm({ type }: AuthFormProps) {
   });
 
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   const validate = () => {
     const newError: typeof error = {
@@ -87,6 +90,7 @@ export default function AuthForm({ type }: AuthFormProps) {
         }
         const payload = { name, email, password, confirmPassword };
         const response = await signupUser(payload);
+        dispatch(addUser(response.data))
         console.log("Signup Successfully:", response.data);
         toast.success("Signup Successfully");
         setName("");
@@ -97,6 +101,7 @@ export default function AuthForm({ type }: AuthFormProps) {
       } else {
         const payload = { email, password };
         const response = await loginUser(payload);
+        dispatch(addUser(response.data));
         console.log("Login successfully:", response.data);
         toast.success("Login successfully");
         setEmail("");

@@ -5,7 +5,7 @@ const {
   UserSignUpValidation,
   UserLoginInValidation,
 } = require("../utils/validation");
-const { User } = require('../models');
+const { User } = require("../models");
 const { where } = require("sequelize");
 const jwt = require("jsonwebtoken");
 const SignUp = async (req, res) => {
@@ -17,23 +17,25 @@ const SignUp = async (req, res) => {
     if (req.path === "/signup/firm-admin") {
       role = "Firm Admin";
     }
-     if(password!=confirmPassword){
+    if (password != confirmPassword) {
       return res.status(400).json({
-        success:false,
-        error: "Password and Confirm Password do not match"
-      })
+        success: false,
+        error: "Password and Confirm Password do not match",
+      });
     }
     const HASHED_PASSWORD = await bcrypt.hash(password, 10);
-   
+
     const user = await User.create({
       name,
       email,
       password: HASHED_PASSWORD,
       role,
     });
+    const safeUser = user.toJSON();
+    delete safeUser.password;
     res
       .status(201)
-      .json({ success: true, message: "User signup successfully", user });
+      .json({ success: true, message: "User signup successfully", safeUser });
   } catch (err) {
     console.log("error is", err);
     res.status(500).json({
@@ -68,12 +70,18 @@ const LoginIn = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
-    res.cookie("token", token, { httpOnly: true });
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // true in prod
+      sameSite: "none",
+    });
+    const safeUser = user.toJSON();
+    delete safeUser.password;
     return res.status(200).json({
-        success:true,
-        message: "Login Successfully",
-        user:user
-    })
+      success: true,
+      message: "Login Successfully",
+      user: safeUser,
+    });
   } catch (err) {
     res.status(500).json({
       success: false,
@@ -93,7 +101,7 @@ const Logout = (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Internal server error",
-      error: err.message
+      error: err.message,
     });
   }
 };

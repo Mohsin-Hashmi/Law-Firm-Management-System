@@ -4,10 +4,14 @@ import logo from "../../../public/images/northman-logo.webp";
 import Image from "next/image";
 import { logoutUser } from "../service/authAPI";
 import {toast} from 'react-toastify'
+import { removeUser } from "../store/userSlice";
+import { useAppDispatch } from "../store/hooks";
 export default function Header() {
 
+    const dispatch = useAppDispatch();
     const handleLogout = async()=>{
-        await logoutUser();
+        const response= await logoutUser();
+        dispatch(removeUser(response.data))
         toast.success("Logged out successfully");
     }
   return (
