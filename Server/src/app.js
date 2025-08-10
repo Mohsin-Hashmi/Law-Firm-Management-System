@@ -54,7 +54,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/auth", authRoutes);
-app.use("/auth", superAdminRoutes);
+app.use("/api/superadmin", superAdminRoutes);
 // =====Start Server====
 app.listen(PORT, async () => {
   console.log(`App is listening at port ${PORT}`);

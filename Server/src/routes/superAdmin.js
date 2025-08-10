@@ -1,8 +1,17 @@
-
-
-const express= require('express');
+const express = require("express");
 const superAdminRoutes = express.Router();
-const superAdminMessage = require('../controllers/superAdmin.controller');
-const  { userAuth, superAdminAuth }= require('../middlewares/authMiddleware')
-superAdminRoutes.get("/super-admin", userAuth, superAdminAuth, superAdminMessage)
-module.exports = superAdminRoutes
+const { userAuth, superAdminAuth } = require("../middlewares/authMiddleware");
+const {
+  createFirm,
+  getAllFirms,
+  getFirmById,
+  updateFirm,
+  deleteFirm,
+} = require("../controllers/superAdmin.controller");
+
+superAdminRoutes.post("/firm", userAuth, superAdminAuth, createFirm);
+superAdminRoutes.get("/firms", userAuth, superAdminAuth, getAllFirms);
+superAdminRoutes.get("/firm/:id",userAuth, superAdminAuth,  getFirmById);
+superAdminRoutes.put("/firm/:id",userAuth, superAdminAuth, updateFirm);
+superAdminRoutes.delete("/firm/:id",userAuth, superAdminAuth, deleteFirm);
+module.exports = superAdminRoutes;
