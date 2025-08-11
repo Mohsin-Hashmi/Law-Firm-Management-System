@@ -47,14 +47,7 @@ export default function Header() {
                 Services
               </Link>
             </li>
-            <li>
-              <Link
-                className="hover:text-gray-300 hover:underline [text-underline-offset:4px]"
-                href=""
-              >
-                Contact Us
-              </Link>
-            </li>
+            
             <li>
               <Link
               onClick={handleLogout}

@@ -10,6 +10,10 @@ import partner04 from "../../public/images/superanzoLogo.webp";
 import maskGroup from "../../public/images/maskGroup.webp";
 import maskGroup2 from "../../public/images/formImage.webp";
 import tickSquare from "../../public/images/tickSquare.webp";
+import desyLaywer from "../../public/images/desyLawyer.webp";
+import lucusLaywer from "../../public/images/lucasLawyer.webp";
+import nadaLaywer from "../../public/images/nadaLawyer.webp";
+import attorneyLaywer from "../../public/images/attorneyLaywer.webp";
 export default function Home() {
   return (
     <>
@@ -35,7 +39,7 @@ export default function Home() {
           <hr className=" pb-[60px] w-[400px] block" />
           <Link
             href=""
-            className="bg-[#9A9162] py-[10px] px-[65px] text-white font-semibold text-xl rounded-md"
+            className="bg-[#9A9162] hover:bg-[#857c54] py-[10px] px-[65px] text-white font-semibold text-xl rounded-md"
           >
             Get Started
           </Link>
@@ -66,8 +70,10 @@ export default function Home() {
         <div className="container">
           <div className="flex gap-x-[69px] items-center">
             <div className="max-w-[600px]">
-              <p className="font-bold mb-[30px] text-[#3A3A38]">About Us</p>
-              <h2 className="text-[45px] font-bold mb-[40px] text-[#3A3A38]">
+              <p className="font-bold mb-[30px] text-[#3A3A38] text-[15px]">
+                About Us
+              </p>
+              <h2 className="text-[45px] font-semibold mb-[40px] text-[#3A3A38]">
                 Helping To Overcome And Ease The Legal Burden
               </h2>
               <div className="max-w-[420px]">
@@ -83,7 +89,7 @@ export default function Home() {
               </div>
               <Link
                 href=""
-                className="bg-[#1E2E45] py-[10px] px-[70px] text-[#FFFFFFFF] text-xl font-semibold rounded-md inline-block"
+                className="bg-[#1E2E45] hover:bg-[#2F486C] py-[10px] px-[70px] text-[#FFFFFFFF] text-xl font-semibold rounded-md inline-block"
               >
                 See detail
               </Link>
@@ -98,8 +104,64 @@ export default function Home() {
       <section>
         <div className="container">
           <div className="text-center">
-            <p>Lawyer</p>
-            <h2>Professional lawyers and advisors with more experience</h2>
+            <p className="text-[#3A3A38] font-bold text-[15px]">Lawyer</p>
+            <h2 className="text-[#3A3A38] text-[45px] font-semibold mt-[15px]">
+              Professional Lawyers And Advisors With More Experience
+            </h2>
+          </div>
+          <div className="flex items-center justify-around mt-[70px]">
+            <span className="text-center">
+              <Image
+                className="max-w-[250px] h-[300px] object-contain"
+                src={desyLaywer}
+                alt="desy Laywer"
+              />
+              <h4 className="font-semibold text-[25px] text-[#3A3A38] mt-[25px]">
+                Desy Willy
+              </h4>
+              <p className="text-[#3A3A38] font-medium">
+                Senior Business Lawyer
+              </p>
+            </span>
+            <span className="text-center">
+              <Image
+                className="max-w-[250px] h-[300px] object-contain"
+                src={lucusLaywer}
+                alt="lucus Laywer"
+              />
+              <h4 className="font-semibold text-[25px] text-[#3A3A38] mt-[25px]">
+                Lucas Alex
+              </h4>
+              <p className="text-[#3A3A38] font-medium">
+                Senior Business Lawyer
+              </p>
+            </span>
+            <span className="text-center">
+              <Image
+                className="max-w-[250px] h-[300px] object-contain"
+                src={nadaLaywer}
+                alt="nada Laywer"
+              />
+              <h4 className="font-semibold text-[25px] text-[#3A3A38] mt-[25px]">
+                Nada Geo
+              </h4>
+              <p className="text-[#3A3A38] font-medium">
+                Senior Business Lawyer
+              </p>
+            </span>
+            <span className="text-center">
+              <Image
+                className="max-w-[250px] h-[300px] object-contain"
+                src={attorneyLaywer}
+                alt="nada Laywer"
+              />
+              <h4 className="font-semibold text-[25px] text-[#3A3A38] mt-[25px]">
+                Attorney Will
+              </h4>
+              <p className="text-[#3A3A38] font-medium">
+                Senior Business Lawyer
+              </p>
+            </span>
           </div>
         </div>
       </section>
@@ -108,7 +170,7 @@ export default function Home() {
       <section className="bg-[#1E2E45] my-[150px]">
         <div className="container">
           <div className="text-center py-[45px]  text-[#FFFFFF]">
-            <h2 className="text-[45px] font-bold">
+            <h2 className="text-[45px] font-semibold">
               We Help You With Quality Legal Lawyer
             </h2>
             <p className="text-sm mt-[20px]">
@@ -120,7 +182,7 @@ export default function Home() {
             </p>
             <Link
               href=""
-              className="py-[10px] px-[64px] bg-[#9A9162] mt-[50px] inline-block rounded-md font-semibold"
+              className="py-[10px] px-[64px] bg-[#9A9162] hover:bg-[#857c54] mt-[50px] inline-block rounded-md font-semibold"
             >
               Get Started
             </Link>
@@ -175,6 +237,90 @@ export default function Home() {
                 </span>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+      {/* Contact us section */}
+      <section className="mb-[150px]">
+        <div className="container">
+          <div className="rounded-lg shadow-2xl bg-white  backdrop-blur-md p-6">
+            <h2 className="text-[45px] text-[#3A3A38] font-semibold mb-[40px] text-center">
+              Get In Touch
+            </h2>
+            <form action="">
+              <div className="flex gap-x-[40px] m-auto justify-center flex-wrap max-w-[900px] gap-y-[30px]">
+                <div className="max-w-[370px] flex flex-wrap">
+                  <label
+                    className="text-[24px] text-[#3A3A38] mb-[15px]"
+                    htmlFor=""
+                  >
+                    Full Name
+                  </label>
+                  <input
+                    className="w-full border border-[#1E2E45] outline-none py-[10px] px-[30px] rounded-md"
+                    type="text"
+                    placeholder="Enter first name"
+                  />
+                </div>
+                <div className="max-w-[370px] flex flex-wrap">
+                  <label
+                    className="text-[24px] text-[#3A3A38] mb-[15px]"
+                    htmlFor=""
+                  >
+                    Last Name
+                  </label>
+                  <input
+                    className="w-full border border-[#1E2E45] outline-none py-[10px] px-[30px] rounded-md"
+                    type="text"
+                    placeholder="Enter last name"
+                  />
+                </div>
+                <div className="max-w-[370px] flex flex-wrap">
+                  <label
+                    className="text-[24px] text-[#3A3A38] mb-[15px]"
+                    htmlFor=""
+                  >
+                    Your Phone
+                  </label>
+                  <input
+                    className="w-full border border-[#1E2E45] outline-none py-[10px] px-[30px] rounded-md"
+                    type="tel"
+                    placeholder="Enter your phone"
+                  />
+                </div>
+                <div className="max-w-[370px] flex flex-wrap">
+                  <label
+                    className="text-[24px] text-[#3A3A38] mb-[15px]"
+                    htmlFor=""
+                  >
+                    Your Email
+                  </label>
+                  <input
+                    className="w-full border border-[#1E2E45] outline-none py-[10px] px-[30px] rounded-md"
+                    type="email"
+                    placeholder="Enter your email"
+                  />
+                </div>
+                <div className="w-[770px] flex flex-wrap">
+                  <label
+                    className="text-[24px] text-[#3A3A38] mb-[15px]"
+                    htmlFor=""
+                  >
+                    Message
+                  </label>
+                  <textarea
+                    className="w-full border border-[#1E2E45] outline-none py-[10px] px-[30px] rounded-md p-[25px] h-[200px]"
+                    placeholder="Enter message"
+                  />
+                </div>
+                <Link
+                  href=""
+                  className="bg-[#1E2E45] hover:bg-[#2F486C] py-[10px] px-[70px] text-[#FFFFFFFF] text-xl font-semibold rounded-md  float-left"
+                >
+                  Send Message
+                </Link>
+              </div>
+            </form>
           </div>
         </div>
       </section>
