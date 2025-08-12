@@ -23,7 +23,7 @@ export default function Header() {
       { label: "Home", href: "/" },
       { label: "About", href: "/" },
       { label: "Services", href: "/" },
-      { label: "Firms", href: "/" },
+      { label: "Firms", href: "/pages/super-admin/get-firms" },
       { label: "Add Firm", href: "/pages/super-admin/add-firm" },
     ],
     "Firm Admin": [

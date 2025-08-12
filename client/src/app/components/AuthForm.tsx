@@ -114,7 +114,9 @@ export default function AuthForm({ type }: AuthFormProps) {
     <section className="container flex justify-center items-center min-h-screen">
       <Card
         className="w-full max-w-4xl shadow-lg"
-        bodyStyle={{ padding: 0 }}
+        styles={{
+          body: { padding: 0 },
+        }}
       >
         <div className="flex flex-col md:flex-row">
           {/* Left Form */}
@@ -134,6 +136,7 @@ export default function AuthForm({ type }: AuthFormProps) {
                     placeholder="Enter your name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    className="p-2"
                   />
                 </Form.Item>
               )}
@@ -148,6 +151,7 @@ export default function AuthForm({ type }: AuthFormProps) {
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  className="p-2"
                 />
               </Form.Item>
 
@@ -163,6 +167,7 @@ export default function AuthForm({ type }: AuthFormProps) {
                   }
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  className="p-2"
                 />
               </Form.Item>
 
@@ -179,6 +184,7 @@ export default function AuthForm({ type }: AuthFormProps) {
                     }
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="p-2"
                   />
                 </Form.Item>
               )}

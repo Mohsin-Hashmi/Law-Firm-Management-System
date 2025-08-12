@@ -17,6 +17,7 @@ app.use(
     origin: "http://localhost:3000",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 PORT = process.env.PORT || 4000;

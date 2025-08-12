@@ -72,9 +72,11 @@ const LoginIn = async (req, res) => {
     );
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // true in prod
-      sameSite: "none",
+      secure: true, // required for SameSite=None
+      sameSite: "None",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // optional
     });
+    console.log("Set-Cookie header sent with token:", token);
     const safeUser = user.toJSON();
     delete safeUser.password;
     return res.status(200).json({
