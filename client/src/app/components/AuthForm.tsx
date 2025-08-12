@@ -10,6 +10,10 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { useAppDispatch } from "../store/hooks";
 import { addUser } from "../store/userSlice";
+import { Input, Button, Typography, Form, Space, Card } from "antd";
+
+const { Title, Text } = Typography;
+
 type AuthFormProps = {
   type: "login" | "signup";
 };
@@ -19,8 +23,6 @@ export default function AuthForm({ type }: AuthFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState({
     name: "",
     email: "",
@@ -62,7 +64,6 @@ export default function AuthForm({ type }: AuthFormProps) {
         isValid = false;
       }
     } else {
-      // For login
       if (!email.trim()) {
         newError.email = "Email is required";
         isValid = false;
@@ -77,9 +78,7 @@ export default function AuthForm({ type }: AuthFormProps) {
     return isValid;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // handle form submit
+  const handleSubmit = async () => {
     const isValid = validate();
     if (!isValid) return;
     try {
@@ -90,8 +89,7 @@ export default function AuthForm({ type }: AuthFormProps) {
         }
         const payload = { name, email, password, confirmPassword };
         const response = await signupUser(payload);
-        dispatch(addUser(response.data))
-        console.log("Signup Successfully:", response.data);
+        dispatch(addUser(response.data.user));
         toast.success("Signup Successfully");
         setName("");
         setEmail("");
@@ -101,8 +99,7 @@ export default function AuthForm({ type }: AuthFormProps) {
       } else {
         const payload = { email, password };
         const response = await loginUser(payload);
-        dispatch(addUser(response.data));
-        console.log("Login successfully:", response.data);
+        dispatch(addUser(response.data.user));
         toast.success("Login successfully");
         setEmail("");
         setPassword("");
@@ -114,122 +111,129 @@ export default function AuthForm({ type }: AuthFormProps) {
   };
 
   return (
-    <section className="container flex justify-center items-center min-h-screen ">
-      <div className="rounded-lg shadow-2xl bg-white  backdrop-blur-md w-full max-w-4xl flex justify-center items-center gap-x-3.5 overflow-hidden p-8">
-        {/* Left: Form */}
-        <div className="w-full md:w-1/2 pl-4 block ">
-          <h2 className="text-3xl  font-semibold text-center mb-6 text-[#1E2E45]">
-            {type === "login" ? "Hi, Welcome Back! " : "Create An Account"}
-          </h2>
+    <section className="container flex justify-center items-center min-h-screen">
+      <Card
+        className="w-full max-w-4xl shadow-lg"
+        bodyStyle={{ padding: 0 }}
+      >
+        <div className="flex flex-col md:flex-row">
+          {/* Left Form */}
+          <div className="w-full md:w-1/2 flex flex-col justify-center p-8">
+            <Title level={2} style={{ textAlign: "center", color: "#1E2E45" }}>
+              {type === "login" ? "Hi, Welcome Back!" : "Create An Account"}
+            </Title>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {type === "signup" && (
-              <>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter your name"
-                  required
-                  className="w-full  px-4 py-2 border border-[#2F486C] rounded-md focus:outline-none focus:ring-1 focus:ring-[#1E2E45] placeholder-[#2F486C]"
-                />
-                {error.name && (
-                  <p className="text-red-600 text-sm">{error.name}</p>
-                )}
-              </>
-            )}
-
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              required
-              className="w-full px-4 py-2 border border-[#2F486C] rounded-md focus:outline-none focus:ring-1 focus:ring-[#1E2E45] placeholder-[#2F486C]"
-            />
-            {error.email && (
-              <p className="text-red-600 text-sm">{error.email}</p>
-            )}
-
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                required
-                className="w-full px-4 py-2 border border-[#2F486C] rounded-md focus:outline-none focus:ring-1 focus:ring-[#1E2E45] placeholder-[#2F486C]"
-              />
-              <span
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer text-[#2F486C]"
-                onClick={() => setShowPassword((prev) => !prev)}
-              >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
-              </span>
-              {error.password && (
-                <p className="text-red-600 text-sm">{error.password}</p>
-              )}
-            </div>
-
-            {type === "signup" && (
-              <div className="relative">
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Confirm your password"
-                  required
-                  className="w-full px-4 py-2 border border-[#2F486C] rounded-md focus:outline-none focus:ring-1 focus:ring-[#1E2E45] placeholder-[#2F486C]"
-                />
-                <span
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer text-[#2F486C]"
-                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+            <Form layout="vertical" onFinish={handleSubmit}>
+              {type === "signup" && (
+                <Form.Item
+                  label="Name"
+                  validateStatus={error.name ? "error" : ""}
+                  help={error.name}
                 >
-                  {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
-                </span>
-                {error.confirmPassword && (
-                  <p className="text-red-600 text-sm">
-                    {error.confirmPassword}
-                  </p>
-                )}
-              </div>
-            )}
+                  <Input
+                    placeholder="Enter your name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </Form.Item>
+              )}
 
-            <button
-              type="submit"
-              className="w-full bg-[#1E2E45] hover:bg-[#2F486C] text-white font-semibold py-[18px] rounded-md transition duration-300"
-            >
-              {type === "login" ? "Login" : "Sign Up"}
-            </button>
-          </form>
-          {type === "signup" ? (
-            <p className="text-[#1E2E45] mt-3 text-center text-medium">
-              Already have an account?{" "}
-              <Link href="/auth/login" className="font-bold hover:underline">
-                Login
-              </Link>
-            </p>
-          ) : (
-            <p className="text-[#1E2E45] mt-3 text-center text-medium">
-              {" "}
-              Donot have an account?{" "}
-              <Link href="/auth/signup" className="font-bold hover:underline">
-                Sign Up
-              </Link>
-            </p>
-          )}
-        </div>
+              <Form.Item
+                label="Email"
+                validateStatus={error.email ? "error" : ""}
+                help={error.email}
+              >
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </Form.Item>
 
-        {/* Right: Image */}
-        <div className="hidden md:block w-1/2">
-          <Image
-            src={formImage}
-            alt="Form"
-            className="w-full h-full object-cover rounded-lg  "
-            priority
-          />
+              <Form.Item
+                label="Password"
+                validateStatus={error.password ? "error" : ""}
+                help={error.password}
+              >
+                <Input.Password
+                  placeholder="Enter your password"
+                  iconRender={(visible) =>
+                    visible ? <FaEyeSlash /> : <FaEye />
+                  }
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </Form.Item>
+
+              {type === "signup" && (
+                <Form.Item
+                  label="Confirm Password"
+                  validateStatus={error.confirmPassword ? "error" : ""}
+                  help={error.confirmPassword}
+                >
+                  <Input.Password
+                    placeholder="Confirm your password"
+                    iconRender={(visible) =>
+                      visible ? <FaEyeSlash /> : <FaEye />
+                    }
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                </Form.Item>
+              )}
+
+              <Form.Item>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  block
+                  style={{
+                    backgroundColor: "#1E2E45",
+                    borderColor: "#1E2E45",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor = "#2F486C")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = "#1E2E45")
+                  }
+                >
+                  {type === "login" ? "Login" : "Sign Up"}
+                </Button>
+              </Form.Item>
+            </Form>
+
+            <Text style={{ display: "block", textAlign: "center" }}>
+              {type === "signup" ? (
+                <>
+                  Already have an account?{" "}
+                  <Link href="/auth/login">
+                    <b>Login</b>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  Don’t have an account?{" "}
+                  <Link href="/auth/signup">
+                    <b>Sign Up</b>
+                  </Link>
+                </>
+              )}
+            </Text>
+          </div>
+
+          {/* Right Image */}
+          <div className="hidden md:block w-1/2 ">
+            <Image
+              src={formImage}
+              alt="Form"
+              className="w-full h-full object-cover rounded-md"
+              priority
+            />
+          </div>
         </div>
-      </div>
+      </Card>
     </section>
   );
 }

@@ -3,63 +3,75 @@ import Link from "next/link";
 import logo from "../../../public/images/northman-logo.webp";
 import Image from "next/image";
 import { logoutUser } from "../service/authAPI";
-import {toast} from 'react-toastify'
+import { toast } from "react-toastify";
 import { removeUser } from "../store/userSlice";
-import { useAppDispatch } from "../store/hooks";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { useRouter } from "next/navigation";
 export default function Header() {
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const role = useAppSelector((state) => state.user.user?.role);
+  // logout handler
+  const handleLogout = async () => {
+    const response = await logoutUser();
+    dispatch(removeUser(response.data));
+    router.push("/auth/login");
+    toast.success("Logged out successfully");
+  };
+  const navLinksMap: Record<string, { label: string; href: string }[]> = {
+    "Super Admin": [
+      { label: "Home", href: "/" },
+      { label: "About", href: "/" },
+      { label: "Services", href: "/" },
+      { label: "Firms", href: "/" },
+      { label: "Add Firm", href: "/pages/super-admin/add-firm" },
+    ],
+    "Firm Admin": [
+      { label: "Home", href: "/" },
+      { label: "About", href: "/" },
+      { label: "Services", href: "/" },
+      { label: "Lawyers", href: "/" },
+      { label: "Clients", href: "/" },
+      { label: "Add Lawyer", href: "/" },
+    ],
+    Lawyer: [
+      { label: "Home", href: "/" },
+      { label: "About", href: "/" },
+      { label: "Services", href: "/" },
+      { label: "My Clients", href: "/" },
+      { label: "Add Client", href: "/" },
+    ],
+  };
 
-    const dispatch = useAppDispatch();
-    const handleLogout = async()=>{
-        const response= await logoutUser();
-        dispatch(removeUser(response.data))
-        toast.success("Logged out successfully");
-    }
   return (
-    <>
-      <header className="container">
-        <nav className="pt-[41px] pb-[52px] flex justify-between items-center">
-          <Link href="/">
-            <Image src={logo} alt="logo" />
-          </Link>
+    <header className="container">
+      <nav className="py-[30px] flex justify-between items-center">
+        <Link href="/">
+          <Image src={logo} alt="logo" />
+        </Link>
 
-          <ol className="flex gap-x-[30px] items-center text-white ">
-            <li>
+        <ol className="flex gap-x-[30px] items-center text-white">
+          {navLinksMap[role || "Lawyer"]?.map((link) => (
+            <li key={link.label}>
               <Link
                 className="hover:text-gray-300 hover:underline [text-underline-offset:4px]"
-                href=""
+                href={link.href}
               >
-                Home
+                {link.label}
               </Link>
             </li>
-            <li>
-              <Link
-                className="hover:text-gray-300 hover:underline [text-underline-offset:4px]"
-                href=""
-              >
-                About
-              </Link>
-            </li>
-            <li>
-              <Link
-                className="hover:text-gray-300 hover:underline [text-underline-offset:4px]"
-                href=""
-              >
-                Services
-              </Link>
-            </li>
-            
-            <li>
-              <Link
+          ))}
+
+          <li>
+            <button
               onClick={handleLogout}
-                className="hover:text-gray-300 hover:underline [text-underline-offset:4px]"
-                href="/auth/login"
-              >
-                Logout
-              </Link>
-            </li>
-          </ol>
-        </nav>
-      </header>
-    </>
+              className="hover:text-gray-300 hover:underline [text-underline-offset:4px]"
+            >
+              Logout
+            </button>
+          </li>
+        </ol>
+      </nav>
+    </header>
   );
 }

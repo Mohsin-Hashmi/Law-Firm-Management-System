@@ -1,3 +1,4 @@
+"use client";
 import Image from "next/image";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -14,7 +15,36 @@ import desyLaywer from "../../public/images/desyLawyer.webp";
 import lucusLaywer from "../../public/images/lucasLawyer.webp";
 import nadaLaywer from "../../public/images/nadaLawyer.webp";
 import attorneyLaywer from "../../public/images/attorneyLaywer.webp";
+import { useAppSelector } from "./store/hooks";
 export default function Home() {
+  const role = useAppSelector((state) => state.user?.user?.role);
+  console.log(role);
+  let headingBefore = "";
+  let headingAfter = " Law Firm";
+  let paragraph = "";
+
+  if (role === "Super Admin") {
+    headingBefore = "Manage the Entire Legal Platform with ";
+    paragraph =
+      "Oversee all law firms, users, and platform-wide operations. Manage subscriptions, review analytics, and keep the system running efficiently.";
+  } else if (role === "Firm Admin") {
+    headingBefore = "Lead Your Firm to Success with ";
+    paragraph =
+      "Easily manage lawyers, assistants, and clients. Keep track of cases, schedules, and billing all from one place.";
+  } else if (role === "Lawyer") {
+    headingBefore = "Uphold Truth For Justice With ";
+    paragraph =
+      "Empower your law practice with smart tools for case management, client communication, and document handling.";
+  } else {
+    headingBefore = "Welcome to ";
+    headingAfter = "";
+    paragraph = "Manage your legal work with ease and efficiency.";
+  }
+   const roleHrefMap: Record<string, string> = {
+    "Super Admin": "/pages/super-admin/add-firm",
+    "Firm Admin": "/lawyers/add",
+    "Lawyer": "/clients/add"
+  };
   return (
     <>
       <section className="bg-[#1E2E45] pb-[100px]">
@@ -23,25 +53,29 @@ export default function Home() {
           <div className="flex gap-x-[80px] ">
             <div className="max-w-[800px]">
               <h1 className=" text-[58px] text-white font-semibold">
-                Uphold Truth For Justice With{" "}
-                <span className="text-[#9A9162]">Northman</span> Law Firm{" "}
+                {headingBefore}
+                <span className="text-[#9A9162]">Northman</span>
+                {headingAfter}
               </h1>
             </div>
             <div className="max-w-[400px]">
               <p className="text-[#FFFFFF] text-sm italic ">
-                &quot;Empower your law firm with our smart management solution.
-                Streamline case tracking, client communication, appointments,
-                billing, and document handling — all in one secure platform
-                built for legal professionals.&quot;
+                &quot;{paragraph}&quot;
               </p>
             </div>
           </div>
           <hr className=" pb-[60px] w-[400px] block" />
           <Link
-            href=""
+             href={role ? roleHrefMap[role] : "#"}
             className="bg-[#9A9162] hover:bg-[#857c54] py-[10px] px-[65px] text-white font-semibold text-xl rounded-md"
           >
-            Get Started
+            {role === "Super Admin"
+              ? "Add Firm"
+              : role === "Firm Admin"
+              ? "Add Lawyer and Clients"
+              : role === "Lawyer"
+              ? "Add Clients"
+              : ""}
           </Link>
           <Image
             className="z-50 absolute max-w-[500px] right-[30px] top-[350px]"
