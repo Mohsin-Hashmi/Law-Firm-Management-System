@@ -34,7 +34,7 @@ export default function Header() {
       { label: "Clients", href: "/" },
       { label: "Add Lawyer", href: "/" },
     ],
-    Lawyer: [
+    "Lawyer": [
       { label: "Home", href: "/" },
       { label: "About", href: "/" },
       { label: "Services", href: "/" },

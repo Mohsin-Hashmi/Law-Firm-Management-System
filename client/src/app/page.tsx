@@ -16,11 +16,24 @@ import lucusLaywer from "../../public/images/lucasLawyer.webp";
 import nadaLaywer from "../../public/images/nadaLawyer.webp";
 import attorneyLaywer from "../../public/images/attorneyLaywer.webp";
 import { useAppSelector } from "./store/hooks";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 export default function Home() {
+  const router = useRouter();
   const role = useAppSelector((state) => state.user?.user?.role);
   console.log(role);
+
+  useEffect(() => {
+    if (!role) {
+      router.push("/auth/login"); // Redirect if no role
+    }
+  }, [role, router]);
+
+  if (!role) {
+    return null; // Avoid rendering anything until redirect happens
+  }
   let headingBefore = "";
-  let headingAfter = " Law Firm";
+  const headingAfter = " Law Firm";
   let paragraph = "";
 
   if (role === "Super Admin") {
@@ -35,15 +48,11 @@ export default function Home() {
     headingBefore = "Uphold Truth For Justice With ";
     paragraph =
       "Empower your law practice with smart tools for case management, client communication, and document handling.";
-  } else {
-    headingBefore = "Welcome to ";
-    headingAfter = "";
-    paragraph = "Manage your legal work with ease and efficiency.";
   }
-   const roleHrefMap: Record<string, string> = {
+  const roleHrefMap: Record<string, string> = {
     "Super Admin": "/pages/super-admin/add-firm",
     "Firm Admin": "/lawyers/add",
-    "Lawyer": "/clients/add"
+    Lawyer: "/clients/add",
   };
   return (
     <>
@@ -66,7 +75,7 @@ export default function Home() {
           </div>
           <hr className=" pb-[60px] w-[400px] block" />
           <Link
-             href={role ? roleHrefMap[role] : "#"}
+            href={role ? roleHrefMap[role] : "#"}
             className="bg-[#9A9162] hover:bg-[#857c54] py-[10px] px-[65px] text-white font-semibold text-xl rounded-md"
           >
             {role === "Super Admin"

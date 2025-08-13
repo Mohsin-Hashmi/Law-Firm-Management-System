@@ -1,7 +1,8 @@
 "use client";
+
 import HeaderPages from "../../../components/HeaderPages";
 import Footer from "../../../components/Footer";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Form,
   Input,
@@ -23,8 +24,13 @@ import {
   StopOutlined,
 } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
-import SizeContext from "antd/es/config-provider/SizeContext";
-import {toast} from 'react-toastify';
+import { toast } from "react-hot-toast";
+import { createFirm } from "@/app/service/superAdminAPI";
+import { FirmPayload } from "@/app/types/firm";
+import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { addFirm } from "@/app/store/firmSlice";
+
 const { Option } = Select;
 
 interface FormValues {
@@ -40,14 +46,12 @@ interface FormValues {
   trialEndsAt: Dayjs;
 }
 
-import { createFirm } from "@/app/service/superAdminAPI";
-import { FirmPayload } from "@/app/types/firm";
-import { useRouter } from "next/navigation";
-
 export default function AddFirm() {
-  const router= useRouter();
+  const router = useRouter();
+  const dispatch = useDispatch();
   const [form] = Form.useForm<FormValues>();
   const [isHovered, setIsHovered] = useState(false);
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -61,10 +65,12 @@ export default function AddFirm() {
   const [billingAddress, setBillingAddress] = useState("");
   const [trialEndsAt, setTrialEndsAt] = useState<Dayjs | null>(null);
 
+  // Initialize trialEndsAt on client
+  useEffect(() => {
+    setTrialEndsAt(dayjs());
+  }, []);
 
-  // Handle form submission 
   const handleCreateFirm = async () => {
-   
     try {
       const payload: FirmPayload = {
         name,
@@ -87,19 +93,30 @@ export default function AddFirm() {
 
       const response = await createFirm(payload);
       if (!response) {
-        console.log("Error occur in create firm api");
+        toast.error("Failed to create firm");
+        return;
       }
-      console.log("create firm successfully", response.data.newFirm);
+
+      dispatch(addFirm(response?.data?.newFirm));
+      toast.success("Firm created successfully!");
+      router.push("/pages/super-admin/get-firms");
+
+      // Reset form
       setName("");
       setEmail("");
       setPhone("");
       setAddress("");
-      setSubscriptionPlan("");
-      toast.success("Firm created successfully!");
-      router.push("/pages/super-admin/get-firms");
-      
+      setSubscriptionPlan("Free");
+      setMaxUsers(0);
+      setMaxCases(0);
+      setStatus("Active");
+      setBillingCardNumber("");
+      setBillingExpiry("");
+      setBillingAddress("");
+      setTrialEndsAt(dayjs());
     } catch (err) {
-      console.log("Error in created frim" + err);
+      toast.error("Something went wrong while creating the firm");
+      console.log("Error creating firm:", err);
     }
   };
 
@@ -107,12 +124,13 @@ export default function AddFirm() {
     <>
       <HeaderPages />
       <section>
-        <div className="container" style={{ margin: "40px auto 0 auto", background: "#f5f5f5" }}>
+        <div className="container" style={{ margin: "40px auto" }}>
           <Card
             style={{
               maxWidth: 1000,
               margin: "0 auto",
               borderRadius: "12px",
+              boxShadow: "0 8px 20px rgba(0, 0, 0, 0.45)",
             }}
           >
             <Typography.Title
@@ -133,7 +151,6 @@ export default function AddFirm() {
               initialValues={{
                 subscriptionPlan: "Free",
                 status: "Active",
-                trialEndsAt: dayjs(),
               }}
             >
               <div
@@ -152,7 +169,6 @@ export default function AddFirm() {
                 >
                   <Input
                     prefix={<BankOutlined />}
-                    className="p-3"
                     placeholder="Enter firm name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -172,7 +188,6 @@ export default function AddFirm() {
                 >
                   <Input
                     prefix={<MailOutlined />}
-                    className="p-3"
                     placeholder="Enter firm email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -188,7 +203,6 @@ export default function AddFirm() {
                 >
                   <Input
                     prefix={<PhoneOutlined />}
-                    className="p-3"
                     placeholder="Enter phone number"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
@@ -202,7 +216,6 @@ export default function AddFirm() {
                 >
                   <Input
                     prefix={<EnvironmentOutlined />}
-                    className="p-3"
                     placeholder="Enter address"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
@@ -215,7 +228,6 @@ export default function AddFirm() {
                   rules={[{ required: true, message: "Please select a plan" }]}
                 >
                   <Select
-                    suffixIcon={<AppstoreAddOutlined />}
                     placeholder="Select plan"
                     value={subscriptionPlan}
                     onChange={(value) => setSubscriptionPlan(value)}
@@ -236,8 +248,6 @@ export default function AddFirm() {
                   <InputNumber
                     style={{ width: "100%" }}
                     min={1}
-                    className="p-3"
-                    placeholder="Enter max users"
                     value={maxUsers}
                     onChange={(value) => setMaxUsers(value ?? 0)}
                   />
@@ -253,8 +263,6 @@ export default function AddFirm() {
                   <InputNumber
                     style={{ width: "100%" }}
                     min={1}
-                    className="p-3"
-                    placeholder="Enter max cases"
                     value={maxCases}
                     onChange={(value) => setMaxCases(value ?? 0)}
                   />
@@ -264,13 +272,11 @@ export default function AddFirm() {
                   label="Status"
                   name="status"
                   rules={[{ required: true, message: "Please select status" }]}
-                  
                 >
                   <Select
-                    suffixIcon={<StopOutlined />}
                     placeholder="Select status"
                     value={status}
-                     onChange={(value) => setStatus(value)}
+                    onChange={(value) => setStatus(value)}
                   >
                     <Option value="Active">Active</Option>
                     <Option value="Suspended">Suspended</Option>
@@ -278,17 +284,33 @@ export default function AddFirm() {
                   </Select>
                 </Form.Item>
 
-                <Form.Item
-                  label="Billing Info"
-                  name="billingInfo"
-                  rules={[
-                    { required: true, message: "Please enter billing info" },
-                  ]}
-                >
+                <Form.Item label="Card Number" name="cardNumber">
                   <Input
                     prefix={<CreditCardOutlined />}
-                    className="p-3"
-                    placeholder="Enter billing info"
+                    placeholder="Enter card number"
+                    value={billingCardNumber}
+                    onChange={(e) => setBillingCardNumber(e.target.value)}
+                  />
+                </Form.Item>
+
+                <Form.Item label="Expiry Date" name="expiryDate">
+                  <DatePicker
+                    style={{ width: "100%" }}
+                    picker="month"
+                    format="MM/YY"
+                    value={billingExpiry ? dayjs(billingExpiry, "MM/YY") : null}
+                    onChange={(date) =>
+                      setBillingExpiry(date ? date.format("MM/YY") : "")
+                    }
+                  />
+                </Form.Item>
+
+                <Form.Item label="Billing Address" name="billingAddress">
+                  <Input
+                    prefix={<EnvironmentOutlined />}
+                    placeholder="Enter billing address"
+                    value={billingAddress}
+                    onChange={(e) => setBillingAddress(e.target.value)}
                   />
                 </Form.Item>
 
@@ -302,8 +324,6 @@ export default function AddFirm() {
                   <DatePicker
                     style={{ width: "100%" }}
                     format="YYYY-MM-DD"
-                    className="p-3"
-                    suffixIcon={<CalendarOutlined />}
                     value={trialEndsAt}
                     onChange={(value) => setTrialEndsAt(value)}
                   />

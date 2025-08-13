@@ -43,3 +43,31 @@ body {
   font-weight: normal;
   font-style: normal;
 }
+.ant-input::placeholder {
+  color: gray !important;
+}
+
+.ant-picker-input input::placeholder {
+  color: gray !important;
+}
+.ant-input-number-input::placeholder {
+  color: gray !important;
+}
+
+/* Table header styling */
+.custom-firm-table .ant-table-thead > tr > th {
+  background-color: #1E2E45 !important;
+  color: white !important;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Hover effect for rows */
+.custom-firm-table .ant-table-tbody > tr:hover > td {
+  background-color: #f5f7fa !important;
+}
+
+/* Center pagination */
+.custom-firm-table .ant-pagination {
+  justify-content: center;
+}
