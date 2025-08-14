@@ -1,6 +1,5 @@
 "use client";
-
-import HeaderPages from "../../../components/HeaderPages";
+import Header from "@/app/components/Header";
 import Footer from "../../../components/Footer";
 import { useState, useEffect } from "react";
 import {
@@ -122,12 +121,23 @@ export default function AddFirm() {
 
   return (
     <>
-      <HeaderPages />
+      <Header />
       <section>
         <div className="container" style={{ margin: "40px auto" }}>
+          <div className="text-left mb-8">
+            <h1 className="text-5xl font-bold text-[#1E2E45]">
+              Create a New Law Firm
+            </h1>
+            <p className="mt-4 text-lg text-[#3A3A38]  ">
+              Use this form to register a new law firm on the platform. Fill in
+              all required details including firm info, subscription plan,
+              billing, and trial period. Make sure the information is accurate
+              to ensure smooth onboarding.
+            </p>
+          </div>
           <Card
             style={{
-              maxWidth: 1000,
+              maxWidth: 1200,
               margin: "0 auto",
               borderRadius: "12px",
               boxShadow: "0 8px 20px rgba(0, 0, 0, 0.45)",
@@ -141,7 +151,7 @@ export default function AddFirm() {
                 fontSize: "40px",
               }}
             >
-              ADD LAW FIRM
+              ADD NEW LAW FIRM
             </Typography.Title>
 
             <Form<FormValues>
@@ -338,12 +348,13 @@ export default function AddFirm() {
                   style={{
                     backgroundColor: isHovered ? "#2F486C" : "#1E2E45",
                     borderRadius: "8px",
-                    padding: "0 40px",
+                    padding: "25px 80px",
+                    fontSize: "18px",
                   }}
                   onMouseEnter={() => setIsHovered(true)}
                   onMouseLeave={() => setIsHovered(false)}
                 >
-                  Add Law Firm
+                  ADD LAW FIRM
                 </Button>
               </Form.Item>
             </Form>

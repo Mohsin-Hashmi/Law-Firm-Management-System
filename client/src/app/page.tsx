@@ -18,6 +18,7 @@ import attorneyLaywer from "../../public/images/attorneyLaywer.webp";
 import { useAppSelector } from "./store/hooks";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import QualityLawyers from "./components/QualityLawyers";
 export default function Home() {
   const router = useRouter();
   const role = useAppSelector((state) => state.user?.user?.role);
@@ -56,8 +57,10 @@ export default function Home() {
   };
   return (
     <>
-      <section className="bg-[#1E2E45] pb-[100px]">
-        <Header />
+
+     <Header />
+      <section className="bg-[#1E2E45] pb-[100px] pt-[40px]">
+        
         <div className="container">
           <div className="flex gap-x-[80px] ">
             <div className="max-w-[800px]">
@@ -131,7 +134,7 @@ export default function Home() {
                 </p>
               </div>
               <Link
-                href=""
+                href="/pages/about-us"
                 className="bg-[#1E2E45] hover:bg-[#2F486C] py-[10px] px-[70px] text-[#FFFFFFFF] text-xl font-semibold rounded-md inline-block"
               >
                 See detail
@@ -142,6 +145,8 @@ export default function Home() {
         </div>
       </section>
       {/* professtional services   Section pending*/}
+
+
 
       {/* professional lawyers */}
       <section>
@@ -209,29 +214,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Quality legal lawyer */}
-      <section className="bg-[#1E2E45] my-[150px]">
-        <div className="container">
-          <div className="text-center py-[45px]  text-[#FFFFFF]">
-            <h2 className="text-[45px] font-semibold">
-              We Help You With Quality Legal Lawyer
-            </h2>
-            <p className="text-sm mt-[20px]">
-              Our platform simplifies the way law firms operate by centralizing
-              client records, case management, scheduling, and billing in one
-              secure space. Designed for both solo lawyers and large firms, it
-              helps you stay organized, save time, and focus on delivering
-              exceptional legal services to your clients.
-            </p>
-            <Link
-              href=""
-              className="py-[10px] px-[64px] bg-[#9A9162] hover:bg-[#857c54] mt-[50px] inline-block rounded-md font-semibold"
-            >
-              Get Started
-            </Link>
-          </div>
-        </div>
-      </section>
+      <QualityLawyers />
+     
       {/* Our experinces */}
       <section className="pb-[150px]">
         <div className="container">

@@ -23,7 +23,7 @@
 
 body {
   background-color: #f2f2f2;
-  font-family: "Poppins", sans-serif;
+   font-family: 'Space Grotesk', sans-serif;
 }
 * {
   margin: 0;
@@ -38,11 +38,36 @@ body {
   margin: 0 auto;
 }
 @font-face {
-  font-family: "Northman";
-  src: url("/fonts/Northman/Northman-Regular.ttf") format("truetype");
-  font-weight: normal;
+  font-family: 'Space Grotesk';
+  src: url('/fonts/SpaceGrotesk-Regular.woff2') format('woff2'),
+       url('/fonts/SpaceGrotesk-Regular.woff') format('woff');
+  font-weight: 400;
   font-style: normal;
 }
+
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('/fonts/SpaceGrotesk-Bold.woff2') format('woff2'),
+       url('/fonts/SpaceGrotesk-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+}
+
+.ant-typography,
+.ant-btn,
+.ant-input,
+.ant-select,
+.ant-table,
+.ant-menu,
+.ant-form,
+.ant-card,
+.ant-form-item-label > label,
+.ant-table-thead,
+.ant-table-tbody,
+.ant-input-number-input::placeholder {
+  font-family: 'Space Grotesk', sans-serif !important;
+}
+ 
 .ant-input::placeholder {
   color: gray !important;
 }

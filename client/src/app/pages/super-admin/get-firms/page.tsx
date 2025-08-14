@@ -1,6 +1,6 @@
 "use client";
 
-import HeaderPages from "../../../components/HeaderPages";
+import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import { getAllFirms, deleteFirm } from "@/app/service/superAdminAPI";
 import { removeFirm, getFirms } from "@/app/store/firmSlice";
@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 import { Table, Spin, Typography, Button, Space, Tag } from "antd";
 import { useAppDispatch } from "@/app/store/hooks";
 import { toast } from "react-hot-toast";
-import UpdateFirmModal from "../../../components/UpdateFirmModal";
+// import UpdateFirmModal from "../../../components/UpdateFirmModal";
 
 interface Firm {
   id: number;
@@ -134,9 +134,9 @@ export default function GetFirms() {
 
   return (
     <>
-      <HeaderPages />
+      <Header />
       <section>
-        <div className="container" style={{ padding: "20px" }}>
+        <div className="container" style={{ padding: "25px" }}>
           <Typography.Title
             level={2}
             style={{
@@ -150,7 +150,9 @@ export default function GetFirms() {
           </Typography.Title>
 
           {loading ? (
-            <Spin tip="Loading firms..." size="large" />
+            <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
+              <Spin tip="Loading firms..." size="large" />
+            </div>
           ) : (
             <Table<Firm>
               dataSource={firms}
@@ -160,6 +162,7 @@ export default function GetFirms() {
               bordered
               className="custom-firm-table"
               style={{
+                maxWidth: 1200,
                 borderRadius: 12,
                 overflow: "hidden",
                 boxShadow: "0 6px 18px rgba(0,0,0,0.15)",
@@ -168,7 +171,7 @@ export default function GetFirms() {
           )}
         </div>
       </section>
-      
+
       <Footer />
     </>
   );

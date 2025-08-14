@@ -21,14 +21,14 @@ export default function Header() {
   const navLinksMap: Record<string, { label: string; href: string }[]> = {
     "Super Admin": [
       { label: "Home", href: "/" },
-      { label: "About", href: "/" },
+      { label: "About", href: "/pages/about-us" },
       { label: "Services", href: "/" },
       { label: "Firms", href: "/pages/super-admin/get-firms" },
       { label: "Add Firm", href: "/pages/super-admin/add-firm" },
     ],
     "Firm Admin": [
       { label: "Home", href: "/" },
-      { label: "About", href: "/" },
+      { label: "About", href: "/pages/about-us" },
       { label: "Services", href: "/" },
       { label: "Lawyers", href: "/" },
       { label: "Clients", href: "/" },
@@ -36,7 +36,7 @@ export default function Header() {
     ],
     "Lawyer": [
       { label: "Home", href: "/" },
-      { label: "About", href: "/" },
+      { label: "About", href: "/pages/about-us" },
       { label: "Services", href: "/" },
       { label: "My Clients", href: "/" },
       { label: "Add Client", href: "/" },
@@ -44,8 +44,8 @@ export default function Header() {
   };
 
   return (
-    <header className="container">
-      <nav className="py-[30px] flex justify-between items-center">
+    <header className="bg-[#1E2E45] py-[30px]">
+      <nav className=" container flex justify-between items-center">
         <Link href="/">
           <Image src={logo} alt="logo" />
         </Link>
