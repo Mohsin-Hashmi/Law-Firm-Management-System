@@ -9,6 +9,8 @@ import { Table, Spin, Typography, Button, Space, Tag } from "antd";
 import { useAppDispatch } from "@/app/store/hooks";
 import { toast } from "react-hot-toast";
 // import UpdateFirmModal from "../../../components/UpdateFirmModal";
+import Image from "next/image";
+import getFirmImg from "../../../../../public/images/getFirmImg.webp";
 
 interface Firm {
   id: number;
@@ -136,7 +138,30 @@ export default function GetFirms() {
     <>
       <Header />
       <section>
-        <div className="container" style={{ padding: "25px" }}>
+        <div className="container" style={{ margin: "80px auto" }}>
+          <div className="flex justify-between items-center mb-[40px]">
+            {/* Text Section */}
+            <span className="text-left mb-8 max-w-[700px]">
+              <h1 className="text-6xl font-bold text-[#1E2E45]">
+                View All Law Firms
+              </h1>
+              <p className="mt-4 text-lg text-[#3A3A38]">
+                Browse the complete list of law firms registered on the
+                platform. Use the search and filters to quickly find specific
+                firms and manage their details. Easily search, filter, and
+                update firm details to ensure accurate records and smooth
+                platform operations. Keep your firm data accurate for smooth
+                operations.
+              </p>
+            </span>
+
+            {/* Image Section */}
+            <Image
+              className="max-w-[300px] min-h-[300px] rounded-full object-cover"
+              src={getFirmImg} // <-- Replace with your actual image import
+              alt="law firms list"
+            />
+          </div>
           <Typography.Title
             level={2}
             style={{

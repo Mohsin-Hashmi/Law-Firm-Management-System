@@ -97,7 +97,7 @@ export default function Home() {
         </div>
       </section>
       {/* Our Partner Section */}
-      <section className="py-[150px]">
+      <section className="py-[100px]">
         <div className="container">
           <h1 className=" text-center text-[#3A3A38] text-[40px] font-semibold">
             Our Partnership
@@ -112,7 +112,7 @@ export default function Home() {
       </section>
       {/* Aboutus  Section */}
 
-      <section className="pb-[150px]">
+      <section className="pb-[100px]">
         <div className="container">
           <div className="flex gap-x-[69px] items-center">
             <div className="max-w-[600px]">
@@ -217,7 +217,7 @@ export default function Home() {
       <QualityLawyers />
      
       {/* Our experinces */}
-      <section className="pb-[150px]">
+      <section className="pb-[100px]">
         <div className="container">
           <div className="flex items-center gap-x-[70px] justify-between">
             <Image
@@ -268,7 +268,7 @@ export default function Home() {
         </div>
       </section>
       {/* Contact us section */}
-      <section className="mb-[150px]">
+      <section className="mb-[100px]">
         <div className="container">
           <div className="rounded-lg shadow-2xl bg-white  backdrop-blur-md p-6">
             <h2 className="text-[45px] text-[#3A3A38] font-semibold mb-[40px] text-center">
@@ -351,6 +351,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      
       <Footer />
     </>
   );

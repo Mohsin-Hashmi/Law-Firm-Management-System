@@ -29,6 +29,8 @@ import { FirmPayload } from "@/app/types/firm";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { addFirm } from "@/app/store/firmSlice";
+import addFirmImage from "../../../../../public/images/addFrimImg.webp";
+import Image from "next/image";
 
 const { Option } = Select;
 
@@ -50,7 +52,6 @@ export default function AddFirm() {
   const dispatch = useDispatch();
   const [form] = Form.useForm<FormValues>();
   const [isHovered, setIsHovered] = useState(false);
-
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -123,17 +124,20 @@ export default function AddFirm() {
     <>
       <Header />
       <section>
-        <div className="container" style={{ margin: "40px auto" }}>
-          <div className="text-left mb-8">
-            <h1 className="text-5xl font-bold text-[#1E2E45]">
-              Create a New Law Firm
-            </h1>
-            <p className="mt-4 text-lg text-[#3A3A38]  ">
-              Use this form to register a new law firm on the platform. Fill in
-              all required details including firm info, subscription plan,
-              billing, and trial period. Make sure the information is accurate
-              to ensure smooth onboarding.
-            </p>
+        <div className="container" style={{ margin: "80px auto" }}>
+          <div className="flex justify-between items-center  mb-[40px]">
+            <span className="text-left mb-8 max-w-[700px]">
+              <h1 className="text-6xl font-bold text-[#1E2E45]">
+                Create a New Law Firm
+              </h1>
+              <p className="mt-4 text-lg text-[#3A3A38]  ">
+                Use this form to register a new law firm on the platform. Fill
+                in all required details including firm info, subscription plan,
+                billing, and trial period. Make sure the information is accurate
+                to ensure smooth onboarding.
+              </p>
+            </span>
+            <Image className="max-w-[300px] min-h-[300px] rounded-full object-cover" src={addFirmImage} alt="add frim image" />
           </div>
           <Card
             style={{

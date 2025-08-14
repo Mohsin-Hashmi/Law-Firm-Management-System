@@ -2,7 +2,7 @@ import Link from "next/link";
 export default function QualityLawyers() {
   return (
     <>
-      <section className="bg-[#1E2E45] my-[150px]">
+      <section className="bg-[#1E2E45] my-[100px]">
         <div className="container">
           <div className="text-center py-[45px]  text-[#FFFFFF]">
             <h2 className="text-[45px] font-semibold">
