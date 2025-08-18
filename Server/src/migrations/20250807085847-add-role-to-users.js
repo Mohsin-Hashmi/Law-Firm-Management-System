@@ -2,14 +2,18 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.addColumn('Users', 'role', {
-      type: Sequelize.ENUM('Super Admin', 'Firm Admin', 'Lawyer', 'Assistant'),
+    await queryInterface.changeColumn('Users', 'role', {
+      type: Sequelize.ENUM('Super Admin', 'Firm Admin', 'Lawyer', 'Client'),
+      allowNull: false,
       defaultValue: 'Lawyer',
-      allowNull: false
     });
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.removeColumn('Users', 'role');
+    await queryInterface.changeColumn('Users', 'role', {
+      type: Sequelize.ENUM('Super Admin', 'Firm Admin', 'Lawyer', 'Assistant'), // old ENUM
+      allowNull: false,
+      defaultValue: 'Lawyer',
+    });
   }
 };

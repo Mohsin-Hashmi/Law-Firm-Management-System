@@ -1,50 +1,7 @@
 const { Firm } = require("../models");
 const { FirmValidation } = require("../utils/validation");
 const validator = require("validator");
-/**create firm API Logic */
-const createFirm = async (req, res) => {
-  try {
-    const {
-      name,
-      email,
-      phone,
-      address,
-      subscription_plan,
-      max_users,
-      max_cases,
-      status,
-      billing_info,
-      trial_ends_at,
-    } = req.body;
 
-    const validateFirm = FirmValidation(req, res);
-    if (validateFirm) return;
-    // create a new firm
-    const firm = await Firm.create({
-      name,
-      email,
-      phone,
-      address,
-      subscription_plan,
-      max_users,
-      max_cases,
-      status,
-      billing_info,
-      trial_ends_at,
-    });
-    res.status(201).json({
-      success: true,
-      message: "Firm created successfully",
-      newFirm: firm,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Failed to create firm",
-      error: error.message,
-    });
-  }
-};
 /**get all firm API Logic */
 const getAllFirms = async (req, res) => {
   try {
@@ -195,7 +152,6 @@ const deleteFirm = async (req, res) => {
 };
 
 module.exports = {
-  createFirm,
   getAllFirms,
   getFirmById,
   updateFirm,

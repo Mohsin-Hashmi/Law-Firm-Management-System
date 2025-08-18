@@ -1,56 +1,7 @@
 const { where } = require("sequelize");
-const { Lawyer, User } = require("../models");
-const validator = require("validator");
-/**Create Lawyer API */
-const createLawyer = async (req, res) => {
-  try {
-    const adminId = req.user.id;
-    const adminUser = await User.findByPk(adminId);
-    if (!adminUser || !adminUser.firmId) {
-      return res.status(400).json({
-        success: false,
-        error: "firm ID not found for the admin",
-      });
-    }
-    const { name, email, phone, specialization, status } = req.body;
-    if (!name || !email || !phone) {
-      return res.status(400).json({
-        success: false,
-        error: "Name, email, phone is required",
-      });
-    }
-    if (!validator.isEmail(email)) {
-      return res.status(400).json({
-        success: false,
-        error: "Invalid email format",
-      });
-    }
-    if (!validator.isMobilePhone(phone + "", "any")) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid phone number" });
-    }
-    const lawyer = await Lawyer.create({
-      firmId: adminUser.firmId,
-      name,
-      email,
-      phone,
-      specialization,
-      status,
-    });
-    return res.status(200).json({
-      success: true,
-      message: "Lawyer create successfully",
-      newLawyer: lawyer,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Error creating lawyer",
-      error: error.message,
-    });
-  }
-};
+const { Lawyer, User, Firm } = require("../models");
+
+
 /**Get all Lawyers API */
 const getAllLawyer = async (req, res) => {
   try {
@@ -202,7 +153,6 @@ const deleteLawyer = async (req, res) => {
 };
 
 module.exports = {
-  createLawyer,
   getAllLawyer,
   getLawyerById,
   updateLawyer,

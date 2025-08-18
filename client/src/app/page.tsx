@@ -4,10 +4,7 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Link from "next/link";
 import bannerImage from "../../public/images/hero-image.webp";
-import partner01 from "../../public/images/dearazoLogo.webp";
-import partner02 from "../../public/images/miguxianLogo.webp";
-import partner03 from "../../public/images/jeninaylnLogo.webp";
-import partner04 from "../../public/images/superanzoLogo.webp";
+
 import maskGroup from "../../public/images/maskGroup.webp";
 import maskGroup2 from "../../public/images/formImage.webp";
 import tickSquare from "../../public/images/tickSquare.webp";
@@ -19,97 +16,60 @@ import { useAppSelector } from "./store/hooks";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import QualityLawyers from "./components/QualityLawyers";
+import OurPartners from "./components/OurPartners";
+
 export default function Home() {
   const router = useRouter();
   const role = useAppSelector((state) => state.user?.user?.role);
   console.log(role);
 
-  useEffect(() => {
-    if (!role) {
-      router.push("/auth/login"); // Redirect if no role
-    }
-  }, [role, router]);
 
-  if (!role) {
-    return null; // Avoid rendering anything until redirect happens
-  }
-  let headingBefore = "";
-  const headingAfter = " Law Firm";
-  let paragraph = "";
-
-  if (role === "Super Admin") {
-    headingBefore = "Manage the Entire Legal Platform with ";
-    paragraph =
-      "Oversee all law firms, users, and platform-wide operations. Manage subscriptions, review analytics, and keep the system running efficiently.";
-  } else if (role === "Firm Admin") {
-    headingBefore = "Lead Your Firm to Success with ";
-    paragraph =
-      "Easily manage lawyers, assistants, and clients. Keep track of cases, schedules, and billing all from one place.";
-  } else if (role === "Lawyer") {
-    headingBefore = "Uphold Truth For Justice With ";
-    paragraph =
-      "Empower your law practice with smart tools for case management, client communication, and document handling.";
-  }
   const roleHrefMap: Record<string, string> = {
     "Super Admin": "/pages/super-admin/add-firm",
-    "Firm Admin": "/lawyers/add",
+    "Firm Admin": "/pages/firm-admin/add-firm",
     Lawyer: "/clients/add",
   };
   return (
     <>
-
-     <Header />
-      <section className="bg-[#1E2E45] pb-[100px] pt-[40px]">
-        
+      <Header />
+      <section className="bg-[#1E2E45] pb-[150px] pt-[80px]">
         <div className="container">
           <div className="flex gap-x-[80px] ">
-            <div className="max-w-[800px]">
-              <h1 className=" text-[58px] text-white font-semibold">
-                {headingBefore}
-                <span className="text-[#9A9162]">Northman</span>
-                {headingAfter}
+            <div className="max-w-[700px]">
+              <h1 className=" text-[70px] text-white font-semibold">
+                Uphold Truth For Justice With Northman Law Firm
               </h1>
             </div>
             <div className="max-w-[400px]">
-              <p className="text-[#FFFFFF] text-sm italic ">
-                &quot;{paragraph}&quot;
+              <p className="text-[#FFFFFF] text-lg italic ">
+                &quot;Easily manage lawyers, assistants, and clients. Keep track
+                of cases, schedules, and billing all from one place.&quot;
               </p>
             </div>
           </div>
-          <hr className=" pb-[60px] w-[400px] block" />
-          <Link
+          <hr className=" mt-[60px] w-[400px] block" />
+          {/* <Link
             href={role ? roleHrefMap[role] : "#"}
             className="bg-[#9A9162] hover:bg-[#857c54] py-[10px] px-[65px] text-white font-semibold text-xl rounded-md"
           >
             {role === "Super Admin"
-              ? "Add Firm"
+              ? "View Firms"
               : role === "Firm Admin"
-              ? "Add Lawyer and Clients"
+              ? "Add Firm"
               : role === "Lawyer"
               ? "Add Clients"
               : ""}
-          </Link>
+          </Link> */}
           <Image
-            className="z-50 absolute max-w-[500px] right-[30px] top-[350px]"
+            className="z-50 absolute max-w-[550px] right-[30px] top-[460px]"
             src={bannerImage}
             alt="banner image"
           />
         </div>
       </section>
       {/* Our Partner Section */}
-      <section className="py-[100px]">
-        <div className="container">
-          <h1 className=" text-center text-[#3A3A38] text-[40px] font-semibold">
-            Our Partnership
-          </h1>
-          <div className="flex items-center justify-around mt-[50px]">
-            <Image src={partner01} alt="partner 01" />
-            <Image src={partner02} alt="partner 02" />
-            <Image src={partner03} alt="partner 03" />
-            <Image src={partner04} alt="partner 04" />
-          </div>
-        </div>
-      </section>
+      <OurPartners />
+
       {/* Aboutus  Section */}
 
       <section className="pb-[100px]">
@@ -145,8 +105,6 @@ export default function Home() {
         </div>
       </section>
       {/* professtional services   Section pending*/}
-
-
 
       {/* professional lawyers */}
       <section>
@@ -215,7 +173,7 @@ export default function Home() {
       </section>
 
       <QualityLawyers />
-     
+
       {/* Our experinces */}
       <section className="pb-[100px]">
         <div className="container">
@@ -351,7 +309,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-      
+
       <Footer />
     </>
   );

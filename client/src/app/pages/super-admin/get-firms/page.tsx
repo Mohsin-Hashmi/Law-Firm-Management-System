@@ -9,9 +9,8 @@ import { Table, Spin, Typography, Button, Space, Tag } from "antd";
 import { useAppDispatch } from "@/app/store/hooks";
 import { toast } from "react-hot-toast";
 // import UpdateFirmModal from "../../../components/UpdateFirmModal";
-import Image from "next/image";
-import getFirmImg from "../../../../../public/images/getFirmImg.webp";
-
+import DashboardLayout from "@/app/components/DashboardLayout";
+import type { ColumnsType } from "antd/es/table";
 interface Firm {
   id: number;
   name: string;
@@ -80,7 +79,7 @@ export default function GetFirms() {
     }
   };
 
-  const columns = [
+  const columns: ColumnsType<Firm> = [
     { title: "Name", dataIndex: "name", key: "name" },
     { title: "Email", dataIndex: "email", key: "email" },
     { title: "Phone", dataIndex: "phone", key: "phone" },
@@ -89,10 +88,22 @@ export default function GetFirms() {
       title: "Subscription Plan",
       dataIndex: "subscription_plan",
       key: "subscription_plan",
+      align: "center", // ✅ center aligned
       render: (plan: Firm["subscription_plan"]) => {
         const color =
           plan === "Premium" ? "gold" : plan === "Basic" ? "blue" : "green";
-        return <Tag color={color}>{plan}</Tag>;
+        return (
+          <Tag
+            color={color}
+            style={{
+              fontSize: "14px", 
+              padding: "4px 10px", 
+              borderRadius: "84x", 
+            }}
+          >
+            {plan}
+          </Tag>
+        );
       },
     },
     { title: "Max Users", dataIndex: "max_users", key: "max_users" },
@@ -101,6 +112,7 @@ export default function GetFirms() {
       title: "Status",
       dataIndex: "status",
       key: "status",
+      align: "center",
       render: (status: Firm["status"]) => {
         const color =
           status === "Active"
@@ -108,7 +120,18 @@ export default function GetFirms() {
             : status === "Suspended"
             ? "orange"
             : "red";
-        return <Tag color={color}>{status}</Tag>;
+        return (
+          <Tag
+            color={color}
+            style={{
+             fontSize: "14px", 
+              padding: "4px 10px",
+              borderRadius: "84x", 
+            }}
+          >
+            {status}
+          </Tag>
+        );
       },
     },
     {
@@ -136,68 +159,44 @@ export default function GetFirms() {
 
   return (
     <>
-      <Header />
-      <section>
-        <div className="container" style={{ margin: "80px auto" }}>
-          <div className="flex justify-between items-center mb-[40px]">
-            {/* Text Section */}
-            <span className="text-left mb-8 max-w-[700px]">
-              <h1 className="text-6xl font-bold text-[#1E2E45]">
-                View All Law Firms
-              </h1>
-              <p className="mt-4 text-lg text-[#3A3A38]">
-                Browse the complete list of law firms registered on the
-                platform. Use the search and filters to quickly find specific
-                firms and manage their details. Easily search, filter, and
-                update firm details to ensure accurate records and smooth
-                platform operations. Keep your firm data accurate for smooth
-                operations.
-              </p>
-            </span>
-
-            {/* Image Section */}
-            <Image
-              className="max-w-[300px] min-h-[300px] rounded-full object-cover"
-              src={getFirmImg} // <-- Replace with your actual image import
-              alt="law firms list"
-            />
-          </div>
-          <Typography.Title
-            level={2}
-            style={{
-              textAlign: "center",
-              color: "#1E2E45",
-              fontSize: "40px",
-              marginBottom: "30px",
-            }}
-          >
-            ALL LAW FIRMS
-          </Typography.Title>
-
-          {loading ? (
-            <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
-              <Spin tip="Loading firms..." size="large" />
-            </div>
-          ) : (
-            <Table<Firm>
-              dataSource={firms}
-              columns={columns}
-              rowKey="id"
-              pagination={{ pageSize: 5 }}
-              bordered
-              className="custom-firm-table"
+      <DashboardLayout>
+        <section>
+          <div className="container" style={{ margin: "40px auto" }}>
+            <Typography.Title
+              level={2}
               style={{
-                maxWidth: 1200,
-                borderRadius: 12,
-                overflow: "hidden",
-                boxShadow: "0 6px 18px rgba(0,0,0,0.15)",
+                textAlign: "center",
+                color: "#1E2E45",
+                fontSize: "40px",
+                marginBottom: "30px",
               }}
-            />
-          )}
-        </div>
-      </section>
+            >
+              ALL LAW FIRMS
+            </Typography.Title>
 
-      <Footer />
+            {loading ? (
+              <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
+                <Spin tip="Loading firms..." size="large" />
+              </div>
+            ) : (
+              <Table<Firm>
+                dataSource={firms}
+                columns={columns}
+                rowKey="id"
+                pagination={{ pageSize: 5 }}
+                bordered
+                className="custom-firm-table"
+                scroll={{ x: "max-content" }} // 👈 This enables horizontal scroll
+                style={{
+                  borderRadius: 12,
+                  overflow: "hidden",
+                  boxShadow: "0 6px 18px rgba(0,0,0,0.15)",
+                }}
+              />
+            )}
+          </div>
+        </section>
+      </DashboardLayout>
     </>
   );
 }

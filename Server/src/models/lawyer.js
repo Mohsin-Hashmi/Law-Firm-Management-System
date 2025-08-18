@@ -1,50 +1,60 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
+
 module.exports = (sequelize, DataTypes) => {
   class Lawyer extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-       // One Lawyer belongs to one Firm
-      Lawyer.belongsTo(models.Firm, { 
-        foreignKey: 'firmId', 
-        as: 'firm', 
-        onDelete: 'CASCADE' 
+      // One Lawyer belongs to one Firm
+      Lawyer.belongsTo(models.Firm, {
+        foreignKey: "firmId",
+        as: "firm",
+        onDelete: "CASCADE",
       });
     }
   }
-  Lawyer.init({
-     firmId: {
-      type: DataTypes.INTEGER,
-      allowNull: false
+
+  Lawyer.init(
+    {
+      firmId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: "Firms", // Must match table name
+          key: "id",
+        },
+        onDelete: "CASCADE",
+      },
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: { isEmail: true },
+      },
+      phone: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      specialization: {
+        type: DataTypes.STRING,
+      },
+      status: {
+        type: DataTypes.ENUM("Active", "Inactive"),
+        defaultValue: "Active",
+      },
+      profileImage: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
     },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: { isEmail: true }
-    },
-    phone: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    specialization: DataTypes.STRING,
-    status: {
-      type: DataTypes.ENUM('Active', 'Inactive'),
-      defaultValue: 'Active'
+    {
+      sequelize,
+      modelName: "Lawyer",
+      tableName: "lawyers",
     }
-  }, {
-    sequelize,
-    modelName: 'Lawyer',
-    tableName: 'lawyers'
-  });
+  );
+
   return Lawyer;
 };

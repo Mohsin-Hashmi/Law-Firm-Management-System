@@ -1,23 +1,25 @@
 const dotenv = require("dotenv");
 dotenv.config();
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const axios = require("axios");
 const {
   UserSignUpValidation,
   UserLoginInValidation,
 } = require("../utils/validation");
-const { User } = require("../models");
-const { where } = require("sequelize");
-const jwt = require("jsonwebtoken");
+const { User, Firm } = require("../models");
+
+// Signup api for normal users like superadmin lawyer and clients
 const SignUp = async (req, res) => {
   try {
     const { name, email, password, confirmPassword } = req.body;
-    let role = "Lawyer";
+    let role = "Firm Admin";
+
+    // Validate input
     const validationResult = UserSignUpValidation(req, res);
     if (validationResult) return;
-    if (req.path === "/signup/firm-admin") {
-      role = "Firm Admin";
-    }
-    if (password != confirmPassword) {
+
+    if (password !== confirmPassword) {
       return res.status(400).json({
         success: false,
         error: "Password and Confirm Password do not match",
@@ -25,19 +27,19 @@ const SignUp = async (req, res) => {
     }
     const HASHED_PASSWORD = await bcrypt.hash(password, 10);
 
-    const user = await User.create({
-      name,
-      email,
-      password: HASHED_PASSWORD,
-      role,
-    });
+    const userData = { name, email, password: HASHED_PASSWORD, role };
+
+    const user = await User.create(userData);
     const safeUser = user.toJSON();
     delete safeUser.password;
-    res
-      .status(201)
-      .json({ success: true, message: "User signup successfully", safeUser });
+
+    res.status(201).json({
+      success: true,
+      message: "User signup successfully",
+      safeUser: user,
+    });
   } catch (err) {
-    console.log("error is", err);
+    console.log("Signup error:", err);
     res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -46,45 +48,60 @@ const SignUp = async (req, res) => {
   }
 };
 
+// const AdminSignUp = async (req, res) => {
+//   try {
+//   } catch (err) {
+//     res.status(500).json({
+//       success: false,
+//       message: "Internal server error",
+//       error: err.message,
+//     });
+//   }
+// };
 const LoginIn = async (req, res) => {
   try {
     const { email, password } = req.body;
+
     const validationResult = UserLoginInValidation(req, res);
     if (validationResult) return;
+
+    // Ensure user belongs to this firm
     const user = await User.findOne({ where: { email } });
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        error: "User not found",
-      });
-    }
+    if (!user)
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+
     const isPasswordMatch = await bcrypt.compare(password, user.password);
-    if (!isPasswordMatch) {
-      return res.status(401).json({
-        success: false,
-        error: "Invalid credentials",
-      });
-    }
+    if (!isPasswordMatch)
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid credentials" });
+
     const token = jwt.sign(
-      { id: user.id, role: user.role },
+      { id: user.id, role: user.role, firmId: user.firmId },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
+
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true, // required for SameSite=None
+      secure: true,
       sameSite: "None",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // optional
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    console.log("Set-Cookie header sent with token:", token);
+
     const safeUser = user.toJSON();
     delete safeUser.password;
-    return res.status(200).json({
+
+    res.status(200).json({
       success: true,
-      message: "Login Successfully",
+      message: "Login successfully",
       user: safeUser,
+      token,
     });
   } catch (err) {
+    console.log("Login error:", err);
     res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -95,12 +112,10 @@ const LoginIn = async (req, res) => {
 
 const Logout = (req, res) => {
   try {
-    res.cookie("token", null, {
-      expires: new Date(Date.now()),
-    });
+    res.cookie("token", null, { expires: new Date(Date.now()) });
     res.json({ message: "User logged out successfully" });
   } catch (err) {
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: "Internal server error",
       error: err.message,
@@ -108,8 +123,4 @@ const Logout = (req, res) => {
   }
 };
 
-module.exports = {
-  SignUp,
-  LoginIn,
-  Logout,
-};
+module.exports = { SignUp, LoginIn, Logout };

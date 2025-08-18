@@ -1,7 +1,7 @@
 "use client";
 import { Button, Result } from "antd";
 import { useRouter } from "next/navigation";
-import HeaderPages from "../components/HeaderPages";
+import Header from "../components/Header";
 import Footer from "../components/Footer";
 
 export default function UnauthorizedPage() {
@@ -9,7 +9,7 @@ export default function UnauthorizedPage() {
 
   return (
     <>
-      <HeaderPages />
+      <Header />
       <div style={{ 
         minHeight: "70vh", 
         display: "flex", 

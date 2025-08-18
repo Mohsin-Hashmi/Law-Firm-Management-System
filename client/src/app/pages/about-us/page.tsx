@@ -2,12 +2,13 @@
 import { useAppSelector } from "@/app/store/hooks";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
-import maskGroup from "../../../../public/images/maskGroup.webp";
+
 import Image from "next/image";
 import wellcomeMessageImg from "../../../../public/images/wellcomeMessage.webp";
 import QualityLawyers from "@/app/components/QualityLawyers";
 import successStoryImg from "../../../../public/images/successStoryImg.webp";
 import successStortImg02 from "../../../../public/images/successStoryImg02.webp";
+import AboutUs from "@/app/components/AboutUs";
 export default function AboutSection() {
   const role = useAppSelector((state) => state.user.user?.role);
   console.log("role is about us page", role);
@@ -26,9 +27,9 @@ export default function AboutSection() {
   return (
     <>
       <Header />
-      <section className="text-[#3A3A38]">
+      <section>
         <div className="container">
-          <div className="my-[70px] flex justify-between items-center gap-8">
+           <div className="my-[70px] flex justify-between items-center gap-8">
             <h2 className="text-7xl font-semibold  pr-8 border-r-2 border-gray-300">
               About Us
             </h2>
@@ -36,32 +37,7 @@ export default function AboutSection() {
               {role ? aboutTexts[role] : "Welcome to our platform."}
             </p>
           </div>
-          <div className="flex items-center justify-between gap-8">
-            <span className="pr-8 border-r-2 border-gray-300 ">
-              <p className="mb-2">About Us</p>
-              <h2 className="text-5xl font-semibold">
-                Helping to overcome and ease the legal burden
-              </h2>
-            </span>
-            <Image
-              className="max-w-[500px] min-h-[500px]"
-              src={maskGroup}
-              alt="about us mask group"
-            />
-          </div>
-          <div className="max-w-[1000px] m-auto pt-[60px] pb-[100px]">
-            <p className="text-center">
-              Our platform is designed to simplify legal operations and enhance
-              collaboration across firms. We provide intuitive tools for
-              managing clients, cases, and team members efficiently, helping
-              everyone—from administrators to lawyers—work smarter and deliver
-              better results. By centralizing information and streamlining
-              workflows, we make it easier to focus on what matters most:
-              serving clients and achieving successful outcomes. Our commitment
-              is to provide a reliable, secure, and user-friendly system that
-              grows with your firm.
-            </p>
-          </div>
+          <AboutUs />
         </div>
       </section>
       {/* our partnes swiper must add */}

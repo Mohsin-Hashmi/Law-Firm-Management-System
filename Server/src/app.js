@@ -6,11 +6,17 @@ const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/user");
 const superAdminRoutes = require("./routes/superAdmin")
 const lawyerRoutes= require("./routes/lawyer")
+const adminRoute= require("./routes/admin")
 const cors = require("cors");
 const { User } = require("./models");
 const { where } = require("sequelize");
 const bcrypt = require("bcryptjs");
+const path = require("path");
+
+// Serve static files from uploads folder
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
   cors({
@@ -49,6 +55,14 @@ const createSuperAdmin = async () => {
   }
 };
 
+app.use((req, res, next) => {
+  const host = req.headers.host; // e.g., firm1.localhost:3000
+  const parts = host.split('.'); // ["firm1", "localhost:3000"]
+  const subdomain = parts[0]; // first part is the subdomain
+  req.firmSubdomain = subdomain;
+  next();
+});
+
 // =====Routes=====
 
 app.get("/", (req, res) => {
@@ -57,7 +71,8 @@ app.get("/", (req, res) => {
 
 app.use("/auth", authRoutes);
 app.use("/api/superadmin", superAdminRoutes);
-app.use("/api/firm-admin", lawyerRoutes);
+app.use("/api/firm-admin", adminRoute);
+app.use("/api/lawyers", lawyerRoutes); 
 // =====Start Server====
 app.listen(PORT, async () => {
   console.log(`App is listening at port ${PORT}`);

@@ -21,7 +21,7 @@ const userAuth = async (req, res, next) => {
       });
     }
     const user = await User.findByPk(isTokenValid.id);
-    req.user = { id: user.id, role: user.role };
+    req.user = { id: user.id, role: user.role, firmId: user.firmId, };
     next();
   } catch (err) {
     return res.status(401).json({

@@ -29,6 +29,7 @@ export default function AuthForm({ type }: AuthFormProps) {
     password: "",
     confirmPassword: "",
   });
+  const [firmSubdomain, setFirmSubdomain] = useState("");
 
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -88,14 +89,20 @@ export default function AuthForm({ type }: AuthFormProps) {
           return;
         }
         const payload = { name, email, password, confirmPassword };
-        const response = await signupUser(payload);
-        dispatch(addUser(response.data.user));
+        let role = "Frim Admin";
+        if (window.location.pathname.includes("firm-admin")) {
+          role = "Firm Admin";
+        } else if (window.location.pathname.includes("lawyer")) {
+          role = "Lawyer";
+        }
+        const response = await signupUser(payload, role);
+        dispatch(addUser(response.data.safeUser));
         toast.success("Signup Successfully");
         setName("");
         setEmail("");
         setPassword("");
         setConfirmPassword("");
-        router.push("/");
+        router.push("/auth/login");
       } else {
         const payload = { email, password };
         const response = await loginUser(payload);
@@ -103,7 +110,8 @@ export default function AuthForm({ type }: AuthFormProps) {
         toast.success("Login successfully");
         setEmail("");
         setPassword("");
-        router.push("/");
+        // redirect it to dashboard
+        router.push("/pages/dashboard");
       }
     } catch (error) {
       console.error("Error:" + error);
@@ -188,7 +196,7 @@ export default function AuthForm({ type }: AuthFormProps) {
                   />
                 </Form.Item>
               )}
-
+            
               <Form.Item>
                 <Button
                   type="primary"

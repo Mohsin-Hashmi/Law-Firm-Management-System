@@ -9,6 +9,10 @@ module.exports = (sequelize, DataTypes) => {
         as: "lawyers",
         onDelete: "CASCADE",
       });
+      Firm.hasMany(models.User, {
+        foreignKey: "firmId",
+        as: "users",
+      });
     }
   }
 
@@ -46,23 +50,16 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      status: {
-        type: DataTypes.ENUM("Active", "Suspended", "Cancelled"),
+      subdomain: {
+        type: DataTypes.STRING,
         allowNull: false,
-      },
-      billing_info: {
-        type: DataTypes.JSON,
-        allowNull: true,
-      },
-      trial_ends_at: {
-        type: DataTypes.DATE,
-        allowNull: true,
+        unique: true,
       },
     },
     {
       sequelize,
       modelName: "Firm",
-      tableName: "Firms", // optional but keeps naming consistent
+      tableName: "Firms",
     }
   );
 

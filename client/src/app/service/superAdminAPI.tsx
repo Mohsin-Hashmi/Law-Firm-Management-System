@@ -1,14 +1,8 @@
 import axios from "axios";
 import BASE_URL from "../utils/constant";
-import { FirmPayload } from "../types/firm";
 
-/**Create firm API call */
-export const createFirm = async (data: FirmPayload) => {
-  const response = await axios.post(`${BASE_URL}/api/superadmin/firm`, data, {
-    withCredentials: true,
-  });
-  return response;
-};
+
+
 /**Get all firm API call */
 export const getAllFirms = async () => {
   const response = await axios.get(`${BASE_URL}/api/superadmin/firms`, {

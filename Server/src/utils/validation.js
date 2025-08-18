@@ -50,11 +50,10 @@ const FirmValidation = (req, res) => {
     subscription_plan,
     max_users,
     max_cases,
-    status,
-    trial_ends_at,
+   
   } = req.body;
 
-  if (!name || !email || !phone || !subscription_plan || !status) {
+  if (!name || !email || !phone || !subscription_plan ) {
     return res.status(400).json({
       success: false,
       message: "All fields are required",
@@ -78,14 +77,6 @@ const FirmValidation = (req, res) => {
       .status(400)
       .json({ success: false, message: "Invalid subscription plan" });
   }
-
-  const allowedStatus = ["Active", "Suspended", "Expired"];
-  if (!allowedStatus.includes(status)) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Invalid status value" });
-  }
-
   if (max_users && !validator.isInt(max_users.toString(), { min: 1 })) {
     return res.status(400).json({
       success: false,
@@ -99,11 +90,7 @@ const FirmValidation = (req, res) => {
     });
   }
 
-  if (trial_ends_at && !validator.isDate(trial_ends_at.toString())) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Invalid trial end date" });
-  }
+
 };
 module.exports = {
   UserSignUpValidation,
