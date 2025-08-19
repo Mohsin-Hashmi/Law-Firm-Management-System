@@ -14,6 +14,9 @@ import {
   Tag,
   Divider,
   message,
+  Statistic,
+  Badge,
+  Tooltip,
 } from "antd";
 import {
   UserOutlined,
@@ -23,6 +26,10 @@ import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   ArrowLeftOutlined,
+  EditOutlined,
+  TeamOutlined,
+  FileTextOutlined,
+  CalendarOutlined,
 } from "@ant-design/icons";
 import { getLawyerById } from "@/app/service/adminAPI";
 import { Lawyer } from "@/app/types/firm";
@@ -31,7 +38,7 @@ const { Title, Text } = Typography;
 
 export default function GetLawyerDetail({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const lawyerId = params.id; // ✅ direct from Next.js params
+  const lawyerId = params.id;
 
   const [lawyer, setLawyer] = useState<Lawyer | null>(null);
   const [loading, setLoading] = useState(true);
@@ -56,7 +63,15 @@ export default function GetLawyerDetail({ params }: { params: { id: string } }) 
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex justify-center items-center h-screen">
+        <div 
+          style={{
+            background: "#f8fafc",
+            minHeight: "100vh",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
           <Spin size="large" />
         </div>
       </DashboardLayout>
@@ -66,8 +81,32 @@ export default function GetLawyerDetail({ params }: { params: { id: string } }) 
   if (!lawyer) {
     return (
       <DashboardLayout>
-        <div className="flex justify-center items-center h-screen">
-          <Text type="secondary">No lawyer found</Text>
+        <div 
+          style={{
+            background: "#f8fafc",
+            minHeight: "100vh",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div style={{ textAlign: "center" }}>
+            <UserOutlined style={{ fontSize: "64px", color: "#9ca3af", marginBottom: "16px" }} />
+            <Title level={3} style={{ color: "#64748b" }}>
+              Lawyer Not Found
+            </Title>
+            <Text style={{ color: "#64748b", fontSize: "16px" }}>
+              The requested lawyer profile could not be found.
+            </Text>
+            <br />
+            <Button 
+              type="primary" 
+              onClick={() => router.back()}
+              style={{ marginTop: "16px" }}
+            >
+              Go Back
+            </Button>
+          </div>
         </div>
       </DashboardLayout>
     );
@@ -75,102 +114,632 @@ export default function GetLawyerDetail({ params }: { params: { id: string } }) 
 
   return (
     <DashboardLayout>
-      <div style={{ }}>
-        {/* Back button */}
-        <Button
-          icon={<ArrowLeftOutlined />}
-          onClick={() => router.back()}
-          style={{ marginBottom: "16px" }}
-        >
-          Back
-        </Button>
+      <div
+        style={{
+          background: "#f8fafc",
+          minHeight: "100vh",
+          padding: "24px",
+        }}
+      >
+        <div className="max-w-[1400px] mx-auto">
+          {/* Header Section */}
+          <Card
+            style={{
+              marginBottom: "32px",
+              background: "linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)",
+              border: "none",
+              borderRadius: "16px",
+              boxShadow: "0 10px 25px rgba(30, 64, 175, 0.15)",
+            }}
+            bodyStyle={{ padding: "32px" }}
+          >
+            <Row align="middle" justify="space-between">
+              <Col>
+                <Space size="large">
+                  <div
+                    style={{
+                      width: "80px",
+                      height: "80px",
+                      background: "rgba(255,255,255,0.15)",
+                      borderRadius: "16px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      border: "2px solid rgba(255,255,255,0.2)",
+                    }}
+                  >
+                    <UserOutlined style={{ fontSize: "32px", color: "white" }} />
+                  </div>
+                  <div>
+                    <Title
+                      level={1}
+                      style={{
+                        color: "white",
+                        margin: 0,
+                        fontSize: "36px",
+                        fontWeight: "600",
+                        letterSpacing: "-0.025em",
+                      }}
+                    >
+                      Lawyer Profile
+                    </Title>
+                    <Text
+                      style={{
+                        color: "rgba(255,255,255,0.8)",
+                        fontSize: "18px",
+                        fontWeight: "400",
+                      }}
+                    >
+                      Detailed information about your legal professional
+                    </Text>
+                  </div>
+                </Space>
+              </Col>
+              <Col>
+                <Space size="middle">
+                  <Button
+                    icon={<ArrowLeftOutlined />}
+                    onClick={() => router.back()}
+                    size="large"
+                    style={{
+                      background: "rgba(255,255,255,0.2)",
+                      borderColor: "rgba(255,255,255,0.3)",
+                      color: "white",
+                      borderRadius: "12px",
+                      fontWeight: "600",
+                      padding: "8px 24px",
+                      height: "48px",
+                      backdropFilter: "blur(10px)",
+                    }}
+                    ghost
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    type="primary"
+                    size="large"
+                    icon={<EditOutlined />}
+                    onClick={() => router.push(`/pages/firm-admin/edit-lawyer/${lawyer.id}`)}
+                    style={{
+                      background: "white",
+                      borderColor: "white",
+                      color: "#1e40af",
+                      borderRadius: "12px",
+                      fontWeight: "600",
+                      padding: "8px 24px",
+                      height: "48px",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    }}
+                  >
+                    Edit Profile
+                  </Button>
+                </Space>
+              </Col>
+            </Row>
+          </Card>
 
-        {/* Lawyer Detail Card */}
-        <Card
-          style={{
-            borderRadius: "16px",
-            border: "1px solid #e5e7eb",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-          }}
-          bodyStyle={{ padding: "32px" }}
-        >
-          <Row gutter={[24, 24]} align="middle">
-            <Col xs={24} sm={8} md={6} className="flex justify-center">
-              <Avatar
-                size={180}
-                src={
-                  lawyer.profileImage
-                    ? `http://localhost:5000${lawyer.profileImage}`
-                    : undefined
-                }
-                icon={!lawyer.profileImage && <UserOutlined />}
-                style={{
-                  background: lawyer.profileImage ? "transparent" : "#f1f5f9",
-                  border: "2px solid #e5e7eb",
-                }}
-              />
-            </Col>
-            <Col xs={24} sm={16} md={18}>
-              <Title level={2} style={{ marginBottom: "8px" }}>
-                {lawyer.name}
-              </Title>
-              <Space direction="vertical" size="small">
-                <Space>
-                  <MailOutlined style={{ color: "#9ca3af" }} />
-                  <Text>{lawyer.email}</Text>
-                </Space>
-                <Space>
-                  <PhoneOutlined style={{ color: "#9ca3af" }} />
-                  <Text>{lawyer.phone}</Text>
-                </Space>
-                <Space>
-                  <BankOutlined style={{ color: "#9ca3af" }} />
+          {/* Main Profile Card */}
+          <Card
+            style={{
+              borderRadius: "16px",
+              border: "1px solid #e5e7eb",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+              marginBottom: "32px",
+            }}
+            bodyStyle={{ padding: "40px" }}
+          >
+            <Row gutter={[32, 32]} align="top">
+              {/* Profile Image and Basic Info */}
+              <Col xs={24} lg={8}>
+                <div style={{ textAlign: "center" }}>
+                  <Avatar
+                    size={200}
+                    src={
+                      lawyer.profileImage
+                        ? `http://localhost:5000${lawyer.profileImage}`
+                        : undefined
+                    }
+                    icon={!lawyer.profileImage && <UserOutlined />}
+                    style={{
+                      background: lawyer.profileImage ? "transparent" : "#f1f5f9",
+                      border: "4px solid #e5e7eb",
+                      boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
+                      marginBottom: "24px",
+                    }}
+                  />
+                  
+                  <Title level={2} style={{ marginBottom: "8px", color: "#111827" }}>
+                    {lawyer.name}
+                  </Title>
+                  
                   <Tag
                     color="#f0f9ff"
                     style={{
                       color: "#1e40af",
                       border: "1px solid #dbeafe",
-                      borderRadius: "8px",
-                      padding: "4px 12px",
-                      fontSize: "13px",
+                      borderRadius: "12px",
+                      padding: "8px 16px",
+                      fontSize: "14px",
+                      fontWeight: "500",
+                      marginBottom: "16px",
                     }}
                   >
+                    <BankOutlined style={{ marginRight: "6px" }} />
                     {lawyer.specialization || "General Practice"}
                   </Tag>
-                </Space>
-                <Space>
-                  {lawyer.status.toLowerCase() === "active" ? (
-                    <Tag icon={<CheckCircleOutlined />} color="success">
-                      Active
-                    </Tag>
-                  ) : (
-                    <Tag icon={<CloseCircleOutlined />} color="error">
-                      Inactive
-                    </Tag>
-                  )}
-                </Space>
-              </Space>
+
+                  <div style={{ marginTop: "16px" }}>
+                    {lawyer.status.toLowerCase() === "active" ? (
+                      <Badge
+                        status="success"
+                        text={
+                          <span style={{
+                            fontSize: "15px",
+                            fontWeight: "600",
+                            color: "#059669",
+                          }}>
+                            <CheckCircleOutlined style={{ marginRight: "6px" }} />
+                            Active Lawyer
+                          </span>
+                        }
+                      />
+                    ) : (
+                      <Badge
+                        status="error"
+                        text={
+                          <span style={{
+                            fontSize: "15px",
+                            fontWeight: "600",
+                            color: "#dc2626",
+                          }}>
+                            <CloseCircleOutlined style={{ marginRight: "6px" }} />
+                            Inactive Lawyer
+                          </span>
+                        }
+                      />
+                    )}
+                  </div>
+                </div>
+              </Col>
+
+              {/* Contact Information */}
+              <Col xs={24} lg={16}>
+                <Title level={3} style={{ color: "#111827", marginBottom: "24px" }}>
+                  Contact Information
+                </Title>
+                
+                <Row gutter={[24, 24]}>
+                  <Col xs={24} md={12}>
+                    <Card
+                      bordered={false}
+                      style={{
+                        background: "#f8fafc",
+                        borderRadius: "12px",
+                        border: "1px solid #e2e8f0",
+                      }}
+                      bodyStyle={{ padding: "20px" }}
+                    >
+                      <Space direction="vertical" size="small" style={{ width: "100%" }}>
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                          <MailOutlined 
+                            style={{ 
+                              color: "#1e40af", 
+                              fontSize: "16px", 
+                              marginRight: "8px" 
+                            }} 
+                          />
+                          <Text style={{ fontSize: "14px", color: "#64748b", fontWeight: "500" }}>
+                            Email Address
+                          </Text>
+                        </div>
+                        <Text 
+                          style={{ 
+                            fontSize: "16px", 
+                            color: "#111827",
+                            fontWeight: "500",
+                          }}
+                          copyable
+                        >
+                          {lawyer.email}
+                        </Text>
+                      </Space>
+                    </Card>
+                  </Col>
+
+                  <Col xs={24} md={12}>
+                    <Card
+                      bordered={false}
+                      style={{
+                        background: "#f8fafc",
+                        borderRadius: "12px",
+                        border: "1px solid #e2e8f0",
+                      }}
+                      bodyStyle={{ padding: "20px" }}
+                    >
+                      <Space direction="vertical" size="small" style={{ width: "100%" }}>
+                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                          <PhoneOutlined 
+                            style={{ 
+                              color: "#1e40af", 
+                              fontSize: "16px", 
+                              marginRight: "8px" 
+                            }} 
+                          />
+                          <Text style={{ fontSize: "14px", color: "#64748b", fontWeight: "500" }}>
+                            Phone Number
+                          </Text>
+                        </div>
+                        <Text 
+                          style={{ 
+                            fontSize: "16px", 
+                            color: "#111827",
+                            fontWeight: "500",
+                          }}
+                          copyable
+                        >
+                          {lawyer.phone}
+                        </Text>
+                      </Space>
+                    </Card>
+                  </Col>
+                </Row>
+              </Col>
+            </Row>
+          </Card>
+
+          {/* Performance Statistics */}
+          <Row gutter={[24, 24]} style={{ marginBottom: "32px" }}>
+            <Col xs={24} sm={12} lg={6}>
+              <Card
+                style={{
+                  borderRadius: "16px",
+                  border: "1px solid #dbeafe",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                  background: "linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)",
+                }}
+                bodyStyle={{ padding: "28px" }}
+              >
+                <Statistic
+                  title={
+                    <span style={{ color: "#1e40af", fontSize: "14px", fontWeight: "600" }}>
+                      Total Cases
+                    </span>
+                  }
+                  value={lawyer.casesCount ?? 0}
+                  valueStyle={{
+                    color: "#1e40af",
+                    fontSize: "36px",
+                    fontWeight: "700",
+                  }}
+                  prefix={<FileTextOutlined style={{ color: "#1e40af" }} />}
+                />
+              </Card>
+            </Col>
+
+            <Col xs={24} sm={12} lg={6}>
+              <Card
+                style={{
+                  borderRadius: "16px",
+                  border: "1px solid #d1fae5",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                  background: "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)",
+                }}
+                bodyStyle={{ padding: "28px" }}
+              >
+                <Statistic
+                  title={
+                    <span style={{ color: "#059669", fontSize: "14px", fontWeight: "600" }}>
+                      Total Clients
+                    </span>
+                  }
+                  value={lawyer.clientsCount ?? 0}
+                  valueStyle={{
+                    color: "#059669",
+                    fontSize: "36px",
+                    fontWeight: "700",
+                  }}
+                  prefix={<TeamOutlined style={{ color: "#059669" }} />}
+                />
+              </Card>
+            </Col>
+
+            <Col xs={24} sm={12} lg={6}>
+              <Card
+                style={{
+                  borderRadius: "16px",
+                  border: "1px solid #fde68a",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                  background: "linear-gradient(135deg, #fffbeb 0%, #fde68a 100%)",
+                }}
+                bodyStyle={{ padding: "28px" }}
+              >
+                <Statistic
+                  title={
+                    <span style={{ color: "#d97706", fontSize: "14px", fontWeight: "600" }}>
+                      Success Rate
+                    </span>
+                  }
+                  value={85}
+                  suffix="%"
+                  valueStyle={{
+                    color: "#d97706",
+                    fontSize: "36px",
+                    fontWeight: "700",
+                  }}
+                  prefix={<CheckCircleOutlined style={{ color: "#d97706" }} />}
+                />
+              </Card>
+            </Col>
+
+            <Col xs={24} sm={12} lg={6}>
+              <Card
+                style={{
+                  borderRadius: "16px",
+                  border: "1px solid #e9d5ff",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                  background: "linear-gradient(135deg, #faf5ff 0%, #e9d5ff 100%)",
+                }}
+                bodyStyle={{ padding: "28px" }}
+              >
+                <Statistic
+                  title={
+                    <span style={{ color: "#7c3aed", fontSize: "14px", fontWeight: "600" }}>
+                      Years Active
+                    </span>
+                  }
+                  value={5}
+                  valueStyle={{
+                    color: "#7c3aed",
+                    fontSize: "36px",
+                    fontWeight: "700",
+                  }}
+                  prefix={<CalendarOutlined style={{ color: "#7c3aed" }} />}
+                />
+              </Card>
             </Col>
           </Row>
 
-          <Divider />
+          {/* Detailed Information Cards */}
+          <Row gutter={[24, 24]}>
+            {/* Professional Information */}
+            <Col xs={24} lg={12}>
+              <Card
+                title={
+                  <Space>
+                    <BankOutlined style={{ color: "#1e40af" }} />
+                    <span style={{ color: "#111827", fontWeight: "600" }}>
+                      Professional Information
+                    </span>
+                  </Space>
+                }
+                style={{
+                  borderRadius: "16px",
+                  border: "1px solid #e5e7eb",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                  height: "100%",
+                }}
+                headStyle={{
+                  borderBottom: "1px solid #f1f5f9",
+                  background: "#fafbfc",
+                  borderRadius: "16px 16px 0 0",
+                }}
+                bodyStyle={{ padding: "24px" }}
+              >
+                <Space direction="vertical" size="large" style={{ width: "100%" }}>
+                  <div>
+                    <Text style={{ fontSize: "14px", color: "#64748b", fontWeight: "500" }}>
+                      Full Name
+                    </Text>
+                    <br />
+                    <Text style={{ fontSize: "16px", color: "#111827", fontWeight: "500" }}>
+                      {lawyer.name}
+                    </Text>
+                  </div>
 
-          {/* Extra Stats */}
-          <Row gutter={24}>
-            <Col xs={24} sm={12} md={8}>
-              <Card bordered={false}>
-                <Title level={4}>Cases</Title>
-                <Text>{(lawyer as any).casesCount || 0}</Text>
+                  <div>
+                    <Text style={{ fontSize: "14px", color: "#64748b", fontWeight: "500" }}>
+                      Area of Specialization
+                    </Text>
+                    <br />
+                    <Tag
+                      color="#f0f9ff"
+                      style={{
+                        color: "#1e40af",
+                        border: "1px solid #dbeafe",
+                        borderRadius: "8px",
+                        padding: "6px 14px",
+                        fontSize: "14px",
+                        fontWeight: "500",
+                        marginTop: "4px",
+                      }}
+                    >
+                      {lawyer.specialization || "General Practice"}
+                    </Tag>
+                  </div>
+
+                  <div>
+                    <Text style={{ fontSize: "14px", color: "#64748b", fontWeight: "500" }}>
+                      Professional Status
+                    </Text>
+                    <br />
+                    <div style={{ marginTop: "8px" }}>
+                      {lawyer.status.toLowerCase() === "active" ? (
+                        <Tag 
+                          icon={<CheckCircleOutlined />} 
+                          color="success"
+                          style={{
+                            padding: "6px 14px",
+                            fontSize: "14px",
+                            fontWeight: "500",
+                            borderRadius: "8px",
+                          }}
+                        >
+                          Active
+                        </Tag>
+                      ) : (
+                        <Tag 
+                          icon={<CloseCircleOutlined />} 
+                          color="error"
+                          style={{
+                            padding: "6px 14px",
+                            fontSize: "14px",
+                            fontWeight: "500",
+                            borderRadius: "8px",
+                          }}
+                        >
+                          Inactive
+                        </Tag>
+                      )}
+                    </div>
+                  </div>
+                </Space>
               </Card>
             </Col>
-            <Col xs={24} sm={12} md={8}>
-              <Card bordered={false}>
-                <Title level={4}>Clients</Title>
-                <Text>{(lawyer as any).clientsCount || 0}</Text>
+
+            {/* Contact Details */}
+            <Col xs={24} lg={12}>
+              <Card
+                title={
+                  <Space>
+                    <MailOutlined style={{ color: "#1e40af" }} />
+                    <span style={{ color: "#111827", fontWeight: "600" }}>
+                      Contact Details
+                    </span>
+                  </Space>
+                }
+                style={{
+                  borderRadius: "16px",
+                  border: "1px solid #e5e7eb",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                  height: "100%",
+                }}
+                headStyle={{
+                  borderBottom: "1px solid #f1f5f9",
+                  background: "#fafbfc",
+                  borderRadius: "16px 16px 0 0",
+                }}
+                bodyStyle={{ padding: "24px" }}
+              >
+                <Space direction="vertical" size="large" style={{ width: "100%" }}>
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                      <MailOutlined 
+                        style={{ 
+                          color: "#1e40af", 
+                          fontSize: "16px", 
+                          marginRight: "8px" 
+                        }} 
+                      />
+                      <Text style={{ fontSize: "14px", color: "#64748b", fontWeight: "500" }}>
+                        Email Address
+                      </Text>
+                    </div>
+                    <Text 
+                      style={{ 
+                        fontSize: "16px", 
+                        color: "#111827",
+                        fontWeight: "500",
+                      }}
+                      copyable={{
+                        tooltips: ['Copy email', 'Email copied!'],
+                      }}
+                    >
+                      {lawyer.email}
+                    </Text>
+                  </div>
+
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                      <PhoneOutlined 
+                        style={{ 
+                          color: "#1e40af", 
+                          fontSize: "16px", 
+                          marginRight: "8px" 
+                        }} 
+                      />
+                      <Text style={{ fontSize: "14px", color: "#64748b", fontWeight: "500" }}>
+                        Phone Number
+                      </Text>
+                    </div>
+                    <Text 
+                      style={{ 
+                        fontSize: "16px", 
+                        color: "#111827",
+                        fontWeight: "500",
+                      }}
+                      copyable={{
+                        tooltips: ['Copy phone', 'Phone copied!'],
+                      }}
+                    >
+                      {lawyer.phone}
+                    </Text>
+                  </div>
+
+                  <div>
+                    <Text style={{ fontSize: "14px", color: "#64748b", fontWeight: "500" }}>
+                      Member Since
+                    </Text>
+                    <br />
+                    <Text style={{ fontSize: "16px", color: "#111827", fontWeight: "500" }}>
+                      {new Date().getFullYear() - 2} {/* Placeholder - replace with actual join date */}
+                    </Text>
+                  </div>
+                </Space>
               </Card>
             </Col>
           </Row>
-        </Card>
+
+          {/* Action Buttons */}
+          <Card
+            style={{
+              borderRadius: "16px",
+              border: "1px solid #e5e7eb",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+              marginTop: "24px",
+            }}
+            bodyStyle={{ padding: "24px" }}
+          >
+            <Row justify="center">
+              <Col>
+                <Space size="large">
+                  <Button
+                    type="primary"
+                    size="large"
+                    icon={<EditOutlined />}
+                    onClick={() => router.push(`/pages/firm-admin/edit-lawyer/${lawyerId}`)}
+                    style={{
+                      background: "#1e40af",
+                      borderColor: "#1e40af",
+                      borderRadius: "12px",
+                      fontWeight: "600",
+                      padding: "12px 32px",
+                      height: "48px",
+                      boxShadow: "0 4px 12px rgba(30, 64, 175, 0.3)",
+                    }}
+                  >
+                    Edit Lawyer Profile
+                  </Button>
+                  
+                  <Button
+                    size="large"
+                    icon={<TeamOutlined />}
+                    onClick={() => router.push("/pages/firm-admin/get-lawyers")}
+                    style={{
+                      borderRadius: "12px",
+                      border: "1px solid #d1d5db",
+                      fontWeight: "600",
+                      padding: "12px 32px",
+                      height: "48px",
+                      color: "#374151",
+                    }}
+                  >
+                    View All Lawyers
+                  </Button>
+                </Space>
+              </Col>
+            </Row>
+          </Card>
+        </div>
       </div>
     </DashboardLayout>
   );

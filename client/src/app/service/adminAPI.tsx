@@ -79,3 +79,26 @@ export const getLawyerById = async (id: string): Promise<Lawyer | null> => {
     return null;
   }
 };
+
+/** Delete Lawyer by ID */
+export const deleteLawyer = async (id: string | number): Promise<{ success: boolean; message: string }> => {
+  try {
+    const response = await axios.delete(
+      `${BASE_URL}/api/firm-admin/firm/lawyer/${id}`,
+      {
+        withCredentials: true,
+      }
+    );
+
+    console.log("Delete lawyer response:", response.data);
+    return response.data; // { success: true, message: "Lawyer deleted successfully" }
+  } catch (error) {
+    console.error("Error deleting lawyer:", error);
+    throw error;
+  }
+};
+
+
+export const updateLawyer = async()=>{
+
+}

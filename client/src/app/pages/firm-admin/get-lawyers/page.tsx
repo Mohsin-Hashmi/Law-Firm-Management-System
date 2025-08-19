@@ -41,7 +41,7 @@ import {
   ExportOutlined,
   ReloadOutlined,
 } from "@ant-design/icons";
-import { getLawyers } from "@/app/service/adminAPI";
+import { getLawyers, deleteLawyer } from "@/app/service/adminAPI";
 import { Lawyer } from "@/app/types/firm";
 
 const { Title, Text } = Typography;
@@ -52,6 +52,22 @@ const { Option } = Select;
 export default function GetLawyers() {
   const router = useRouter();
   const params = useParams();
+   const lawyerId = params?.id;
+
+     const handleDelete = async () => {
+    try {
+      if (!lawyerId) return;
+
+      const response = await deleteLawyer(lawyerId as string);
+
+      if (response.success) {
+        message.success(response.message);
+        router.push("/pages/firm-admin/lawyers"); // Redirect back to lawyers list
+      }
+    } catch (error) {
+      message.error("Failed to delete lawyer. Please try again.");
+    }
+  };
   
   const [lawyers, setLawyers] = useState<Lawyer[]>([]);
   const [filteredLawyers, setFilteredLawyers] = useState<Lawyer[]>([]);
@@ -152,7 +168,7 @@ export default function GetLawyers() {
       key: "delete",
       icon: <DeleteOutlined />,
       label: "Delete Lawyer",
-      onClick: () => handleDeleteLawyer(lawyer),
+      onClick: () => handleDelete(),
       danger: true,
     },
   ];
@@ -254,13 +270,13 @@ export default function GetLawyers() {
     {
       title: "Performance",
       key: "performance",
-      render: (_, record: Lawyer) => (
+      render: (_: unknown, record: Lawyer) => (
         <Space direction="vertical" size="small">
           <Text style={{ fontSize: "12px", color: "#64748b" }}>
-            Cases: {(record as any).casesCount || 0}
+            Cases: {record.casesCount || 0}
           </Text>
           <Text style={{ fontSize: "12px", color: "#64748b" }}>
-            Clients: {(record as any).clientsCount || 0}
+            Clients: {record.clientsCount || 0}
           </Text>
         </Space>
       ),
@@ -268,7 +284,7 @@ export default function GetLawyers() {
     {
       title: "Actions",
       key: "actions",
-      render: (_, record: Lawyer) => (
+      render: (_: unknown, record: Lawyer) => (
         <Dropdown
           menu={{
             items: getActionMenuItems(record),

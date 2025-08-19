@@ -44,4 +44,6 @@ export interface Lawyer {
   profileImage: string | null;
   createdAt: string;
   updatedAt: string;
+  casesCount?: number;
+  clientsCount?:number;
 }
