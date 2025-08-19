@@ -21,7 +21,7 @@ import { createFirm } from "@/app/service/adminAPI";
 import { FirmPayload } from "@/app/types/firm";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import { addFirm } from "@/app/store/firmSlice";
+import { setFirm } from "@/app/store/firmSlice";
 
 const { Option } = Select;
 
@@ -69,7 +69,7 @@ export default function AddFirm() {
         return;
       }
 
-      dispatch(addFirm(response?.data?.newFirm));
+      dispatch(setFirm(response?.data?.newFirm));
       toast.success("Firm created successfully!");
       router.push("/pages/super-admin/get-firms");
 

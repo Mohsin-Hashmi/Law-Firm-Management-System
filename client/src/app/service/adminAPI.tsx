@@ -17,9 +17,6 @@ export const addLawyer = async (firmId: string, data: FormData) => {
     data,
     {
       withCredentials: true,
-      headers: {
-        "Content-Type": "application/json",
-      },
     }
   );
   return response;
@@ -28,12 +25,10 @@ export const addLawyer = async (firmId: string, data: FormData) => {
 /**Get Frim Stats */
 
 export const getStats = async (firmId: string): Promise<FirmStats> => {
-
+  console.log("Fetching stats for firmId:", firmId); // <--- make sure this prints
   const response = await axios.get(`${BASE_URL}/api/firm-admin/firms/${firmId}`, {
-    headers: {
-      "Content-Type": "application/json",
-    },
+    withCredentials: true,
   });
-  console.log("stats data is :", response)
+  console.log("stats data:", response.data);
   return response.data;
 };

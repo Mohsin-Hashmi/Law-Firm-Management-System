@@ -1,14 +1,14 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { FirmStats } from "../types/firm";
 
-interface FirmState {
-  firms: FirmStats[];
+export interface FirmState {
+  firm?: FirmStats; // single firm
   loading: boolean;
   error: string | null;
 }
 
 const initialState: FirmState = {
-  firms: [],
+  firm: undefined,
   loading: false,
   error: null,
 };
@@ -18,9 +18,7 @@ const firmSlice = createSlice({
   initialState,
   reducers: {
     setFirm(state, action: PayloadAction<FirmStats>) {
-      const index = state.firms.findIndex(f => f.firmId === action.payload.firmId);
-      if (index !== -1) state.firms[index] = action.payload;
-      else state.firms.push(action.payload);
+      state.firm = action.payload; // now valid
     },
     setLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload;
