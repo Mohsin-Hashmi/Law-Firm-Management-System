@@ -54,7 +54,7 @@ export default function FirmStats({ firmId }: FirmStatsProps) {
     const fetchStats = async () => {
       try {
         dispatch(setLoading(true));
-        const data = await getStats(firmId);
+        const data = await getStats();
         dispatch(setFirm(data));
         dispatch(setError(null));
       } catch (err) {
@@ -430,7 +430,7 @@ export default function FirmStats({ firmId }: FirmStatsProps) {
                   <Space>
                     <UserAddOutlined style={{ color: "#1e40af" }} />
                     <span style={{ color: "#374151", fontWeight: "500" }}>
-                      Add New Attorney
+                      Add New Lawyer
                     </span>
                   </Space>
                   <RightOutlined style={{ color: "#9ca3af" }} />

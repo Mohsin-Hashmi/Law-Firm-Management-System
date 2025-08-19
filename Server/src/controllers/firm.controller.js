@@ -123,7 +123,14 @@ const createLawyer = async (req, res) => {
 
 const firmStats = async (req, res) => {
   try {
-    const firmId = Number(req.params.id);
+    // If a Super Admin wants to check another firm, pass :id param
+    const firmId = req.user.role === "Super Admin" 
+      ? Number(req.params.id) 
+      : req.user.firmId;   // For Firm Admin, use their own firmId
+
+    if (!firmId) {
+      return res.status(400).json({ error: "Firm ID not found" });
+    }
 
     const firm = await Firm.findByPk(firmId);
     if (!firm) return res.status(404).json({ error: "Firm not found" });
@@ -132,6 +139,7 @@ const firmStats = async (req, res) => {
     const clientsCount = await User.count({ where: { firmId, role: "Client" } });
     const totalUsersCount = await User.count({ where: { firmId } });
     const activeLawyersCount = await Lawyer.count({ where: { firmId, status: "Active" } });
+
     const recentClients = await User.findAll({
       where: { firmId, role: "Client" },
       order: [["createdAt", "DESC"]],
@@ -160,4 +168,162 @@ const firmStats = async (req, res) => {
 };
 
 
-module.exports = { createFirm , firmStats, createLawyer };
+/**Get all Lawyers API */
+const getAllLawyer = async (req, res) => {
+  try {
+    const adminId = req.user?.id;
+    if (!adminId) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
+    }
+
+    const adminUser = await User.findByPk(adminId);
+    if (!adminUser) {
+      return res.status(404).json({ success: false, error: "Firm admin not found" });
+    }
+
+    if (!adminUser.firmId) {
+      return res.status(400).json({ success: false, error: "Firm ID not found for this admin" });
+    }
+
+    const lawyers = await Lawyer.findAll({
+      where: { firmId: adminUser.firmId },
+    });
+
+    if (!lawyers.length) {
+      return res.status(404).json({ success: false, error: "No lawyer found in this firm" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      allLawyers: lawyers,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Error in fetching lawyers",
+      error: error.message,
+    });
+  }
+};
+
+
+/**Get a Lawyers by ID API */
+const getLawyerById = async (req, res) => {
+  try {
+    const adminId = req.user.id;
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: "Id is required",
+      });
+    }
+    const adminUser = await User.findByPk(adminId);
+    if (!adminUser) {
+      return res.status(404).json({
+        success: false,
+        error: "firm admin not found",
+      });
+    }
+    const lawyer = await Lawyer.findOne({
+      where: { id, firmId: adminUser.firmId },
+    });
+    if (!lawyer) {
+      return res.status(404).json({
+        success: false,
+        error: "No lawyer found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "lawyer found successfully",
+      lawyer: lawyer,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error in fetching lawyer",
+      error: error.message,
+    });
+  }
+};
+/**Update a Lawyers by ID API */
+const updateLawyer = async (req, res) => {
+  try {
+    const adminId = req.user.id;
+    const { id } = req.params;
+    const { name, email, phone, specialization, status } = req.body;
+    if (!id) {
+      return res.status(404).json({
+        success: false,
+        error: "id is required",
+      });
+    }
+    const adminUser = await User.findByPk(adminId);
+    const lawyer = await Lawyer.findOne({
+      where: { id, firmId: adminUser.firmId },
+    });
+    if (!lawyer) {
+      return res.status(404).json({
+        success: false,
+        message: "Lawyer not found",
+      });
+    }
+    await lawyer.update({
+      name: name ?? lawyer.name,
+      email: email ?? lawyer.email,
+      phone: phone ?? lawyer.phone,
+      specialization: specialization ?? lawyer.specialization,
+      status: status ?? lawyer.status,
+    });
+    return res.status(200).json({
+      success: true,
+      message: "Lawyer updated successfully",
+      updatedLawyer: lawyer,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "Error updating lawyer",
+        error: error.message,
+      });
+  }
+};
+/**Delete a Lawyers by ID API */
+const deleteLawyer = async (req, res) => {
+  try {
+    const adminId = req.user.id;
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        error: "Id is required",
+      });
+    }
+    const adminUser = await User.findByPk(adminId);
+    const lawyer = await Lawyer.findOne({
+      where: { id, firmId: adminUser.firmId },
+    });
+    await lawyer.destroy();
+    res
+      .status(200)
+      .json({ success: true, message: "Lawyer deleted successfully" });
+    if (!lawyer) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Lawyer not found" });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error deleting lawyer",
+      error: error.message,
+    });
+  }
+};
+
+
+module.exports = { createFirm , firmStats, createLawyer, getAllLawyer , getLawyerById , deleteLawyer, updateLawyer};

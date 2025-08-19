@@ -1,6 +1,6 @@
 import axios from "axios";
 import BASE_URL from "../utils/constant";
-import { FirmPayload, LawyerPayload, FirmStats } from "../types/firm";
+import { FirmPayload, LawyerPayload, FirmStats , Lawyer } from "../types/firm";
 
 /**Create firm API call */
 export const createFirm = async (data: FirmPayload) => {
@@ -23,12 +23,59 @@ export const addLawyer = async (firmId: string, data: FormData) => {
 };
 
 /**Get Frim Stats */
+export const getStats = async (firmId?: string): Promise<FirmStats> => {
+  try {
+    console.log("Fetching stats... firmId:", firmId);
 
-export const getStats = async (firmId: string): Promise<FirmStats> => {
-  console.log("Fetching stats for firmId:", firmId); // <--- make sure this prints
-  const response = await axios.get(`${BASE_URL}/api/firm-admin/firms/${firmId}`, {
-    withCredentials: true,
-  });
-  console.log("stats data:", response.data);
-  return response.data;
+    // If Super Admin -> requires firmId param
+    const url = firmId
+      ? `${BASE_URL}/api/super-admin/firms/${firmId}/stats`
+      : `${BASE_URL}/api/firm-admin/firms/stats`;
+
+    const response = await axios.get(url, {
+      withCredentials: true,
+    });
+
+    console.log("Stats data:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching stats:", error);
+    throw error;
+  }
+};
+
+export const getLawyers = async (): Promise<Lawyer[]> => {
+  try {
+    const response = await axios.get(`${BASE_URL}/api/firm-admin/firms/lawyers`, {
+      withCredentials: true,
+    });
+
+    console.log("lawyers response:", response.data);
+
+    // return only the array
+    return response.data.allLawyers;
+  } catch (error) {
+    console.error("Error fetching lawyers:", error);
+    return [];
+  }
+};
+
+/** Get Lawyer by ID */
+export const getLawyerById = async (id: string): Promise<Lawyer | null> => {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/api/firm-admin/firm/lawyer/${id}`,
+      {
+        withCredentials: true,
+      }
+    );
+
+    console.log("lawyer detail response:", response.data);
+
+    // Adjust this return depending on backend response structure
+    return response.data.lawyer || response.data;
+  } catch (error) {
+    console.error("Error fetching lawyer by id:", error);
+    return null;
+  }
 };

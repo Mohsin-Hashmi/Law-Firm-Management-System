@@ -1,5 +1,13 @@
 const express = require("express");
-const { createFirm, firmStats, createLawyer } = require("../controllers/firm.controller");
+const {
+  createFirm,
+  firmStats,
+  createLawyer,
+  getAllLawyer,
+  getLawyerById,
+  updateLawyer,
+  deleteLawyer,
+} = require("../controllers/firm.controller");
 const adminRoute = express();
 const { userAuth, firmAdminAuth } = require("../middlewares/authMiddleware");
 const multer = require("multer");
@@ -28,7 +36,10 @@ adminRoute.post(
   upload.single("profileImage"), // <--- multer middleware
   createLawyer
 );
-
-adminRoute.get("/firms/:id", userAuth, firmAdminAuth, firmStats);
+adminRoute.get("/firms/stats", userAuth, firmAdminAuth, firmStats);
+adminRoute.get("/firms/lawyers", userAuth, firmAdminAuth, getAllLawyer);
+adminRoute.get("/firm/lawyer/:id", userAuth, firmAdminAuth, getLawyerById);
+adminRoute.put("/firm/lawyer/:id", userAuth, firmAdminAuth, updateLawyer);
+adminRoute.delete("/firm/lawyer/:id", userAuth, firmAdminAuth, deleteLawyer);
 
 module.exports = adminRoute;

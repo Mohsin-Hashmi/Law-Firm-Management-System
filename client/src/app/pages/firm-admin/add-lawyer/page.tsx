@@ -80,7 +80,7 @@ export default function AddLawyer({ firmId }: AddLawyerProps) {
       }
 
       toast.success("Attorney added successfully!");
-      router.push("/pages/dashboard");
+      router.push("/pages/firm-admin/get-lawyers");
 
       // Reset form
       setName("");
@@ -131,7 +131,7 @@ export default function AddLawyer({ firmId }: AddLawyerProps) {
       <div style={{
         background: "#f8fafc",
         minHeight: "100vh",
-        padding: "24px"
+        // padding: "10px"
       }}>
         <div className="max-w-[900px] mx-auto">
           {/* Header Section */}
@@ -188,7 +188,7 @@ export default function AddLawyer({ firmId }: AddLawyerProps) {
                   color: "#64748b",
                   lineHeight: "1.5"
                 }}>
-                  Complete the form below to add a new attorney to your firms legal team
+                  Complete the form below to add a new lawyer to your firms legal team
                 </Text>
                 
                 {/* Progress Bar */}

@@ -32,3 +32,16 @@ export interface FirmStats {
     inactiveUsers: number;
   };
 }
+
+export interface Lawyer {
+  id: number;
+  firmId: number;
+  name: string;
+  email: string;
+  phone: string;
+  specialization: string;
+  status: string;
+  profileImage: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
