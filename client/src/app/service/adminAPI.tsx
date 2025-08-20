@@ -1,6 +1,6 @@
 import axios from "axios";
 import BASE_URL from "../utils/constant";
-import { FirmPayload, LawyerPayload, FirmStats , Lawyer } from "../types/firm";
+import { FirmPayload, LawyerPayload, FirmStats, Lawyer } from "../types/firm";
 
 /**Create firm API call */
 export const createFirm = async (data: FirmPayload) => {
@@ -46,9 +46,12 @@ export const getStats = async (firmId?: string): Promise<FirmStats> => {
 
 export const getLawyers = async (): Promise<Lawyer[]> => {
   try {
-    const response = await axios.get(`${BASE_URL}/api/firm-admin/firms/lawyers`, {
-      withCredentials: true,
-    });
+    const response = await axios.get(
+      `${BASE_URL}/api/firm-admin/firms/lawyers`,
+      {
+        withCredentials: true,
+      }
+    );
 
     console.log("lawyers response:", response.data);
 
@@ -71,7 +74,6 @@ export const getLawyerById = async (id: string): Promise<Lawyer | null> => {
     );
 
     console.log("lawyer detail response:", response.data);
-
     // Adjust this return depending on backend response structure
     return response.data.lawyer || response.data;
   } catch (error) {
@@ -81,7 +83,9 @@ export const getLawyerById = async (id: string): Promise<Lawyer | null> => {
 };
 
 /** Delete Lawyer by ID */
-export const deleteLawyer = async (id: string | number): Promise<{ success: boolean; message: string }> => {
+export const deleteLawyer = async (
+  id: number
+): Promise<{ success: boolean; message: string }> => {
   try {
     const response = await axios.delete(
       `${BASE_URL}/api/firm-admin/firm/lawyer/${id}`,
@@ -98,7 +102,41 @@ export const deleteLawyer = async (id: string | number): Promise<{ success: bool
   }
 };
 
+export const updateLawyer = async (
+  id: number,
+  lawyerData: Partial<Lawyer>, // we only update some fields
+  file?: File // optional new profile image
+): Promise<Lawyer> => {
+  try {
+    const formData = new FormData();
 
-export const updateLawyer = async()=>{
+    // Append text fields if provided
+    if (lawyerData.name) formData.append("name", lawyerData.name);
+    if (lawyerData.email) formData.append("email", lawyerData.email);
+    if (lawyerData.phone) formData.append("phone", lawyerData.phone);
+    if (lawyerData.specialization)
+      formData.append("specialization", lawyerData.specialization);
+    if (lawyerData.status) formData.append("status", lawyerData.status);
 
-}
+    // Append file if provided
+    if (file) {
+      formData.append("profileImage", file);
+    }
+
+    const response = await axios.put(
+      `${BASE_URL}/api/firm-admin/firm/lawyer/${id}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error updating lawyer:", error);
+    throw error;
+  }
+};

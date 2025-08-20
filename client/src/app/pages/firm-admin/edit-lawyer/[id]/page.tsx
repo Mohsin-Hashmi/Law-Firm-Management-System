@@ -33,6 +33,7 @@ import {
 import { getLawyerById, updateLawyer } from "@/app/service/adminAPI";
 import { Lawyer } from "@/app/types/firm";
 import type { UploadProps, UploadFile } from "antd";
+import { toast } from "react-hot-toast";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -57,8 +58,14 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
     try {
       setLoading(true);
       const data = await getLawyerById(lawyerId);
+      if (!data) {
+        toast.error("Lawyer not found");
+        return;
+      }
       setLawyer(data);
       
+     
+
       // Populate form with existing data
       form.setFieldsValue({
         name: data.name,
@@ -66,7 +73,6 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
         phone: data.phone,
         specialization: data.specialization,
         status: data.status,
-        bio: data.bio || "",
       });
 
       // Set existing profile image
@@ -75,46 +81,50 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
       }
     } catch (error) {
       console.error("Error fetching lawyer detail:", error);
-      message.error("Failed to fetch lawyer detail");
+      toast.error("Failed to fetch lawyer detail");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: Lawyer) => {
     try {
       setSubmitting(true);
-      
-      const formData = new FormData();
-      formData.append("name", values.name);
-      formData.append("email", values.email);
-      formData.append("phone", values.phone);
-      formData.append("specialization", values.specialization);
-      formData.append("status", values.status);
-      if (values.bio) formData.append("bio", values.bio);
 
-      // Handle file upload
-      if (fileList.length > 0 && fileList[0].originFileObj) {
-        formData.append("profileImage", fileList[0].originFileObj);
-      }
+      // Prepare the lawyer data object
+      const lawyerData: Partial<Lawyer> = {
+        name: values.name,
+        email: values.email,
+        phone: values.phone,
+        specialization: values.specialization,
+        status: values.status,
+        
+      };
 
-      const response = await updateLawyer(lawyerId, formData);
-      
-      if (response.success) {
-        message.success("Lawyer profile updated successfully!");
-        router.push(`/pages/firm-admin/get-lawyer-detail/${lawyerId}`);
-      }
+      // Get the file if one was selected
+      const file =
+        fileList.length > 0 && fileList[0].originFileObj
+          ? (fileList[0].originFileObj as File)
+          : undefined;
+
+      // Call the API with the correct parameters
+      const response = await updateLawyer(parseInt(lawyerId), lawyerData, file);
+
+      toast.success("Lawyer profile updated successfully!");
+      router.push(`/pages/firm-admin/get-lawyer-detail/${lawyerId}`);
     } catch (error) {
       console.error("Error updating lawyer:", error);
-      message.error("Failed to update lawyer profile");
+      toast.error("Failed to update lawyer profile");
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleImageChange: UploadProps['onChange'] = ({ fileList: newFileList }) => {
+  const handleImageChange: UploadProps["onChange"] = ({
+    fileList: newFileList,
+  }) => {
     setFileList(newFileList);
-    
+
     if (newFileList.length > 0 && newFileList[0].originFileObj) {
       const file = newFileList[0].originFileObj;
       const reader = new FileReader();
@@ -127,7 +137,9 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
 
   const uploadButton = (
     <div style={{ textAlign: "center" }}>
-      <CameraOutlined style={{ fontSize: "24px", color: "#9ca3af", marginBottom: "8px" }} />
+      <CameraOutlined
+        style={{ fontSize: "24px", color: "#9ca3af", marginBottom: "8px" }}
+      />
       <div style={{ color: "#64748b", fontSize: "14px" }}>Upload Photo</div>
     </div>
   );
@@ -135,7 +147,7 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
   if (loading) {
     return (
       <DashboardLayout>
-        <div 
+        <div
           style={{
             background: "#f8fafc",
             minHeight: "100vh",
@@ -153,7 +165,7 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
   if (!lawyer) {
     return (
       <DashboardLayout>
-        <div 
+        <div
           style={{
             background: "#f8fafc",
             minHeight: "100vh",
@@ -163,7 +175,13 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
           }}
         >
           <div style={{ textAlign: "center" }}>
-            <UserOutlined style={{ fontSize: "64px", color: "#9ca3af", marginBottom: "16px" }} />
+            <UserOutlined
+              style={{
+                fontSize: "64px",
+                color: "#9ca3af",
+                marginBottom: "16px",
+              }}
+            />
             <Title level={3} style={{ color: "#64748b" }}>
               Lawyer Not Found
             </Title>
@@ -171,8 +189,8 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
               The requested lawyer profile could not be found.
             </Text>
             <br />
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               onClick={() => router.back()}
               style={{ marginTop: "16px" }}
             >
@@ -220,7 +238,9 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                       border: "2px solid rgba(255,255,255,0.2)",
                     }}
                   >
-                    <EditOutlined style={{ fontSize: "32px", color: "white" }} />
+                    <EditOutlined
+                      style={{ fontSize: "32px", color: "white" }}
+                    />
                   </div>
                   <div>
                     <Title
@@ -338,13 +358,13 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                       Change Photo
                     </Button>
                   </Upload>
-                  
-                  <Text 
-                    style={{ 
-                      display: "block", 
-                      marginTop: "12px", 
-                      color: "#64748b", 
-                      fontSize: "12px" 
+
+                  <Text
+                    style={{
+                      display: "block",
+                      marginTop: "12px",
+                      color: "#64748b",
+                      fontSize: "12px",
                     }}
                   >
                     PNG, JPG, GIF up to 10MB
@@ -380,12 +400,23 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                     <Col xs={24} md={12}>
                       <Form.Item
                         label={
-                          <span style={{ fontSize: "14px", fontWeight: "600", color: "#374151" }}>
+                          <span
+                            style={{
+                              fontSize: "14px",
+                              fontWeight: "600",
+                              color: "#374151",
+                            }}
+                          >
                             Full Name
                           </span>
                         }
                         name="name"
-                        rules={[{ required: true, message: "Please enter lawyer name" }]}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please enter lawyer name",
+                          },
+                        ]}
                       >
                         <Input
                           prefix={<UserOutlined style={{ color: "#9ca3af" }} />}
@@ -404,14 +435,26 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                     <Col xs={24} md={12}>
                       <Form.Item
                         label={
-                          <span style={{ fontSize: "14px", fontWeight: "600", color: "#374151" }}>
+                          <span
+                            style={{
+                              fontSize: "14px",
+                              fontWeight: "600",
+                              color: "#374151",
+                            }}
+                          >
                             Email Address
                           </span>
                         }
                         name="email"
                         rules={[
-                          { required: true, message: "Please enter email address" },
-                          { type: "email", message: "Please enter a valid email address" }
+                          {
+                            required: true,
+                            message: "Please enter email address",
+                          },
+                          {
+                            type: "email",
+                            message: "Please enter a valid email address",
+                          },
                         ]}
                       >
                         <Input
@@ -431,15 +474,28 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                     <Col xs={24} md={12}>
                       <Form.Item
                         label={
-                          <span style={{ fontSize: "14px", fontWeight: "600", color: "#374151" }}>
+                          <span
+                            style={{
+                              fontSize: "14px",
+                              fontWeight: "600",
+                              color: "#374151",
+                            }}
+                          >
                             Phone Number
                           </span>
                         }
                         name="phone"
-                        rules={[{ required: true, message: "Please enter phone number" }]}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please enter phone number",
+                          },
+                        ]}
                       >
                         <Input
-                          prefix={<PhoneOutlined style={{ color: "#9ca3af" }} />}
+                          prefix={
+                            <PhoneOutlined style={{ color: "#9ca3af" }} />
+                          }
                           placeholder="Enter phone number"
                           size="large"
                           style={{
@@ -455,12 +511,23 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                     <Col xs={24} md={12}>
                       <Form.Item
                         label={
-                          <span style={{ fontSize: "14px", fontWeight: "600", color: "#374151" }}>
+                          <span
+                            style={{
+                              fontSize: "14px",
+                              fontWeight: "600",
+                              color: "#374151",
+                            }}
+                          >
                             Specialization
                           </span>
                         }
                         name="specialization"
-                        rules={[{ required: true, message: "Please select specialization" }]}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please select specialization",
+                          },
+                        ]}
                       >
                         <Select
                           placeholder="Select specialization"
@@ -468,18 +535,30 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                           style={{
                             borderRadius: "12px",
                           }}
-                          suffixIcon={<BankOutlined style={{ color: "#9ca3af" }} />}
+                          suffixIcon={
+                            <BankOutlined style={{ color: "#9ca3af" }} />
+                          }
                         >
                           <Option value="Criminal Law">Criminal Law</Option>
                           <Option value="Corporate Law">Corporate Law</Option>
                           <Option value="Family Law">Family Law</Option>
-                          <Option value="Real Estate Law">Real Estate Law</Option>
-                          <Option value="Immigration Law">Immigration Law</Option>
-                          <Option value="Intellectual Property">Intellectual Property</Option>
+                          <Option value="Real Estate Law">
+                            Real Estate Law
+                          </Option>
+                          <Option value="Immigration Law">
+                            Immigration Law
+                          </Option>
+                          <Option value="Intellectual Property">
+                            Intellectual Property
+                          </Option>
                           <Option value="Employment Law">Employment Law</Option>
                           <Option value="Tax Law">Tax Law</Option>
-                          <Option value="Environmental Law">Environmental Law</Option>
-                          <Option value="General Practice">General Practice</Option>
+                          <Option value="Environmental Law">
+                            Environmental Law
+                          </Option>
+                          <Option value="General Practice">
+                            General Practice
+                          </Option>
                         </Select>
                       </Form.Item>
                     </Col>
@@ -488,12 +567,20 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                     <Col xs={24} md={12}>
                       <Form.Item
                         label={
-                          <span style={{ fontSize: "14px", fontWeight: "600", color: "#374151" }}>
+                          <span
+                            style={{
+                              fontSize: "14px",
+                              fontWeight: "600",
+                              color: "#374151",
+                            }}
+                          >
                             Status
                           </span>
                         }
                         name="status"
-                        rules={[{ required: true, message: "Please select status" }]}
+                        rules={[
+                          { required: true, message: "Please select status" },
+                        ]}
                       >
                         <Select
                           placeholder="Select status"
@@ -504,13 +591,27 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                         >
                           <Option value="Active">
                             <Space>
-                              <div style={{ width: "8px", height: "8px", background: "#10b981", borderRadius: "50%" }} />
+                              <div
+                                style={{
+                                  width: "8px",
+                                  height: "8px",
+                                  background: "#10b981",
+                                  borderRadius: "50%",
+                                }}
+                              />
                               Active
                             </Space>
                           </Option>
                           <Option value="Inactive">
                             <Space>
-                              <div style={{ width: "8px", height: "8px", background: "#ef4444", borderRadius: "50%" }} />
+                              <div
+                                style={{
+                                  width: "8px",
+                                  height: "8px",
+                                  background: "#ef4444",
+                                  borderRadius: "50%",
+                                }}
+                              />
                               Inactive
                             </Space>
                           </Option>
@@ -518,28 +619,7 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                       </Form.Item>
                     </Col>
 
-                    {/* Bio */}
-                    <Col xs={24}>
-                      <Form.Item
-                        label={
-                          <span style={{ fontSize: "14px", fontWeight: "600", color: "#374151" }}>
-                            Professional Bio (Optional)
-                          </span>
-                        }
-                        name="bio"
-                      >
-                        <TextArea
-                          placeholder="Enter professional bio and experience details..."
-                          rows={4}
-                          style={{
-                            borderRadius: "12px",
-                            border: "1px solid #d1d5db",
-                            padding: "12px 16px",
-                            fontSize: "14px",
-                          }}
-                        />
-                      </Form.Item>
-                    </Col>
+                    
                   </Row>
                 </Card>
               </Col>
@@ -572,7 +652,7 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                     >
                       Cancel
                     </Button>
-                    
+
                     <Button
                       type="primary"
                       size="large"
@@ -624,20 +704,30 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
               <Col xs={24} sm={8} md={6} className="flex justify-center">
                 <Avatar
                   size={120}
-                  src={previewImage || (lawyer.profileImage ? `http://localhost:5000${lawyer.profileImage}` : undefined)}
-                  icon={!previewImage && !lawyer.profileImage && <UserOutlined />}
+                  src={
+                    previewImage ||
+                    (lawyer.profileImage
+                      ? `http://localhost:5000${lawyer.profileImage}`
+                      : undefined)
+                  }
+                  icon={
+                    !previewImage && !lawyer.profileImage && <UserOutlined />
+                  }
                   style={{
-                    background: (previewImage || lawyer.profileImage) ? "transparent" : "#f1f5f9",
+                    background:
+                      previewImage || lawyer.profileImage
+                        ? "transparent"
+                        : "#f1f5f9",
                     border: "2px solid #e5e7eb",
                   }}
                 />
               </Col>
               <Col xs={24} sm={16} md={18}>
-                <Space direction="vertical" size="medium">
+                <Space direction="vertical" size="middle">
                   <Title level={3} style={{ margin: 0, color: "#111827" }}>
                     {form.getFieldValue("name") || lawyer.name}
                   </Title>
-                  
+
                   <Space wrap>
                     <Space>
                       <MailOutlined style={{ color: "#9ca3af" }} />
@@ -656,20 +746,42 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                   <Space>
                     <BankOutlined style={{ color: "#9ca3af" }} />
                     <Text style={{ color: "#64748b" }}>
-                      {form.getFieldValue("specialization") || lawyer.specialization || "General Practice"}
+                      {form.getFieldValue("specialization") ||
+                        lawyer.specialization ||
+                        "General Practice"}
                     </Text>
                   </Space>
 
                   <div>
-                    {(form.getFieldValue("status") || lawyer.status)?.toLowerCase() === "active" ? (
+                    {(
+                      form.getFieldValue("status") || lawyer.status
+                    )?.toLowerCase() === "active" ? (
                       <Space>
-                        <div style={{ width: "8px", height: "8px", background: "#10b981", borderRadius: "50%" }} />
-                        <Text style={{ color: "#059669", fontWeight: "500" }}>Active</Text>
+                        <div
+                          style={{
+                            width: "8px",
+                            height: "8px",
+                            background: "#10b981",
+                            borderRadius: "50%",
+                          }}
+                        />
+                        <Text style={{ color: "#059669", fontWeight: "500" }}>
+                          Active
+                        </Text>
                       </Space>
                     ) : (
                       <Space>
-                        <div style={{ width: "8px", height: "8px", background: "#ef4444", borderRadius: "50%" }} />
-                        <Text style={{ color: "#dc2626", fontWeight: "500" }}>Inactive</Text>
+                        <div
+                          style={{
+                            width: "8px",
+                            height: "8px",
+                            background: "#ef4444",
+                            borderRadius: "50%",
+                          }}
+                        />
+                        <Text style={{ color: "#dc2626", fontWeight: "500" }}>
+                          Inactive
+                        </Text>
                       </Space>
                     )}
                   </div>

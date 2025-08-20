@@ -33,6 +33,7 @@ import {
 } from "@ant-design/icons";
 import { getLawyerById } from "@/app/service/adminAPI";
 import { Lawyer } from "@/app/types/firm";
+import { toast } from "react-hot-toast";
 
 const { Title, Text } = Typography;
 
@@ -52,9 +53,10 @@ export default function GetLawyerDetail({ params }: { params: { id: string } }) 
       setLoading(true);
       const data = await getLawyerById(lawyerId);
       setLawyer(data);
+      toast.success("successfully fetched lawyer detail");
     } catch (error) {
       console.error("Error fetching lawyer detail:", error);
-      message.error("Failed to fetch lawyer detail");
+      toast.error("Failed to fetch lawyer detail");
     } finally {
       setLoading(false);
     }

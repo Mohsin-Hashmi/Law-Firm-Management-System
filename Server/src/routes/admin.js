@@ -39,7 +39,18 @@ adminRoute.post(
 adminRoute.get("/firms/stats", userAuth, firmAdminAuth, firmStats);
 adminRoute.get("/firms/lawyers", userAuth, firmAdminAuth, getAllLawyer);
 adminRoute.get("/firm/lawyer/:id", userAuth, firmAdminAuth, getLawyerById);
-adminRoute.put("/firm/lawyer/:id", userAuth, firmAdminAuth, updateLawyer);
-adminRoute.delete("/firm/lawyer/:id", userAuth, firmAdminAuth, deleteLawyer);
+adminRoute.put(
+  "/firm/lawyer/:id",
+  userAuth,
+  firmAdminAuth,
+  upload.single("profileImage"),
+  updateLawyer
+);
+adminRoute.delete(
+  "/firm/lawyer/:id",
+  userAuth,
+  firmAdminAuth,
+  deleteLawyer
+);
 
 module.exports = adminRoute;

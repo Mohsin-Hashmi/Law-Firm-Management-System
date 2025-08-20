@@ -254,44 +254,55 @@ const updateLawyer = async (req, res) => {
     const adminId = req.user.id;
     const { id } = req.params;
     const { name, email, phone, specialization, status } = req.body;
+
     if (!id) {
       return res.status(404).json({
         success: false,
         error: "id is required",
       });
     }
+
     const adminUser = await User.findByPk(adminId);
     const lawyer = await Lawyer.findOne({
       where: { id, firmId: adminUser.firmId },
     });
+
     if (!lawyer) {
       return res.status(404).json({
         success: false,
         message: "Lawyer not found",
       });
     }
+
+    // If a new profile image is uploaded, build its path
+    const profileImage = req.file
+      ? `/uploads/lawyers/${req.file.filename}`
+      : lawyer.profileImage;
+
     await lawyer.update({
       name: name ?? lawyer.name,
       email: email ?? lawyer.email,
       phone: phone ?? lawyer.phone,
       specialization: specialization ?? lawyer.specialization,
       status: status ?? lawyer.status,
+      profileImage, // 👈 update with new path if available
     });
+
     return res.status(200).json({
       success: true,
       message: "Lawyer updated successfully",
       updatedLawyer: lawyer,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Error updating lawyer",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Error updating lawyer",
+      error: error.message,
+    });
   }
 };
+
+
 /**Delete a Lawyers by ID API */
 const deleteLawyer = async (req, res) => {
   try {

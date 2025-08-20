@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import DashboardLayout from "@/app/components/DashboardLayout";
 import {
   Card,
@@ -40,43 +40,28 @@ import {
   BankOutlined,
   ExportOutlined,
   ReloadOutlined,
+  ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import { getLawyers, deleteLawyer } from "@/app/service/adminAPI";
 import { Lawyer } from "@/app/types/firm";
+import { toast } from "react-hot-toast";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
-
-
+const { confirm } = Modal;
 
 export default function GetLawyers() {
   const router = useRouter();
-  const params = useParams();
-   const lawyerId = params?.id;
 
-     const handleDelete = async () => {
-    try {
-      if (!lawyerId) return;
-
-      const response = await deleteLawyer(lawyerId as string);
-
-      if (response.success) {
-        message.success(response.message);
-        router.push("/pages/firm-admin/lawyers"); // Redirect back to lawyers list
-      }
-    } catch (error) {
-      message.error("Failed to delete lawyer. Please try again.");
-    }
-  };
-  
   const [lawyers, setLawyers] = useState<Lawyer[]>([]);
   const [filteredLawyers, setFilteredLawyers] = useState<Lawyer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
+  const [deletingLawyerId, setDeletingLawyerId] = useState<number | null>(null);
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [specializationFilter, setSpecializationFilter] = useState<string>("all");
-  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-  const [selectedLawyer, setSelectedLawyer] = useState<Lawyer | null>(null);
+  const [specializationFilter, setSpecializationFilter] =
+    useState<string>("all");
 
   useEffect(() => {
     fetchLawyers();
@@ -86,11 +71,13 @@ export default function GetLawyers() {
     filterLawyers();
   }, [lawyers, searchText, statusFilter, specializationFilter]);
 
+  /**Get All Lawyers API */
   const fetchLawyers = async () => {
     try {
       setLoading(true);
-      const data = await getLawyers(); // Remove firmId parameter
+      const data = await getLawyers();
       setLawyers(data);
+      console.log("Successfully fetched lawyers data:", data);
     } catch (error) {
       console.error("Error fetching lawyers:", error);
       message.error("Failed to fetch lawyers data");
@@ -108,34 +95,59 @@ export default function GetLawyers() {
         (lawyer) =>
           lawyer.name.toLowerCase().includes(searchText.toLowerCase()) ||
           lawyer.email.toLowerCase().includes(searchText.toLowerCase()) ||
-          lawyer.specialization?.toLowerCase().includes(searchText.toLowerCase())
+          lawyer.specialization
+            ?.toLowerCase()
+            .includes(searchText.toLowerCase())
       );
     }
 
     // Filter by status
     if (statusFilter !== "all") {
-      filtered = filtered.filter((lawyer) => lawyer.status.toLowerCase() === statusFilter.toLowerCase());
+      filtered = filtered.filter(
+        (lawyer) => lawyer.status.toLowerCase() === statusFilter.toLowerCase()
+      );
     }
 
     // Filter by specialization
     if (specializationFilter !== "all") {
-      filtered = filtered.filter((lawyer) => lawyer.specialization.toLowerCase() === specializationFilter.toLowerCase());
+      filtered = filtered.filter(
+        (lawyer) =>
+          lawyer.specialization?.toLowerCase() ===
+          specializationFilter.toLowerCase()
+      );
     }
 
     setFilteredLawyers(filtered);
   };
 
-  const handleDeleteLawyer = (lawyer: Lawyer) => {
-    setSelectedLawyer(lawyer);
-    setDeleteModalVisible(true);
-  };
+  /**Handle delete function */
+const handleDeleteLawyer = async (lawyerId: number) => {
+  try {
+    setDeleting(true);
+    setDeletingLawyerId(lawyerId);
 
-  const confirmDelete = () => {
-    // Add your delete API call here
-    message.success("Lawyer deleted successfully");
-    setDeleteModalVisible(false);
-    fetchLawyers();
-  };
+    const response = await deleteLawyer(lawyerId);
+
+    if (response.success) {
+      setLawyers((prevLawyers) =>
+        prevLawyers.filter((lawyer) => lawyer.id !== lawyerId)
+      );
+      toast.success("Lawyer deleted successfully");
+      message.success("Lawyer deleted successfully");
+    } else {
+      throw new Error(response.message || "Delete failed");
+    }
+  } catch (error) {
+    console.error("Error deleting lawyer:", error);
+    toast.error("Failed to delete lawyer");
+    message.error("Failed to delete lawyer");
+  } finally {
+    setDeleting(false);
+    setDeletingLawyerId(null);
+  }
+};
+
+ 
 
   const getUniqueSpecializations = () => {
     const specializations = lawyers
@@ -151,7 +163,7 @@ export default function GetLawyers() {
       icon: <EyeOutlined />,
       label: "View Details",
       onClick: () => {
-        // Navigate to lawyer details page
+        console.log("View details clicked for:", lawyer.id);
         router.push(`/pages/firm-admin/get-lawyer-detail/${lawyer.id}`);
       },
     },
@@ -160,7 +172,7 @@ export default function GetLawyers() {
       icon: <EditOutlined />,
       label: "Edit Lawyer",
       onClick: () => {
-        // Navigate to edit page
+        console.log("Edit clicked for:", lawyer.id);
         router.push(`/pages/firm-admin/edit-lawyer/${lawyer.id}`);
       },
     },
@@ -168,7 +180,10 @@ export default function GetLawyers() {
       key: "delete",
       icon: <DeleteOutlined />,
       label: "Delete Lawyer",
-      onClick: () => handleDelete(),
+      onClick: () => {
+        console.log("Delete menu item clicked for:", lawyer.id);
+        handleDeleteLawyer(lawyer.id);
+      },
       danger: true,
     },
   ];
@@ -182,7 +197,11 @@ export default function GetLawyers() {
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <Avatar
             size={48}
-            src={record.profileImage ? `http://localhost:5000${record.profileImage}` : undefined}
+            src={
+              record.profileImage
+                ? `http://localhost:5000${record.profileImage}`
+                : undefined
+            }
             style={{
               background: record.profileImage ? "transparent" : "#f1f5f9",
               border: "2px solid #e5e7eb",
@@ -258,7 +277,8 @@ export default function GetLawyers() {
               style={{
                 fontSize: "13px",
                 fontWeight: "500",
-                color: status.toLowerCase() === "active" ? "#059669" : "#dc2626",
+                color:
+                  status.toLowerCase() === "active" ? "#059669" : "#dc2626",
               }}
             >
               {status}
@@ -285,27 +305,59 @@ export default function GetLawyers() {
       title: "Actions",
       key: "actions",
       render: (_: unknown, record: Lawyer) => (
-        <Dropdown
-          menu={{
-            items: getActionMenuItems(record),
-          }}
-          trigger={["click"]}
-        >
-          <Button
-            type="text"
-            icon={<MoreOutlined />}
-            style={{
-              borderRadius: "8px",
-              border: "1px solid #e5e7eb",
-            }}
-          />
-        </Dropdown>
+        <Space size="small">
+          <Tooltip title="View Details">
+            <Button
+              type="text"
+              size="small"
+              icon={<EyeOutlined />}
+              onClick={() =>
+                router.push(`/pages/firm-admin/get-lawyer-detail/${record.id}`)
+              }
+              style={{ borderRadius: "6px" }}
+            />
+          </Tooltip>
+          <Tooltip title="Edit Lawyer">
+            <Button
+              type="text"
+              size="small"
+              icon={<EditOutlined />}
+              onClick={() =>
+                router.push(`/pages/firm-admin/edit-lawyer/${record.id}`)
+              }
+              style={{ borderRadius: "6px" }}
+            />
+          </Tooltip>
+          <Tooltip title="Delete Lawyer">
+            <Button
+              type="text"
+              size="small"
+              icon={<DeleteOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                console.log("Direct delete button clicked for:", record.id);
+                handleDeleteLawyer(record.id); // ✅ Fixed: Call handleDeleteLawyer instead of getActionMenuItems
+              }}
+              loading={deleting && deletingLawyerId === record.id}
+              style={{
+                borderRadius: "6px",
+                color: "#dc2626",
+              }}
+              danger
+            />
+          </Tooltip>
+        </Space>
       ),
     },
   ];
 
-  const activeLawyers = lawyers.filter((lawyer) => lawyer.status.toLowerCase() === "active");
-  const inactiveLawyers = lawyers.filter((lawyer) => lawyer.status.toLowerCase() === "inactive");
+  const activeLawyers = lawyers.filter(
+    (lawyer) => lawyer.status.toLowerCase() === "active"
+  );
+  const inactiveLawyers = lawyers.filter(
+    (lawyer) => lawyer.status.toLowerCase() === "inactive"
+  );
 
   return (
     <DashboardLayout>
@@ -343,7 +395,9 @@ export default function GetLawyers() {
                       border: "2px solid rgba(255,255,255,0.2)",
                     }}
                   >
-                    <TeamOutlined style={{ fontSize: "32px", color: "white" }} />
+                    <TeamOutlined
+                      style={{ fontSize: "32px", color: "white" }}
+                    />
                   </div>
                   <div>
                     <Title
@@ -576,6 +630,7 @@ export default function GetLawyers() {
                   <Button
                     icon={<ReloadOutlined />}
                     onClick={fetchLawyers}
+                    loading={loading}
                     style={{
                       borderRadius: "12px",
                       border: "1px solid #d1d5db",
@@ -632,9 +687,7 @@ export default function GetLawyers() {
                     <Title level={4} style={{ color: "#64748b" }}>
                       No lawyers found
                     </Title>
-                    <Text>
-                      Start by adding your first lawyer to the firm
-                    </Text>
+                    <Text>Start by adding your first lawyer to the firm</Text>
                     <br />
                     <Button
                       type="primary"
@@ -651,35 +704,6 @@ export default function GetLawyers() {
               }}
             />
           </Card>
-
-          {/* Delete Confirmation Modal */}
-          <Modal
-            title={
-              <Space>
-                <DeleteOutlined style={{ color: "#dc2626" }} />
-                <span>Confirm Delete</span>
-              </Space>
-            }
-            open={deleteModalVisible}
-            onCancel={() => setDeleteModalVisible(false)}
-            footer={[
-              <Button key="cancel" onClick={() => setDeleteModalVisible(false)}>
-                Cancel
-              </Button>,
-              <Button key="delete" type="primary" danger onClick={confirmDelete}>
-                Delete Lawyer
-              </Button>,
-            ]}
-            centered
-          >
-            <div style={{ padding: "16px 0" }}>
-              <Text style={{ fontSize: "16px" }}>
-                Are you sure you want to delete{" "}
-                <strong>{selectedLawyer?.name}</strong>? This action cannot be
-                undone.
-              </Text>
-            </div>
-          </Modal>
         </div>
       </div>
     </DashboardLayout>
