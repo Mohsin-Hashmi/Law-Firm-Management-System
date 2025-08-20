@@ -66,60 +66,60 @@ const createFirm = async (req, res) => {
 
 
 /**Create Lawyer API */
-const createLawyer = async (req, res) => {
-  try {
-    const adminId = req.user.id;
-    const adminUser = await User.findByPk(adminId);
-    if (!adminUser || !adminUser.firmId) {
-      return res.status(400).json({
+  const createLawyer = async (req, res) => {
+    try {
+      const adminId = req.user.id;
+      const adminUser = await User.findByPk(adminId);
+      if (!adminUser || !adminUser.firmId) {
+        return res.status(400).json({
+          success: false,
+          error: "firm ID not found for the admin",
+        });
+      }
+      const { name, email, phone, specialization, status } = req.body;
+      if (!name || !email || !phone) {
+        return res.status(400).json({
+          success: false,
+          error: "Name, email, phone is required",
+        });
+      }
+      if (!validator.isEmail(email)) {
+        return res.status(400).json({
+          success: false,
+          error: "Invalid email format",
+        });
+      }
+      if (!validator.isMobilePhone(phone + "", "any")) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Invalid phone number" });
+      }
+        let profileImage = null;
+      if (req.file) {
+        profileImage = `/uploads/lawyers/${req.file.filename}`;
+      }
+      const lawyer = await Lawyer.create({
+        firmId: adminUser.firmId,
+        name,
+        email,
+        phone,
+        specialization,
+        status,
+        profileImage,
+      });
+      return res.status(200).json({
+        success: true,
+        message: "Lawyer create successfully",
+        newLawyer: lawyer,
+      });
+    } catch (error) {
+      res.status(500).json({
         success: false,
-        error: "firm ID not found for the admin",
+        message: "Error creating lawyer",
+        error: error.message,
       });
     }
-    const { name, email, phone, specialization, status } = req.body;
-    if (!name || !email || !phone) {
-      return res.status(400).json({
-        success: false,
-        error: "Name, email, phone is required",
-      });
-    }
-    if (!validator.isEmail(email)) {
-      return res.status(400).json({
-        success: false,
-        error: "Invalid email format",
-      });
-    }
-    if (!validator.isMobilePhone(phone + "", "any")) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid phone number" });
-    }
-      let profileImage = null;
-    if (req.file) {
-      profileImage = `/uploads/lawyers/${req.file.filename}`;
-    }
-    const lawyer = await Lawyer.create({
-      firmId: adminUser.firmId,
-      name,
-      email,
-      phone,
-      specialization,
-      status,
-      profileImage,
-    });
-    return res.status(200).json({
-      success: true,
-      message: "Lawyer create successfully",
-      newLawyer: lawyer,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Error creating lawyer",
-      error: error.message,
-    });
-  }
-};
+  };
 
 const firmStats = async (req, res) => {
   try {

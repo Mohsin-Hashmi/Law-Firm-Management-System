@@ -3,7 +3,7 @@
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import { getAllFirms, deleteFirm } from "@/app/service/superAdminAPI";
-import { removeFirm, getFirms } from "@/app/store/firmSlice";
+import { setFirm } from "@/app/store/firmSlice";
 import { useState, useEffect } from "react";
 import { Table, Spin, Typography, Button, Space, Tag } from "antd";
 import { useAppDispatch } from "@/app/store/hooks";
@@ -46,7 +46,7 @@ export default function GetFirms() {
 
       if (response.status === 200) {
         setFirms(response.data.firms);
-        dispatch(getFirms(response.data.firms));
+        dispatch(setFirm(response.data.firms));
       } else {
         toast.error("Failed to load firms");
       }
@@ -68,7 +68,7 @@ export default function GetFirms() {
   // handle delete firms from API
   const handleDelete = async (id: number) => {
     setFirms((prev) => prev.filter((f) => f.id !== id));
-    dispatch(removeFirm(id));
+    // dispatch(removeFirm(id));
     try {
       await deleteFirm(id);
       toast.success("Firm deleted successfully");

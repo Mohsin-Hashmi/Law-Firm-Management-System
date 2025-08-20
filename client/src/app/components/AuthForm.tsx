@@ -4,11 +4,18 @@ import React, { useState } from "react";
 import formImage from "../../../public/images/formImage.webp";
 import Image from "next/image";
 import Link from "next/link";
-import { FaEye, FaEyeSlash, FaUser, FaEnvelope, FaLock, FaShieldAlt } from "react-icons/fa";
+import {
+  FaEye,
+  FaEyeSlash,
+  FaUser,
+  FaEnvelope,
+  FaLock,
+  FaShieldAlt,
+} from "react-icons/fa";
 import { loginUser, signupUser } from "../service/authAPI";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { useAppDispatch } from "../store/hooks";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { addUser } from "../store/userSlice";
 
 type AuthFormProps = {
@@ -16,6 +23,7 @@ type AuthFormProps = {
 };
 
 export default function AuthForm({ type }: AuthFormProps) {
+  const firmId= useAppSelector((state)=>state.user.user?.firmId);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -92,7 +100,7 @@ export default function AuthForm({ type }: AuthFormProps) {
     e.preventDefault();
     const isValid = validate();
     if (!isValid) return;
-    
+
     setIsLoading(true);
     try {
       if (type === "signup") {
@@ -118,11 +126,21 @@ export default function AuthForm({ type }: AuthFormProps) {
       } else {
         const payload = { email, password };
         const response = await loginUser(payload);
-        dispatch(addUser(response.data.user));
+
+        const user = response.data.user; // from backend
+        dispatch(addUser(user));
         toast.success("Login successfully");
         setEmail("");
         setPassword("");
-        router.push("/pages/dashboard");
+
+        // 👇 Check if user has a firm
+        if (user.firmId) {
+          // firm already created → go dashboard
+          router.push("/pages/dashboard");
+        } else {
+          // no firm → redirect to add new firm page
+          router.push("/pages/firm-admin/add-firm");
+        }
       }
     } catch (error) {
       console.error("Error:" + error);
@@ -151,10 +169,9 @@ export default function AuthForm({ type }: AuthFormProps) {
                 {type === "login" ? "Welcome Back!" : "Create Account"}
               </h1>
               <p className="text-slate-600 text-base">
-                {type === "login" 
-                  ? "Sign in to access your dashboard" 
-                  : "Join us to manage your practice"
-                }
+                {type === "login"
+                  ? "Sign in to access your dashboard"
+                  : "Join us to manage your practice"}
               </p>
             </div>
 
@@ -175,8 +192,8 @@ export default function AuthForm({ type }: AuthFormProps) {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       className={`w-full pl-10 pr-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-slate-200 outline-none transition-all duration-300 ${
-                        error.name 
-                          ? "border-red-300 focus:border-red-500" 
+                        error.name
+                          ? "border-red-300 focus:border-red-500"
                           : "border-slate-200 focus:border-slate-400 hover:border-slate-300"
                       }`}
                     />
@@ -201,8 +218,8 @@ export default function AuthForm({ type }: AuthFormProps) {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className={`w-full pl-10 pr-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-slate-200 outline-none transition-all duration-300 ${
-                      error.email 
-                        ? "border-red-300 focus:border-red-500" 
+                      error.email
+                        ? "border-red-300 focus:border-red-500"
                         : "border-slate-200 focus:border-slate-400 hover:border-slate-300"
                     }`}
                   />
@@ -226,8 +243,8 @@ export default function AuthForm({ type }: AuthFormProps) {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className={`w-full pl-10 pr-10 py-3 border-2 rounded-lg focus:ring-2 focus:ring-slate-200 outline-none transition-all duration-300 ${
-                      error.password 
-                        ? "border-red-300 focus:border-red-500" 
+                      error.password
+                        ? "border-red-300 focus:border-red-500"
                         : "border-slate-200 focus:border-slate-400 hover:border-slate-300"
                     }`}
                   />
@@ -263,15 +280,17 @@ export default function AuthForm({ type }: AuthFormProps) {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       className={`w-full pl-10 pr-10 py-3 border-2 rounded-lg focus:ring-2 focus:ring-slate-200 outline-none transition-all duration-300 ${
-                        error.confirmPassword 
-                          ? "border-red-300 focus:border-red-500" 
+                        error.confirmPassword
+                          ? "border-red-300 focus:border-red-500"
                           : "border-slate-200 focus:border-slate-400 hover:border-slate-300"
                       }`}
                     />
                     <button
                       type="button"
                       className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                     >
                       {showConfirmPassword ? (
                         <FaEyeSlash className="h-4 w-4 text-slate-400 hover:text-slate-600 transition-colors" />
@@ -281,7 +300,9 @@ export default function AuthForm({ type }: AuthFormProps) {
                     </button>
                   </div>
                   {error.confirmPassword && (
-                    <p className="text-red-500 text-xs mt-1">{error.confirmPassword}</p>
+                    <p className="text-red-500 text-xs mt-1">
+                      {error.confirmPassword}
+                    </p>
                   )}
                 </div>
               )}
@@ -289,10 +310,16 @@ export default function AuthForm({ type }: AuthFormProps) {
               {type === "login" && (
                 <div className="flex items-center justify-between text-sm">
                   <label className="flex items-center">
-                    <input type="checkbox" className="mr-2 rounded border-slate-300" />
+                    <input
+                      type="checkbox"
+                      className="mr-2 rounded border-slate-300"
+                    />
                     <span className="text-slate-600">Remember me</span>
                   </label>
-                  <Link href="#" className="text-slate-600 hover:text-slate-900 font-medium">
+                  <Link
+                    href="#"
+                    className="text-slate-600 hover:text-slate-900 font-medium"
+                  >
                     Forgot password?
                   </Link>
                 </div>
@@ -312,8 +339,10 @@ export default function AuthForm({ type }: AuthFormProps) {
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                     Processing...
                   </div>
+                ) : type === "login" ? (
+                  "Sign In"
                 ) : (
-                  type === "login" ? "Sign In" : "Create Account"
+                  "Create Account"
                 )}
               </button>
             </form>
@@ -324,8 +353,8 @@ export default function AuthForm({ type }: AuthFormProps) {
                 {type === "signup" ? (
                   <>
                     Already have an account?{" "}
-                    <Link 
-                      href="/auth/login" 
+                    <Link
+                      href="/auth/login"
                       className="text-slate-900 font-semibold hover:text-slate-700 transition-colors"
                     >
                       Sign in here
@@ -334,8 +363,8 @@ export default function AuthForm({ type }: AuthFormProps) {
                 ) : (
                   <>
                     Dont have an account?{" "}
-                    <Link 
-                      href="/auth/signup" 
+                    <Link
+                      href="/auth/signup"
                       className="text-slate-900 font-semibold hover:text-slate-700 transition-colors"
                     >
                       Create one here
@@ -361,10 +390,9 @@ export default function AuthForm({ type }: AuthFormProps) {
                   {type === "login" ? "Welcome Back" : "Join Our Platform"}
                 </h2>
                 <p className="text-lg text-slate-200 max-w-sm">
-                  {type === "login" 
+                  {type === "login"
                     ? "Continue managing your law firm efficiently."
-                    : "Start managing your legal practice today."
-                  }
+                    : "Start managing your legal practice today."}
                 </p>
                 <div className="mt-6 flex items-center justify-center space-x-2">
                   <div className="w-2 h-2 bg-white/60 rounded-full"></div>
