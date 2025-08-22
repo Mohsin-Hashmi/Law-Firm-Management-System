@@ -18,7 +18,7 @@ const firmSlice = createSlice({
   initialState,
   reducers: {
     setFirm(state, action: PayloadAction<FirmStats>) {
-      state.firm = action.payload; // now valid
+      state.firm = action.payload;
     },
     setLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload;
@@ -26,8 +26,14 @@ const firmSlice = createSlice({
     setError(state, action: PayloadAction<string | null>) {
       state.error = action.payload;
     },
+    clearFirm(state) {
+      state.firm = undefined;   // reset firm data
+      state.error = null;
+      state.loading = false;
+    },
   },
 });
 
-export const { setFirm, setLoading, setError } = firmSlice.actions;
+export const { setFirm, setLoading, setError, clearFirm } = firmSlice.actions;
 export default firmSlice.reducer;
+

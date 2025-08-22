@@ -23,7 +23,7 @@ type AuthFormProps = {
 };
 
 export default function AuthForm({ type }: AuthFormProps) {
-  const firmId= useAppSelector((state)=>state.user.user?.firmId);
+  const firmId = useAppSelector((state) => state.user.user?.firmId);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -95,60 +95,76 @@ export default function AuthForm({ type }: AuthFormProps) {
     setError(newError);
     return isValid;
   };
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const isValid = validate();
-    if (!isValid) return;
+  const isValid = validate();
+  if (!isValid) return;
 
-    setIsLoading(true);
-    try {
-      if (type === "signup") {
-        if (password !== confirmPassword) {
-          toast.error("Passwords do not match");
-          return;
-        }
-        const payload = { name, email, password, confirmPassword };
-        let role = "Frim Admin";
-        if (window.location.pathname.includes("firm-admin")) {
-          role = "Firm Admin";
-        } else if (window.location.pathname.includes("lawyer")) {
-          role = "Lawyer";
-        }
-        const response = await signupUser(payload, role);
-        dispatch(addUser(response.data.safeUser));
-        toast.success("Signup Successfully");
-        setName("");
-        setEmail("");
-        setPassword("");
-        setConfirmPassword("");
-        router.push("/auth/login");
-      } else {
-        const payload = { email, password };
-        const response = await loginUser(payload);
+  setIsLoading(true);
 
-        const user = response.data.user; // from backend
-        dispatch(addUser(user));
-        toast.success("Login successfully");
-        setEmail("");
-        setPassword("");
-
-        // 👇 Check if user has a firm
-        if (user.firmId) {
-          // firm already created → go dashboard
-          router.push("/pages/dashboard");
-        } else {
-          // no firm → redirect to add new firm page
-          router.push("/pages/firm-admin/add-firm");
-        }
+  try {
+    if (type === "signup") {
+      if (password !== confirmPassword) {
+        toast.error("Passwords do not match");
+        return;
       }
-    } catch (error) {
-      console.error("Error:" + error);
-      toast.error("An error occurred. Please try again.");
-    } finally {
-      setIsLoading(false);
+      const payload = { name, email, password, confirmPassword };
+      let role = "Firm Admin";
+      if (window.location.pathname.includes("lawyer")) role = "Lawyer";
+
+      const response = await signupUser(payload, role);
+      dispatch(addUser(response.data.safeUser));
+      toast.success("Signup Successfully");
+
+      setName("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+      router.push("/auth/login");
+    } else {
+      // Login
+      const payload = { email, password };
+      const response = await loginUser(payload);
+
+      if (!response.data.success) {
+        toast.error(response.data.message || "Login failed");
+        return;
+      }
+
+      const user = response.data.user;
+
+      // Ensure Redux store has active firm and all firms
+      const currentFirmId = user.currentFirmId || (user.firms?.[0]?.id ?? null);
+
+      dispatch(
+        addUser({
+          ...user,
+          firms: user.firms || [],
+          currentFirmId,
+          firmId: currentFirmId, // active firm for Redux
+        })
+      );
+
+      toast.success("Login successfully");
+
+      setEmail("");
+      setPassword("");
+
+      // Redirect based on firm presence
+      if (currentFirmId) {
+        router.push("/pages/dashboard"); // user has a firm → go dashboard
+      } else {
+        router.push("/pages/firm-admin/add-firm"); // no firm → add firm page
+      }
     }
-  };
+  } catch (error) {
+    console.error("Login error:", error);
+    toast.error ("An error occurred. Please try again.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 flex items-center justify-center p-4">

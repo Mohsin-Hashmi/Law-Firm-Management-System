@@ -1,10 +1,10 @@
-
-const { FirmValidation } = require("../utils/validation");
-const { where } = require("sequelize");
-const { Lawyer, User, Firm } = require("../models");
+const { sequelize } = require("../models");
+const { Firm, User, AdminFirm, Lawyer } = require("../models/index.js");
+const { FirmValidation } = require("../utils/validation.js");
 const validator = require("validator");
-/**create firm API Logic */
+
 const createFirm = async (req, res) => {
+  const t = await sequelize.transaction();
   try {
     const {
       name,
@@ -16,46 +16,59 @@ const createFirm = async (req, res) => {
       max_cases,
     } = req.body;
 
+    // Validate input
     const validateFirm = FirmValidation(req, res);
-    if (validateFirm) return;
+    if (validateFirm) {
+      await t.rollback();
+      return;
+    }
 
-    // ✅ Generate subdomain from firm name (lowercase, replace spaces with '-')
+    // Generate unique subdomain
     const subdomain = name.toLowerCase().replace(/\s+/g, "-");
     const existingFirm = await Firm.findOne({ where: { subdomain } });
     if (existingFirm) {
+      await t.rollback();
       return res.status(400).json({
         success: false,
         message:
           "Subdomain already taken. Please choose a different firm name.",
       });
     }
-    // create a new firm
-    const firm = await Firm.create({
-      name,
-      email,
-      phone,
-      address,
-      subscription_plan,
-      max_users,
-      max_cases,
-      subdomain, // auto-set
-    });
 
-     await User.update(
-      { firmId: firm.id },
-      { where: { id: req.user.id } }
+    //  Create Firm
+    const firm = await Firm.create(
+      {
+        name,
+        email,
+        phone,
+        address,
+        subscription_plan,
+        max_users,
+        max_cases,
+        subdomain,
+      },
+      { transaction: t }
     );
-     const updatedUser = await User.findByPk(req.user.id);
 
+    //  Link Admin with Firm (new approach, since firmId was removed from users table)
+    await AdminFirm.create(
+      {
+        adminId: req.user.id,
+        firmId: firm.id,
+      },
+      { transaction: t }
+    );
 
-    res.status(201).json({
+    await t.commit();
+
+    return res.status(201).json({
       success: true,
       message: "Firm created successfully",
       newFirm: firm,
-      updatedUser,
-    }); 
+    });
   } catch (error) {
-    console.log(error);
+    await t.rollback();
+    console.error(error);
     return res.status(500).json({
       success: false,
       message: "Failed to create firm",
@@ -64,69 +77,116 @@ const createFirm = async (req, res) => {
   }
 };
 
+/** Create Lawyer API */
+const createLawyer = async (req, res) => {
+  const t = await sequelize.transaction();
+  try {
+    const adminId = req.user.id;
 
-/**Create Lawyer API */
-  const createLawyer = async (req, res) => {
-    try {
-      const adminId = req.user.id;
-      const adminUser = await User.findByPk(adminId);
-      if (!adminUser || !adminUser.firmId) {
-        return res.status(400).json({
-          success: false,
-          error: "firm ID not found for the admin",
-        });
-      }
-      const { name, email, phone, specialization, status } = req.body;
-      if (!name || !email || !phone) {
-        return res.status(400).json({
-          success: false,
-          error: "Name, email, phone is required",
-        });
-      }
-      if (!validator.isEmail(email)) {
-        return res.status(400).json({
-          success: false,
-          error: "Invalid email format",
-        });
-      }
-      if (!validator.isMobilePhone(phone + "", "any")) {
-        return res
-          .status(400)
-          .json({ success: false, message: "Invalid phone number" });
-      }
-        let profileImage = null;
-      if (req.file) {
-        profileImage = `/uploads/lawyers/${req.file.filename}`;
-      }
-      const lawyer = await Lawyer.create({
-        firmId: adminUser.firmId,
+    // Get the firmId linked to this admin
+    const adminFirm = await AdminFirm.findOne({
+      where: { adminId },
+      transaction: t,
+    });
+
+    if (!adminFirm) {
+      await t.rollback();
+      return res.status(400).json({
+        success: false,
+        error: "No firm found for this admin",
+      });
+    }
+
+    const firmId = adminFirm.firmId;
+
+    const { name, email, phone, specialization, status } = req.body;
+
+    // ✅ Validation
+    if (!name || !email || !phone) {
+      await t.rollback();
+      return res.status(400).json({
+        success: false,
+        error: "Name, email, and phone are required",
+      });
+    }
+    if (!validator.isEmail(email)) {
+      await t.rollback();
+      return res
+        .status(400)
+        .json({ success: false, error: "Invalid email format" });
+    }
+    if (!validator.isMobilePhone(phone.toString(), "any")) {
+      await t.rollback();
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid phone number" });
+    }
+
+    // Prevent duplicate lawyers in the same firm
+    const existingLawyer = await Lawyer.findOne({
+      where: { email, firmId },
+      transaction: t,
+    });
+    if (existingLawyer) {
+      await t.rollback();
+      return res.status(400).json({
+        success: false,
+        error: "A lawyer with this email already exists in your firm",
+      });
+    }
+
+    // Handle profile image
+    let profileImage = null;
+    if (req.file) {
+      profileImage = `/uploads/lawyers/${req.file.filename}`;
+    }
+
+    //  Create lawyer
+    const lawyer = await Lawyer.create(
+      {
+        firmId,
         name,
         email,
         phone,
         specialization,
-        status,
+        status: status || "active",
         profileImage,
-      });
-      return res.status(200).json({
-        success: true,
-        message: "Lawyer create successfully",
-        newLawyer: lawyer,
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: "Error creating lawyer",
-        error: error.message,
-      });
-    }
-  };
+      },
+      { transaction: t }
+    );
+
+    await t.commit();
+    return res.status(201).json({
+      success: true,
+      message: "Lawyer created successfully",
+      newLawyer: lawyer,
+    });
+  } catch (error) {
+    await t.rollback();
+    res.status(500).json({
+      success: false,
+      message: "Error creating lawyer",
+      error: error.message,
+    });
+  }
+};
 
 const firmStats = async (req, res) => {
   try {
-    // If a Super Admin wants to check another firm, pass :id param
-    const firmId = req.user.role === "Super Admin" 
-      ? Number(req.params.id) 
-      : req.user.firmId;   // For Firm Admin, use their own firmId
+    let firmId;
+
+    if (req.user.role === "Super Admin") {
+      firmId = Number(req.params.id); // super admin can check any firm
+    } else {
+      // for firm admin, resolve from AdminFirm join table
+      const adminFirm = await AdminFirm.findOne({
+        where: { adminId: req.user.id },
+      });
+      if (!adminFirm) {
+        return res.status(400).json({ error: "Firm not found for this admin" });
+      }
+      firmId = adminFirm.firmId;
+    }
 
     if (!firmId) {
       return res.status(400).json({ error: "Firm ID not found" });
@@ -135,13 +195,21 @@ const firmStats = async (req, res) => {
     const firm = await Firm.findByPk(firmId);
     if (!firm) return res.status(404).json({ error: "Firm not found" });
 
+    // Counts based on new structure
     const lawyersCount = await Lawyer.count({ where: { firmId } });
-    const clientsCount = await User.count({ where: { firmId, role: "Client" } });
-    const totalUsersCount = await User.count({ where: { firmId } });
-    const activeLawyersCount = await Lawyer.count({ where: { firmId, status: "Active" } });
+
+    // If you also dropped firmId from users, adjust here:
+    const clientsCount = await User.count({
+      where: { role: "Client" }, // may need to join FirmClient if you use a join table
+    });
+
+    const totalUsersCount = await User.count(); // adjust if needed
+    const activeLawyersCount = await Lawyer.count({
+      where: { firmId, status: "active" }, 
+    });
 
     const recentClients = await User.findAll({
-      where: { firmId, role: "Client" },
+      where: { role: "Client" }, // may need join
       order: [["createdAt", "DESC"]],
       limit: 5,
       attributes: ["id", "name", "email", "createdAt"],
@@ -176,13 +244,19 @@ const getAllLawyer = async (req, res) => {
       return res.status(401).json({ success: false, error: "Unauthorized" });
     }
 
-    const adminUser = await User.findByPk(adminId);
+    const adminUser = await AdminFirm.findOne({
+      where: { adminId }
+    });
     if (!adminUser) {
-      return res.status(404).json({ success: false, error: "Firm admin not found" });
+      return res
+        .status(404)
+        .json({ success: false, error: "Firm admin not found" });
     }
 
     if (!adminUser.firmId) {
-      return res.status(400).json({ success: false, error: "Firm ID not found for this admin" });
+      return res
+        .status(400)
+        .json({ success: false, error: "Firm ID not found for this admin" });
     }
 
     const lawyers = await Lawyer.findAll({
@@ -190,7 +264,9 @@ const getAllLawyer = async (req, res) => {
     });
 
     if (!lawyers.length) {
-      return res.status(404).json({ success: false, error: "No lawyer found in this firm" });
+      return res
+        .status(404)
+        .json({ success: false, error: "No lawyer found in this firm" });
     }
 
     return res.status(200).json({
@@ -207,7 +283,6 @@ const getAllLawyer = async (req, res) => {
   }
 };
 
-
 /**Get a Lawyers by ID API */
 const getLawyerById = async (req, res) => {
   try {
@@ -219,7 +294,9 @@ const getLawyerById = async (req, res) => {
         error: "Id is required",
       });
     }
-    const adminUser = await User.findByPk(adminId);
+    const adminUser = await AdminFirm.findOne({
+       where: { adminId }
+    });
     if (!adminUser) {
       return res.status(404).json({
         success: false,
@@ -262,7 +339,9 @@ const updateLawyer = async (req, res) => {
       });
     }
 
-    const adminUser = await User.findByPk(adminId);
+    const adminUser = await await AdminFirm.findOne({
+       where: { adminId }
+    });
     const lawyer = await Lawyer.findOne({
       where: { id, firmId: adminUser.firmId },
     });
@@ -302,7 +381,6 @@ const updateLawyer = async (req, res) => {
   }
 };
 
-
 /**Delete a Lawyers by ID API */
 const deleteLawyer = async (req, res) => {
   try {
@@ -314,7 +392,9 @@ const deleteLawyer = async (req, res) => {
         error: "Id is required",
       });
     }
-    const adminUser = await User.findByPk(adminId);
+    const adminUser = await await AdminFirm.findOne({
+       where: { adminId }
+    });
     const lawyer = await Lawyer.findOne({
       where: { id, firmId: adminUser.firmId },
     });
@@ -336,5 +416,12 @@ const deleteLawyer = async (req, res) => {
   }
 };
 
-
-module.exports = { createFirm , firmStats, createLawyer, getAllLawyer , getLawyerById , deleteLawyer, updateLawyer};
+module.exports = {
+  createFirm,
+  firmStats,
+  createLawyer,
+  getAllLawyer,
+  getLawyerById,
+  deleteLawyer,
+  updateLawyer,
+};

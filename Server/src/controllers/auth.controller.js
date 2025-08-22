@@ -7,7 +7,8 @@ const {
   UserSignUpValidation,
   UserLoginInValidation,
 } = require("../utils/validation");
-const { User, Firm } = require("../models");
+const { Firm, User, AdminFirm, Lawyer } = require("../models/index.js");
+const { where } = require("sequelize");
 
 // Signup api for normal users like superadmin lawyer and clients
 const SignUp = async (req, res) => {
@@ -48,65 +49,80 @@ const SignUp = async (req, res) => {
   }
 };
 
-// const AdminSignUp = async (req, res) => {
-//   try {
-//   } catch (err) {
-//     res.status(500).json({
-//       success: false,
-//       message: "Internal server error",
-//       error: err.message,
-//     });
-//   }
-// };
 const LoginIn = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const validationResult = UserLoginInValidation(req, res);
-    if (validationResult) return;
+    // Find user with related firms
+    const user = await User.findOne({
+      where: { email },
+      include: [
+        {
+          model: AdminFirm,
+          as: "adminFirms",
+          include: [
+            {
+              model: Firm,
+              as: "firm",
+            },
+          ],
+        },
+      ],
+    });
 
-    // Ensure user belongs to this firm
-    const user = await User.findOne({ where: { email } });
-    if (!user)
+    if (!user) {
       return res
         .status(404)
         .json({ success: false, message: "User not found" });
+    }
 
-    const isPasswordMatch = await bcrypt.compare(password, user.password);
-    if (!isPasswordMatch)
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
       return res
-        .status(401)
+        .status(400)
         .json({ success: false, message: "Invalid credentials" });
+    }
 
+    // JWT Token
     const token = jwt.sign(
-      { id: user.id, role: user.role, firmId: user.firmId },
+      {
+        id: user.id,
+        role: user.role,
+        firmId: user.adminFirms?.length > 0 ? user.adminFirms[0].firmId : null,
+      },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "None",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
-    const safeUser = user.toJSON();
-    delete safeUser.password;
-
     res.status(200).json({
       success: true,
-      message: "Login successfully",
-      user: safeUser,
+      message: "Login successful",
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        firms: user.adminFirms.map((af) => ({
+          id: af.firm.id,
+          name: af.firm.name,
+        })),
+        currentFirmId:
+          user.adminFirms?.length > 0 ? user.adminFirms[0].firmId : null,
+        firmId: user.adminFirms?.length > 0 ? user.adminFirms[0].firmId : null,
+      },
       token,
     });
   } catch (err) {
-    console.log("Login error:", err);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: err.message,
-    });
+    console.error(err);
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "Internal server error",
+        error: err.message,
+      });
   }
 };
 

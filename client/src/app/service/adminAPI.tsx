@@ -93,7 +93,6 @@ export const deleteLawyer = async (
         withCredentials: true,
       }
     );
-
     console.log("Delete lawyer response:", response.data);
     return response.data; // { success: true, message: "Lawyer deleted successfully" }
   } catch (error) {

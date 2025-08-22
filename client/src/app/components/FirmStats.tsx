@@ -30,7 +30,7 @@ import {
 } from "@ant-design/icons";
 import { getStats } from "../service/adminAPI";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { setFirm, setError, setLoading } from "../store/firmSlice";
+import { setFirm, setError, setLoading, clearFirm } from "../store/firmSlice";
 import { useRouter } from "next/navigation";
 import { RootState } from "../store/store";
 

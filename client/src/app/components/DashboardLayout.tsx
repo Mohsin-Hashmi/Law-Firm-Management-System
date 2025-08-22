@@ -51,6 +51,7 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
       { label: "Dashboard", href: "/pages/dashboard", icon: <HomeOutlined />, category: "Main" },
       { label: "About", href: "/pages/about-us", icon: <InfoCircleOutlined />, category: "Main" },
       { label: "Services", href: "/pages/our-services", icon: <AppstoreOutlined />, category: "Main" },
+      { label: "Create New Law Firm", href: "/pages/firm-admin/add-firm", icon: <AppstoreOutlined />, category: "Main" },
       { label: "Lawyers", href: "/pages/firm-admin/get-lawyers", icon: <UserOutlined />, category: "Team Management" },
       { label: "Add Clients", href: "/", icon: <TeamOutlined />, category: "Client Management" },
       { label: "Add Lawyer", href: "/pages/firm-admin/add-lawyer", icon: <PlusOutlined />, category: "Team Management" },

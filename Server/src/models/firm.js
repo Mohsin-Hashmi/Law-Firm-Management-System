@@ -1,3 +1,4 @@
+// Firm.js
 "use strict";
 const { Model } = require("sequelize");
 
@@ -9,52 +10,25 @@ module.exports = (sequelize, DataTypes) => {
         as: "lawyers",
         onDelete: "CASCADE",
       });
-      Firm.hasMany(models.User, {
-        foreignKey: "firmId",
-        as: "users",
-      });
+
+      // ✅ Many-to-Many: Firms <-> Users (Admins)
+      Firm.hasMany(models.AdminFirm, { foreignKey: "firmId", as: "adminFirms" });
     }
   }
 
   Firm.init(
     {
-      name: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      email: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-        validate: {
-          isEmail: true,
-        },
-      },
-      phone: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      address: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-      },
+      name: { type: DataTypes.STRING, allowNull: false },
+      email: { type: DataTypes.STRING, allowNull: false, unique: true },
+      phone: { type: DataTypes.STRING, allowNull: true },
+      address: { type: DataTypes.TEXT, allowNull: true },
       subscription_plan: {
         type: DataTypes.ENUM("Free", "Basic", "Premium"),
         allowNull: false,
       },
-      max_users: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-      },
-      max_cases: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-      },
-      subdomain: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-      },
+      max_users: { type: DataTypes.INTEGER, allowNull: false },
+      max_cases: { type: DataTypes.INTEGER, allowNull: false },
+      subdomain: { type: DataTypes.STRING, allowNull: false, unique: true },
     },
     {
       sequelize,
