@@ -14,7 +14,7 @@ import {
 } from "react-icons/fa";
 import { loginUser, signupUser } from "../service/authAPI";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { addUser } from "../store/userSlice";
 

@@ -60,27 +60,18 @@ const LoginIn = async (req, res) => {
         {
           model: AdminFirm,
           as: "adminFirms",
-          include: [
-            {
-              model: Firm,
-              as: "firm",
-            },
-          ],
+          include: [{ model: Firm, as: "firm" }],
         },
       ],
     });
 
     if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid credentials" });
+      return res.status(400).json({ success: false, message: "Invalid credentials" });
     }
 
     // JWT Token
@@ -94,6 +85,14 @@ const LoginIn = async (req, res) => {
       { expiresIn: "7d" }
     );
 
+    // Save token in httpOnly cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // true if https
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
     res.status(200).json({
       success: true,
       message: "Login successful",
@@ -102,27 +101,16 @@ const LoginIn = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
         firms: user.adminFirms.map((af) => ({
           id: af.firm.id,
           name: af.firm.name,
         })),
-        currentFirmId:
-          user.adminFirms?.length > 0 ? user.adminFirms[0].firmId : null,
-        firmId: user.adminFirms?.length > 0 ? user.adminFirms[0].firmId : null,
+        currentFirmId: user.adminFirms?.length > 0 ? user.adminFirms[0].firmId : null,
       },
-      token,
     });
   } catch (err) {
     console.error(err);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Internal server error",
-        error: err.message,
-      });
+    res.status(500).json({ success: false, message: "Internal server error", error: err.message });
   }
 };
 

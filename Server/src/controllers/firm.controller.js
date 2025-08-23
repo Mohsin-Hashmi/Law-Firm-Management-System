@@ -278,8 +278,10 @@ const getAllLawyer = async (req, res) => {
 /**Get a Lawyers by ID API */
 const getLawyerById = async (req, res) => {
   try {
-    const adminId = req.user.id; // Logged-in admin ID
-    // Validate lawyer ID
+    const adminId = req.user.id;   // from JWT
+    const adminFirmId = req.user.firmId; // from JWT
+    console.log("logged in user is ", adminId, "with firmId:", adminFirmId);
+
     const lawyerId = Number(req.params.id);
     if (!req.params.id || isNaN(lawyerId)) {
       return res.status(400).json({
@@ -287,26 +289,21 @@ const getLawyerById = async (req, res) => {
         error: "Invalid or missing lawyer ID",
       });
     }
-    // Fetch all firms for this admin
-    const adminFirms = await AdminFirm.findAll({ where: { adminId } });
-    // Fetch the lawyer by ID
-    const lawyer = await Lawyer.findOne({ where: { id: lawyerId } });
 
+    // Fetch lawyer
+    const lawyer = await Lawyer.findOne({ where: { id: lawyerId } });
     if (!lawyer) {
-      return res
-        .status(404)
-        .json({ success: false, error: "Lawyer not found" });
+      return res.status(404).json({ success: false, error: "Lawyer not found" });
     }
 
+    console.log("Lawyer firmId:", lawyer.firmId);
+
     // Check if admin belongs to the same firm
-    const isAdminInFirm = adminFirms.some((f) => f.firmId === lawyer.firmId);
-    if (!isAdminInFirm) {
-      return res
-        .status(403)
-        .json({
-          success: false,
-          error: "Admin not allowed to access this lawyer",
-        });
+    if (Number(lawyer.firmId) !== Number(adminFirmId)) {
+      return res.status(403).json({
+        success: false,
+        error: "Admin not allowed to access this lawyer",
+      });
     }
 
     return res.status(200).json({
@@ -323,26 +320,34 @@ const getLawyerById = async (req, res) => {
     });
   }
 };
+;
 
 /**Update a Lawyers by ID API */
 const updateLawyer = async (req, res) => {
   try {
-    const adminId = req.user.id;
     const { id } = req.params;
     const { name, email, phone, specialization, status } = req.body;
 
-    if (!id) return res.status(400).json({ success: false, error: "Id is required" });
+    if (!id) {
+      return res.status(400).json({ success: false, error: "Id is required" });
+    }
 
-    const adminFirms = await AdminFirm.findAll({ where: { adminId } });
+    // Get firmId from JWT
+    const firmId = req.user.firmId;
 
-    const lawyer = await Lawyer.findOne({ where: { id } });
-    if (!lawyer) return res.status(404).json({ success: false, message: "Lawyer not found" });
+    // Find lawyer by id and firmId (ensures admin only updates their own firm's lawyer)
+    const lawyer = await Lawyer.findOne({ where: { id, firmId } });
 
-    const isAdminInFirm = adminFirms.some(f => f.firmId === lawyer.firmId);
-    if (!isAdminInFirm)
-      return res.status(403).json({ success: false, message: "Admin not allowed to update this lawyer" });
+    if (!lawyer) {
+      return res.status(404).json({
+        success: false,
+        message: "Lawyer not found or not part of your firm",
+      });
+    }
 
-    const profileImage = req.file ? `/uploads/lawyers/${req.file.filename}` : lawyer.profileImage;
+    const profileImage = req.file
+      ? `/uploads/lawyers/${req.file.filename}`
+      : lawyer.profileImage;
 
     await lawyer.update({
       name: name ?? lawyer.name,
@@ -353,9 +358,18 @@ const updateLawyer = async (req, res) => {
       profileImage,
     });
 
-    return res.status(200).json({ success: true, message: "Lawyer updated successfully", updatedLawyer: lawyer });
+    return res.status(200).json({
+      success: true,
+      message: "Lawyer updated successfully",
+      updatedLawyer: lawyer,
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Error updating lawyer", error: error.message });
+    console.error("Update Lawyer Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error updating lawyer",
+      error: error.message,
+    });
   }
 };
 
@@ -363,24 +377,43 @@ const updateLawyer = async (req, res) => {
 /**Delete a Lawyers by ID API */
 const deleteLawyer = async (req, res) => {
   try {
-    const adminId = req.user.id;
     const { id } = req.params;
-    if (!id) return res.status(400).json({ success: false, error: "Id is required" });
+    const adminId = req.user.id;
+    const adminRole = req.user.role;
+    const firmIdFromToken = req.user.firmId;
 
-    const adminFirms = await AdminFirm.findAll({ where: { adminId } });
+    if (!id)
+      return res.status(400).json({ success: false, error: "Id is required" });
 
     const lawyer = await Lawyer.findOne({ where: { id } });
-    if (!lawyer) return res.status(404).json({ success: false, message: "Lawyer not found" });
+    if (!lawyer)
+      return res.status(404).json({ success: false, message: "Lawyer not found" });
 
-    const isAdminInFirm = adminFirms.some(f => f.firmId === lawyer.firmId);
-    if (!isAdminInFirm)
-      return res.status(403).json({ success: false, message: "Admin not allowed to delete this lawyer" });
+    let allowedFirmIds = [];
+
+    if (adminRole === "Super Admin") {
+      const adminFirms = await AdminFirm.findAll({ where: { adminId } });
+      allowedFirmIds = adminFirms.map((f) => f.firmId);
+    } else if (adminRole === "Firm Admin") {
+      allowedFirmIds = [firmIdFromToken];
+    }
+
+    if (!allowedFirmIds.includes(lawyer.firmId)) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin not allowed to delete this lawyer",
+      });
+    }
 
     await lawyer.destroy();
 
     return res.status(200).json({ success: true, message: "Lawyer deleted successfully" });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Error deleting lawyer", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Error deleting lawyer",
+      error: error.message,
+    });
   }
 };
 
@@ -391,7 +424,7 @@ const switchFirm = async (req, res) => {
     const userId = req.user.id; // your auth middleware should populate req.user
 
     // verify user has access to this firm
-    const adminFirm = await AdminFirm.findOne({
+    const adminFirm = await AdminFirm.findAll({
       where: { adminId: userId, firmId },
     });
     if (!adminFirm) {

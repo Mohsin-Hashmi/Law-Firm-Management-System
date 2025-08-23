@@ -2,32 +2,36 @@ const dotenv = require("dotenv");
 dotenv.config();
 const jwt = require("jsonwebtoken");
 const { User } = require("../models");
+
 const userAuth = async (req, res, next) => {
   try {
-    const cookies = req.cookies;
-    const { token } = cookies
-    console.log("token is",token);
+    const token = req.cookies.token; 
     if (!token) {
-      return res.status(401).json({
-        success: false,
-        error: "Please Login to access the resource",
-      });
+      return res
+        .status(401)
+        .json({
+          success: false,
+          error: "Please login to access this resource",
+        });
     }
-    const isTokenValid = await jwt.verify(token, process.env.JWT_SECRET);
-    if (!isTokenValid) {
-      return res.status(401).json({
-        success: false,
-        error: "Invalid token, Please Login again",
-      });
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findByPk(decoded.id);
+    if (!user) {
+      return res.status(401).json({ success: false, error: "User not found" });
     }
-    const user = await User.findByPk(isTokenValid.id);
-    req.user = { id: user.id, role: user.role, firmId: user.firmId, };
+
+    req.user = {
+      id: user.id,
+      role: user.role,
+      firmId: decoded.firmId || user.firmId, // keep firmId in sync
+    };
+
     next();
   } catch (err) {
-    return res.status(401).json({
-      success: false,
-      error: "Invalid token, Please Login again",
-    });
+    return res
+      .status(401)
+      .json({ success: false, error: "Invalid token, Please login again" });
   }
 };
 

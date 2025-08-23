@@ -65,7 +65,6 @@ export default function GetLawyers() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [specializationFilter, setSpecializationFilter] =
     useState<string>("all");
-  
 
   useEffect(() => {
     filterLawyers();
@@ -88,7 +87,7 @@ export default function GetLawyers() {
   useEffect(() => {
     if (firmId) {
       setLawyers([]);
-      fetchLawyers(firmId); 
+      fetchLawyers(firmId);
     }
   }, [firmId]);
 
@@ -365,23 +364,11 @@ export default function GetLawyers() {
 
   return (
     <DashboardLayout>
-      <div
-        style={{
-          background: "#f8fafc",
-          minHeight: "100vh",
-          padding: "24px",
-        }}
-      >
+      <div className="min-h-screen p-6 bg-slate-50 dark:bg-slate-900 transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
         <div className="max-w-[1400px] mx-auto">
           {/* Header Section */}
           <Card
-            style={{
-              marginBottom: "32px",
-              background: "linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)",
-              border: "none",
-              borderRadius: "16px",
-              boxShadow: "0 10px 25px rgba(30, 64, 175, 0.15)",
-            }}
+            className="bg-blue-900 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
             bodyStyle={{ padding: "32px" }}
           >
             <Row align="middle" justify="space-between">
@@ -474,101 +461,141 @@ export default function GetLawyers() {
           <Row gutter={[24, 24]} style={{ marginBottom: "32px" }}>
             <Col xs={24} sm={8} lg={6}>
               <Card
-                style={{
-                  borderRadius: "16px",
-                  border: "1px solid #dbeafe",
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
+                bodyStyle={{ padding: "30px" }}
+                hoverable
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-4px)";
+                  e.currentTarget.style.boxShadow =
+                    "0 10px 25px rgba(0,0,0,0.15)";
                 }}
-                bodyStyle={{ padding: "24px" }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.1)";
+                }}
               >
                 <Statistic
                   title={
-                    <span style={{ color: "#64748b", fontSize: "14px" }}>
+                    <span className="text-slate-500 dark:text-white text-lg font-medium  mb-[5px]">
                       Total Lawyers
                     </span>
                   }
                   value={lawyers.length}
                   valueStyle={{
-                    color: "#1e40af",
                     fontSize: "32px",
                     fontWeight: "700",
+                    lineHeight: "1",
+                    color: "inherit",
                   }}
-                  prefix={<TeamOutlined />}
+                  prefix={
+                    <TeamOutlined className="text-blue-600 dark:text-blue-400 text-3xl g mr-1" />
+                  }
+                  className="text-slate-900 dark:text-blue-600 [&_.ant-statistic-content-value]:dark:!text-blue-60"
                 />
               </Card>
             </Col>
             <Col xs={24} sm={8} lg={6}>
               <Card
-                style={{
-                  borderRadius: "16px",
-                  border: "1px solid #d1fae5",
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
+                bodyStyle={{ padding: "30px" }}
+                hoverable
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-4px)";
+                  e.currentTarget.style.boxShadow =
+                    "0 10px 25px rgba(0,0,0,0.15)";
                 }}
-                bodyStyle={{ padding: "24px" }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.1)";
+                }}
               >
                 <Statistic
                   title={
-                    <span style={{ color: "#64748b", fontSize: "14px" }}>
+                    <span className="text-slate-500 dark:text-white text-lg font-medium mb-[5px]">
                       Active Lawyers
                     </span>
                   }
                   value={activeLawyers.length}
                   valueStyle={{
-                    color: "#059669",
                     fontSize: "32px",
                     fontWeight: "700",
+                    lineHeight: "1",
+                    color: "inherit",
                   }}
-                  prefix={<CheckCircleOutlined />}
+                  prefix={
+                    <CheckCircleOutlined className="text-green-600 dark:text-green-400 text-3xl mr-1" />
+                  }
+                  className="text-slate-900 dark:text-green-500 [&_.ant-statistic-content-value]:dark:!text-green-500"
                 />
               </Card>
             </Col>
             <Col xs={24} sm={8} lg={6}>
               <Card
-                style={{
-                  borderRadius: "16px",
-                  border: "1px solid #fecaca",
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
+                bodyStyle={{ padding: "30px" }}
+                hoverable
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-4px)";
+                  e.currentTarget.style.boxShadow =
+                    "0 10px 25px rgba(0,0,0,0.15)";
                 }}
-                bodyStyle={{ padding: "24px" }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.1)";
+                }}
               >
                 <Statistic
                   title={
-                    <span style={{ color: "#64748b", fontSize: "14px" }}>
+                    <span className="text-slate-500 dark:text-white text-lg font-medium mb-[5px]">
                       Inactive Lawyers
                     </span>
                   }
                   value={inactiveLawyers.length}
                   valueStyle={{
-                    color: "#dc2626",
                     fontSize: "32px",
                     fontWeight: "700",
+                    lineHeight: "1",
+                    color: "inherit",
                   }}
-                  prefix={<CloseCircleOutlined />}
+                  prefix={
+                    <CloseCircleOutlined className="text-red-600 dark:text-red-400 text-3xl mr-1" />
+                  }
+                  className="text-slate-900 dark:text-red-600 [&_.ant-statistic-content-value]:dark:!text-red-600"
                 />
               </Card>
             </Col>
             <Col xs={24} sm={8} lg={6}>
               <Card
-                style={{
-                  borderRadius: "16px",
-                  border: "1px solid #e5e7eb",
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
+                bodyStyle={{ padding: "30px" }}
+                hoverable
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-4px)";
+                  e.currentTarget.style.boxShadow =
+                    "0 10px 25px rgba(0,0,0,0.15)";
                 }}
-                bodyStyle={{ padding: "24px" }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.1)";
+                }}
               >
                 <Statistic
                   title={
-                    <span style={{ color: "#64748b", fontSize: "14px" }}>
+                    <span className="text-slate-500 dark:text-white text-lg font-medium mb-[5px]">
                       Specializations
                     </span>
                   }
                   value={getUniqueSpecializations().length}
                   valueStyle={{
-                    color: "#7c3aed",
                     fontSize: "32px",
                     fontWeight: "700",
+                    lineHeight: "1",
+                    color: "inherit",
                   }}
-                  prefix={<BankOutlined />}
+                  prefix={
+                    <BankOutlined className="text-purple-600 dark:text-purple-400 text-3xl mr-1" />
+                  }
+                  className="text-slate-900 dark:text-purple-500 [&_.ant-statistic-content-value]:dark:!text-purple-400"
                 />
               </Card>
             </Col>
@@ -576,27 +603,19 @@ export default function GetLawyers() {
 
           {/* Filters and Search */}
           <Card
-            style={{
-              marginBottom: "24px",
-              borderRadius: "16px",
-              border: "1px solid #e5e7eb",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-            }}
+            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm transition-colors duration-300 mb-6"
             bodyStyle={{ padding: "24px" }}
           >
             <Row gutter={[16, 16]} align="middle">
               <Col xs={24} sm={12} md={8}>
                 <Input
                   placeholder="Search lawyers by name, email, or specialization"
-                  prefix={<SearchOutlined style={{ color: "#9ca3af" }} />}
+                  prefix={
+                    <SearchOutlined className="text-slate-400 dark:text-slate-500" />
+                  }
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
-                  style={{
-                    borderRadius: "12px",
-                    border: "1px solid #d1d5db",
-                    padding: "12px 16px",
-                    fontSize: "14px",
-                  }}
+                  className="rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white"
                   size="large"
                 />
               </Col>
@@ -605,8 +624,8 @@ export default function GetLawyers() {
                   placeholder="Filter by Status"
                   value={statusFilter}
                   onChange={setStatusFilter}
-                  style={{ width: "100%" }}
                   size="large"
+                  className="w-full [&_.ant-select-selector]:!rounded-xl [&_.ant-select-selector]:dark:!bg-slate-900 [&_.ant-select-selector]:dark:!border-slate-600 [&_.ant-select-selector]:dark:!text-white"
                 >
                   <Option value="all">All Status</Option>
                   <Option value="Active">Active</Option>
@@ -618,8 +637,8 @@ export default function GetLawyers() {
                   placeholder="Filter by Specialization"
                   value={specializationFilter}
                   onChange={setSpecializationFilter}
-                  style={{ width: "100%" }}
                   size="large"
+                  className="w-full [&_.ant-select-selector]:!rounded-xl [&_.ant-select-selector]:dark:!bg-slate-900 [&_.ant-select-selector]:dark:!border-slate-600 [&_.ant-select-selector]:dark:!text-white"
                 >
                   <Option value="all">All Specializations</Option>
                   {getUniqueSpecializations().map((spec) => (
@@ -635,14 +654,13 @@ export default function GetLawyers() {
                     icon={<ReloadOutlined />}
                     onClick={() => firmId && fetchLawyers(firmId)}
                     loading={loading}
-                    style={{
-                      borderRadius: "12px",
-                      border: "1px solid #d1d5db",
-                    }}
+                    className="rounded-xl border border-slate-300 dark:border-slate-600 dark:text-white 
+             !bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent"
                   >
                     Refresh
                   </Button>
-                  <Text style={{ color: "#64748b", fontSize: "14px" }}>
+
+                  <Text className="te xt-slate-500 dark:text-slate-400 text-sm">
                     Showing {filteredLawyers.length} of {lawyers.length} lawyers
                   </Text>
                 </Space>
@@ -651,12 +669,9 @@ export default function GetLawyers() {
           </Card>
 
           {/* Lawyers Table */}
+          {/* Lawyers Table */}
           <Card
-            style={{
-              borderRadius: "16px",
-              border: "1px solid #e5e7eb",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-            }}
+            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm transition-colors duration-300"
             bodyStyle={{ padding: 0 }}
           >
             <Table
@@ -670,28 +685,40 @@ export default function GetLawyers() {
                 showQuickJumper: true,
                 showTotal: (total, range) =>
                   `${range[0]}-${range[1]} of ${total} lawyers`,
+                className: "dark:text-slate-300",
                 style: { marginRight: "24px", marginBottom: "16px" },
               }}
+              className="dark:[&_.ant-table]:!bg-slate-800 
+               dark:[&_.ant-table-thead>tr>th]:!bg-slate-900 
+               dark:[&_.ant-table-thead>tr>th]:!text-slate-200 
+               dark:[&_.ant-table-tbody>tr>td]:!bg-slate-800 
+               dark:[&_.ant-table-tbody>tr>td]:!text-slate-300"
               style={{
                 borderRadius: "16px",
                 overflow: "hidden",
               }}
+              rowClassName={() => "no-hover"}
               locale={{
                 emptyText: (
                   <div
                     style={{
                       textAlign: "center",
                       padding: "48px",
-                      color: "#64748b",
                     }}
+                    className="text-slate-500 dark:text-slate-400"
                   >
                     <TeamOutlined
                       style={{ fontSize: "48px", marginBottom: "16px" }}
                     />
-                    <Title level={4} style={{ color: "#64748b" }}>
+                    <Title
+                      level={4}
+                      className="!text-slate-500 dark:!text-slate-300"
+                    >
                       No lawyers found
                     </Title>
-                    <Text>Start by adding your first lawyer to the firm</Text>
+                    <Text className="dark:text-slate-400">
+                      Start by adding your first lawyer to the firm
+                    </Text>
                     <br />
                     <Button
                       type="primary"

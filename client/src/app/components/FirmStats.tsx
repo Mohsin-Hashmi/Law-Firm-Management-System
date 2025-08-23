@@ -43,11 +43,13 @@ interface Props {
 export default function FirmStats({ firmId, role }: Props) {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { firm: stats, loading, error } = useAppSelector(
-    (state: RootState) => state.firm
-  );
+  const {
+    firm: stats,
+    loading,
+    error,
+  } = useAppSelector((state: RootState) => state.firm);
 
- useEffect(() => {
+  useEffect(() => {
     if (!firmId || !role) return;
 
     dispatch(clearFirm());
@@ -86,16 +88,10 @@ export default function FirmStats({ firmId, role }: Props) {
           justifyContent: "center",
           alignItems: "center",
           minHeight: "400px",
-          background: "#f8fafc",
         }}
       >
         <div style={{ textAlign: "center" }}>
           <Spin size="large" />
-          <div
-            style={{ marginTop: "16px", color: "#64748b", fontSize: "16px" }}
-          >
-            Loading dashboard...
-          </div>
         </div>
       </div>
     );
@@ -106,9 +102,8 @@ export default function FirmStats({ firmId, role }: Props) {
         style={{
           margin: "24px",
           textAlign: "center",
-          border: "1px solid #fee2e2",
-          background: "#fef2f2",
         }}
+        className="border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20"
       >
         <Text type="danger" style={{ fontSize: "16px" }}>
           {error}
@@ -118,8 +113,14 @@ export default function FirmStats({ firmId, role }: Props) {
 
   if (!stats)
     return (
-      <Card style={{ margin: "24px", textAlign: "center" }}>
-        <Text style={{ fontSize: "16px", color: "#64748b" }}>
+      <Card
+        style={{ margin: "24px", textAlign: "center" }}
+        className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+      >
+        <Text
+          style={{ fontSize: "16px" }}
+          className="text-slate-600 dark:text-white"
+        >
           No statistics available.
         </Text>
       </Card>
@@ -132,6 +133,7 @@ export default function FirmStats({ firmId, role }: Props) {
       icon: <UserOutlined />,
       color: "#1e40af",
       background: "#eff6ff",
+      darkBackground: "#1e3a8a",
       borderColor: "#dbeafe",
       growth: "+12%",
       period: "this month",
@@ -142,6 +144,7 @@ export default function FirmStats({ firmId, role }: Props) {
       icon: <TeamOutlined />,
       color: "#059669",
       background: "#ecfdf5",
+      darkBackground: "#065f46",
       borderColor: "#d1fae5",
       growth: "+8%",
       period: "this month",
@@ -152,6 +155,7 @@ export default function FirmStats({ firmId, role }: Props) {
       icon: <FileOutlined />,
       color: "#dc2626",
       background: "#fef2f2",
+      darkBackground: "#991b1b",
       borderColor: "#fecaca",
       growth: "+15%",
       period: "this quarter",
@@ -162,6 +166,7 @@ export default function FirmStats({ firmId, role }: Props) {
       icon: <CheckCircleOutlined />,
       color: "#7c3aed",
       background: "#f3f4f6",
+      darkBackground: "#5b21b6",
       borderColor: "#e5e7eb",
       growth: "+5%",
       period: "this week",
@@ -169,73 +174,34 @@ export default function FirmStats({ firmId, role }: Props) {
   ];
 
   return (
-    <div
-      style={{
-        background: "#f8fafc",
-        minHeight: "100vh",
-        padding: "24px",
-      }}
-    >
+    <div className="min-h-screen p-6 bg-slate-50 dark:bg-slate-900 transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
       {/* Professional Header */}
       <Card
-        style={{
-          marginBottom: "32px",
-          background: "linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)",
-          border: "none",
-          borderRadius: "16px",
-          boxShadow: "0 10px 25px rgba(30, 64, 175, 0.15)",
-        }}
-        bodyStyle={{ padding: "32px" }}
+        className="bg-blue-900 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+        bodyStyle={{ padding: "24px" }}
+        hoverable
       >
         <Row align="middle" justify="space-between">
           <Col>
             <Space size="large">
-              <div
-                style={{
-                  width: "80px",
-                  height: "80px",
-                  background: "rgba(255,255,255,0.15)",
-                  borderRadius: "16px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  border: "2px solid rgba(255,255,255,0.2)",
-                }}
-              >
-                <BankOutlined style={{ fontSize: "32px", color: "white" }} />
+              <div className="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 dark:bg-white/10 border-white/20 dark:border-white/30">
+                <BankOutlined className="text-[32px] text-white" />
               </div>
               <div>
                 <Title
                   level={1}
-                  style={{
-                    color: "white",
-                    margin: 0,
-                    fontSize: "36px",
-                    fontWeight: "600",
-                    letterSpacing: "-0.025em",
-                  }}
+                  className="text-[#232323] m-0 text-4xl font-semibold tracking-tight"
                 >
                   {stats.firmName}
                 </Title>
-                <Text
-                  style={{
-                    color: "rgba(255,255,255,0.8)",
-                    fontSize: "18px",
-                    fontWeight: "400",
-                  }}
-                >
+                <Text className="text-white/80 dark:text-white text-lg font-normal">
                   Law Firm Management Dashboard
                 </Text>
                 <div style={{ marginTop: "8px" }}>
                   <Badge
                     status="success"
                     text={
-                      <span
-                        style={{
-                          color: "rgba(255,255,255,0.9)",
-                          fontSize: "14px",
-                        }}
-                      >
+                      <span className="text-white/90 dark:text-white text-sm">
                         System Online
                       </span>
                     }
@@ -293,14 +259,7 @@ export default function FirmStats({ firmId, role }: Props) {
         {statCards.map((stat, index) => (
           <Col xs={24} sm={12} lg={6} key={index}>
             <Card
-              style={{
-                background: "white",
-                border: `1px solid ${stat.borderColor}`,
-                borderRadius: "16px",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-                transition: "all 0.3s ease",
-                cursor: "pointer",
-              }}
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
               bodyStyle={{ padding: "24px" }}
               hoverable
               onMouseEnter={(e) => {
@@ -325,15 +284,18 @@ export default function FirmStats({ firmId, role }: Props) {
                     style={{
                       width: "48px",
                       height: "48px",
-                      background: stat.background,
                       borderRadius: "12px",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       marginBottom: "16px",
                     }}
+                    className="bg-blue-50 dark:bg-blue-900/30"
                   >
-                    <span style={{ fontSize: "20px", color: stat.color }}>
+                    <span
+                      style={{ fontSize: "20px" }}
+                      className="text-blue-600 dark:text-blue-400"
+                    >
                       {stat.icon}
                     </span>
                   </div>
@@ -341,22 +303,14 @@ export default function FirmStats({ firmId, role }: Props) {
                   <Statistic
                     value={stat.value}
                     valueStyle={{
-                      color: "#111827",
                       fontSize: "32px",
                       fontWeight: "700",
                       lineHeight: "1",
+                      color: "inherit",
                     }}
+                    className="text-slate-900 dark:text-white [&_.ant-statistic-content-value]:dark:!text-white"
                   />
-
-                  <Text
-                    style={{
-                      color: "#64748b",
-                      fontSize: "14px",
-                      fontWeight: "500",
-                      display: "block",
-                      marginTop: "4px",
-                    }}
-                  >
+                  <Text className="text-slate-500 dark:text-white text-sm font-medium block mt-1">
                     {stat.title}
                   </Text>
 
@@ -368,21 +322,10 @@ export default function FirmStats({ firmId, role }: Props) {
                       gap: "4px",
                     }}
                   >
-                    <Text
-                      style={{
-                        color: "#059669",
-                        fontSize: "12px",
-                        fontWeight: "600",
-                      }}
-                    >
+                    <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
                       {stat.growth}
                     </Text>
-                    <Text
-                      style={{
-                        color: "#9ca3af",
-                        fontSize: "12px",
-                      }}
-                    >
+                    <Text className="text-slate-400 dark:text-white text-xs">
                       {stat.period}
                     </Text>
                   </div>
@@ -400,17 +343,13 @@ export default function FirmStats({ firmId, role }: Props) {
           <Card
             title={
               <Space>
-                <DashboardOutlined style={{ color: "#1e40af" }} />
-                <span style={{ color: "#111827", fontWeight: "600" }}>
+                <DashboardOutlined className="text-blue-600 dark:text-blue-400" />
+                <span className="text-slate-900 dark:!text-white font-semibold">
                   Quick Actions
                 </span>
               </Space>
             }
-            style={{
-              borderRadius: "16px",
-              border: "1px solid #e5e7eb",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-            }}
+            className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800"
             bodyStyle={{ padding: "20px" }}
           >
             <Space direction="vertical" style={{ width: "100%" }} size="middle">
@@ -418,24 +357,18 @@ export default function FirmStats({ firmId, role }: Props) {
                 type="text"
                 block
                 onClick={handleAddLawyer}
-                style={{
-                  textAlign: "left",
-                  height: "48px",
-                  borderRadius: "12px",
-                  border: "1px solid #f3f4f6",
-                  background: "#fafafa",
-                }}
+                className="text-left h-12 rounded-xl border border-slate-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600"
               >
                 <Space
                   style={{ width: "100%", justifyContent: "space-between" }}
                 >
                   <Space>
-                    <UserAddOutlined style={{ color: "#1e40af" }} />
-                    <span style={{ color: "#374151", fontWeight: "500" }}>
+                    <UserAddOutlined className="text-blue-600 dark:text-blue-400" />
+                    <span className="text-slate-700 dark:text-white font-medium">
                       Add New Lawyer
                     </span>
                   </Space>
-                  <RightOutlined style={{ color: "#9ca3af" }} />
+                  <RightOutlined className="text-slate-400 dark:text-white" />
                 </Space>
               </Button>
 
@@ -443,48 +376,36 @@ export default function FirmStats({ firmId, role }: Props) {
                 type="text"
                 block
                 onClick={handleAddClient}
-                style={{
-                  textAlign: "left",
-                  height: "48px",
-                  borderRadius: "12px",
-                  border: "1px solid #f3f4f6",
-                  background: "#fafafa",
-                }}
+                className="text-left h-12 rounded-xl border border-slate-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600"
               >
                 <Space
                   style={{ width: "100%", justifyContent: "space-between" }}
                 >
                   <Space>
-                    <TeamOutlined style={{ color: "#059669" }} />
-                    <span style={{ color: "#374151", fontWeight: "500" }}>
+                    <TeamOutlined className="text-emerald-600 dark:text-emerald-400" />
+                    <span className="text-slate-700 dark:text-white font-medium">
                       Register New Client
                     </span>
                   </Space>
-                  <RightOutlined style={{ color: "#9ca3af" }} />
+                  <RightOutlined className="text-slate-400 dark:text-white" />
                 </Space>
               </Button>
 
               <Button
                 type="text"
                 block
-                style={{
-                  textAlign: "left",
-                  height: "48px",
-                  borderRadius: "12px",
-                  border: "1px solid #f3f4f6",
-                  background: "#fafafa",
-                }}
+                className="text-left h-12 rounded-xl border border-slate-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600"
               >
                 <Space
                   style={{ width: "100%", justifyContent: "space-between" }}
                 >
                   <Space>
-                    <FileOutlined style={{ color: "#dc2626" }} />
-                    <span style={{ color: "#374151", fontWeight: "500" }}>
+                    <FileOutlined className="text-red-600 dark:text-red-400" />
+                    <span className="text-slate-700 dark:text-white font-medium">
                       Create New Case
                     </span>
                   </Space>
-                  <RightOutlined style={{ color: "#9ca3af" }} />
+                  <RightOutlined className="text-slate-400 dark:text-white" />
                 </Space>
               </Button>
             </Space>
@@ -496,74 +417,46 @@ export default function FirmStats({ firmId, role }: Props) {
           <Card
             title={
               <Space>
-                <BarChartOutlined style={{ color: "#7c3aed" }} />
-                <span style={{ color: "#111827", fontWeight: "600" }}>
+                <BarChartOutlined className="text-purple-600 dark:text-purple-400" />
+                <span className="text-slate-900 dark:!text-white font-semibold">
                   Recent Activity
                 </span>
               </Space>
             }
-            style={{
-              borderRadius: "16px",
-              border: "1px solid #e5e7eb",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-            }}
+            className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800"
             bodyStyle={{ padding: "20px" }}
           >
             <Space direction="vertical" style={{ width: "100%" }} size="middle">
-              <div
-                style={{ padding: "12px 0", borderBottom: "1px solid #f3f4f6" }}
-              >
-                <Text
-                  style={{
-                    color: "#111827",
-                    fontWeight: "500",
-                    display: "block",
-                  }}
-                >
+              <div className="py-3 border-b border-slate-100 dark:border-slate-600">
+                <Text className="text-slate-900 dark:text-white font-medium block">
                   New attorney onboarding completed
                 </Text>
-                <Text style={{ color: "#9ca3af", fontSize: "12px" }}>
+                <Text className="text-slate-400 dark:text-white text-xs">
                   2 hours ago
                 </Text>
               </div>
 
-              <div
-                style={{ padding: "12px 0", borderBottom: "1px solid #f3f4f6" }}
-              >
-                <Text
-                  style={{
-                    color: "#111827",
-                    fontWeight: "500",
-                    display: "block",
-                  }}
-                >
+              <div className="py-3 border-b border-slate-100 dark:border-slate-600">
+                <Text className="text-slate-900 dark:text-white font-medium block">
                   5 new cases assigned this week
                 </Text>
-                <Text style={{ color: "#9ca3af", fontSize: "12px" }}>
+                <Text className="text-slate-400 dark:text-white text-xs">
                   1 day ago
                 </Text>
               </div>
 
-              <div
-                style={{ padding: "12px 0", borderBottom: "1px solid #f3f4f6" }}
-              >
-                <Text
-                  style={{
-                    color: "#111827",
-                    fontWeight: "500",
-                    display: "block",
-                  }}
-                >
+              <div className="py-3 border-b border-slate-100 dark:border-slate-600">
+                <Text className="text-slate-900 dark:text-white font-medium block">
                   Client consultation scheduled
                 </Text>
-                <Text style={{ color: "#9ca3af", fontSize: "12px" }}>
+                <Text className="text-slate-400 dark:text-white text-xs">
                   2 days ago
                 </Text>
               </div>
 
               <Button
                 type="link"
-                style={{ padding: 0, color: "#1e40af", fontWeight: "500" }}
+                className="p-0 text-blue-600 dark:text-blue-400 font-medium hover:text-blue-700 dark:hover:text-blue-300"
               >
                 View all activities →
               </Button>
@@ -576,67 +469,51 @@ export default function FirmStats({ firmId, role }: Props) {
           <Card
             title={
               <Space>
-                <TrophyOutlined style={{ color: "#f59e0b" }} />
-                <span style={{ color: "#111827", fontWeight: "600" }}>
+                <TrophyOutlined className="text-amber-600 dark:text-amber-400" />
+                <span className="text-slate-900 dark:!text-white font-semibold">
                   Performance
                 </span>
               </Space>
             }
-            style={{
-              borderRadius: "16px",
-              border: "1px solid #e5e7eb",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-            }}
+            className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800"
             bodyStyle={{ padding: "20px" }}
           >
             <Row gutter={[0, 16]}>
               <Col span={24}>
-                <div
-                  style={{
-                    textAlign: "center",
-                    padding: "16px",
-                    background: "#f8fafc",
-                    borderRadius: "12px",
-                  }}
-                >
+                <div className="text-center p-4 bg-slate-50 dark:bg-slate-700">
                   <Statistic
                     title={
-                      <span style={{ color: "#64748b", fontSize: "14px" }}>
+                      <span className="text-slate-600 dark:!text-white text-sm">
                         Case Success Rate
                       </span>
                     }
                     value={94.2}
                     suffix="%"
                     valueStyle={{
-                      color: "#059669",
                       fontSize: "28px",
                       fontWeight: "700",
+                      color: "inherit",
                     }}
+                    className="text-emerald-600 dark:text-emerald-400 [&_.ant-statistic-content-value]:dark:!text-emerald-400"
                   />
                 </div>
               </Col>
               <Col span={24}>
-                <div
-                  style={{
-                    textAlign: "center",
-                    padding: "16px",
-                    background: "#f8fafc",
-                    borderRadius: "12px",
-                  }}
-                >
+                <div className="text-center p-4 bg-slate-50 dark:bg-slate-700">
                   <Statistic
                     title={
-                      <span style={{ color: "#64748b", fontSize: "14px" }}>
+                      <span className="text-slate-600 dark:!text-white text-sm">
                         Client Satisfaction
                       </span>
                     }
                     value={96.8}
                     suffix="%"
                     valueStyle={{
-                      color: "#1e40af",
                       fontSize: "28px",
                       fontWeight: "700",
+                      color: "inherit",
                     }}
+                    className="text-blue-600 dark:text-blue-400 [&_.ant-statistic-content-value]:dark:!text-blue-400"
                   />
                 </div>
               </Col>

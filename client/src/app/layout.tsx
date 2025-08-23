@@ -5,6 +5,7 @@ import "./globals.css";
 import Providers from "./store/Providers";
 import { Toaster } from "react-hot-toast";
 import { Space_Grotesk } from "next/font/google";
+import { ThemeProvider } from "next-themes";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -33,13 +34,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         className={spaceGrotesk.className}
       >
-        <Providers>{children}</Providers>
-         <Toaster position="top-right" reverseOrder={false} />
+          <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+          <Providers>{children}</Providers>
+          <Toaster position="top-right" reverseOrder={false} />
+        </ThemeProvider>
       </body>
     </html>
   );

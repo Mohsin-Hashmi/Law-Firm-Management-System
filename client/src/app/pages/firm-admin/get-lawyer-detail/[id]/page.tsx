@@ -37,7 +37,11 @@ import { toast } from "react-hot-toast";
 
 const { Title, Text } = Typography;
 
-export default function GetLawyerDetail({ params }: { params: { id: number } }) {
+export default function GetLawyerDetail({
+  params,
+}: {
+  params: { id: number };
+}) {
   const router = useRouter();
   const lawyerId = params.id;
 
@@ -65,7 +69,7 @@ export default function GetLawyerDetail({ params }: { params: { id: number } }) 
   if (loading) {
     return (
       <DashboardLayout>
-        <div 
+        <div
           style={{
             background: "#f8fafc",
             minHeight: "100vh",
@@ -83,7 +87,7 @@ export default function GetLawyerDetail({ params }: { params: { id: number } }) 
   if (!lawyer) {
     return (
       <DashboardLayout>
-        <div 
+        <div
           style={{
             background: "#f8fafc",
             minHeight: "100vh",
@@ -93,7 +97,13 @@ export default function GetLawyerDetail({ params }: { params: { id: number } }) 
           }}
         >
           <div style={{ textAlign: "center" }}>
-            <UserOutlined style={{ fontSize: "64px", color: "#9ca3af", marginBottom: "16px" }} />
+            <UserOutlined
+              style={{
+                fontSize: "64px",
+                color: "#9ca3af",
+                marginBottom: "16px",
+              }}
+            />
             <Title level={3} style={{ color: "#64748b" }}>
               Lawyer Not Found
             </Title>
@@ -101,8 +111,8 @@ export default function GetLawyerDetail({ params }: { params: { id: number } }) 
               The requested lawyer profile could not be found.
             </Text>
             <br />
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               onClick={() => router.back()}
               style={{ marginTop: "16px" }}
             >
@@ -126,52 +136,28 @@ export default function GetLawyerDetail({ params }: { params: { id: number } }) 
         <div className="max-w-[1400px] mx-auto">
           {/* Header Section */}
           <Card
-            style={{
-              marginBottom: "32px",
-              background: "linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)",
-              border: "none",
-              borderRadius: "16px",
-              boxShadow: "0 10px 25px rgba(30, 64, 175, 0.15)",
-            }}
+            className="mb-8 rounded-2xl border-none shadow-xl 
+             bg-gradient-to-r from-blue-800 to-blue-900 
+             dark:from-slate-900 dark:to-slate-800"
             bodyStyle={{ padding: "32px" }}
           >
             <Row align="middle" justify="space-between">
               <Col>
                 <Space size="large">
                   <div
-                    style={{
-                      width: "80px",
-                      height: "80px",
-                      background: "rgba(255,255,255,0.15)",
-                      borderRadius: "16px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      border: "2px solid rgba(255,255,255,0.2)",
-                    }}
+                    className="w-20 h-20 flex items-center justify-center rounded-2xl 
+                     border-2 border-white/30 bg-white/10 backdrop-blur-md"
                   >
-                    <UserOutlined style={{ fontSize: "32px", color: "white" }} />
+                    <UserOutlined className="text-white text-3xl" />
                   </div>
                   <div>
                     <Title
                       level={1}
-                      style={{
-                        color: "white",
-                        margin: 0,
-                        fontSize: "36px",
-                        fontWeight: "600",
-                        letterSpacing: "-0.025em",
-                      }}
+                      className="!text-white !m-0 text-3xl font-semibold tracking-tight"
                     >
                       Lawyer Profile
                     </Title>
-                    <Text
-                      style={{
-                        color: "rgba(255,255,255,0.8)",
-                        fontSize: "18px",
-                        fontWeight: "400",
-                      }}
-                    >
+                    <Text className="text-white/80 text-lg">
                       Detailed information about your legal professional
                     </Text>
                   </div>
@@ -183,17 +169,9 @@ export default function GetLawyerDetail({ params }: { params: { id: number } }) 
                     icon={<ArrowLeftOutlined />}
                     onClick={() => router.back()}
                     size="large"
-                    style={{
-                      background: "rgba(255,255,255,0.2)",
-                      borderColor: "rgba(255,255,255,0.3)",
-                      color: "white",
-                      borderRadius: "12px",
-                      fontWeight: "600",
-                      padding: "8px 24px",
-                      height: "48px",
-                      backdropFilter: "blur(10px)",
-                    }}
-                    ghost
+                    className="rounded-xl font-semibold px-6 h-12 
+                     bg-white/20 border-white/30 text-white backdrop-blur 
+                     hover:!bg-white/30 hover:!text-white"
                   >
                     Back
                   </Button>
@@ -201,17 +179,12 @@ export default function GetLawyerDetail({ params }: { params: { id: number } }) 
                     type="primary"
                     size="large"
                     icon={<EditOutlined />}
-                    onClick={() => router.push(`/pages/firm-admin/edit-lawyer/${lawyer.id}`)}
-                    style={{
-                      background: "white",
-                      borderColor: "white",
-                      color: "#1e40af",
-                      borderRadius: "12px",
-                      fontWeight: "600",
-                      padding: "8px 24px",
-                      height: "48px",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                    }}
+                    onClick={() =>
+                      router.push(`/pages/firm-admin/edit-lawyer/${lawyer.id}`)
+                    }
+                    className="rounded-xl font-semibold px-6 h-12 
+                     bg-white text-blue-900 shadow-md 
+                     hover:!bg-slate-100"
                   >
                     Edit Profile
                   </Button>
@@ -243,17 +216,22 @@ export default function GetLawyerDetail({ params }: { params: { id: number } }) 
                     }
                     icon={!lawyer.profileImage && <UserOutlined />}
                     style={{
-                      background: lawyer.profileImage ? "transparent" : "#f1f5f9",
+                      background: lawyer.profileImage
+                        ? "transparent"
+                        : "#f1f5f9",
                       border: "4px solid #e5e7eb",
                       boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
                       marginBottom: "24px",
                     }}
                   />
-                  
-                  <Title level={2} style={{ marginBottom: "8px", color: "#111827" }}>
+
+                  <Title
+                    level={2}
+                    style={{ marginBottom: "8px", color: "#111827" }}
+                  >
                     {lawyer.name}
                   </Title>
-                  
+
                   <Tag
                     color="#f0f9ff"
                     style={{
@@ -275,12 +253,16 @@ export default function GetLawyerDetail({ params }: { params: { id: number } }) 
                       <Badge
                         status="success"
                         text={
-                          <span style={{
-                            fontSize: "15px",
-                            fontWeight: "600",
-                            color: "#059669",
-                          }}>
-                            <CheckCircleOutlined style={{ marginRight: "6px" }} />
+                          <span
+                            style={{
+                              fontSize: "15px",
+                              fontWeight: "600",
+                              color: "#059669",
+                            }}
+                          >
+                            <CheckCircleOutlined
+                              style={{ marginRight: "6px" }}
+                            />
                             Active Lawyer
                           </span>
                         }
@@ -289,12 +271,16 @@ export default function GetLawyerDetail({ params }: { params: { id: number } }) 
                       <Badge
                         status="error"
                         text={
-                          <span style={{
-                            fontSize: "15px",
-                            fontWeight: "600",
-                            color: "#dc2626",
-                          }}>
-                            <CloseCircleOutlined style={{ marginRight: "6px" }} />
+                          <span
+                            style={{
+                              fontSize: "15px",
+                              fontWeight: "600",
+                              color: "#dc2626",
+                            }}
+                          >
+                            <CloseCircleOutlined
+                              style={{ marginRight: "6px" }}
+                            />
                             Inactive Lawyer
                           </span>
                         }
@@ -306,10 +292,13 @@ export default function GetLawyerDetail({ params }: { params: { id: number } }) 
 
               {/* Contact Information */}
               <Col xs={24} lg={16}>
-                <Title level={3} style={{ color: "#111827", marginBottom: "24px" }}>
+                <Title
+                  level={3}
+                  style={{ color: "#111827", marginBottom: "24px" }}
+                >
                   Contact Information
                 </Title>
-                
+
                 <Row gutter={[24, 24]}>
                   <Col xs={24} md={12}>
                     <Card
@@ -321,22 +310,38 @@ export default function GetLawyerDetail({ params }: { params: { id: number } }) 
                       }}
                       bodyStyle={{ padding: "20px" }}
                     >
-                      <Space direction="vertical" size="small" style={{ width: "100%" }}>
-                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-                          <MailOutlined 
-                            style={{ 
-                              color: "#1e40af", 
-                              fontSize: "16px", 
-                              marginRight: "8px" 
-                            }} 
+                      <Space
+                        direction="vertical"
+                        size="small"
+                        style={{ width: "100%" }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          <MailOutlined
+                            style={{
+                              color: "#1e40af",
+                              fontSize: "16px",
+                              marginRight: "8px",
+                            }}
                           />
-                          <Text style={{ fontSize: "14px", color: "#64748b", fontWeight: "500" }}>
+                          <Text
+                            style={{
+                              fontSize: "14px",
+                              color: "#64748b",
+                              fontWeight: "500",
+                            }}
+                          >
                             Email Address
                           </Text>
                         </div>
-                        <Text 
-                          style={{ 
-                            fontSize: "16px", 
+                        <Text
+                          style={{
+                            fontSize: "16px",
                             color: "#111827",
                             fontWeight: "500",
                           }}
@@ -358,22 +363,38 @@ export default function GetLawyerDetail({ params }: { params: { id: number } }) 
                       }}
                       bodyStyle={{ padding: "20px" }}
                     >
-                      <Space direction="vertical" size="small" style={{ width: "100%" }}>
-                        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-                          <PhoneOutlined 
-                            style={{ 
-                              color: "#1e40af", 
-                              fontSize: "16px", 
-                              marginRight: "8px" 
-                            }} 
+                      <Space
+                        direction="vertical"
+                        size="small"
+                        style={{ width: "100%" }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          <PhoneOutlined
+                            style={{
+                              color: "#1e40af",
+                              fontSize: "16px",
+                              marginRight: "8px",
+                            }}
                           />
-                          <Text style={{ fontSize: "14px", color: "#64748b", fontWeight: "500" }}>
+                          <Text
+                            style={{
+                              fontSize: "14px",
+                              color: "#64748b",
+                              fontWeight: "500",
+                            }}
+                          >
                             Phone Number
                           </Text>
                         </div>
-                        <Text 
-                          style={{ 
-                            fontSize: "16px", 
+                        <Text
+                          style={{
+                            fontSize: "16px",
                             color: "#111827",
                             fontWeight: "500",
                           }}
@@ -397,13 +418,20 @@ export default function GetLawyerDetail({ params }: { params: { id: number } }) 
                   borderRadius: "16px",
                   border: "1px solid #dbeafe",
                   boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                  background: "linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)",
+                  background:
+                    "linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)",
                 }}
                 bodyStyle={{ padding: "28px" }}
               >
                 <Statistic
                   title={
-                    <span style={{ color: "#1e40af", fontSize: "14px", fontWeight: "600" }}>
+                    <span
+                      style={{
+                        color: "#1e40af",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                      }}
+                    >
                       Total Cases
                     </span>
                   }
@@ -424,13 +452,20 @@ export default function GetLawyerDetail({ params }: { params: { id: number } }) 
                   borderRadius: "16px",
                   border: "1px solid #d1fae5",
                   boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                  background: "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)",
+                  background:
+                    "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)",
                 }}
                 bodyStyle={{ padding: "28px" }}
               >
                 <Statistic
                   title={
-                    <span style={{ color: "#059669", fontSize: "14px", fontWeight: "600" }}>
+                    <span
+                      style={{
+                        color: "#059669",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                      }}
+                    >
                       Total Clients
                     </span>
                   }
@@ -451,13 +486,20 @@ export default function GetLawyerDetail({ params }: { params: { id: number } }) 
                   borderRadius: "16px",
                   border: "1px solid #fde68a",
                   boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                  background: "linear-gradient(135deg, #fffbeb 0%, #fde68a 100%)",
+                  background:
+                    "linear-gradient(135deg, #fffbeb 0%, #fde68a 100%)",
                 }}
                 bodyStyle={{ padding: "28px" }}
               >
                 <Statistic
                   title={
-                    <span style={{ color: "#d97706", fontSize: "14px", fontWeight: "600" }}>
+                    <span
+                      style={{
+                        color: "#d97706",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                      }}
+                    >
                       Success Rate
                     </span>
                   }
@@ -479,13 +521,20 @@ export default function GetLawyerDetail({ params }: { params: { id: number } }) 
                   borderRadius: "16px",
                   border: "1px solid #e9d5ff",
                   boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                  background: "linear-gradient(135deg, #faf5ff 0%, #e9d5ff 100%)",
+                  background:
+                    "linear-gradient(135deg, #faf5ff 0%, #e9d5ff 100%)",
                 }}
                 bodyStyle={{ padding: "28px" }}
               >
                 <Statistic
                   title={
-                    <span style={{ color: "#7c3aed", fontSize: "14px", fontWeight: "600" }}>
+                    <span
+                      style={{
+                        color: "#7c3aed",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                      }}
+                    >
                       Years Active
                     </span>
                   }
@@ -527,19 +576,41 @@ export default function GetLawyerDetail({ params }: { params: { id: number } }) 
                 }}
                 bodyStyle={{ padding: "24px" }}
               >
-                <Space direction="vertical" size="large" style={{ width: "100%" }}>
+                <Space
+                  direction="vertical"
+                  size="large"
+                  style={{ width: "100%" }}
+                >
                   <div>
-                    <Text style={{ fontSize: "14px", color: "#64748b", fontWeight: "500" }}>
+                    <Text
+                      style={{
+                        fontSize: "14px",
+                        color: "#64748b",
+                        fontWeight: "500",
+                      }}
+                    >
                       Full Name
                     </Text>
                     <br />
-                    <Text style={{ fontSize: "16px", color: "#111827", fontWeight: "500" }}>
+                    <Text
+                      style={{
+                        fontSize: "16px",
+                        color: "#111827",
+                        fontWeight: "500",
+                      }}
+                    >
                       {lawyer.name}
                     </Text>
                   </div>
 
                   <div>
-                    <Text style={{ fontSize: "14px", color: "#64748b", fontWeight: "500" }}>
+                    <Text
+                      style={{
+                        fontSize: "14px",
+                        color: "#64748b",
+                        fontWeight: "500",
+                      }}
+                    >
                       Area of Specialization
                     </Text>
                     <br />
@@ -560,14 +631,20 @@ export default function GetLawyerDetail({ params }: { params: { id: number } }) 
                   </div>
 
                   <div>
-                    <Text style={{ fontSize: "14px", color: "#64748b", fontWeight: "500" }}>
+                    <Text
+                      style={{
+                        fontSize: "14px",
+                        color: "#64748b",
+                        fontWeight: "500",
+                      }}
+                    >
                       Professional Status
                     </Text>
                     <br />
                     <div style={{ marginTop: "8px" }}>
                       {lawyer.status.toLowerCase() === "active" ? (
-                        <Tag 
-                          icon={<CheckCircleOutlined />} 
+                        <Tag
+                          icon={<CheckCircleOutlined />}
                           color="success"
                           style={{
                             padding: "6px 14px",
@@ -579,8 +656,8 @@ export default function GetLawyerDetail({ params }: { params: { id: number } }) 
                           Active
                         </Tag>
                       ) : (
-                        <Tag 
-                          icon={<CloseCircleOutlined />} 
+                        <Tag
+                          icon={<CloseCircleOutlined />}
                           color="error"
                           style={{
                             padding: "6px 14px",
@@ -622,28 +699,44 @@ export default function GetLawyerDetail({ params }: { params: { id: number } }) 
                 }}
                 bodyStyle={{ padding: "24px" }}
               >
-                <Space direction="vertical" size="large" style={{ width: "100%" }}>
+                <Space
+                  direction="vertical"
+                  size="large"
+                  style={{ width: "100%" }}
+                >
                   <div>
-                    <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-                      <MailOutlined 
-                        style={{ 
-                          color: "#1e40af", 
-                          fontSize: "16px", 
-                          marginRight: "8px" 
-                        }} 
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      <MailOutlined
+                        style={{
+                          color: "#1e40af",
+                          fontSize: "16px",
+                          marginRight: "8px",
+                        }}
                       />
-                      <Text style={{ fontSize: "14px", color: "#64748b", fontWeight: "500" }}>
+                      <Text
+                        style={{
+                          fontSize: "14px",
+                          color: "#64748b",
+                          fontWeight: "500",
+                        }}
+                      >
                         Email Address
                       </Text>
                     </div>
-                    <Text 
-                      style={{ 
-                        fontSize: "16px", 
+                    <Text
+                      style={{
+                        fontSize: "16px",
                         color: "#111827",
                         fontWeight: "500",
                       }}
                       copyable={{
-                        tooltips: ['Copy email', 'Email copied!'],
+                        tooltips: ["Copy email", "Email copied!"],
                       }}
                     >
                       {lawyer.email}
@@ -651,26 +744,38 @@ export default function GetLawyerDetail({ params }: { params: { id: number } }) 
                   </div>
 
                   <div>
-                    <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-                      <PhoneOutlined 
-                        style={{ 
-                          color: "#1e40af", 
-                          fontSize: "16px", 
-                          marginRight: "8px" 
-                        }} 
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      <PhoneOutlined
+                        style={{
+                          color: "#1e40af",
+                          fontSize: "16px",
+                          marginRight: "8px",
+                        }}
                       />
-                      <Text style={{ fontSize: "14px", color: "#64748b", fontWeight: "500" }}>
+                      <Text
+                        style={{
+                          fontSize: "14px",
+                          color: "#64748b",
+                          fontWeight: "500",
+                        }}
+                      >
                         Phone Number
                       </Text>
                     </div>
-                    <Text 
-                      style={{ 
-                        fontSize: "16px", 
+                    <Text
+                      style={{
+                        fontSize: "16px",
                         color: "#111827",
                         fontWeight: "500",
                       }}
                       copyable={{
-                        tooltips: ['Copy phone', 'Phone copied!'],
+                        tooltips: ["Copy phone", "Phone copied!"],
                       }}
                     >
                       {lawyer.phone}
@@ -678,12 +783,25 @@ export default function GetLawyerDetail({ params }: { params: { id: number } }) 
                   </div>
 
                   <div>
-                    <Text style={{ fontSize: "14px", color: "#64748b", fontWeight: "500" }}>
+                    <Text
+                      style={{
+                        fontSize: "14px",
+                        color: "#64748b",
+                        fontWeight: "500",
+                      }}
+                    >
                       Member Since
                     </Text>
                     <br />
-                    <Text style={{ fontSize: "16px", color: "#111827", fontWeight: "500" }}>
-                      {new Date().getFullYear() - 2} {/* Placeholder - replace with actual join date */}
+                    <Text
+                      style={{
+                        fontSize: "16px",
+                        color: "#111827",
+                        fontWeight: "500",
+                      }}
+                    >
+                      {new Date().getFullYear() - 2}{" "}
+                      {/* Placeholder - replace with actual join date */}
                     </Text>
                   </div>
                 </Space>
@@ -708,7 +826,9 @@ export default function GetLawyerDetail({ params }: { params: { id: number } }) 
                     type="primary"
                     size="large"
                     icon={<EditOutlined />}
-                    onClick={() => router.push(`/pages/firm-admin/edit-lawyer/${lawyerId}`)}
+                    onClick={() =>
+                      router.push(`/pages/firm-admin/edit-lawyer/${lawyerId}`)
+                    }
                     style={{
                       background: "#1e40af",
                       borderColor: "#1e40af",
@@ -721,7 +841,7 @@ export default function GetLawyerDetail({ params }: { params: { id: number } }) 
                   >
                     Edit Lawyer Profile
                   </Button>
-                  
+
                   <Button
                     size="large"
                     icon={<TeamOutlined />}
