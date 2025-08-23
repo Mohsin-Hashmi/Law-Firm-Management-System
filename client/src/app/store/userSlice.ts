@@ -9,8 +9,8 @@ export interface User {
   role?: UserRole;
   createdAt?: string;
   updatedAt?: string;
-  firmId?: number;          // current firm ID
-  currentFirmId?: number;   // optional
+  firmId?: number; // current firm ID
+  currentFirmId?: number; // optional
   firms?: { id: number; name: string }[]; // array of firms
 }
 
@@ -33,7 +33,10 @@ const userSlice = createSlice({
       state.user = null;
     },
     switchFirm: (state, action: PayloadAction<number>) => {
-      if (state.user) state.user.firmId = action.payload; // change current firm
+      if (state.user) {
+        state.user.firmId = action.payload;
+        state.user.currentFirmId = action.payload; // keep both in sync
+      }
     },
   },
 });

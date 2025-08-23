@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { FirmStats } from "../types/firm";
 
+
 export interface FirmState {
   firm?: FirmStats; // single firm
   loading: boolean;
@@ -12,6 +13,7 @@ const initialState: FirmState = {
   loading: false,
   error: null,
 };
+
 
 const firmSlice = createSlice({
   name: "firm",
@@ -31,6 +33,7 @@ const firmSlice = createSlice({
       state.error = null;
       state.loading = false;
     },
+   
   },
 });
 

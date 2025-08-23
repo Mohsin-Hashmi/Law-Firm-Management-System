@@ -6,7 +6,9 @@ import { logoutUser } from "../service/authAPI";
 import { removeUser } from "../store/userSlice";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
+import { Select } from "antd";
+import { switchFirm } from "../store/userSlice";
 import {
   HomeOutlined,
   InfoCircleOutlined,
@@ -21,8 +23,15 @@ import {
   MenuUnfoldOutlined,
 } from "@ant-design/icons";
 import { useState } from "react";
-
-export default function DashboardLayout({ children }: { children?: React.ReactNode }) {
+import { switchFirmAPI } from "../service/adminAPI";
+import { clearFirm } from "../store/firmSlice";
+import { getLawyers } from "../service/adminAPI";
+import { setLawyers } from "../store/lawyerSlice";
+export default function DashboardLayout({
+  children,
+}: {
+  children?: React.ReactNode;
+}) {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const role = useAppSelector((state) => state.user.user?.role);
@@ -42,37 +51,113 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
   > = {
     "Super Admin": [
       { label: "Home", href: "/", icon: <HomeOutlined />, category: "Main" },
-      { label: "About", href: "/pages/about-us", icon: <InfoCircleOutlined />, category: "Main" },
-      { label: "Services", href: "/pages/our-services", icon: <AppstoreOutlined />, category: "Main" },
-      { label: "Firms", href: "/pages/super-admin/get-firms", icon: <TeamOutlined />, category: "Management" },
-      { label: "Add Firm", href: "/pages/super-admin/add-firm", icon: <PlusOutlined />, category: "Management" },
+      {
+        label: "About",
+        href: "/pages/about-us",
+        icon: <InfoCircleOutlined />,
+        category: "Main",
+      },
+      {
+        label: "Services",
+        href: "/pages/our-services",
+        icon: <AppstoreOutlined />,
+        category: "Main",
+      },
+      {
+        label: "Firms",
+        href: "/pages/super-admin/get-firms",
+        icon: <TeamOutlined />,
+        category: "Management",
+      },
+      {
+        label: "Add Firm",
+        href: "/pages/super-admin/add-firm",
+        icon: <PlusOutlined />,
+        category: "Management",
+      },
     ],
     "Firm Admin": [
-      { label: "Dashboard", href: "/pages/dashboard", icon: <HomeOutlined />, category: "Main" },
-      { label: "About", href: "/pages/about-us", icon: <InfoCircleOutlined />, category: "Main" },
-      { label: "Services", href: "/pages/our-services", icon: <AppstoreOutlined />, category: "Main" },
-      { label: "Create New Law Firm", href: "/pages/firm-admin/add-firm", icon: <AppstoreOutlined />, category: "Main" },
-      { label: "Lawyers", href: "/pages/firm-admin/get-lawyers", icon: <UserOutlined />, category: "Team Management" },
-      { label: "Add Clients", href: "/", icon: <TeamOutlined />, category: "Client Management" },
-      { label: "Add Lawyer", href: "/pages/firm-admin/add-lawyer", icon: <PlusOutlined />, category: "Team Management" },
+      {
+        label: "Dashboard",
+        href: "/pages/dashboard",
+        icon: <HomeOutlined />,
+        category: "Main",
+      },
+      {
+        label: "About",
+        href: "/pages/about-us",
+        icon: <InfoCircleOutlined />,
+        category: "Main",
+      },
+      {
+        label: "Services",
+        href: "/pages/our-services",
+        icon: <AppstoreOutlined />,
+        category: "Main",
+      },
+      {
+        label: "Create New Law Firm",
+        href: "/pages/firm-admin/add-firm",
+        icon: <AppstoreOutlined />,
+        category: "Main",
+      },
+      {
+        label: "Lawyers",
+        href: "/pages/firm-admin/get-lawyers",
+        icon: <UserOutlined />,
+        category: "Team Management",
+      },
+      {
+        label: "Add Clients",
+        href: "/",
+        icon: <TeamOutlined />,
+        category: "Client Management",
+      },
+      {
+        label: "Add Lawyer",
+        href: "/pages/firm-admin/add-lawyer",
+        icon: <PlusOutlined />,
+        category: "Team Management",
+      },
     ],
     Lawyer: [
       { label: "Home", href: "/", icon: <HomeOutlined />, category: "Main" },
-      { label: "About", href: "/pages/about-us", icon: <InfoCircleOutlined />, category: "Main" },
-      { label: "Services", href: "/pages/our-services", icon: <AppstoreOutlined />, category: "Main" },
-      { label: "My Clients", href: "/", icon: <TeamOutlined />, category: "Client Management" },
-      { label: "Add Client", href: "/", icon: <PlusOutlined />, category: "Client Management" },
+      {
+        label: "About",
+        href: "/pages/about-us",
+        icon: <InfoCircleOutlined />,
+        category: "Main",
+      },
+      {
+        label: "Services",
+        href: "/pages/our-services",
+        icon: <AppstoreOutlined />,
+        category: "Main",
+      },
+      {
+        label: "My Clients",
+        href: "/",
+        icon: <TeamOutlined />,
+        category: "Client Management",
+      },
+      {
+        label: "Add Client",
+        href: "/",
+        icon: <PlusOutlined />,
+        category: "Client Management",
+      },
     ],
   };
 
-  const groupedNavLinks = navLinksMap[role || "Lawyer"]?.reduce((acc, link) => {
-    const category = link.category || "Other";
-    if (!acc[category]) {
-      acc[category] = [];
-    }
-    acc[category].push(link);
-    return acc;
-  }, {} as Record<string, typeof navLinksMap[string]>) || {};
+  const groupedNavLinks =
+    navLinksMap[role || "Lawyer"]?.reduce((acc, link) => {
+      const category = link.category || "Other";
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(link);
+      return acc;
+    }, {} as Record<string, (typeof navLinksMap)[string]>) || {};
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -117,7 +202,11 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
         {/* User Profile Section */}
         <div className="px-4 py-6 border-b border-slate-100">
           <div className="flex items-center space-x-3">
-            <div className={`w-12 h-12 rounded-full ${getRoleColor(role || "")} flex items-center justify-center text-white font-semibold text-lg shadow-lg`}>
+            <div
+              className={`w-12 h-12 rounded-full ${getRoleColor(
+                role || ""
+              )} flex items-center justify-center text-white font-semibold text-lg shadow-lg`}
+            >
               {user?.name?.charAt(0)?.toUpperCase() || <UserOutlined />}
             </div>
             {!collapsed && (
@@ -155,7 +244,9 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
                         {link.icon}
                       </span>
                       {!collapsed && (
-                        <span className="ml-3 text-sm font-medium">{link.label}</span>
+                        <span className="ml-3 text-sm font-medium">
+                          {link.label}
+                        </span>
                       )}
                       {collapsed && (
                         <div className="absolute left-16 bg-slate-800 text-white px-2 py-1 rounded-md text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
@@ -180,7 +271,9 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
             title={collapsed ? "Logout" : ""}
           >
             <LogoutOutlined className="text-lg" />
-            {!collapsed && <span className="ml-3 text-sm font-medium">Logout</span>}
+            {!collapsed && (
+              <span className="ml-3 text-sm font-medium">Logout</span>
+            )}
             {collapsed && (
               <div className="absolute left-16 bg-slate-800 text-white px-2 py-1 rounded-md text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
                 Logout
@@ -201,11 +294,160 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
               {role === "Lawyer" && "Legal Dashboard"}
             </h1>
             <div className="hidden md:block">
-              <div className={`px-3 py-1 rounded-full text-xs font-medium text-white ${getRoleColor(role || "")}`}>
+              <div
+                className={`px-3 py-1 rounded-full text-xs font-medium text-white ${getRoleColor(
+                  role || ""
+                )}`}
+              >
                 {role}
               </div>
             </div>
           </div>
+
+          {role === "Firm Admin" && user?.firms && user.firms.length > 0 && (
+            <div className="relative">
+              <Select
+                value={user?.currentFirmId}
+                style={{
+                  width: 280,
+                  height: 44,
+                }}
+                className="professional-firm-selector"
+                placeholder="Select Firm"
+                suffixIcon={
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    className="text-slate-400"
+                  >
+                    <path
+                      d="M2.5 4.5L6 8L9.5 4.5"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                }
+                dropdownStyle={{
+                  borderRadius: "12px",
+                  border: "1px solid #e2e8f0",
+                  boxShadow:
+                    "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+                  padding: "8px 0",
+                }}
+                popupClassName="professional-dropdown-popup"
+                onChange={async (value) => {
+                  try {
+                    // 1) tell backend to update JWT/cookie
+                    await switchFirmAPI(value);
+                    // 2) update Redux with new firmId
+                    dispatch(switchFirm(value));
+                    // 3) optional: clear old firm data so it reloads
+                    const lawyers = await getLawyers(value);
+                    dispatch(setLawyers(lawyers));
+                    dispatch(clearFirm()); // if you have this in firmSlice
+
+                    toast.success("Switched firm successfully");
+                  } catch (err) {
+                    console.error("Error switching firm:", err);
+                    toast.error("Failed to switch firm");
+                  }
+                }}
+              >
+                {user.firms.map((firm) => (
+                  <Select.Option key={firm.id} value={firm.id}>
+                    <div className="flex items-center space-x-3 py-1">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center text-white font-semibold text-sm shadow-sm">
+                        {firm.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-slate-800 font-medium text-sm">
+                          {firm.name}
+                        </span>
+                       
+                      </div>
+                    </div>
+                  </Select.Option>
+                ))}
+              </Select>
+
+              {/* Add custom styles */}
+              <style jsx global>{`
+                .professional-firm-selector .ant-select-selector {
+                  background: linear-gradient(
+                    135deg,
+                    #ffffff 0%,
+                    #f8fafc 100%
+                  ) !important;
+                  border: 2px solid #e2e8f0 !important;
+                  border-radius: 12px !important;
+                  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02) !important;
+                  transition: all 0.2s ease !important;
+                  padding: 8px 16px !important;
+                  height: 44px !important;
+                  display: flex !important;
+                  align-items: center !important;
+                }
+
+                .professional-firm-selector .ant-select-selector:hover {
+                  border-color: #3b82f6 !important;
+                  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15) !important;
+                }
+
+                .professional-firm-selector.ant-select-focused
+                  .ant-select-selector {
+                  border-color: #3b82f6 !important;
+                  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+                }
+
+                .professional-firm-selector .ant-select-selection-item {
+                  display: flex !important;
+                  align-items: center !important;
+                  font-weight: 500 !important;
+                  color: #1e293b !important;
+                  font-size: 14px !important;
+                }
+
+                .professional-dropdown-popup .ant-select-item {
+                  border-radius: 8px !important;
+                  margin: 2px 8px !important;
+                  padding: 12px !important;
+                  transition: all 0.15s ease !important;
+                }
+
+                .professional-dropdown-popup .ant-select-item:hover {
+                  background: linear-gradient(
+                    135deg,
+                    #f1f5f9 0%,
+                    #e2e8f0 100%
+                  ) !important;
+                  transform: translateX(2px) !important;
+                }
+
+                .professional-dropdown-popup .ant-select-item-option-selected {
+                  background: linear-gradient(
+                    135deg,
+                    #dbeafe 0%,
+                    #bfdbfe 100%
+                  ) !important;
+                  border: 1px solid #3b82f6 !important;
+                  font-weight: 600 !important;
+                }
+
+                .professional-dropdown-popup
+                  .ant-select-item-option-selected:hover {
+                  background: linear-gradient(
+                    135deg,
+                    #bfdbfe 0%,
+                    #93c5fd 100%
+                  ) !important;
+                }
+              `}</style>
+            </div>
+          )}
 
           <div className="flex items-center space-x-4">
             {/* Notifications */}
@@ -225,9 +467,15 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
                 <p className="text-sm font-semibold text-slate-900">
                   {user?.name || "User"}
                 </p>
-                <p className="text-xs text-slate-500">{user?.email || "user@example.com"}</p>
+                <p className="text-xs text-slate-500">
+                  {user?.email || "user@example.com"}
+                </p>
               </div>
-              <div className={`w-10 h-10 rounded-full ${getRoleColor(role || "")} flex items-center justify-center text-white font-semibold shadow-lg`}>
+              <div
+                className={`w-10 h-10 rounded-full ${getRoleColor(
+                  role || ""
+                )} flex items-center justify-center text-white font-semibold shadow-lg`}
+              >
                 {user?.name?.charAt(0)?.toUpperCase() || <UserOutlined />}
               </div>
             </div>
@@ -236,9 +484,7 @@ export default function DashboardLayout({ children }: { children?: React.ReactNo
 
         {/* Content Area */}
         <section className="flex-1 overflow-y-auto bg-gradient-to-br from-slate-50 to-white">
-          <div className="p-8 max-w-full">
-            {children}
-          </div>
+          <div className="p-8 max-w-full">{children}</div>
         </section>
       </main>
     </div>

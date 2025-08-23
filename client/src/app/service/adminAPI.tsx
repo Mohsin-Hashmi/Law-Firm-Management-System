@@ -10,8 +10,9 @@ export const createFirm = async (data: FirmPayload) => {
   return response;
 };
 
-/**Add Layer API */
-export const addLawyer = async (firmId: string, data: FormData) => {
+/**Add Lawyer API */
+export const addLawyer = async (firmId: number, data: FormData) => {
+  if (!firmId) throw new Error("firmId is required");
   const response = await axios.post(
     `${BASE_URL}/api/firm-admin/${firmId}/addlawyers`,
     data,
@@ -23,15 +24,25 @@ export const addLawyer = async (firmId: string, data: FormData) => {
 };
 
 /**Get Frim Stats */
-export const getStats = async (firmId?: string): Promise<FirmStats> => {
+export const getStats = async (
+  firmId?: number,
+  role?: string
+): Promise<FirmStats> => {
   try {
-    console.log("Fetching stats... firmId:", firmId);
+    console.log("Fetching stats... firmId:", firmId, "role:", role);
 
-    // If Super Admin -> requires firmId param
-    const url = firmId
-      ? `${BASE_URL}/api/super-admin/firms/${firmId}/stats`
-      : `${BASE_URL}/api/firm-admin/firms/stats`;
+    let url = "";
 
+    if (role === "Super Admin") {
+      if (!firmId) throw new Error("Firm ID is required for Super Admin");
+      url = `${BASE_URL}/api/firm-admin/firms/${firmId}/stats`; // ✅ pass firmId
+    } else if (role === "Firm Admin") {
+      url = `${BASE_URL}/api/firm-admin/firms/${firmId}/stats`; // ✅ firmId auto-resolved from token
+    } else {
+      throw new Error("Invalid role or missing firmId");
+    }
+
+    console.log("📡 Calling stats API:", url);
     const response = await axios.get(url, {
       withCredentials: true,
     });
@@ -44,18 +55,19 @@ export const getStats = async (firmId?: string): Promise<FirmStats> => {
   }
 };
 
-export const getLawyers = async (): Promise<Lawyer[]> => {
+
+export const getLawyers = async (firmId?: number): Promise<Lawyer[]> => {
   try {
     const response = await axios.get(
       `${BASE_URL}/api/firm-admin/firms/lawyers`,
       {
+        params: { firmId },  // <-- pass firmId in query
         withCredentials: true,
       }
     );
 
     console.log("lawyers response:", response.data);
 
-    // return only the array
     return response.data.allLawyers;
   } catch (error) {
     console.error("Error fetching lawyers:", error);
@@ -64,7 +76,7 @@ export const getLawyers = async (): Promise<Lawyer[]> => {
 };
 
 /** Get Lawyer by ID */
-export const getLawyerById = async (id: string): Promise<Lawyer | null> => {
+export const getLawyerById = async (id: number): Promise<Lawyer | null> => {
   try {
     const response = await axios.get(
       `${BASE_URL}/api/firm-admin/firm/lawyer/${id}`,
@@ -138,4 +150,10 @@ export const updateLawyer = async (
     console.error("Error updating lawyer:", error);
     throw error;
   }
+};
+
+// Switch firm API 
+export const switchFirmAPI = async (firmId: number) => {
+  const res = await axios.post(`${BASE_URL}/api/firm-admin/switch-firm`, { firmId }, { withCredentials: true });
+  return res.data;
 };

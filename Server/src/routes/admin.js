@@ -7,6 +7,7 @@ const {
   getLawyerById,
   updateLawyer,
   deleteLawyer,
+  switchFirm
 } = require("../controllers/firm.controller");
 const adminRoute = express();
 const { userAuth, firmAdminAuth } = require("../middlewares/authMiddleware");
@@ -33,10 +34,15 @@ adminRoute.post(
   "/:firmId/addlawyers",
   userAuth,
   firmAdminAuth,
-  upload.single("profileImage"), // <--- multer middleware
+  upload.single("profileImage"),
   createLawyer
 );
-adminRoute.get("/firms/stats", userAuth, firmAdminAuth, firmStats);
+adminRoute.get(
+  "/firms/:id/stats", 
+  userAuth, 
+  firmAdminAuth, 
+  firmStats
+);
 adminRoute.get("/firms/lawyers", userAuth, firmAdminAuth, getAllLawyer);
 adminRoute.get("/firm/lawyer/:id", userAuth, firmAdminAuth, getLawyerById);
 adminRoute.put(
@@ -52,5 +58,8 @@ adminRoute.delete(
   firmAdminAuth,
   deleteLawyer
 );
+
+adminRoute.post("/switch-firm", userAuth, firmAdminAuth,  switchFirm);
+
 
 module.exports = adminRoute;

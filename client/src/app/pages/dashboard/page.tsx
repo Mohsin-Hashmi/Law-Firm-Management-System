@@ -30,7 +30,7 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <FirmStats firmId={user.firmId.toString()} />
+      <FirmStats firmId={user.firmId} role={user.role} />
     </DashboardLayout>
   );
 }

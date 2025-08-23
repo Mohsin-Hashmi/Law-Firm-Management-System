@@ -35,37 +35,39 @@ import { useRouter } from "next/navigation";
 import { RootState } from "../store/store";
 
 const { Title, Text } = Typography;
-interface FirmStatsProps {
-  firmId: string;
+interface Props {
+  firmId: number;
+  role?: string;
 }
 
-export default function FirmStats({ firmId }: FirmStatsProps) {
+export default function FirmStats({ firmId, role }: Props) {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const {
-    firm: stats,
-    loading,    
-    error,
-  } = useAppSelector((state: RootState) => state.firm);
+  const { firm: stats, loading, error } = useAppSelector(
+    (state: RootState) => state.firm
+  );
 
-  
+ useEffect(() => {
+    if (!firmId || !role) return;
 
-  useEffect(() => {
+    dispatch(clearFirm());
+
     const fetchStats = async () => {
       try {
         dispatch(setLoading(true));
-        const data = await getStats();
+        const data = await getStats(firmId, role);
         dispatch(setFirm(data));
         dispatch(setError(null));
       } catch (err) {
-        console.log("Error is:", err);
+        console.error("Error fetching stats:", err);
+        dispatch(setError("Failed to fetch stats"));
       } finally {
         dispatch(setLoading(false));
       }
     };
 
     fetchStats();
-  }, [dispatch, firmId]);
+  }, [firmId, role, dispatch]);
 
   const handleAddClient = () => {
     console.log("Add client clicked");

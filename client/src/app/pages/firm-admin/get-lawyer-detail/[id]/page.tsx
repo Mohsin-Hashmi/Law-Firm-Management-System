@@ -37,7 +37,7 @@ import { toast } from "react-hot-toast";
 
 const { Title, Text } = Typography;
 
-export default function GetLawyerDetail({ params }: { params: { id: string } }) {
+export default function GetLawyerDetail({ params }: { params: { id: number } }) {
   const router = useRouter();
   const lawyerId = params.id;
 

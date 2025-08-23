@@ -49,10 +49,13 @@ import { toast } from "react-hot-toast";
 const { Title, Text } = Typography;
 const { Option } = Select;
 const { confirm } = Modal;
+import { useAppSelector } from "@/app/store/hooks";
+import { RootState } from "@/app/store/store";
 
 export default function GetLawyers() {
   const router = useRouter();
-
+  const user = useAppSelector((state: RootState) => state.user.user);
+  const firmId = user?.firmId;
   const [lawyers, setLawyers] = useState<Lawyer[]>([]);
   const [filteredLawyers, setFilteredLawyers] = useState<Lawyer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -62,20 +65,17 @@ export default function GetLawyers() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [specializationFilter, setSpecializationFilter] =
     useState<string>("all");
-
-  useEffect(() => {
-    fetchLawyers();
-  }, []);
+  
 
   useEffect(() => {
     filterLawyers();
   }, [lawyers, searchText, statusFilter, specializationFilter]);
 
   /**Get All Lawyers API */
-  const fetchLawyers = async () => {
+  const fetchLawyers = async (firmId: number) => {
     try {
       setLoading(true);
-      const data = await getLawyers();
+      const data = await getLawyers(firmId);
       setLawyers(data);
       console.log("Successfully fetched lawyers data:", data);
     } catch (error) {
@@ -85,6 +85,12 @@ export default function GetLawyers() {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    if (firmId) {
+      setLawyers([]);
+      fetchLawyers(firmId); 
+    }
+  }, [firmId]);
 
   const filterLawyers = () => {
     let filtered = lawyers;
@@ -121,33 +127,31 @@ export default function GetLawyers() {
   };
 
   /**Handle delete function */
-const handleDeleteLawyer = async (lawyerId: number) => {
-  try {
-    setDeleting(true);
-    setDeletingLawyerId(lawyerId);
+  const handleDeleteLawyer = async (lawyerId: number) => {
+    try {
+      setDeleting(true);
+      setDeletingLawyerId(lawyerId);
 
-    const response = await deleteLawyer(lawyerId);
+      const response = await deleteLawyer(lawyerId);
 
-    if (response.success) {
-      setLawyers((prevLawyers) =>
-        prevLawyers.filter((lawyer) => lawyer.id !== lawyerId)
-      );
-      toast.success("Lawyer deleted successfully");
-      message.success("Lawyer deleted successfully");
-    } else {
-      throw new Error(response.message || "Delete failed");
+      if (response.success) {
+        setLawyers((prevLawyers) =>
+          prevLawyers.filter((lawyer) => lawyer.id !== lawyerId)
+        );
+        toast.success("Lawyer deleted successfully");
+        message.success("Lawyer deleted successfully");
+      } else {
+        throw new Error(response.message || "Delete failed");
+      }
+    } catch (error) {
+      console.error("Error deleting lawyer:", error);
+      toast.error("Failed to delete lawyer");
+      message.error("Failed to delete lawyer");
+    } finally {
+      setDeleting(false);
+      setDeletingLawyerId(null);
     }
-  } catch (error) {
-    console.error("Error deleting lawyer:", error);
-    toast.error("Failed to delete lawyer");
-    message.error("Failed to delete lawyer");
-  } finally {
-    setDeleting(false);
-    setDeletingLawyerId(null);
-  }
-};
-
- 
+  };
 
   const getUniqueSpecializations = () => {
     const specializations = lawyers
@@ -629,7 +633,7 @@ const handleDeleteLawyer = async (lawyerId: number) => {
                 <Space>
                   <Button
                     icon={<ReloadOutlined />}
-                    onClick={fetchLawyers}
+                    onClick={() => firmId && fetchLawyers(firmId)}
                     loading={loading}
                     style={{
                       borderRadius: "12px",
