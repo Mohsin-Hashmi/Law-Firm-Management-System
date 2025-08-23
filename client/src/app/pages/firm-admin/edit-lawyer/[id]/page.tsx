@@ -39,7 +39,7 @@ const { Title, Text } = Typography;
 const { Option } = Select;
 const { TextArea } = Input;
 
-export default function EditLawyer({ params }: { params: { id: string } }) {
+export default function EditLawyer({ params }: { params: { id: number } }) {
   const router = useRouter();
   const lawyerId = params.id;
   const [form] = Form.useForm();
@@ -63,8 +63,6 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
         return;
       }
       setLawyer(data);
-      
-     
 
       // Populate form with existing data
       form.setFieldsValue({
@@ -98,7 +96,6 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
         phone: values.phone,
         specialization: values.specialization,
         status: values.status,
-        
       };
 
       // Get the file if one was selected
@@ -108,7 +105,7 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
           : undefined;
 
       // Call the API with the correct parameters
-      const response = await updateLawyer(parseInt(lawyerId), lawyerData, file);
+      const response = await updateLawyer((lawyerId), lawyerData, file);
 
       toast.success("Lawyer profile updated successfully!");
       router.push(`/pages/firm-admin/get-lawyer-detail/${lawyerId}`);
@@ -144,23 +141,15 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
     </div>
   );
 
-  if (loading) {
-    return (
-      <DashboardLayout>
-        <div
-          style={{
-            background: "#f8fafc",
-            minHeight: "100vh",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Spin size="large" />
-        </div>
-      </DashboardLayout>
-    );
-  }
+if (loading) {
+  return (
+    <DashboardLayout>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex justify-center items-center transition-colors duration-300">
+        <Spin size="large" />
+      </div>
+    </DashboardLayout>
+  );
+}
 
   if (!lawyer) {
     return (
@@ -204,23 +193,11 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
 
   return (
     <DashboardLayout>
-      <div
-        style={{
-          background: "#f8fafc",
-          minHeight: "100vh",
-          padding: "24px",
-        }}
-      >
+      <div className="min-h-screen p-6 bg-slate-50 dark:bg-slate-900 transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
         <div className="max-w-[1200px] mx-auto">
           {/* Header Section */}
           <Card
-            style={{
-              marginBottom: "32px",
-              background: "linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)",
-              border: "none",
-              borderRadius: "16px",
-              boxShadow: "0 10px 25px rgba(30, 64, 175, 0.15)",
-            }}
+            className="bg-blue-900 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
             bodyStyle={{ padding: "32px" }}
           >
             <Row align="middle" justify="space-between">
@@ -309,12 +286,7 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                       </span>
                     </Space>
                   }
-                  style={{
-                    borderRadius: "16px",
-                    border: "1px solid #e5e7eb",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                    height: "100%",
-                  }}
+                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
                   headStyle={{
                     borderBottom: "1px solid #f1f5f9",
                     background: "#fafbfc",
@@ -383,11 +355,7 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                       </span>
                     </Space>
                   }
-                  style={{
-                    borderRadius: "16px",
-                    border: "1px solid #e5e7eb",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                  }}
+                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
                   headStyle={{
                     borderBottom: "1px solid #f1f5f9",
                     background: "#fafbfc",
@@ -400,13 +368,7 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                     <Col xs={24} md={12}>
                       <Form.Item
                         label={
-                          <span
-                            style={{
-                              fontSize: "14px",
-                              fontWeight: "600",
-                              color: "#374151",
-                            }}
-                          >
+                          <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
                             Full Name
                           </span>
                         }
@@ -422,6 +384,7 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                           prefix={<UserOutlined style={{ color: "#9ca3af" }} />}
                           placeholder="Enter full name"
                           size="large"
+                          className="dark:!bg-slate-800  dark:text-[#FFFFFF]"
                           style={{
                             borderRadius: "12px",
                             border: "1px solid #d1d5db",
@@ -435,13 +398,7 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                     <Col xs={24} md={12}>
                       <Form.Item
                         label={
-                          <span
-                            style={{
-                              fontSize: "14px",
-                              fontWeight: "600",
-                              color: "#374151",
-                            }}
-                          >
+                          <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
                             Email Address
                           </span>
                         }
@@ -461,6 +418,7 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                           prefix={<MailOutlined style={{ color: "#9ca3af" }} />}
                           placeholder="Enter email address"
                           size="large"
+                          className="dark:!bg-slate-800  dark:text-[#FFFFFF]"
                           style={{
                             borderRadius: "12px",
                             border: "1px solid #d1d5db",
@@ -474,13 +432,7 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                     <Col xs={24} md={12}>
                       <Form.Item
                         label={
-                          <span
-                            style={{
-                              fontSize: "14px",
-                              fontWeight: "600",
-                              color: "#374151",
-                            }}
-                          >
+                          <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
                             Phone Number
                           </span>
                         }
@@ -498,6 +450,7 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                           }
                           placeholder="Enter phone number"
                           size="large"
+                          className="dark:!bg-slate-800  dark:text-[#FFFFFF]"
                           style={{
                             borderRadius: "12px",
                             border: "1px solid #d1d5db",
@@ -511,13 +464,7 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                     <Col xs={24} md={12}>
                       <Form.Item
                         label={
-                          <span
-                            style={{
-                              fontSize: "14px",
-                              fontWeight: "600",
-                              color: "#374151",
-                            }}
-                          >
+                          <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
                             Specialization
                           </span>
                         }
@@ -532,6 +479,8 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                         <Select
                           placeholder="Select specialization"
                           size="large"
+                          className="dark:!bg-slate-800 [&_.ant-select-selector]:dark:!bg-slate-800 [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white"
+                          dropdownClassName="dark:!bg-slate-800 [&_.ant-select-item]:dark:!bg-slate-800 [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-slate-700 [&_.ant-select-item-option-active]:dark:!bg-slate-700"
                           style={{
                             borderRadius: "12px",
                           }}
@@ -567,13 +516,7 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                     <Col xs={24} md={12}>
                       <Form.Item
                         label={
-                          <span
-                            style={{
-                              fontSize: "14px",
-                              fontWeight: "600",
-                              color: "#374151",
-                            }}
-                          >
+                          <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
                             Status
                           </span>
                         }
@@ -585,6 +528,8 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                         <Select
                           placeholder="Select status"
                           size="large"
+                          className="dark:!bg-slate-800 [&_.ant-select-selector]:dark:!bg-slate-800 [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white"
+                          dropdownClassName="dark:!bg-slate-800 [&_.ant-select-item]:dark:!bg-slate-800 [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-slate-700 [&_.ant-select-item-option-active]:dark:!bg-slate-700"
                           style={{
                             borderRadius: "12px",
                           }}
@@ -618,8 +563,6 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                         </Select>
                       </Form.Item>
                     </Col>
-
-                    
                   </Row>
                 </Card>
               </Col>
@@ -627,12 +570,7 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
 
             {/* Action Buttons */}
             <Card
-              style={{
-                borderRadius: "16px",
-                border: "1px solid #e5e7eb",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                marginTop: "24px",
-              }}
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mt-[40px] mb-[40px]"
               bodyStyle={{ padding: "24px" }}
             >
               <Row justify="center">
@@ -687,12 +625,7 @@ export default function EditLawyer({ params }: { params: { id: string } }) {
                 </span>
               </Space>
             }
-            style={{
-              borderRadius: "16px",
-              border: "1px solid #e5e7eb",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-              marginTop: "24px",
-            }}
+            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
             headStyle={{
               borderBottom: "1px solid #f1f5f9",
               background: "#fafbfc",

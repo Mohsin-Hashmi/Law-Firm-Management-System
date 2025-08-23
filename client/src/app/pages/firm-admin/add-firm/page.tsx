@@ -13,6 +13,8 @@ import {
   Divider,
   Space,
   Spin,
+  Row,
+  Col,
 } from "antd";
 import {
   BankOutlined,
@@ -185,114 +187,108 @@ export default function AddFirm() {
 
   return (
     <DashboardLayout>
-      <div
-        style={{
-          background: "#f8fafc",
-          minHeight: "100vh",
-        }}
-      >
-        <div className="max-w-[1000px] mx-auto">
+      <div className="min-h-screen p-6 bg-slate-50 dark:bg-slate-900 transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
+        <div className="max-w-[1200px] mx-auto">
           {/* Header Section */}
-          <div style={{ marginBottom: "32px" }}>
-            <Button
-              type="text"
-              icon={<ArrowLeftOutlined />}
-              onClick={() => router.back()}
-              style={{
-                marginBottom: "16px",
-                color: "#64748b",
-                fontSize: "14px",
-              }}
-            >
-              Back to Dashboard
-            </Button>
-
-            <Card
-              style={{
-                background: "white",
-                borderRadius: "16px",
-                border: "1px solid #e5e7eb",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-              }}
-              bodyStyle={{ padding: "32px" }}
-            >
-              <div style={{ textAlign: "center" }}>
-                <div
-                  style={{
-                    width: "80px",
-                    height: "80px",
-                    background:
-                      "linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)",
-                    borderRadius: "20px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    margin: "0 auto 24px",
-                  }}
-                >
-                  <BankOutlined style={{ fontSize: "32px", color: "white" }} />
-                </div>
-
-                <Title
-                  level={1}
-                  style={{
-                    color: "#111827",
-                    marginBottom: "8px",
-                    fontSize: "36px",
-                    fontWeight: "700",
-                  }}
-                >
-                  Create New Law Firm
-                </Title>
-                <Text
-                  style={{
-                    fontSize: "16px",
-                    color: "#64748b",
-                    lineHeight: "1.5",
-                  }}
-                >
-                  Set up your law firms digital workspace with all essential
-                  details
-                </Text>
-
-                {/* Progress Bar */}
-                <div
-                  style={{
-                    marginTop: "24px",
-                    maxWidth: "300px",
-                    margin: "24px auto 0",
-                  }}
-                >
-                  <Text
+          <Card
+            className="bg-blue-900 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+            bodyStyle={{ padding: "32px" }}
+          >
+            <Row align="middle" justify="space-between">
+              <Col>
+                <Space size="large">
+                  <div
                     style={{
-                      fontSize: "14px",
-                      color: "#64748b",
-                      marginBottom: "8px",
-                      display: "block",
+                      width: "80px",
+                      height: "80px",
+                      background: "rgba(255,255,255,0.15)",
+                      borderRadius: "16px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      border: "2px solid rgba(255,255,255,0.2)",
                     }}
                   >
-                    Setup Progress
-                  </Text>
-                  <Progress
-                    percent={getFormProgress()}
-                    strokeColor="#1e40af"
-                    trailColor="#f1f5f9"
-                    strokeWidth={8}
-                    showInfo={false}
-                  />
-                </div>
-              </div>
-            </Card>
-          </div>
+                    <BankOutlined
+                      style={{ fontSize: "32px", color: "white" }}
+                    />
+                  </div>
+                  <div>
+                    <Title
+                      level={1}
+                      style={{
+                        color: "white",
+                        margin: 0,
+                        fontSize: "36px",
+                        fontWeight: "600",
+                        letterSpacing: "-0.025em",
+                      }}
+                    >
+                      Create New Law Firm
+                    </Title>
+                    <Text
+                      style={{
+                        color: "rgba(255,255,255,0.8)",
+                        fontSize: "18px",
+                        fontWeight: "400",
+                      }}
+                    >
+                      Set up your law firms digital workspace with all essential details
+                    </Text>
+                  </div>
+                </Space>
+              </Col>
+              <Col>
+                <Button
+                  icon={<ArrowLeftOutlined />}
+                  onClick={() => router.back()}
+                  size="large"
+                  style={{
+                    background: "rgba(255,255,255,0.2)",
+                    borderColor: "rgba(255,255,255,0.3)",
+                    color: "white",
+                    borderRadius: "12px",
+                    fontWeight: "600",
+                    padding: "8px 24px",
+                    height: "48px",
+                    backdropFilter: "blur(10px)",
+                  }}
+                  ghost
+                >
+                  Back
+                </Button>
+              </Col>
+            </Row>
+          </Card>
+
+          {/* Progress Card */}
+          <Card
+            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+            bodyStyle={{ padding: "24px" }}
+          >
+            <div style={{ textAlign: "center" }}>
+              <Text
+                className="text-[14px] text-[#64748b] dark:text-[#9ca3af] font-[500]"
+                style={{
+                  marginBottom: "8px",
+                  display: "block",
+                }}
+              >
+                Setup Progress
+              </Text>
+              <Progress
+                percent={getFormProgress()}
+                strokeColor="#1e40af"
+                trailColor="#f1f5f9"
+                strokeWidth={8}
+                showInfo={false}
+              />
+            </div>
+          </Card>
 
           {/* Main Form Card */}
           <Card
-            style={{
-              background: "white",
-              borderRadius: "16px",
-              border: "1px solid #e5e7eb",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-            }}
+            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
             bodyStyle={{ padding: "40px" }}
           >
             <Form<FormValues>
@@ -309,14 +305,7 @@ export default function AddFirm() {
               {loading && (
                 <div className="fixed inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-50">
                   <div
-                    style={{
-                      background: "white",
-                      padding: "48px",
-                      borderRadius: "20px",
-                      textAlign: "center",
-                      boxShadow: "0 25px 50px rgba(0, 0, 0, 0.25)",
-                      border: "1px solid #e5e7eb",
-                    }}
+                    className="bg-white dark:bg-slate-800 p-12 rounded-2xl text-center shadow-2xl border border-slate-200 dark:border-slate-700"
                   >
                     <div
                       style={{
@@ -334,11 +323,12 @@ export default function AddFirm() {
                     </div>
                     <Title
                       level={3}
-                      style={{ marginBottom: "8px", color: "#111827" }}
+                      className="text-[#111827] dark:text-[#FFFFFF]"
+                      style={{ marginBottom: "8px" }}
                     >
                       Creating Law Firm
                     </Title>
-                    <Text style={{ color: "#64748b", fontSize: "16px" }}>
+                    <Text className="text-[#64748b] dark:text-[#9ca3af]" style={{ fontSize: "16px" }}>
                       Please wait while we set up your firms workspace...
                     </Text>
                   </div>
@@ -351,8 +341,8 @@ export default function AddFirm() {
                   <div style={{ marginBottom: "24px" }}>
                     <Title
                       level={4}
+                      className="text-[#374151] dark:text-[#FFFFFF]"
                       style={{
-                        color: "#374151",
                         marginBottom: "4px",
                         fontSize: "18px",
                       }}
@@ -362,20 +352,14 @@ export default function AddFirm() {
                       />
                       Firm Information
                     </Title>
-                    <Text style={{ color: "#9ca3af", fontSize: "14px" }}>
+                    <Text className="text-[#9ca3af] dark:text-[#6b7280]" style={{ fontSize: "14px" }}>
                       Basic details about your law firm
                     </Text>
                   </div>
 
                   <Form.Item
                     label={
-                      <span
-                        style={{
-                          fontSize: "15px",
-                          fontWeight: "600",
-                          color: "#374151",
-                        }}
-                      >
+                      <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
                         Firm Name
                       </span>
                     }
@@ -393,25 +377,19 @@ export default function AddFirm() {
                         setName(value);
                         setSubdomain(generateSubdomain(value));
                       }}
+                      className="dark:!bg-slate-800 dark:text-[#FFFFFF]"
                       style={{
                         padding: "14px 16px",
                         borderRadius: "12px",
                         border: "1px solid #d1d5db",
                         fontSize: "15px",
-                        background: "#fafafa",
                       }}
                     />
                   </Form.Item>
 
                   <Form.Item
                     label={
-                      <span
-                        style={{
-                          fontSize: "15px",
-                          fontWeight: "600",
-                          color: "#374151",
-                        }}
-                      >
+                      <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
                         Firm Subdomain
                       </span>
                     }
@@ -421,16 +399,15 @@ export default function AddFirm() {
                       value={subdomain}
                       readOnly
                       placeholder="auto-generated from firm name"
+                      className="dark:!bg-slate-700 dark:text-[#9ca3af]"
                       style={{
                         padding: "14px 16px",
                         borderRadius: "12px",
                         border: "1px solid #d1d5db",
                         fontSize: "15px",
-                        background: "#f9fafb",
-                        color: "#6b7280",
                       }}
                       suffix={
-                        <Text style={{ color: "#9ca3af", fontSize: "14px" }}>
+                        <Text className="text-[#9ca3af] dark:text-[#6b7280]" style={{ fontSize: "14px" }}>
                           .lawfirm.com
                         </Text>
                       }
@@ -439,13 +416,7 @@ export default function AddFirm() {
 
                   <Form.Item
                     label={
-                      <span
-                        style={{
-                          fontSize: "15px",
-                          fontWeight: "600",
-                          color: "#374151",
-                        }}
-                      >
+                      <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
                         Email Address
                       </span>
                     }
@@ -463,25 +434,19 @@ export default function AddFirm() {
                       placeholder="contact@lawfirm.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      className="dark:!bg-slate-800 dark:text-[#FFFFFF]"
                       style={{
                         padding: "14px 16px",
                         borderRadius: "12px",
                         border: "1px solid #d1d5db",
                         fontSize: "15px",
-                        background: "#fafafa",
                       }}
                     />
                   </Form.Item>
 
                   <Form.Item
                     label={
-                      <span
-                        style={{
-                          fontSize: "15px",
-                          fontWeight: "600",
-                          color: "#374151",
-                        }}
-                      >
+                      <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
                         Phone Number
                       </span>
                     }
@@ -495,25 +460,19 @@ export default function AddFirm() {
                       placeholder="+1 (555) 123-4567"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
+                      className="dark:!bg-slate-800 dark:text-[#FFFFFF]"
                       style={{
                         padding: "14px 16px",
                         borderRadius: "12px",
                         border: "1px solid #d1d5db",
                         fontSize: "15px",
-                        background: "#fafafa",
                       }}
                     />
                   </Form.Item>
 
                   <Form.Item
                     label={
-                      <span
-                        style={{
-                          fontSize: "15px",
-                          fontWeight: "600",
-                          color: "#374151",
-                        }}
-                      >
+                      <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
                         Business Address
                       </span>
                     }
@@ -523,18 +482,15 @@ export default function AddFirm() {
                     ]}
                   >
                     <Input.TextArea
-                      prefix={
-                        <EnvironmentOutlined style={{ color: "#9ca3af" }} />
-                      }
                       placeholder="Enter complete business address"
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
                       rows={3}
+                      className="dark:!bg-slate-800 dark:text-[#FFFFFF]"
                       style={{
                         borderRadius: "12px",
                         border: "1px solid #d1d5db",
                         fontSize: "15px",
-                        background: "#fafafa",
                       }}
                     />
                   </Form.Item>
@@ -545,8 +501,8 @@ export default function AddFirm() {
                   <div style={{ marginBottom: "24px" }}>
                     <Title
                       level={4}
+                      className="text-[#374151] dark:text-[#FFFFFF]"
                       style={{
-                        color: "#374151",
                         marginBottom: "4px",
                         fontSize: "18px",
                       }}
@@ -556,20 +512,14 @@ export default function AddFirm() {
                       />
                       Subscription & Limits
                     </Title>
-                    <Text style={{ color: "#9ca3af", fontSize: "14px" }}>
+                    <Text className="text-[#9ca3af] dark:text-[#6b7280]" style={{ fontSize: "14px" }}>
                       Choose your plan and set operational limits
                     </Text>
                   </div>
 
                   <Form.Item
                     label={
-                      <span
-                        style={{
-                          fontSize: "15px",
-                          fontWeight: "600",
-                          color: "#374151",
-                        }}
-                      >
+                      <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
                         Subscription Plan
                       </span>
                     }
@@ -589,6 +539,7 @@ export default function AddFirm() {
                         <div
                           key={plan.value}
                           onClick={() => handlePlanChange(plan.value)}
+                          className="cursor-pointer transition-all duration-200 hover:shadow-md"
                           style={{
                             border:
                               subscription_plan === plan.value
@@ -596,12 +547,10 @@ export default function AddFirm() {
                                 : "1px solid #d1d5db",
                             borderRadius: "12px",
                             padding: "16px",
-                            cursor: "pointer",
                             background:
                               subscription_plan === plan.value
                                 ? `${plan.color}08`
-                                : "#fafafa",
-                            transition: "all 0.2s ease",
+                                : undefined,
                           }}
                         >
                           <div
@@ -622,16 +571,17 @@ export default function AddFirm() {
                             <div style={{ flex: 1 }}>
                               <Title
                                 level={5}
+                                className="text-[#374151] dark:text-[#FFFFFF]"
                                 style={{
                                   margin: 0,
-                                  color: "#374151",
                                   fontSize: "16px",
                                 }}
                               >
                                 {plan.label}
                               </Title>
                               <Text
-                                style={{ color: "#6b7280", fontSize: "14px" }}
+                                className="text-[#6b7280] dark:text-[#9ca3af]"
+                                style={{ fontSize: "14px" }}
                               >
                                 {plan.description}
                               </Text>
@@ -645,13 +595,7 @@ export default function AddFirm() {
                   <div style={{ display: "flex", gap: "16px" }}>
                     <Form.Item
                       label={
-                        <span
-                          style={{
-                            fontSize: "15px",
-                            fontWeight: "600",
-                            color: "#374151",
-                          }}
-                        >
+                        <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
                           Max Users
                         </span>
                       }
@@ -663,6 +607,7 @@ export default function AddFirm() {
                     >
                       <InputNumber
                         prefix={<TeamOutlined style={{ color: "#9ca3af" }} />}
+                        className="dark:!bg-slate-800 dark:text-[#FFFFFF] [&_.ant-input-number-input]:dark:!bg-slate-800 [&_.ant-input-number-input]:dark:!text-white"
                         style={{
                           width: "100%",
                           borderRadius: "12px",
@@ -677,13 +622,7 @@ export default function AddFirm() {
 
                     <Form.Item
                       label={
-                        <span
-                          style={{
-                            fontSize: "15px",
-                            fontWeight: "600",
-                            color: "#374151",
-                          }}
-                        >
+                        <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
                           Max Cases
                         </span>
                       }
@@ -697,6 +636,7 @@ export default function AddFirm() {
                         prefix={
                           <FileTextOutlined style={{ color: "#9ca3af" }} />
                         }
+                        className="dark:!bg-slate-800 dark:text-[#FFFFFF] [&_.ant-input-number-input]:dark:!bg-slate-800 [&_.ant-input-number-input]:dark:!text-white"
                         style={{
                           width: "100%",
                           borderRadius: "12px",
@@ -712,18 +652,12 @@ export default function AddFirm() {
 
                   {/* Plan Features */}
                   <div
-                    style={{
-                      background: "#f0f9ff",
-                      border: "1px solid #e0f2fe",
-                      borderRadius: "12px",
-                      padding: "20px",
-                      marginTop: "24px",
-                    }}
+                    className="bg-blue-50 dark:bg-slate-700/50 border border-blue-200 dark:border-slate-600 rounded-xl p-5 mt-6"
                   >
                     <Title
                       level={5}
+                      className="text-[#1e40af] dark:text-[#60a5fa]"
                       style={{
-                        color: "#1e40af",
                         marginBottom: "12px",
                         fontSize: "16px",
                       }}
@@ -737,10 +671,10 @@ export default function AddFirm() {
                       Features
                     </Title>
                     <ul
+                      className="text-[#334155] dark:text-[#cbd5e1]"
                       style={{
                         margin: 0,
                         paddingLeft: "20px",
-                        color: "#334155",
                       }}
                     >
                       {subscriptionPlans
@@ -807,7 +741,7 @@ export default function AddFirm() {
                 </Space>
 
                 <div style={{ marginTop: "24px" }}>
-                  <Text style={{ color: "#9ca3af", fontSize: "14px" }}>
+                  <Text className="text-[#9ca3af] dark:text-[#6b7280]" style={{ fontSize: "14px" }}>
                     Your firm will be ready to use immediately after creation
                   </Text>
                 </div>

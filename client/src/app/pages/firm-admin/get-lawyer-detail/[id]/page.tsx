@@ -66,79 +66,57 @@ export default function GetLawyerDetail({
     }
   };
 
-  if (loading) {
-    return (
-      <DashboardLayout>
-        <div
-          style={{
-            background: "#f8fafc",
-            minHeight: "100vh",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Spin size="large" />
-        </div>
-      </DashboardLayout>
-    );
-  }
 
-  if (!lawyer) {
-    return (
-      <DashboardLayout>
-        <div
-          style={{
-            background: "#f8fafc",
-            minHeight: "100vh",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <div style={{ textAlign: "center" }}>
-            <UserOutlined
-              style={{
-                fontSize: "64px",
-                color: "#9ca3af",
-                marginBottom: "16px",
-              }}
-            />
-            <Title level={3} style={{ color: "#64748b" }}>
-              Lawyer Not Found
-            </Title>
-            <Text style={{ color: "#64748b", fontSize: "16px" }}>
-              The requested lawyer profile could not be found.
-            </Text>
-            <br />
-            <Button
-              type="primary"
-              onClick={() => router.back()}
-              style={{ marginTop: "16px" }}
-            >
-              Go Back
-            </Button>
-          </div>
+if (loading) {
+  return (
+    <DashboardLayout>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex justify-center items-center transition-colors duration-300">
+        <Spin size="large" />
+      </div>
+    </DashboardLayout>
+  );
+}
+
+// Also fix the "Lawyer Not Found" section:
+if (!lawyer) {
+  return (
+    <DashboardLayout>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex justify-center items-center transition-colors duration-300">
+        <div style={{ textAlign: "center" }}>
+          <UserOutlined
+            style={{
+              fontSize: "64px",
+              color: "#9ca3af",
+              marginBottom: "16px",
+            }}
+          />
+          <Title level={3} className="text-slate-600 dark:text-slate-400">
+            Lawyer Not Found
+          </Title>
+          <Text className="text-slate-600 dark:text-slate-400 text-base">
+            The requested lawyer profile could not be found.
+          </Text>
+          <br />
+          <Button
+            type="primary"
+            onClick={() => router.back()}
+            style={{ marginTop: "16px" }}
+          >
+            Go Back
+          </Button>
         </div>
-      </DashboardLayout>
-    );
-  }
+      </div>
+    </DashboardLayout>
+  );
+}
 
   return (
     <DashboardLayout>
-      <div
-        style={{
-          background: "#f8fafc",
-          minHeight: "100vh",
-          padding: "24px",
-        }}
-      >
+      <div className="min-h-screen p-6 bg-slate-50 dark:bg-slate-900 transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
         <div className="max-w-[1400px] mx-auto">
           {/* Header Section */}
           <Card
-            className="mb-8 rounded-2xl border-none shadow-xl 
-             bg-gradient-to-r from-blue-800 to-blue-900 
-             dark:from-slate-900 dark:to-slate-800"
+            className="bg-blue-900 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
             bodyStyle={{ padding: "32px" }}
           >
             <Row align="middle" justify="space-between">
@@ -195,12 +173,7 @@ export default function GetLawyerDetail({
 
           {/* Main Profile Card */}
           <Card
-            style={{
-              borderRadius: "16px",
-              border: "1px solid #e5e7eb",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-              marginBottom: "32px",
-            }}
+            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
             bodyStyle={{ padding: "40px" }}
           >
             <Row gutter={[32, 32]} align="top">
@@ -294,7 +267,7 @@ export default function GetLawyerDetail({
               <Col xs={24} lg={16}>
                 <Title
                   level={3}
-                  style={{ color: "#111827", marginBottom: "24px" }}
+                  className="text-[#111827] dark:text-[#FFFFFF] mb-[24px]"
                 >
                   Contact Information
                 </Title>
@@ -303,11 +276,7 @@ export default function GetLawyerDetail({
                   <Col xs={24} md={12}>
                     <Card
                       bordered={false}
-                      style={{
-                        background: "#f8fafc",
-                        borderRadius: "12px",
-                        border: "1px solid #e2e8f0",
-                      }}
+                      className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
                       bodyStyle={{ padding: "20px" }}
                     >
                       <Space
@@ -356,11 +325,7 @@ export default function GetLawyerDetail({
                   <Col xs={24} md={12}>
                     <Card
                       bordered={false}
-                      style={{
-                        background: "#f8fafc",
-                        borderRadius: "12px",
-                        border: "1px solid #e2e8f0",
-                      }}
+                       className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
                       bodyStyle={{ padding: "20px" }}
                     >
                       <Space
@@ -563,12 +528,7 @@ export default function GetLawyerDetail({
                     </span>
                   </Space>
                 }
-                style={{
-                  borderRadius: "16px",
-                  border: "1px solid #e5e7eb",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                  height: "100%",
-                }}
+               className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
                 headStyle={{
                   borderBottom: "1px solid #f1f5f9",
                   background: "#fafbfc",
@@ -686,12 +646,7 @@ export default function GetLawyerDetail({
                     </span>
                   </Space>
                 }
-                style={{
-                  borderRadius: "16px",
-                  border: "1px solid #e5e7eb",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                  height: "100%",
-                }}
+                className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
                 headStyle={{
                   borderBottom: "1px solid #f1f5f9",
                   background: "#fafbfc",
@@ -811,12 +766,7 @@ export default function GetLawyerDetail({
 
           {/* Action Buttons */}
           <Card
-            style={{
-              borderRadius: "16px",
-              border: "1px solid #e5e7eb",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-              marginTop: "24px",
-            }}
+            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mt-[40px]"
             bodyStyle={{ padding: "24px" }}
           >
             <Row justify="center">
