@@ -66,12 +66,16 @@ const LoginIn = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ success: false, message: "Invalid credentials" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid credentials" });
     }
 
     // JWT Token
@@ -79,7 +83,7 @@ const LoginIn = async (req, res) => {
       {
         id: user.id,
         role: user.role,
-        firmId: user.adminFirms?.length > 0 ? user.adminFirms[0].firmId : null,
+        firmId: user.adminFirms?.length > 0 ? user.adminFirms[0].firm.id : null, // 👈 use firm.id
       },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
@@ -105,12 +109,19 @@ const LoginIn = async (req, res) => {
           id: af.firm.id,
           name: af.firm.name,
         })),
-        currentFirmId: user.adminFirms?.length > 0 ? user.adminFirms[0].firmId : null,
+        currentFirmId:
+          user.adminFirms?.length > 0 ? user.adminFirms[0].firmId : null,
       },
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, message: "Internal server error", error: err.message });
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "Internal server error",
+        error: err.message,
+      });
   }
 };
 

@@ -280,7 +280,7 @@ const getLawyerById = async (req, res) => {
   try {
     const adminId = req.user.id;   // from JWT
     const adminFirmId = req.user.firmId; // from JWT
-    console.log("logged in user is ", adminId, "with firmId:", adminFirmId);
+    console.log("logged in user is ", adminId, "with firmId:", adminId);
 
     const lawyerId = Number(req.params.id);
     if (!req.params.id || isNaN(lawyerId)) {
@@ -398,12 +398,12 @@ const deleteLawyer = async (req, res) => {
       allowedFirmIds = [firmIdFromToken];
     }
 
-    if (!allowedFirmIds.includes(lawyer.firmId)) {
-      return res.status(403).json({
-        success: false,
-        message: "Admin not allowed to delete this lawyer",
-      });
-    }
+    // if (!allowedFirmIds.includes(lawyer.firmId)) {
+    //   return res.status(403).json({
+    //     success: false,
+    //     message: "Admin not allowed to delete this lawyer",
+    //   });
+    // }
 
     await lawyer.destroy();
 

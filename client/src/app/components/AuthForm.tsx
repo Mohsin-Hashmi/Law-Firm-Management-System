@@ -18,6 +18,7 @@ import { toast } from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { addUser } from "../store/userSlice";
 
+
 type AuthFormProps = {
   type: "login" | "signup";
 };
@@ -31,6 +32,7 @@ export default function AuthForm({ type }: AuthFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
   const [error, setError] = useState({
     name: "",
     email: "",
@@ -150,7 +152,6 @@ const handleSubmit = async (e: React.FormEvent) => {
 
       setEmail("");
       setPassword("");
-
       // Redirect based on firm presence
       if (currentFirmId) {
         router.push("/pages/dashboard"); // user has a firm → go dashboard
@@ -207,7 +208,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                       placeholder="Enter your full name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className={`w-full pl-10 pr-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-slate-200 outline-none transition-all duration-300 ${
+                      className={`w-full dark:bg-[#FFFFFF] dark:text-[#000000]  pl-10 pr-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-slate-200 outline-none transition-all duration-300 ${
                         error.name
                           ? "border-red-300 focus:border-red-500"
                           : "border-slate-200 focus:border-slate-400 hover:border-slate-300"
@@ -233,7 +234,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                     placeholder="Enter your email address"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className={`w-full pl-10 pr-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-slate-200 outline-none transition-all duration-300 ${
+                    className={`w-full dark:bg-[#FFFFFF] dark:text-[#000000] pl-10 pr-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-slate-200 outline-none transition-all duration-300 ${
                       error.email
                         ? "border-red-300 focus:border-red-500"
                         : "border-slate-200 focus:border-slate-400 hover:border-slate-300"
@@ -258,7 +259,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                     placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className={`w-full pl-10 pr-10 py-3 border-2 rounded-lg focus:ring-2 focus:ring-slate-200 outline-none transition-all duration-300 ${
+                    className={`w-full dark:bg-[#FFFFFF] dark:text-[#000000]  pl-10 pr-10 py-3 border-2 rounded-lg focus:ring-2 focus:ring-slate-200 outline-none transition-all duration-300 ${
                       error.password
                         ? "border-red-300 focus:border-red-500"
                         : "border-slate-200 focus:border-slate-400 hover:border-slate-300"
@@ -295,7 +296,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                       placeholder="Confirm your password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className={`w-full pl-10 pr-10 py-3 border-2 rounded-lg focus:ring-2 focus:ring-slate-200 outline-none transition-all duration-300 ${
+                      className={`w-full dark:bg-[#FFFFFF] dark:text-[#000000]  pl-10 pr-10 py-3 border-2 rounded-lg focus:ring-2 focus:ring-slate-200 outline-none transition-all duration-300 ${
                         error.confirmPassword
                           ? "border-red-300 focus:border-red-500"
                           : "border-slate-200 focus:border-slate-400 hover:border-slate-300"

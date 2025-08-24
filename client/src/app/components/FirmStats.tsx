@@ -52,11 +52,12 @@ export default function FirmStats({ firmId, role }: Props) {
   useEffect(() => {
     if (!firmId || !role) return;
 
-    dispatch(clearFirm());
-
     const fetchStats = async () => {
       try {
+        // Set loading BEFORE clearing firm data
         dispatch(setLoading(true));
+        dispatch(clearFirm());
+        
         const data = await getStats(firmId, role);
         dispatch(setFirm(data));
         dispatch(setError(null));
@@ -80,7 +81,8 @@ export default function FirmStats({ firmId, role }: Props) {
     router.push("/pages/firm-admin/add-lawyer");
   };
 
-  if (loading)
+  // Show loading spinner when loading OR when there's no stats yet (during firm switch)
+  if (loading || (!stats && !error)) {
     return (
       <div
         style={{
@@ -92,9 +94,15 @@ export default function FirmStats({ firmId, role }: Props) {
       >
         <div style={{ textAlign: "center" }}>
           <Spin size="large" />
+          <div style={{ marginTop: "16px" }}>
+            <Text className="text-slate-600 dark:text-slate-400">
+              Loading firm statistics...
+            </Text>
+          </div>
         </div>
       </div>
     );
+  }
 
   if (error)
     return (
@@ -174,7 +182,7 @@ export default function FirmStats({ firmId, role }: Props) {
   ];
 
   return (
-    <div className="min-h-screen p-6 bg-slate-50 dark:bg-slate-900 transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
+    <div className="min-h-screen p-6 bg-slate-50 dark:bg-slate-900 transition-colors duration-300  ">
       {/* Professional Header */}
       <Card
         className="bg-blue-900 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
@@ -190,11 +198,11 @@ export default function FirmStats({ firmId, role }: Props) {
               <div>
                 <Title
                   level={1}
-                  className="text-[#232323] m-0 text-4xl font-semibold tracking-tight"
+                  className="text-[#FFFFFF] dark:text-[#FFFFFF] m-0 text-4xl font-semibold tracking-tight"
                 >
                   {stats.firmName}
                 </Title>
-                <Text className="text-white/80 dark:text-white text-lg font-normal">
+                <Text className="text-white/100 dark:text-white text-lg font-normal">
                   Law Firm Management Dashboard
                 </Text>
                 <div style={{ marginTop: "8px" }}>
@@ -308,7 +316,7 @@ export default function FirmStats({ firmId, role }: Props) {
                       lineHeight: "1",
                       color: "inherit",
                     }}
-                    className="text-slate-900 dark:text-white [&_.ant-statistic-content-value]:dark:!text-white"
+                    className="text-slate-900 dark:text-green-500 [&_.ant-statistic-content-value]:dark:!text-green-500 mb-[10px]"
                   />
                   <Text className="text-slate-500 dark:text-white text-sm font-medium block mt-1">
                     {stat.title}
@@ -322,7 +330,7 @@ export default function FirmStats({ firmId, role }: Props) {
                       gap: "4px",
                     }}
                   >
-                    <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
+                    <Text className="text-emerald-600 dark:text-green-500 text-xs font-semibold">
                       {stat.growth}
                     </Text>
                     <Text className="text-slate-400 dark:text-white text-xs">

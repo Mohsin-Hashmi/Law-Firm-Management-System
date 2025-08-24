@@ -24,7 +24,7 @@ const userAuth = async (req, res, next) => {
     req.user = {
       id: user.id,
       role: user.role,
-      firmId: decoded.firmId || user.firmId, // keep firmId in sync
+      firmId: decoded.firmId ?? user.firmId,
     };
 
     next();

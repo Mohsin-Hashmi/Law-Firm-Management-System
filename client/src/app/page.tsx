@@ -57,10 +57,10 @@ export default function Home() {
 
                 <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
                   <Link
-                    href="/pages/about-us"
+                    href="/auth/signup"
                     className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-white font-semibold text-lg rounded-xl shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300"
                   >
-                    Learn More
+                    Get Started
                   </Link>
                   <Link
                     href="/pages/our-services"

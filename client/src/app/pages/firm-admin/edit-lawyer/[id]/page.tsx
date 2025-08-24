@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "@/app/components/DashboardLayout";
+import { ThemeProvider } from "next-themes";
 import {
   Card,
   Row,
@@ -105,7 +106,7 @@ export default function EditLawyer({ params }: { params: { id: number } }) {
           : undefined;
 
       // Call the API with the correct parameters
-      const response = await updateLawyer((lawyerId), lawyerData, file);
+      const response = await updateLawyer(lawyerId, lawyerData, file);
 
       toast.success("Lawyer profile updated successfully!");
       router.push(`/pages/firm-admin/get-lawyer-detail/${lawyerId}`);
@@ -141,15 +142,15 @@ export default function EditLawyer({ params }: { params: { id: number } }) {
     </div>
   );
 
-if (loading) {
-  return (
-    <DashboardLayout>
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex justify-center items-center transition-colors duration-300">
-        <Spin size="large" />
-      </div>
-    </DashboardLayout>
-  );
-}
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex justify-center items-center transition-colors duration-300">
+          <Spin size="large" />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   if (!lawyer) {
     return (
@@ -192,538 +193,546 @@ if (loading) {
   }
 
   return (
-    <DashboardLayout>
-      <div className="min-h-screen p-6 bg-slate-50 dark:bg-slate-900 transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
-        <div className="max-w-[1200px] mx-auto">
-          {/* Header Section */}
-          <Card
-            className="bg-blue-900 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
-            bodyStyle={{ padding: "32px" }}
-          >
-            <Row align="middle" justify="space-between">
-              <Col>
-                <Space size="large">
-                  <div
-                    style={{
-                      width: "80px",
-                      height: "80px",
-                      background: "rgba(255,255,255,0.15)",
-                      borderRadius: "16px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      border: "2px solid rgba(255,255,255,0.2)",
-                    }}
-                  >
-                    <EditOutlined
-                      style={{ fontSize: "32px", color: "white" }}
-                    />
-                  </div>
-                  <div>
-                    <Title
-                      level={1}
-                      style={{
-                        color: "white",
-                        margin: 0,
-                        fontSize: "36px",
-                        fontWeight: "600",
-                        letterSpacing: "-0.025em",
-                      }}
-                    >
-                      Edit Lawyer Profile
-                    </Title>
-                    <Text
-                      style={{
-                        color: "rgba(255,255,255,0.8)",
-                        fontSize: "18px",
-                        fontWeight: "400",
-                      }}
-                    >
-                      Update lawyer information and professional details
-                    </Text>
-                  </div>
-                </Space>
-              </Col>
-              <Col>
-                <Button
-                  icon={<ArrowLeftOutlined />}
-                  onClick={() => router.back()}
-                  size="large"
-                  style={{
-                    background: "rgba(255,255,255,0.2)",
-                    borderColor: "rgba(255,255,255,0.3)",
-                    color: "white",
-                    borderRadius: "12px",
-                    fontWeight: "600",
-                    padding: "8px 24px",
-                    height: "48px",
-                    backdropFilter: "blur(10px)",
-                  }}
-                  ghost
-                >
-                  Back
-                </Button>
-              </Col>
-            </Row>
-          </Card>
-
-          {/* Edit Form */}
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={handleSubmit}
-            requiredMark={false}
-          >
-            <Row gutter={[32, 24]}>
-              {/* Profile Image Section */}
-              <Col xs={24} lg={8}>
-                <Card
-                  title={
-                    <Space>
-                      <CameraOutlined style={{ color: "#1e40af" }} />
-                      <span style={{ color: "#111827", fontWeight: "600" }}>
-                        Profile Photo
-                      </span>
-                    </Space>
-                  }
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
-                  headStyle={{
-                    borderBottom: "1px solid #f1f5f9",
-                    background: "#fafbfc",
-                    borderRadius: "16px 16px 0 0",
-                  }}
-                  bodyStyle={{ padding: "32px", textAlign: "center" }}
-                >
-                  <div style={{ marginBottom: "24px" }}>
-                    <Avatar
-                      size={160}
-                      src={previewImage}
-                      icon={!previewImage && <UserOutlined />}
-                      style={{
-                        background: previewImage ? "transparent" : "#f1f5f9",
-                        border: "4px solid #e5e7eb",
-                        boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
-                        marginBottom: "16px",
-                      }}
-                    />
-                  </div>
-
-                  <Upload
-                    listType="text"
-                    fileList={fileList}
-                    onChange={handleImageChange}
-                    beforeUpload={() => false}
-                    maxCount={1}
-                    accept="image/*"
-                    showUploadList={false}
-                  >
-                    <Button
-                      icon={<UploadOutlined />}
-                      style={{
-                        borderRadius: "12px",
-                        border: "1px solid #d1d5db",
-                        fontWeight: "500",
-                        padding: "8px 24px",
-                        height: "40px",
-                      }}
-                    >
-                      Change Photo
-                    </Button>
-                  </Upload>
-
-                  <Text
-                    style={{
-                      display: "block",
-                      marginTop: "12px",
-                      color: "#64748b",
-                      fontSize: "12px",
-                    }}
-                  >
-                    PNG, JPG, GIF up to 10MB
-                  </Text>
-                </Card>
-              </Col>
-
-              {/* Form Fields Section */}
-              <Col xs={24} lg={16}>
-                <Card
-                  title={
-                    <Space>
-                      <UserOutlined style={{ color: "#1e40af" }} />
-                      <span style={{ color: "#111827", fontWeight: "600" }}>
-                        Personal & Professional Information
-                      </span>
-                    </Space>
-                  }
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
-                  headStyle={{
-                    borderBottom: "1px solid #f1f5f9",
-                    background: "#fafbfc",
-                    borderRadius: "16px 16px 0 0",
-                  }}
-                  bodyStyle={{ padding: "32px" }}
-                >
-                  <Row gutter={[24, 16]}>
-                    {/* Full Name */}
-                    <Col xs={24} md={12}>
-                      <Form.Item
-                        label={
-                          <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
-                            Full Name
-                          </span>
-                        }
-                        name="name"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please enter lawyer name",
-                          },
-                        ]}
-                      >
-                        <Input
-                          prefix={<UserOutlined style={{ color: "#9ca3af" }} />}
-                          placeholder="Enter full name"
-                          size="large"
-                          className="dark:!bg-slate-800  dark:text-[#FFFFFF]"
-                          style={{
-                            borderRadius: "12px",
-                            border: "1px solid #d1d5db",
-                            padding: "12px 16px",
-                          }}
-                        />
-                      </Form.Item>
-                    </Col>
-
-                    {/* Email */}
-                    <Col xs={24} md={12}>
-                      <Form.Item
-                        label={
-                          <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
-                            Email Address
-                          </span>
-                        }
-                        name="email"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please enter email address",
-                          },
-                          {
-                            type: "email",
-                            message: "Please enter a valid email address",
-                          },
-                        ]}
-                      >
-                        <Input
-                          prefix={<MailOutlined style={{ color: "#9ca3af" }} />}
-                          placeholder="Enter email address"
-                          size="large"
-                          className="dark:!bg-slate-800  dark:text-[#FFFFFF]"
-                          style={{
-                            borderRadius: "12px",
-                            border: "1px solid #d1d5db",
-                            padding: "12px 16px",
-                          }}
-                        />
-                      </Form.Item>
-                    </Col>
-
-                    {/* Phone */}
-                    <Col xs={24} md={12}>
-                      <Form.Item
-                        label={
-                          <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
-                            Phone Number
-                          </span>
-                        }
-                        name="phone"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please enter phone number",
-                          },
-                        ]}
-                      >
-                        <Input
-                          prefix={
-                            <PhoneOutlined style={{ color: "#9ca3af" }} />
-                          }
-                          placeholder="Enter phone number"
-                          size="large"
-                          className="dark:!bg-slate-800  dark:text-[#FFFFFF]"
-                          style={{
-                            borderRadius: "12px",
-                            border: "1px solid #d1d5db",
-                            padding: "12px 16px",
-                          }}
-                        />
-                      </Form.Item>
-                    </Col>
-
-                    {/* Specialization */}
-                    <Col xs={24} md={12}>
-                      <Form.Item
-                        label={
-                          <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
-                            Specialization
-                          </span>
-                        }
-                        name="specialization"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please select specialization",
-                          },
-                        ]}
-                      >
-                        <Select
-                          placeholder="Select specialization"
-                          size="large"
-                          className="dark:!bg-slate-800 [&_.ant-select-selector]:dark:!bg-slate-800 [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white"
-                          dropdownClassName="dark:!bg-slate-800 [&_.ant-select-item]:dark:!bg-slate-800 [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-slate-700 [&_.ant-select-item-option-active]:dark:!bg-slate-700"
-                          style={{
-                            borderRadius: "12px",
-                          }}
-                          suffixIcon={
-                            <BankOutlined style={{ color: "#9ca3af" }} />
-                          }
-                        >
-                          <Option value="Criminal Law">Criminal Law</Option>
-                          <Option value="Corporate Law">Corporate Law</Option>
-                          <Option value="Family Law">Family Law</Option>
-                          <Option value="Real Estate Law">
-                            Real Estate Law
-                          </Option>
-                          <Option value="Immigration Law">
-                            Immigration Law
-                          </Option>
-                          <Option value="Intellectual Property">
-                            Intellectual Property
-                          </Option>
-                          <Option value="Employment Law">Employment Law</Option>
-                          <Option value="Tax Law">Tax Law</Option>
-                          <Option value="Environmental Law">
-                            Environmental Law
-                          </Option>
-                          <Option value="General Practice">
-                            General Practice
-                          </Option>
-                        </Select>
-                      </Form.Item>
-                    </Col>
-
-                    {/* Status */}
-                    <Col xs={24} md={12}>
-                      <Form.Item
-                        label={
-                          <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
-                            Status
-                          </span>
-                        }
-                        name="status"
-                        rules={[
-                          { required: true, message: "Please select status" },
-                        ]}
-                      >
-                        <Select
-                          placeholder="Select status"
-                          size="large"
-                          className="dark:!bg-slate-800 [&_.ant-select-selector]:dark:!bg-slate-800 [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white"
-                          dropdownClassName="dark:!bg-slate-800 [&_.ant-select-item]:dark:!bg-slate-800 [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-slate-700 [&_.ant-select-item-option-active]:dark:!bg-slate-700"
-                          style={{
-                            borderRadius: "12px",
-                          }}
-                        >
-                          <Option value="Active">
-                            <Space>
-                              <div
-                                style={{
-                                  width: "8px",
-                                  height: "8px",
-                                  background: "#10b981",
-                                  borderRadius: "50%",
-                                }}
-                              />
-                              Active
-                            </Space>
-                          </Option>
-                          <Option value="Inactive">
-                            <Space>
-                              <div
-                                style={{
-                                  width: "8px",
-                                  height: "8px",
-                                  background: "#ef4444",
-                                  borderRadius: "50%",
-                                }}
-                              />
-                              Inactive
-                            </Space>
-                          </Option>
-                        </Select>
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                </Card>
-              </Col>
-            </Row>
-
-            {/* Action Buttons */}
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+      <DashboardLayout>
+        <div className="min-h-screen p-6 bg-slate-50 dark:bg-slate-900 transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
+          <div className="max-w-[1200px] mx-auto">
+            {/* Header Section */}
             <Card
-              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mt-[40px] mb-[40px]"
-              bodyStyle={{ padding: "24px" }}
+              className="bg-blue-900 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+              bodyStyle={{ padding: "32px" }}
             >
-              <Row justify="center">
+              <Row align="middle" justify="space-between">
                 <Col>
                   <Space size="large">
-                    <Button
-                      size="large"
-                      onClick={() => router.back()}
+                    <div
                       style={{
-                        borderRadius: "12px",
-                        border: "1px solid #d1d5db",
-                        fontWeight: "600",
-                        padding: "12px 32px",
-                        height: "48px",
-                        color: "#374151",
+                        width: "80px",
+                        height: "80px",
+                        background: "rgba(255,255,255,0.15)",
+                        borderRadius: "16px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        border: "2px solid rgba(255,255,255,0.2)",
                       }}
                     >
-                      Cancel
-                    </Button>
+                      <EditOutlined
+                        style={{ fontSize: "32px", color: "white" }}
+                      />
+                    </div>
+                    <div>
+                      <Title
+                        level={1}
+                        style={{
+                          color: "white",
+                          margin: 0,
+                          fontSize: "36px",
+                          fontWeight: "600",
+                          letterSpacing: "-0.025em",
+                        }}
+                      >
+                        Edit Lawyer Profile
+                      </Title>
+                      <Text
+                        style={{
+                          color: "rgba(255,255,255,0.8)",
+                          fontSize: "18px",
+                          fontWeight: "400",
+                        }}
+                      >
+                        Update lawyer information and professional details
+                      </Text>
+                    </div>
+                  </Space>
+                </Col>
+                <Col>
+                  <Button
+                    icon={<ArrowLeftOutlined />}
+                    onClick={() => router.back()}
+                    size="large"
+                    style={{
+                      background: "rgba(255,255,255,0.2)",
+                      borderColor: "rgba(255,255,255,0.3)",
+                      color: "white",
+                      borderRadius: "12px",
+                      fontWeight: "600",
+                      padding: "8px 24px",
+                      height: "48px",
+                      backdropFilter: "blur(10px)",
+                    }}
+                    ghost
+                  >
+                    Back
+                  </Button>
+                </Col>
+              </Row>
+            </Card>
 
-                    <Button
-                      type="primary"
-                      size="large"
-                      htmlType="submit"
-                      loading={submitting}
-                      icon={<SaveOutlined />}
+            {/* Edit Form */}
+            <Form
+              form={form}
+              layout="vertical"
+              onFinish={handleSubmit}
+              requiredMark={false}
+            >
+              <Row gutter={[32, 24]}>
+                {/* Profile Image Section */}
+                <Col xs={24} lg={8}>
+                  <Card
+                    title={
+                      <Space>
+                        <CameraOutlined style={{ color: "#1e40af" }} />
+                        <span style={{ color: "#111827", fontWeight: "600" }}>
+                          Profile Photo
+                        </span>
+                      </Space>
+                    }
+                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+                    headStyle={{
+                      borderBottom: "1px solid #f1f5f9",
+                      background: "#fafbfc",
+                      borderRadius: "16px 16px 0 0",
+                    }}
+                    bodyStyle={{ padding: "32px", textAlign: "center" }}
+                  >
+                    <div style={{ marginBottom: "24px" }}>
+                      <Avatar
+                        size={160}
+                        src={previewImage}
+                        icon={!previewImage && <UserOutlined />}
+                        style={{
+                          background: previewImage ? "transparent" : "#f1f5f9",
+                          border: "4px solid #e5e7eb",
+                          boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
+                          marginBottom: "16px",
+                        }}
+                      />
+                    </div>
+
+                    <Upload
+                      listType="text"
+                      fileList={fileList}
+                      onChange={handleImageChange}
+                      beforeUpload={() => false}
+                      maxCount={1}
+                      accept="image/*"
+                      showUploadList={false}
+                    >
+                      <Button
+                        icon={<UploadOutlined />}
+                        style={{
+                          borderRadius: "12px",
+                          border: "1px solid #d1d5db",
+                          fontWeight: "500",
+                          padding: "8px 24px",
+                          height: "40px",
+                        }}
+                      >
+                        Change Photo
+                      </Button>
+                    </Upload>
+
+                    <Text
                       style={{
-                        background: "#1e40af",
-                        borderColor: "#1e40af",
-                        borderRadius: "12px",
-                        fontWeight: "600",
-                        padding: "12px 32px",
-                        height: "48px",
-                        boxShadow: "0 4px 12px rgba(30, 64, 175, 0.3)",
+                        display: "block",
+                        marginTop: "12px",
+                        color: "#64748b",
+                        fontSize: "12px",
                       }}
                     >
-                      {submitting ? "Updating..." : "Update Lawyer Profile"}
-                    </Button>
+                      PNG, JPG, GIF up to 10MB
+                    </Text>
+                  </Card>
+                </Col>
+
+                {/* Form Fields Section */}
+                <Col xs={24} lg={16}>
+                  <Card
+                    title={
+                      <Space>
+                        <UserOutlined style={{ color: "#1e40af" }} />
+                        <span style={{ color: "#111827", fontWeight: "600" }}>
+                          Personal & Professional Information
+                        </span>
+                      </Space>
+                    }
+                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+                    headStyle={{
+                      borderBottom: "1px solid #f1f5f9",
+                      background: "#fafbfc",
+                      borderRadius: "16px 16px 0 0",
+                    }}
+                    bodyStyle={{ padding: "32px" }}
+                  >
+                    <Row gutter={[24, 16]}>
+                      {/* Full Name */}
+                      <Col xs={24} md={12}>
+                        <Form.Item
+                          label={
+                            <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
+                              Full Name
+                            </span>
+                          }
+                          name="name"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please enter lawyer name",
+                            },
+                          ]}
+                        >
+                          <Input
+                            prefix={
+                              <UserOutlined style={{ color: "#9ca3af" }} />
+                            }
+                            placeholder="Enter full name"
+                            size="large"
+                            className="dark:!bg-slate-800  dark:text-[#FFFFFF]"
+                            style={{
+                              borderRadius: "12px",
+                              border: "1px solid #d1d5db",
+                              padding: "12px 16px",
+                            }}
+                          />
+                        </Form.Item>
+                      </Col>
+
+                      {/* Email */}
+                      <Col xs={24} md={12}>
+                        <Form.Item
+                          label={
+                            <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
+                              Email Address
+                            </span>
+                          }
+                          name="email"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please enter email address",
+                            },
+                            {
+                              type: "email",
+                              message: "Please enter a valid email address",
+                            },
+                          ]}
+                        >
+                          <Input
+                            prefix={
+                              <MailOutlined style={{ color: "#9ca3af" }} />
+                            }
+                            placeholder="Enter email address"
+                            size="large"
+                            className="dark:!bg-slate-800  dark:text-[#FFFFFF]"
+                            style={{
+                              borderRadius: "12px",
+                              border: "1px solid #d1d5db",
+                              padding: "12px 16px",
+                            }}
+                          />
+                        </Form.Item>
+                      </Col>
+
+                      {/* Phone */}
+                      <Col xs={24} md={12}>
+                        <Form.Item
+                          label={
+                            <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
+                              Phone Number
+                            </span>
+                          }
+                          name="phone"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please enter phone number",
+                            },
+                          ]}
+                        >
+                          <Input
+                            prefix={
+                              <PhoneOutlined style={{ color: "#9ca3af" }} />
+                            }
+                            placeholder="Enter phone number"
+                            size="large"
+                            className="dark:!bg-slate-800  dark:text-[#FFFFFF]"
+                            style={{
+                              borderRadius: "12px",
+                              border: "1px solid #d1d5db",
+                              padding: "12px 16px",
+                            }}
+                          />
+                        </Form.Item>
+                      </Col>
+
+                      {/* Specialization */}
+                      <Col xs={24} md={12}>
+                        <Form.Item
+                          label={
+                            <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
+                              Specialization
+                            </span>
+                          }
+                          name="specialization"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please select specialization",
+                            },
+                          ]}
+                        >
+                          <Select
+                            placeholder="Select specialization"
+                            size="large"
+                            className="dark:!bg-slate-800 [&_.ant-select-selector]:dark:!bg-slate-800 [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white"
+                            dropdownClassName="dark:!bg-slate-800 [&_.ant-select-item]:dark:!bg-slate-800 [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-slate-700 [&_.ant-select-item-option-active]:dark:!bg-slate-700"
+                            style={{
+                              borderRadius: "12px",
+                            }}
+                            suffixIcon={
+                              <BankOutlined style={{ color: "#9ca3af" }} />
+                            }
+                          >
+                            <Option value="Criminal Law">Criminal Law</Option>
+                            <Option value="Corporate Law">Corporate Law</Option>
+                            <Option value="Family Law">Family Law</Option>
+                            <Option value="Real Estate Law">
+                              Real Estate Law
+                            </Option>
+                            <Option value="Immigration Law">
+                              Immigration Law
+                            </Option>
+                            <Option value="Intellectual Property">
+                              Intellectual Property
+                            </Option>
+                            <Option value="Employment Law">
+                              Employment Law
+                            </Option>
+                            <Option value="Tax Law">Tax Law</Option>
+                            <Option value="Environmental Law">
+                              Environmental Law
+                            </Option>
+                            <Option value="General Practice">
+                              General Practice
+                            </Option>
+                          </Select>
+                        </Form.Item>
+                      </Col>
+
+                      {/* Status */}
+                      <Col xs={24} md={12}>
+                        <Form.Item
+                          label={
+                            <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
+                              Status
+                            </span>
+                          }
+                          name="status"
+                          rules={[
+                            { required: true, message: "Please select status" },
+                          ]}
+                        >
+                          <Select
+                            placeholder="Select status"
+                            size="large"
+                            className="dark:!bg-slate-800 [&_.ant-select-selector]:dark:!bg-slate-800 [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white"
+                            dropdownClassName="dark:!bg-slate-800 [&_.ant-select-item]:dark:!bg-slate-800 [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-slate-700 [&_.ant-select-item-option-active]:dark:!bg-slate-700"
+                            style={{
+                              borderRadius: "12px",
+                            }}
+                          >
+                            <Option value="Active">
+                              <Space>
+                                <div
+                                  style={{
+                                    width: "8px",
+                                    height: "8px",
+                                    background: "#10b981",
+                                    borderRadius: "50%",
+                                  }}
+                                />
+                                Active
+                              </Space>
+                            </Option>
+                            <Option value="Inactive">
+                              <Space>
+                                <div
+                                  style={{
+                                    width: "8px",
+                                    height: "8px",
+                                    background: "#ef4444",
+                                    borderRadius: "50%",
+                                  }}
+                                />
+                                Inactive
+                              </Space>
+                            </Option>
+                          </Select>
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                  </Card>
+                </Col>
+              </Row>
+
+              {/* Action Buttons */}
+              <Card
+                className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mt-[40px] mb-[40px]"
+                bodyStyle={{ padding: "24px" }}
+              >
+                <Row justify="center">
+                  <Col>
+                    <Space size="large">
+                      <Button
+                        size="large"
+                        onClick={() => router.back()}
+                        style={{
+                          borderRadius: "12px",
+                          border: "1px solid #d1d5db",
+                          fontWeight: "600",
+                          padding: "12px 32px",
+                          height: "48px",
+                          color: "#374151",
+                        }}
+                      >
+                        Cancel
+                      </Button>
+
+                      <Button
+                        type="primary"
+                        size="large"
+                        htmlType="submit"
+                        loading={submitting}
+                        icon={<SaveOutlined />}
+                        style={{
+                          background: "#1e40af",
+                          borderColor: "#1e40af",
+                          borderRadius: "12px",
+                          fontWeight: "600",
+                          padding: "12px 32px",
+                          height: "48px",
+                          boxShadow: "0 4px 12px rgba(30, 64, 175, 0.3)",
+                        }}
+                      >
+                        {submitting ? "Updating..." : "Update Lawyer Profile"}
+                      </Button>
+                    </Space>
+                  </Col>
+                </Row>
+              </Card>
+            </Form>
+
+            {/* Current Profile Preview */}
+            <Card
+              title={
+                <Space>
+                  <UserOutlined style={{ color: "#1e40af" }} />
+                  <span style={{ color: "#111827", fontWeight: "600" }}>
+                    Current Profile Preview
+                  </span>
+                </Space>
+              }
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+              headStyle={{
+                borderBottom: "1px solid #f1f5f9",
+                background: "#fafbfc",
+                borderRadius: "16px 16px 0 0",
+              }}
+              bodyStyle={{ padding: "32px" }}
+            >
+              <Row gutter={[24, 24]} align="middle">
+                <Col xs={24} sm={8} md={6} className="flex justify-center">
+                  <Avatar
+                    size={120}
+                    src={
+                      previewImage ||
+                      (lawyer.profileImage
+                        ? `http://localhost:5000${lawyer.profileImage}`
+                        : undefined)
+                    }
+                    icon={
+                      !previewImage && !lawyer.profileImage && <UserOutlined />
+                    }
+                    style={{
+                      background:
+                        previewImage || lawyer.profileImage
+                          ? "transparent"
+                          : "#f1f5f9",
+                      border: "2px solid #e5e7eb",
+                    }}
+                  />
+                </Col>
+                <Col xs={24} sm={16} md={18}>
+                  <Space direction="vertical" size="middle">
+                    <Title level={3} style={{ margin: 0, color: "#111827" }}>
+                      {form.getFieldValue("name") || lawyer.name}
+                    </Title>
+
+                    <Space wrap>
+                      <Space>
+                        <MailOutlined style={{ color: "#9ca3af" }} />
+                        <Text style={{ color: "#64748b" }}>
+                          {form.getFieldValue("email") || lawyer.email}
+                        </Text>
+                      </Space>
+                      <Space>
+                        <PhoneOutlined style={{ color: "#9ca3af" }} />
+                        <Text style={{ color: "#64748b" }}>
+                          {form.getFieldValue("phone") || lawyer.phone}
+                        </Text>
+                      </Space>
+                    </Space>
+
+                    <Space>
+                      <BankOutlined style={{ color: "#9ca3af" }} />
+                      <Text style={{ color: "#64748b" }}>
+                        {form.getFieldValue("specialization") ||
+                          lawyer.specialization ||
+                          "General Practice"}
+                      </Text>
+                    </Space>
+
+                    <div>
+                      {(
+                        form.getFieldValue("status") || lawyer.status
+                      )?.toLowerCase() === "active" ? (
+                        <Space>
+                          <div
+                            style={{
+                              width: "8px",
+                              height: "8px",
+                              background: "#10b981",
+                              borderRadius: "50%",
+                            }}
+                          />
+                          <Text style={{ color: "#059669", fontWeight: "500" }}>
+                            Active
+                          </Text>
+                        </Space>
+                      ) : (
+                        <Space>
+                          <div
+                            style={{
+                              width: "8px",
+                              height: "8px",
+                              background: "#ef4444",
+                              borderRadius: "50%",
+                            }}
+                          />
+                          <Text style={{ color: "#dc2626", fontWeight: "500" }}>
+                            Inactive
+                          </Text>
+                        </Space>
+                      )}
+                    </div>
                   </Space>
                 </Col>
               </Row>
             </Card>
-          </Form>
-
-          {/* Current Profile Preview */}
-          <Card
-            title={
-              <Space>
-                <UserOutlined style={{ color: "#1e40af" }} />
-                <span style={{ color: "#111827", fontWeight: "600" }}>
-                  Current Profile Preview
-                </span>
-              </Space>
-            }
-            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
-            headStyle={{
-              borderBottom: "1px solid #f1f5f9",
-              background: "#fafbfc",
-              borderRadius: "16px 16px 0 0",
-            }}
-            bodyStyle={{ padding: "32px" }}
-          >
-            <Row gutter={[24, 24]} align="middle">
-              <Col xs={24} sm={8} md={6} className="flex justify-center">
-                <Avatar
-                  size={120}
-                  src={
-                    previewImage ||
-                    (lawyer.profileImage
-                      ? `http://localhost:5000${lawyer.profileImage}`
-                      : undefined)
-                  }
-                  icon={
-                    !previewImage && !lawyer.profileImage && <UserOutlined />
-                  }
-                  style={{
-                    background:
-                      previewImage || lawyer.profileImage
-                        ? "transparent"
-                        : "#f1f5f9",
-                    border: "2px solid #e5e7eb",
-                  }}
-                />
-              </Col>
-              <Col xs={24} sm={16} md={18}>
-                <Space direction="vertical" size="middle">
-                  <Title level={3} style={{ margin: 0, color: "#111827" }}>
-                    {form.getFieldValue("name") || lawyer.name}
-                  </Title>
-
-                  <Space wrap>
-                    <Space>
-                      <MailOutlined style={{ color: "#9ca3af" }} />
-                      <Text style={{ color: "#64748b" }}>
-                        {form.getFieldValue("email") || lawyer.email}
-                      </Text>
-                    </Space>
-                    <Space>
-                      <PhoneOutlined style={{ color: "#9ca3af" }} />
-                      <Text style={{ color: "#64748b" }}>
-                        {form.getFieldValue("phone") || lawyer.phone}
-                      </Text>
-                    </Space>
-                  </Space>
-
-                  <Space>
-                    <BankOutlined style={{ color: "#9ca3af" }} />
-                    <Text style={{ color: "#64748b" }}>
-                      {form.getFieldValue("specialization") ||
-                        lawyer.specialization ||
-                        "General Practice"}
-                    </Text>
-                  </Space>
-
-                  <div>
-                    {(
-                      form.getFieldValue("status") || lawyer.status
-                    )?.toLowerCase() === "active" ? (
-                      <Space>
-                        <div
-                          style={{
-                            width: "8px",
-                            height: "8px",
-                            background: "#10b981",
-                            borderRadius: "50%",
-                          }}
-                        />
-                        <Text style={{ color: "#059669", fontWeight: "500" }}>
-                          Active
-                        </Text>
-                      </Space>
-                    ) : (
-                      <Space>
-                        <div
-                          style={{
-                            width: "8px",
-                            height: "8px",
-                            background: "#ef4444",
-                            borderRadius: "50%",
-                          }}
-                        />
-                        <Text style={{ color: "#dc2626", fontWeight: "500" }}>
-                          Inactive
-                        </Text>
-                      </Space>
-                    )}
-                  </div>
-                </Space>
-              </Col>
-            </Row>
-          </Card>
+          </div>
         </div>
-      </div>
-    </DashboardLayout>
+      </DashboardLayout>
+    </ThemeProvider>
   );
 }

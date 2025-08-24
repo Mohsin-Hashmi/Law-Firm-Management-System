@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { RootState } from "@/app/store/store";
 import { addUser } from "@/app/store/userSlice";
 import axios from "axios";
+import { ThemeProvider } from "next-themes";
 
 export default function DashboardPage() {
   const dispatch = useAppDispatch();
@@ -29,8 +30,10 @@ export default function DashboardPage() {
   if (!user.firmId) return <p>No firm assigned to this user.</p>;
 
   return (
-    <DashboardLayout>
-      <FirmStats firmId={user.firmId} role={user.role} />
-    </DashboardLayout>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+      <DashboardLayout>
+        <FirmStats firmId={user.firmId} role={user.role} />
+      </DashboardLayout>
+    </ThemeProvider>
   );
 }

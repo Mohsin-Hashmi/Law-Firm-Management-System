@@ -147,7 +147,7 @@ export const updateLawyer = async (
 
     return response.data;
   } catch (error) {
-    console.error("Error updating lawyer:", error);
+    console.error("Error updating lawyer:" , error);
     throw error;
   }
 };

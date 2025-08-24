@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import 'antd/dist/reset.css';
+import "antd/dist/reset.css";
 import "./globals.css";
 import Providers from "./store/Providers";
 import { Toaster } from "react-hot-toast";
 import { Space_Grotesk } from "next/font/google";
-import { ThemeProvider } from "next-themes";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -39,10 +38,8 @@ export default function RootLayout({
         // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         className={spaceGrotesk.className}
       >
-          <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-          <Providers>{children}</Providers>
-          <Toaster position="top-right" reverseOrder={false} />
-        </ThemeProvider>
+        <Providers>{children}</Providers>
+        <Toaster position="top-right" reverseOrder={false} />
       </body>
     </html>
   );

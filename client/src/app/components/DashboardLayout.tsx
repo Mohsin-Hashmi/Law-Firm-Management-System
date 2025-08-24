@@ -7,7 +7,7 @@ import { removeUser } from "../store/userSlice";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
-import { Select } from "antd";
+import { Select, Spin } from "antd"; // Import Spin from antd
 import { switchFirm } from "../store/userSlice";
 import {
   HomeOutlined,
@@ -21,13 +21,15 @@ import {
   SettingOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  LoadingOutlined,
 } from "@ant-design/icons";
 import { useState } from "react";
 import { switchFirmAPI } from "../service/adminAPI";
-import { clearFirm } from "../store/firmSlice";
 import { getLawyers } from "../service/adminAPI";
 import { setLawyers } from "../store/lawyerSlice";
 import ThemeToggle from "./ThemeToggle";
+import { clearFirm } from "../store/firmSlice";
+import { clearLawyers } from "../store/lawyerSlice";
 
 export default function DashboardLayout({
   children,
@@ -39,13 +41,19 @@ export default function DashboardLayout({
   const role = useAppSelector((state) => state.user.user?.role);
   const user = useAppSelector((state) => state.user.user);
   const [collapsed, setCollapsed] = useState(false);
+  const [isSwitchingFirm, setIsSwitchingFirm] = useState(false); // Add loading state
 
   const handleLogout = async () => {
     const response = await logoutUser();
     dispatch(removeUser(response.data));
+    dispatch(clearFirm(response.data));
+    dispatch(clearLawyers(response.data));
     router.push("/auth/login");
     toast.success("Logged out successfully");
   };
+
+  // Custom loading icon for the spinner
+  const antIcon = <LoadingOutlined style={{ fontSize: 16 }} spin />;
 
   const navLinksMap: Record<
     string,
@@ -176,6 +184,18 @@ export default function DashboardLayout({
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 transition-colors duration-300">
+      {/* Loading Overlay when switching firms */}
+      {isSwitchingFirm && (
+        <div className="fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm z-[9999] flex items-center justify-center">
+          <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-2xl flex items-center space-x-3">
+            <Spin size="large" />
+            <span className="text-slate-700 dark:text-slate-300 font-medium">
+              Switching firm...
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Sidebar */}
       <aside
         className={`${
@@ -186,7 +206,11 @@ export default function DashboardLayout({
         <div className="h-20 flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700">
           <div className="flex items-center flex-1">
             {!collapsed && (
-              <Image src={logo} alt="logo" className="w-[140px] h-auto" />
+              <Image
+                src={logo}
+                alt="logo"
+                className="w-[140px] h-auto brightness-0 dark:brightness-100"
+              />
             )}
             <button
               onClick={() => setCollapsed(!collapsed)}
@@ -216,7 +240,9 @@ export default function DashboardLayout({
                 <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
                   {user?.name || "User"}
                 </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{role}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                  {role}
+                </p>
               </div>
             )}
           </div>
@@ -310,6 +336,8 @@ export default function DashboardLayout({
             <div className="relative">
               <Select
                 value={user?.currentFirmId}
+                loading={isSwitchingFirm} // Add loading prop to the Select
+                disabled={isSwitchingFirm} // Disable select while loading
                 style={{
                   width: 280,
                   height: 44,
@@ -317,21 +345,25 @@ export default function DashboardLayout({
                 className="professional-firm-selector"
                 placeholder="Select Firm"
                 suffixIcon={
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                    className="text-slate-400 dark:text-slate-500"
-                  >
-                    <path
-                      d="M2.5 4.5L6 8L9.5 4.5"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                  isSwitchingFirm ? (
+                    <Spin indicator={antIcon} />
+                  ) : (
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 12 12"
+                      fill="none"
+                      className="text-slate-400 dark:text-slate-500"
+                    >
+                      <path
+                        d="M2.5 4.5L6 8L9.5 4.5"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  )
                 }
                 dropdownStyle={{
                   borderRadius: "12px",
@@ -342,6 +374,7 @@ export default function DashboardLayout({
                 }}
                 popupClassName="professional-dropdown-popup"
                 onChange={async (value) => {
+                  setIsSwitchingFirm(true); // Start loading
                   try {
                     // 1) tell backend to update JWT/cookie
                     await switchFirmAPI(value);
@@ -356,6 +389,8 @@ export default function DashboardLayout({
                   } catch (err) {
                     console.error("Error switching firm:", err);
                     toast.error("Failed to switch firm");
+                  } finally {
+                    setIsSwitchingFirm(false); // End loading
                   }
                 }}
               >
@@ -419,7 +454,8 @@ export default function DashboardLayout({
                   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
                 }
 
-                .dark .professional-firm-selector.ant-select-focused
+                .dark
+                  .professional-firm-selector.ant-select-focused
                   .ant-select-selector {
                   border-color: #60a5fa !important;
                   box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2) !important;
@@ -435,6 +471,11 @@ export default function DashboardLayout({
 
                 .dark .professional-firm-selector .ant-select-selection-item {
                   color: #ffffff !important;
+                }
+
+                /* Loading state styles */
+                .professional-firm-selector.ant-select-disabled .ant-select-selector {
+                  opacity: 0.6 !important;
                 }
 
                 .professional-dropdown-popup {
@@ -485,7 +526,9 @@ export default function DashboardLayout({
                   font-weight: 600 !important;
                 }
 
-                .dark .professional-dropdown-popup .ant-select-item-option-selected {
+                .dark
+                  .professional-dropdown-popup
+                  .ant-select-item-option-selected {
                   background: linear-gradient(
                     135deg,
                     #1e3a8a 0%,
@@ -504,7 +547,8 @@ export default function DashboardLayout({
                   ) !important;
                 }
 
-                .dark .professional-dropdown-popup
+                .dark
+                  .professional-dropdown-popup
                   .ant-select-item-option-selected:hover {
                   background: linear-gradient(
                     135deg,
