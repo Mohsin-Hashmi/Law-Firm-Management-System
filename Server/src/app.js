@@ -5,8 +5,9 @@ const app = express();
 const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/user");
 const superAdminRoutes = require("./routes/superAdmin")
-const lawyerRoutes= require("./routes/lawyer")
-const adminRoute= require("./routes/admin")
+const lawyerRoutes= require("./routes/lawyer");
+const adminRoute= require("./routes/admin");
+const clientRoute= require("./routes/client");
 const cors = require("cors");
 const { User } = require("./models");
 const { where } = require("sequelize");
@@ -72,6 +73,7 @@ app.get("/", (req, res) => {
 app.use("/auth", authRoutes);
 app.use("/api/superadmin", superAdminRoutes);
 app.use("/api/firm-admin", adminRoute);
+app.use("/api/firm-admin",clientRoute);
 app.use("/api/lawyers", lawyerRoutes); 
 // =====Start Server====
 app.listen(PORT, async () => {

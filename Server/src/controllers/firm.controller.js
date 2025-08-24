@@ -82,7 +82,6 @@ const createFirm = async (req, res) => {
 const createLawyer = async (req, res) => {
   const t = await sequelize.transaction();
   try {
-    const adminId = req.user.id;
     const { firmId: firmIdParam } = req.params;
 
     // Convert firmId to number and validate
