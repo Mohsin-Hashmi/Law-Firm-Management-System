@@ -1,6 +1,7 @@
 import axios from "axios";
 import BASE_URL from "../utils/constant";
 import { FirmPayload, LawyerPayload, FirmStats, Lawyer } from "../types/firm";
+import { ClientPayload, Client } from "../types/client";
 
 /**Create firm API call */
 export const createFirm = async (data: FirmPayload) => {
@@ -55,13 +56,12 @@ export const getStats = async (
   }
 };
 
-
 export const getLawyers = async (firmId?: number): Promise<Lawyer[]> => {
   try {
     const response = await axios.get(
       `${BASE_URL}/api/firm-admin/firms/lawyers`,
       {
-        params: { firmId },  // <-- pass firmId in query
+        params: { firmId }, // <-- pass firmId in query
         withCredentials: true,
       }
     );
@@ -147,13 +147,107 @@ export const updateLawyer = async (
 
     return response.data;
   } catch (error) {
-    console.error("Error updating lawyer:" , error);
+    console.error("Error updating lawyer:", error);
     throw error;
   }
 };
 
-// Switch firm API 
+// Switch firm API
 export const switchFirmAPI = async (firmId: number) => {
-  const res = await axios.post(`${BASE_URL}/api/firm-admin/switch-firm`, { firmId }, { withCredentials: true });
+  const res = await axios.post(
+    `${BASE_URL}/api/firm-admin/switch-firm`,
+    { firmId },
+    { withCredentials: true }
+  );
   return res.data;
+};
+
+/**Create Client API Call */
+export const createClient = async (data: ClientPayload) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/api/firm-admin/${data.firmId}/addClient`,
+      data,
+      {
+        withCredentials: true,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      // AxiosError type-safe handling
+      throw new Error(
+        `Error creating client: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    }
+    // Fallback for unexpected errors
+    throw new Error("Unexpected error while creating client");
+  }
+};
+
+/**Get All Clients API Call */
+export const getAllClients = async (firmId: number): Promise<Client[]> => {
+  try {
+    const response = await axios.get<{ clients: Client[] }>(
+      `${BASE_URL}/api/firm-admin/firm/${firmId}/clients`,
+      { withCredentials: true }
+    );
+
+    return response.data.clients;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        `Error fetching clients: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    }
+    throw new Error("Unexpected error while fetching clients");
+  }
+};
+
+/**Get Client by id API Call */
+export const getClientById = async (id: number) => {
+  try {
+    const response = await axios.get<ClientPayload>(
+      `${BASE_URL}/api/firm-admin/firm/client/${id}`,
+      {
+        withCredentials: true,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error("Error fetching client by ID: " + error);
+  }
+};
+
+export const updateClient = async (id: number, data: ClientPayload) => {
+  try {
+    const response = await axios.put<{ message: string }>(
+      `${BASE_URL}/api/firm-admin/firm/client/${id}`,
+      data,
+      {
+        withCredentials: true,
+      }
+    );
+    return response.data; // { message: string }
+  } catch (error) {
+    throw new Error("Error updating client: " + error);
+  }
+};
+
+export const deleteClient = async (id: number) => {
+  try {
+    const response = await axios.delete<{ message: string }>(
+      `${BASE_URL}/api/firm-admin/firm/client/${id}`,
+      {
+        withCredentials: true,
+      }
+    );
+    return response.data; // will contain success message
+  } catch (error) {
+    throw new Error("Error deleting client: " + error);
+  }
 };

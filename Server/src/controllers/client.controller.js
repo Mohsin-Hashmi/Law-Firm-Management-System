@@ -305,10 +305,11 @@ const deleteClient = async (req, res) => {
         message: "Client not found in your frim",
       });
     }
-    await client.destory();
+    await client.destroy();
     return res.status(200).json({
       success: true,
       message: "Client deleted successfully",
+      client: client
     });
   } catch (error) {
     console.error("Error deleting client:", error);
