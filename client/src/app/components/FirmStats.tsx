@@ -198,7 +198,7 @@ export default function FirmStats({ firmId, role }: Props) {
               <div>
                 <Title
                   level={1}
-                  className="text-[#FFFFFF] dark:text-[#FFFFFF] m-0 text-4xl font-semibold tracking-tight"
+                  className="!text-white dark:!text-white m-0 text-4xl font-semibold tracking-tight"
                 >
                   {stats.firmName}
                 </Title>
@@ -316,7 +316,7 @@ export default function FirmStats({ firmId, role }: Props) {
                       lineHeight: "1",
                       color: "inherit",
                     }}
-                    className="text-slate-900 dark:text-green-500 [&_.ant-statistic-content-value]:dark:!text-green-500 mb-[10px]"
+                    className="text-blue-600 dark:text-green-500 [&_.ant-statistic-content-value]:dark:!text-green-500 mb-[10px]"
                   />
                   <Text className="text-slate-500 dark:text-white text-sm font-medium block mt-1">
                     {stat.title}

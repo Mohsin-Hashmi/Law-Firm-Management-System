@@ -499,7 +499,7 @@ export default function GetLawyers() {
                     prefix={
                       <TeamOutlined className="text-blue-600 dark:text-blue-400 text-3xl g mr-1" />
                     }
-                    className="text-slate-900 dark:text-blue-600 [&_.ant-statistic-content-value]:dark:!text-blue-60"
+                    className="text-blue-600 dark:text-blue-600 [&_.ant-statistic-content-value]:dark:!text-blue-60"
                   />
                 </Card>
               </Col>
@@ -535,7 +535,7 @@ export default function GetLawyers() {
                     prefix={
                       <CheckCircleOutlined className="text-green-600 dark:text-green-400 text-3xl mr-1" />
                     }
-                    className="text-slate-900 dark:text-green-500 [&_.ant-statistic-content-value]:dark:!text-green-500"
+                    className="text-green-600 dark:text-green-500 [&_.ant-statistic-content-value]:dark:!text-green-500"
                   />
                 </Card>
               </Col>
@@ -571,7 +571,7 @@ export default function GetLawyers() {
                     prefix={
                       <CloseCircleOutlined className="text-red-600 dark:text-red-400 text-3xl mr-1" />
                     }
-                    className="text-slate-900 dark:text-red-600 [&_.ant-statistic-content-value]:dark:!text-red-600"
+                    className="text-red-600 dark:text-red-600 [&_.ant-statistic-content-value]:dark:!text-red-600"
                   />
                 </Card>
               </Col>
@@ -607,7 +607,7 @@ export default function GetLawyers() {
                     prefix={
                       <BankOutlined className="text-purple-600 dark:text-purple-400 text-3xl mr-1" />
                     }
-                    className="text-slate-900 dark:text-purple-500 [&_.ant-statistic-content-value]:dark:!text-purple-400"
+                    className="text-purple-600 dark:text-purple-500 [&_.ant-statistic-content-value]:dark:!text-purple-400"
                   />
                 </Card>
               </Col>
