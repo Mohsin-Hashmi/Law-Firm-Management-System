@@ -6,7 +6,6 @@ import {
   Input,
   Select,
   Button,
-  InputNumber,
   Typography,
   Card,
   Progress,
@@ -15,175 +14,169 @@ import {
   Spin,
   Row,
   Col,
+  DatePicker,
+  InputNumber,
 } from "antd";
 import {
-  BankOutlined,
+  UserOutlined,
   MailOutlined,
   PhoneOutlined,
   EnvironmentOutlined,
-  CrownOutlined,
+  CalendarOutlined,
   TeamOutlined,
-  FileTextOutlined,
+  BankOutlined,
   SaveOutlined,
   ArrowLeftOutlined,
   CheckCircleOutlined,
-  GlobalOutlined,
-  BuildOutlined,
+  ShopOutlined,
+  IdcardOutlined,
+  DollarOutlined,
 } from "@ant-design/icons";
 import { toast } from "react-hot-toast";
-import { createFirm } from "@/app/service/adminAPI";
-import { FirmPayload } from "@/app/types/firm";
 import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
-import { setFirm } from "@/app/store/firmSlice";
-import { addUser } from "@/app/store/userSlice";
 import { useAppSelector } from "@/app/store/hooks";
 import { ThemeProvider } from "next-themes";
+import {  ClientPayload } from "@/app/types/client";
+import { RootState } from "@/app/store/store";
+import { createClient } from "@/app/service/adminAPI";
+import { addClient, } from "@/app/store/clientSlice";
+import { useAppDispatch } from "@/app/store/hooks";
 
 const { Option } = Select;
 const { Title, Text } = Typography;
+const { TextArea } = Input;
 
-interface FormValues {
-  firmName: string;
-  firmEmail: string;
-  firmPhone: string;
-  address: string;
-  subscriptionPlan: string;
-  maxUsers: number;
-  maxCases: number;
-}
-
-export default function AddFirm() {
-  const user = useAppSelector((state) => state.user?.user);
+export default function AddClient() {
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state: RootState) => state.user?.user);
+  const firmId = user?.firmId;
   const router = useRouter();
-  const dispatch = useDispatch();
-  const [form] = Form.useForm<FormValues>();
+  const [form] = Form.useForm<ClientPayload>();
+
   // State values
-  const [name, setName] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [dob, setDob] = useState<string>("");
+  const [gender, setGender] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-  const [subscription_plan, setSubscriptionPlan] = useState("Free");
-  const [maxUsers, setMaxUsers] = useState(1);
-  const [maxCases, setMaxCases] = useState(5);
-  const [subdomain, setSubdomain] = useState("");
+  const [clientType, setClientType] = useState("Individual");
+  const [organization, setOrganization] = useState("");
+  const [status, setStatus] = useState("Active");
+  const [billingAddress, setBillingAddress] = useState("");
+  const [outstandingBalance, setOutstandingBalance] = useState(0);
   const [loading, setLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  const handleCreateFirm = async () => {
+  const handleCreateClient = async () => {
     try {
       setLoading(true);
-      const payload: FirmPayload = {
-        name,
+
+      const payload: ClientPayload = {
+        fullName,
+        dob,
+        gender: gender as "Male" | "Female" | "Other",
         email,
         phone,
         address,
-        subscription_plan: subscription_plan as "Free" | "Basic" | "Premium",
-        max_users: maxUsers,
-        max_cases: maxCases,
+        clientType: clientType as "Individual" | "Business" | "Corporate",
+        organization,
+        status: status as "Active" | "Past" | "Potential" | "Suspended",
+        billingAddress,
+        outstandingBalance,
+        firmId: firmId!, // required
       };
-
-      const response = await createFirm(payload);
+      // Replace with your actual API call
+      const response = await createClient(payload);
       if (!response) {
-        toast.error("Failed to create firm");
-        return;
+        toast.error("Error in create client API");
       }
-      const newFirm = response?.data?.newFirm;
-
-      dispatch(setFirm(newFirm));
-      dispatch(
-        addUser({
-          ...user, // keep old user data
-          firmId: newFirm.id, // attach new firmId
-        })
-      );
-      toast.success("Law firm created successfully!");
-      router.push("/pages/dashboard");
+      dispatch(addClient(response));
+      // const response = await createClient(payload);
+      console.log("Creating client with payload:", payload);
+      toast.success("Client created successfully!");
+      router.push("/pages/firm-admin/get-clients");
 
       // Reset form
-      setName("");
-      setEmail("");
-      setPhone("");
-      setAddress("");
-      setSubscriptionPlan("Free");
-      setMaxUsers(1);
-      setMaxCases(5);
-      setSubdomain("");
-      form.resetFields();
+      resetForm();
     } catch (err) {
-      toast.error("Something went wrong while creating the firm");
-      console.log("Error creating firm:", err);
+      toast.error("Something went wrong while creating the client");
+      console.log("Error creating client:", err);
     } finally {
       setLoading(false);
+
     }
+  };
+
+  const resetForm = () => {
+    setFullName("");
+    setDob("");
+    setGender("");
+    setEmail("");
+    setPhone("");
+    setAddress("");
+    setClientType("Individual");
+    setOrganization("");
+    setStatus("Active");
+    setBillingAddress("");
+    setOutstandingBalance(0);
+    form.resetFields();
   };
 
   const getFormProgress = () => {
     let progress = 0;
-    if (name) progress += 20;
+    if (fullName) progress += 20;
     if (email) progress += 20;
     if (phone) progress += 15;
     if (address) progress += 15;
-    if (subscription_plan) progress += 15;
-    if (maxUsers > 0) progress += 8;
-    if (maxCases > 0) progress += 7;
+    if (clientType) progress += 10;
+    if (status) progress += 10;
+    if (clientType !== "Individual" && organization) progress += 10;
     return progress;
   };
 
-  const generateSubdomain = (firmName: string) => {
-    return firmName
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, "") // Remove special characters
-      .replace(/\s+/g, "-") // Replace spaces with hyphens
-      .replace(/-+/g, "-") // Replace multiple hyphens with single
-      .trim();
-  };
-
-  const subscriptionPlans = [
+  const clientTypes = [
     {
-      value: "Free",
-      label: "Free Plan",
-      description: "Perfect for solo practitioners",
-      features: ["Up to 3 users", "Up to 10 cases", "Basic support"],
+      value: "Individual",
+      label: "Individual",
+      description: "Personal client",
+      icon: <UserOutlined />,
       color: "#059669",
-      icon: <CheckCircleOutlined />,
     },
     {
-      value: "Basic",
-      label: "Basic Plan",
-      description: "Great for small firms",
-      features: ["Up to 10 users", "Up to 50 cases", "Priority support"],
+      value: "Business",
+      label: "Business",
+      description: "Small to medium business",
+      icon: <ShopOutlined />,
       color: "#2563eb",
-      icon: <TeamOutlined />,
     },
     {
-      value: "Premium",
-      label: "Premium Plan",
-      description: "For growing law firms",
-      features: ["Unlimited users", "Unlimited cases", "24/7 support"],
+      value: "Corporate",
+      label: "Corporate",
+      description: "Large corporation",
+      icon: <BankOutlined />,
       color: "#7c3aed",
-      icon: <CrownOutlined />,
     },
   ];
 
-  const getMaxLimitsForPlan = (plan: string) => {
-    switch (plan) {
-      case "Free":
-        return { maxUsers: 3, maxCases: 10 };
-      case "Basic":
-        return { maxUsers: 10, maxCases: 50 };
-      case "Premium":
-        return { maxUsers: 100, maxCases: 1000 };
-      default:
-        return { maxUsers: 3, maxCases: 10 };
-    }
-  };
+  const statusOptions = [
+    { value: "Active", label: "Active", color: "#059669" },
+    { value: "Past", label: "Past Client", color: "#6b7280" },
+    { value: "Potential", label: "Potential", color: "#f59e0b" },
+    { value: "Suspended", label: "Suspended", color: "#dc2626" },
+  ];
 
-  const handlePlanChange = (plan: string) => {
-    setSubscriptionPlan(plan);
-    const limits = getMaxLimitsForPlan(plan);
-    if (maxUsers > limits.maxUsers) setMaxUsers(limits.maxUsers);
-    if (maxCases > limits.maxCases) setMaxCases(limits.maxCases);
+  const genderOptions = [
+    { value: "Male", label: "Male" },
+    { value: "Female", label: "Female" },
+    { value: "Other", label: "Other" },
+  ];
+
+  const handleClientTypeChange = (type: string) => {
+    setClientType(type);
+    if (type === "Individual") {
+      setOrganization("");
+    }
   };
 
   return (
@@ -193,7 +186,7 @@ export default function AddFirm() {
           <div className="max-w-[1200px] mx-auto">
             {/* Header Section */}
             <Card
-              className="bg-blue-900 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+              className="bg-emerald-900 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
               bodyStyle={{ padding: "32px" }}
             >
               <Row align="middle" justify="space-between">
@@ -211,7 +204,7 @@ export default function AddFirm() {
                         border: "2px solid rgba(255,255,255,0.2)",
                       }}
                     >
-                      <BankOutlined
+                      <UserOutlined
                         style={{ fontSize: "32px", color: "white" }}
                       />
                     </div>
@@ -226,7 +219,7 @@ export default function AddFirm() {
                           letterSpacing: "-0.025em",
                         }}
                       >
-                        Create New Law Firm
+                        Add New Client
                       </Title>
                       <Text
                         style={{
@@ -235,8 +228,8 @@ export default function AddFirm() {
                           fontWeight: "400",
                         }}
                       >
-                        Set up your law firms digital workspace with all
-                        essential details
+                        Register a new client with complete contact and billing
+                        information
                       </Text>
                     </div>
                   </Space>
@@ -277,11 +270,11 @@ export default function AddFirm() {
                     display: "block",
                   }}
                 >
-                  Setup Progress
+                  Registration Progress
                 </Text>
                 <Progress
                   percent={getFormProgress()}
-                  strokeColor="#1e40af"
+                  strokeColor="#059669"
                   trailColor="#f1f5f9"
                   strokeWidth={8}
                   showInfo={false}
@@ -294,14 +287,14 @@ export default function AddFirm() {
               className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
               bodyStyle={{ padding: "40px" }}
             >
-              <Form<FormValues>
+              <Form<ClientPayload>
                 form={form}
                 layout="vertical"
-                onFinish={handleCreateFirm}
+                onFinish={handleCreateClient}
                 initialValues={{
-                  subscriptionPlan: "Free",
-                  maxUsers: 1,
-                  maxCases: 5,
+                  clientType: "Individual",
+                  status: "Active",
+                  outstandingBalance: 0,
                 }}
                 size="large"
               >
@@ -327,20 +320,20 @@ export default function AddFirm() {
                         className="text-[#111827] dark:text-[#FFFFFF]"
                         style={{ marginBottom: "8px" }}
                       >
-                        Creating Law Firm
+                        Creating Client
                       </Title>
                       <Text
                         className="text-[#64748b] dark:text-[#9ca3af]"
                         style={{ fontSize: "16px" }}
                       >
-                        Please wait while we set up your firms workspace...
+                        Please wait while we register the new client...
                       </Text>
                     </div>
                   </div>
                 )}
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Firm Information Section */}
+                  {/* Personal Information Section */}
                   <div>
                     <div style={{ marginBottom: "24px" }}>
                       <Title
@@ -351,39 +344,38 @@ export default function AddFirm() {
                           fontSize: "18px",
                         }}
                       >
-                        <BankOutlined
-                          style={{ marginRight: "8px", color: "#1e40af" }}
+                        <UserOutlined
+                          style={{ marginRight: "8px", color: "#059669" }}
                         />
-                        Firm Information
+                        Personal Information
                       </Title>
                       <Text
                         className="text-[#9ca3af] dark:text-[#6b7280]"
                         style={{ fontSize: "14px" }}
                       >
-                        Basic details about your law firm
+                        Basic personal details of the client
                       </Text>
                     </div>
 
                     <Form.Item
                       label={
                         <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
-                          Firm Name
+                          Full Name
                         </span>
                       }
-                      name="firmName"
+                      name="fullName"
                       rules={[
-                        { required: true, message: "Please enter firm name" },
+                        {
+                          required: true,
+                          message: "Please enter client's full name",
+                        },
                       ]}
                     >
                       <Input
-                        prefix={<BankOutlined style={{ color: "#9ca3af" }} />}
-                        placeholder="Enter your law firm's name"
-                        value={name}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setName(value);
-                          setSubdomain(generateSubdomain(value));
-                        }}
+                        prefix={<UserOutlined style={{ color: "#9ca3af" }} />}
+                        placeholder="Enter client's full name"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
                         className="dark:!bg-slate-800 dark:text-[#FFFFFF]"
                         style={{
                           padding: "14px 16px",
@@ -394,35 +386,62 @@ export default function AddFirm() {
                       />
                     </Form.Item>
 
-                    <Form.Item
-                      label={
-                        <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
-                          Firm Subdomain
-                        </span>
-                      }
-                    >
-                      <Input
-                        prefix={<GlobalOutlined style={{ color: "#9ca3af" }} />}
-                        value={subdomain}
-                        readOnly
-                        placeholder="auto-generated from firm name"
-                        className="dark:!bg-slate-700 dark:text-[#9ca3af]"
-                        style={{
-                          padding: "14px 16px",
-                          borderRadius: "12px",
-                          border: "1px solid #d1d5db",
-                          fontSize: "15px",
-                        }}
-                        suffix={
-                          <Text
-                            className="text-[#9ca3af] dark:text-[#6b7280]"
-                            style={{ fontSize: "14px" }}
-                          >
-                            .lawfirm.com
-                          </Text>
+                    <div style={{ display: "flex", gap: "16px" }}>
+                      <Form.Item
+                        label={
+                          <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
+                            Date of Birth
+                          </span>
                         }
-                      />
-                    </Form.Item>
+                        name="dob"
+                        style={{ flex: 1 }}
+                      >
+                        <DatePicker
+                          placeholder="Select date of birth"
+                          value={dob}
+                          onChange={(date) => setDob(date)}
+                          className="dark:!bg-slate-800 dark:text-[#FFFFFF]"
+                          style={{
+                            width: "100%",
+                            padding: "14px 16px",
+                            borderRadius: "12px",
+                            border: "1px solid #d1d5db",
+                            fontSize: "15px",
+                          }}
+                          suffixIcon={
+                            <CalendarOutlined style={{ color: "#9ca3af" }} />
+                          }
+                        />
+                      </Form.Item>
+
+                      <Form.Item
+                        label={
+                          <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
+                            Gender
+                          </span>
+                        }
+                        name="gender"
+                        style={{ flex: 1 }}
+                      >
+                        <Select
+                          placeholder="Select gender"
+                          value={gender}
+                          onChange={(value) => setGender(value)}
+                          size="large"
+                          className="dark:!bg-slate-800 [&_.ant-select-selector]:dark:!bg-slate-800 [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white placeholder:dark:text-[#fff] "
+                          dropdownClassName="dark:!bg-slate-800 [&_.ant-select-item]:dark:!bg-slate-800 [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-slate-700 [&_.ant-select-item-option-active]:dark:!bg-slate-700"
+                          style={{
+                            borderRadius: "12px",
+                          }}
+                        >
+                          {genderOptions.map((option) => (
+                            <Option key={option.value} value={option.value}>
+                              {option.label}
+                            </Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                    </div>
 
                     <Form.Item
                       label={
@@ -430,7 +449,7 @@ export default function AddFirm() {
                           Email Address
                         </span>
                       }
-                      name="firmEmail"
+                      name="email"
                       rules={[
                         {
                           required: true,
@@ -441,7 +460,7 @@ export default function AddFirm() {
                     >
                       <Input
                         prefix={<MailOutlined style={{ color: "#9ca3af" }} />}
-                        placeholder="contact@lawfirm.com"
+                        placeholder="client@email.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="dark:!bg-slate-800 dark:text-[#FFFFFF]"
@@ -460,7 +479,7 @@ export default function AddFirm() {
                           Phone Number
                         </span>
                       }
-                      name="firmPhone"
+                      name="phone"
                       rules={[
                         {
                           required: true,
@@ -486,7 +505,7 @@ export default function AddFirm() {
                     <Form.Item
                       label={
                         <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
-                          Business Address
+                          Address
                         </span>
                       }
                       name="address"
@@ -494,8 +513,8 @@ export default function AddFirm() {
                         { required: true, message: "Please enter address" },
                       ]}
                     >
-                      <Input.TextArea
-                        placeholder="Enter complete business address"
+                      <TextArea
+                        placeholder="Enter complete address"
                         value={address}
                         onChange={(e) => setAddress(e.target.value)}
                         rows={3}
@@ -509,7 +528,7 @@ export default function AddFirm() {
                     </Form.Item>
                   </div>
 
-                  {/* Subscription & Limits Section */}
+                  {/* Business Information Section */}
                   <div>
                     <div style={{ marginBottom: "24px" }}>
                       <Title
@@ -520,28 +539,31 @@ export default function AddFirm() {
                           fontSize: "18px",
                         }}
                       >
-                        <CrownOutlined
-                          style={{ marginRight: "8px", color: "#1e40af" }}
+                        <ShopOutlined
+                          style={{ marginRight: "8px", color: "#059669" }}
                         />
-                        Subscription & Limits
+                        Client Details
                       </Title>
                       <Text
                         className="text-[#9ca3af] dark:text-[#6b7280]"
                         style={{ fontSize: "14px" }}
                       >
-                        Choose your plan and set operational limits
+                        Client type, status and business information
                       </Text>
                     </div>
 
                     <Form.Item
                       label={
                         <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
-                          Subscription Plan
+                          Client Type
                         </span>
                       }
-                      name="subscriptionPlan"
+                      name="clientType"
                       rules={[
-                        { required: true, message: "Please select a plan" },
+                        {
+                          required: true,
+                          message: "Please select client type",
+                        },
                       ]}
                     >
                       <div
@@ -551,21 +573,21 @@ export default function AddFirm() {
                           gap: "12px",
                         }}
                       >
-                        {subscriptionPlans.map((plan) => (
+                        {clientTypes.map((type) => (
                           <div
-                            key={plan.value}
-                            onClick={() => handlePlanChange(plan.value)}
+                            key={type.value}
+                            onClick={() => handleClientTypeChange(type.value)}
                             className="cursor-pointer transition-all duration-200 hover:shadow-md"
                             style={{
                               border:
-                                subscription_plan === plan.value
-                                  ? `2px solid ${plan.color}`
+                                clientType === type.value
+                                  ? `2px solid ${type.color}`
                                   : "1px solid #d1d5db",
                               borderRadius: "12px",
                               padding: "16px",
                               background:
-                                subscription_plan === plan.value
-                                  ? `${plan.color}08`
+                                clientType === type.value
+                                  ? `${type.color}08`
                                   : undefined,
                             }}
                           >
@@ -578,11 +600,11 @@ export default function AddFirm() {
                             >
                               <div
                                 style={{
-                                  color: plan.color,
+                                  color: type.color,
                                   fontSize: "20px",
                                 }}
                               >
-                                {plan.icon}
+                                {type.icon}
                               </div>
                               <div style={{ flex: 1 }}>
                                 <Title
@@ -593,13 +615,13 @@ export default function AddFirm() {
                                     fontSize: "16px",
                                   }}
                                 >
-                                  {plan.label}
+                                  {type.label}
                                 </Title>
                                 <Text
                                   className="text-[#6b7280] dark:text-[#9ca3af]"
                                   style={{ fontSize: "14px" }}
                                 >
-                                  {plan.description}
+                                  {type.description}
                                 </Text>
                               </div>
                             </div>
@@ -608,100 +630,177 @@ export default function AddFirm() {
                       </div>
                     </Form.Item>
 
-                    <div style={{ display: "flex", gap: "16px" }}>
+                    {clientType !== "Individual" && (
                       <Form.Item
                         label={
                           <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
-                            Max Users
+                            Organization Name
                           </span>
                         }
-                        name="maxUsers"
+                        name="organization"
                         rules={[
-                          { required: true, message: "Please enter max users" },
+                          {
+                            required: true,
+                            message: "Please enter organization name",
+                          },
                         ]}
-                        style={{ flex: 1 }}
                       >
-                        <InputNumber
-                          prefix={<TeamOutlined style={{ color: "#9ca3af" }} />}
-                          className="dark:!bg-slate-800 dark:text-[#FFFFFF] [&_.ant-input-number-input]:dark:!bg-slate-800 [&_.ant-input-number-input]:dark:!text-white"
+                        <Input
+                          prefix={<BankOutlined style={{ color: "#9ca3af" }} />}
+                          placeholder="Enter organization name"
+                          value={organization}
+                          onChange={(e) => setOrganization(e.target.value)}
+                          className="dark:!bg-slate-800 dark:text-[#FFFFFF]"
                           style={{
-                            width: "100%",
+                            padding: "14px 16px",
                             borderRadius: "12px",
+                            border: "1px solid #d1d5db",
                             fontSize: "15px",
                           }}
-                          min={1}
-                          max={getMaxLimitsForPlan(subscription_plan).maxUsers}
-                          value={maxUsers}
-                          onChange={(value) => setMaxUsers(value ?? 1)}
                         />
                       </Form.Item>
+                    )}
 
-                      <Form.Item
-                        label={
-                          <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
-                            Max Cases
-                          </span>
-                        }
-                        name="maxCases"
-                        rules={[
-                          { required: true, message: "Please enter max cases" },
-                        ]}
-                        style={{ flex: 1 }}
+                    <Form.Item
+                      label={
+                        <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
+                          Client Status
+                        </span>
+                      }
+                      name="status"
+                      rules={[
+                        { required: true, message: "Please select status" },
+                      ]}
+                    >
+                      <Select
+                        placeholder="Select client status"
+                        value={status}
+                        onChange={(value) => setStatus(value)}
+                        className="dark:!bg-slate-800 dark:text-[#FFFFFF]"
+                        style={{
+                          borderRadius: "12px",
+                          fontSize: "15px",
+                        }}
                       >
-                        <InputNumber
-                          prefix={
-                            <FileTextOutlined style={{ color: "#9ca3af" }} />
-                          }
-                          className="dark:!bg-slate-800 dark:text-[#FFFFFF] [&_.ant-input-number-input]:dark:!bg-slate-800 [&_.ant-input-number-input]:dark:!text-white"
-                          style={{
-                            width: "100%",
-                            borderRadius: "12px",
-                            fontSize: "15px",
-                          }}
-                          min={1}
-                          max={getMaxLimitsForPlan(subscription_plan).maxCases}
-                          value={maxCases}
-                          onChange={(value) => setMaxCases(value ?? 1)}
-                        />
-                      </Form.Item>
-                    </div>
+                        {statusOptions.map((option) => (
+                          <Option key={option.value} value={option.value}>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  width: "8px",
+                                  height: "8px",
+                                  borderRadius: "50%",
+                                  backgroundColor: option.color,
+                                }}
+                              />
+                              {option.label}
+                            </div>
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
 
-                    {/* Plan Features */}
-                    <div className="bg-blue-50 dark:bg-slate-700/50 border border-blue-200 dark:border-slate-600 rounded-xl p-5 mt-6">
+                    <Form.Item
+                      label={
+                        <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
+                          Billing Address
+                        </span>
+                      }
+                      name="billingAddress"
+                    >
+                      <TextArea
+                        placeholder="Enter billing address (leave empty to use same as address)"
+                        value={billingAddress}
+                        onChange={(e) => setBillingAddress(e.target.value)}
+                        rows={3}
+                        className="dark:!bg-slate-800 dark:text-[#FFFFFF]"
+                        style={{
+                          borderRadius: "12px",
+                          border: "1px solid #d1d5db",
+                          fontSize: "15px",
+                        }}
+                      />
+                    </Form.Item>
+
+                    <Form.Item
+                      label={
+                        <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
+                          Outstanding Balance ($)
+                        </span>
+                      }
+                      name="outstandingBalance"
+                    >
+                      <InputNumber
+                        prefix={<DollarOutlined style={{ color: "#9ca3af" }} />}
+                        className="dark:!bg-slate-800 dark:text-[#FFFFFF] [&_.ant-input-number-input]:dark:!bg-slate-800 [&_.ant-input-number-input]:dark:!text-white"
+                        style={{
+                          width: "100%",
+                          borderRadius: "12px",
+                          fontSize: "15px",
+                        }}
+                        min={0}
+                        precision={2}
+                        value={outstandingBalance}
+                        onChange={(value) => setOutstandingBalance(value ?? 0)}
+                        placeholder="0.00"
+                      />
+                    </Form.Item>
+
+                    {/* Client Summary */}
+                    <div className="bg-emerald-50 dark:bg-slate-700/50 border border-emerald-200 dark:border-slate-600 rounded-xl p-5 mt-6">
                       <Title
                         level={5}
-                        className="text-[#1e40af] dark:text-[#60a5fa]"
+                        className="text-[#059669] dark:text-[#34d399]"
                         style={{
                           marginBottom: "12px",
                           fontSize: "16px",
                         }}
                       >
-                        <BuildOutlined style={{ marginRight: "8px" }} />
-                        {
-                          subscriptionPlans.find(
-                            (p) => p.value === subscription_plan
-                          )?.label
-                        }{" "}
-                        Features
+                        <IdcardOutlined style={{ marginRight: "8px" }} />
+                        Client Summary
                       </Title>
-                      <ul
-                        className="text-[#334155] dark:text-[#cbd5e1]"
-                        style={{
-                          margin: 0,
-                          paddingLeft: "20px",
-                        }}
-                      >
-                        {subscriptionPlans
-                          .find((p) => p.value === subscription_plan)
-                          ?.features.map((feature, index) => (
-                            <li
-                              key={index}
-                              style={{ fontSize: "14px", marginBottom: "4px" }}
-                            >
-                              {feature}
-                            </li>
-                          ))}
-                      </ul>
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <Text className="text-[#374151] dark:text-[#cbd5e1]">
+                            Type:
+                          </Text>
+                          <Text className="text-[#059669] dark:text-[#34d399] font-medium">
+                            {clientType}
+                          </Text>
+                        </div>
+                        <div className="flex justify-between">
+                          <Text className="text-[#374151] dark:text-[#cbd5e1]">
+                            Status:
+                          </Text>
+                          <Text
+                            className="font-medium"
+                            style={{
+                              color:
+                                statusOptions.find((s) => s.value === status)
+                                  ?.color || "#374151",
+                            }}
+                          >
+                            {statusOptions.find((s) => s.value === status)
+                              ?.label || status}
+                          </Text>
+                        </div>
+                        {outstandingBalance > 0 && (
+                          <div className="flex justify-between">
+                            <Text className="text-[#374151] dark:text-[#cbd5e1]">
+                              Balance:
+                            </Text>
+                            <Text className="text-[#dc2626] dark:text-[#f87171] font-medium">
+                              ${outstandingBalance.toFixed(2)}
+                            </Text>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -734,14 +833,14 @@ export default function AddFirm() {
                       icon={<SaveOutlined />}
                       loading={loading}
                       style={{
-                        background: isHovered ? "#1d4ed8" : "#1e40af",
-                        borderColor: isHovered ? "#1d4ed8" : "#1e40af",
+                        background: isHovered ? "#047857" : "#059669",
+                        borderColor: isHovered ? "#047857" : "#059669",
                         borderRadius: "12px",
                         padding: "12px 40px",
                         fontSize: "15px",
                         fontWeight: "600",
                         height: "48px",
-                        boxShadow: "0 4px 12px rgba(30, 64, 175, 0.25)",
+                        boxShadow: "0 4px 12px rgba(5, 150, 105, 0.25)",
                         transform: isHovered
                           ? "translateY(-1px)"
                           : "translateY(0)",
@@ -750,7 +849,7 @@ export default function AddFirm() {
                       onMouseEnter={() => setIsHovered(true)}
                       onMouseLeave={() => setIsHovered(false)}
                     >
-                      Create Law Firm
+                      Create Client
                     </Button>
                   </Space>
 
@@ -759,7 +858,7 @@ export default function AddFirm() {
                       className="text-[#9ca3af] dark:text-[#6b7280]"
                       style={{ fontSize: "14px" }}
                     >
-                      Your firm will be ready to use immediately after creation
+                      Client will be added to your firms database immediately
                     </Text>
                   </div>
                 </div>

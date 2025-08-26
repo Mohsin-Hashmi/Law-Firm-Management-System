@@ -57,7 +57,7 @@ export default function FirmStats({ firmId, role }: Props) {
         // Set loading BEFORE clearing firm data
         dispatch(setLoading(true));
         dispatch(clearFirm());
-        
+
         const data = await getStats(firmId, role);
         dispatch(setFirm(data));
         dispatch(setError(null));
@@ -73,11 +73,10 @@ export default function FirmStats({ firmId, role }: Props) {
   }, [firmId, role, dispatch]);
 
   const handleAddClient = () => {
-    console.log("Add client clicked");
+    router.push("/pages/firm-admin/create-client");
   };
 
   const handleAddLawyer = () => {
-    console.log("Add lawyer clicked");
     router.push("/pages/firm-admin/add-lawyer");
   };
 

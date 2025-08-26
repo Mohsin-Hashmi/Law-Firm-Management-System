@@ -5,11 +5,12 @@ export interface ClientPayload {
   email: string;
   phone: string;
   address?: string;
-  clientType?: "Individual" | "Business" | "Corporate";
+  clientType: "Individual" | "Business" | "Corporate";
   organization?: string;
-  status?: "Active" | "Past" | "Potential" | "Suspended";
+  status: "Active" | "Past" | "Potential" | "Suspended";
   billingAddress?: string;
   outstandingBalance?: number;
+  casesCount?: number;
   firmId: number; // required since Client belongs to Firm
 }
 

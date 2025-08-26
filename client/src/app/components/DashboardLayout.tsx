@@ -118,9 +118,15 @@ export default function DashboardLayout({
         category: "Team Management",
       },
       {
+        label: "Clients",
+        href: "/pages/firm-admin/get-clients",
+        icon: <UserOutlined />,
+        category: "Client Management",
+      },
+      {
         label: "Add Clients",
-        href: "/",
-        icon: <TeamOutlined />,
+        href: "/pages/firm-admin/create-client",
+        icon: <PlusOutlined />,
         category: "Client Management",
       },
       {
@@ -318,28 +324,30 @@ export default function DashboardLayout({
           <div className="flex items-center space-x-4">
             <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
               {role === "Super Admin" && "Super Admin Panel"}
-              {role === "Firm Admin" && "Firm Administration"}
+              {role === "Firm Admin" && ""}
               {role === "Lawyer" && "Legal Dashboard"}
             </h1>
             <div className="hidden md:block">
-              <div
-                className={`px-3 py-1 rounded-full text-xs font-medium text-white ${getRoleColor(
-                  role || ""
-                )}`}
-              >
-                {role}
-              </div>
+              {role === "Firm Admin" &&
+                user?.firms &&
+                user.firms.length > 1  && (
+                  <div
+                    className={`px-3 py-1 rounded-full text-base font-medium text-white bg-blue-500`}
+                  >
+                    <p>Switch Firm</p>
+                  </div>
+                )}
             </div>
           </div>
 
-          {role === "Firm Admin" && user?.firms && user.firms.length > 0 && (
+          {role === "Firm Admin" && user?.firms && user.firms.length > 1 && (
             <div className="relative">
               <Select
                 value={user?.currentFirmId}
                 loading={isSwitchingFirm} // Add loading prop to the Select
                 disabled={isSwitchingFirm} // Disable select while loading
                 style={{
-                  width: 280,
+                  width: 500,
                   height: 44,
                 }}
                 className="professional-firm-selector"
@@ -370,7 +378,7 @@ export default function DashboardLayout({
                   border: "1px solid #e2e8f0",
                   boxShadow:
                     "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-                  padding: "8px 0",
+                  padding: "2px 0",
                 }}
                 popupClassName="professional-dropdown-popup"
                 onChange={async (value) => {
@@ -397,7 +405,7 @@ export default function DashboardLayout({
                 {user.firms.map((firm) => (
                   <Select.Option key={firm.id} value={firm.id}>
                     <div className="flex items-center space-x-3 py-1">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center text-white font-semibold text-sm shadow-sm">
+                      <div className="w-5 h-5 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center text-white font-semibold text-sm shadow-sm">
                         {firm.name.charAt(0).toUpperCase()}
                       </div>
                       <div className="flex flex-col">
@@ -422,7 +430,7 @@ export default function DashboardLayout({
                   border-radius: 12px !important;
                   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02) !important;
                   transition: all 0.2s ease !important;
-                  padding: 8px 16px !important;
+                  padding: 4px 12px !important;
                   height: 44px !important;
                   display: flex !important;
                   align-items: center !important;
@@ -474,7 +482,8 @@ export default function DashboardLayout({
                 }
 
                 /* Loading state styles */
-                .professional-firm-selector.ant-select-disabled .ant-select-selector {
+                .professional-firm-selector.ant-select-disabled
+                  .ant-select-selector {
                   opacity: 0.6 !important;
                 }
 
@@ -596,7 +605,7 @@ export default function DashboardLayout({
         </header>
 
         {/* Content Area */}
-        <section className="flex-1 overflow-y-auto bg-gradient-to-br from-slate-50 to-white dark:from-slate-800 dark:to-slate-900 transition-colors duration-300">
+        <section className="flex-1 overflow-y-auto bg-gradie  nt-to-br from-slate-50 to-white dark:from-slate-800 dark:to-slate-900 transition-colors duration-300">
           <div className="p-8 max-w-full">{children}</div>
         </section>
       </main>

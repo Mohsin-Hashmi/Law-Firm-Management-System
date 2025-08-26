@@ -169,7 +169,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-5xl bg-white rounded-2xl shadow-xl overflow-hidden">
+      <div className="w-full max-w-5xl bg-white rounded-xl shadow-[0_8px_16px_rgba(0,0,0,0.8)] overflow-hidden">
         <div className="flex flex-col lg:flex-row min-h-[500px]">
           {/* Left Side - Form */}
           <div className="flex-1 p-6 lg:p-8 flex flex-col justify-center">

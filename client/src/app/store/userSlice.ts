@@ -38,7 +38,13 @@ const userSlice = createSlice({
         state.user.currentFirmId = action.payload; // keep both in sync
       }
     },
+    updateUserFirms: (state, action) => {
+      if (state.user) {
+        state.user.firms = [...(state.user.firms || []), action.payload];
+      }
+    },
   },
 });
-export const { addUser, removeUser, switchFirm } = userSlice.actions;
+export const { addUser, removeUser, switchFirm, updateUserFirms } =
+  userSlice.actions;
 export default userSlice.reducer;
