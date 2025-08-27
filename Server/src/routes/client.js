@@ -38,7 +38,7 @@ clientRoute.get(
   getAllClients
 );
 clientRoute.get("/firm/client/:id", userAuth, firmAdminAuth, getClientById);
-clientRoute.post("/firm/client/:id", userAuth, firmAdminAuth, updateClient);
+clientRoute.put("/firm/client/:id", userAuth, firmAdminAuth, updateClient);
 clientRoute.delete("/firm/client/:id", userAuth, firmAdminAuth, deleteClient);
 
 module.exports = clientRoute;

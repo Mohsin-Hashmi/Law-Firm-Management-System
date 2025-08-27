@@ -433,7 +433,7 @@ export default function AddLawyer() {
                             placeholder="Enter full legal name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="dark:!bg-slate-800 dark:text-[#FFFFFF]"
+                            className="dark:!bg-slate-900 dark:text-[#FFFFFF]"
                             style={{
                               padding: "14px 16px",
                               borderRadius: "12px",
@@ -468,7 +468,7 @@ export default function AddLawyer() {
                             placeholder="attorney@lawfirm.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="dark:!bg-slate-800 dark:text-[#FFFFFF] "
+                            className="dark:!bg-slate-900 dark:text-[#FFFFFF] "
                             style={{
                               padding: "14px 16px",
                               borderRadius: "12px",
@@ -503,7 +503,7 @@ export default function AddLawyer() {
                             placeholder="+1 (555) 123-4567"
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
-                            className="dark:!bg-slate-800 dark:text-[#FFFFFF]"
+                            className="dark:!bg-slate-900 dark:text-[#FFFFFF]"
                             style={{
                               padding: "14px 16px",
                               borderRadius: "12px",
@@ -518,7 +518,7 @@ export default function AddLawyer() {
                       <Col xs={24} md={12}>
                         <Form.Item
                           label={
-                            <span className="text-[14px] text-[#374151] dark:text-[#FFFFFF] font-[600]">
+                            <span className="text-[14px] text-[#374151] dark:!text-[#FFFFFF] font-[600]">
                               Legal Specialization
                             </span>
                           }
@@ -528,10 +528,12 @@ export default function AddLawyer() {
                             placeholder="Select primary area of practice"
                             value={specialization}
                             onChange={(value) => setSpecialization(value)}
-                            className="dark:!bg-slate-800 [&_.ant-select-selector]:dark:!bg-slate-800 [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white"
+                            className="dark:!bg-slate-900 [&_.ant-select-selector]:dark:!bg-slate-900 [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white [&_.ant-select-selection-placeholder]:dark:!text-white [&_.ant-select-selector]:!py-2 [&_.ant-select-selector]:!px-3
+"
                             dropdownClassName="dark:!bg-slate-800 [&_.ant-select-item]:dark:!bg-slate-800 [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-slate-700 [&_.ant-select-item-option-active]:dark:!bg-slate-700"
                             style={{
                               fontSize: "15px",
+
                             }}
                             showSearch
                             allowClear
@@ -569,7 +571,7 @@ export default function AddLawyer() {
                           <Select
                             value={status}
                             onChange={(value) => setStatus(value)}
-                            className="dark:!bg-slate-800 [&_.ant-select-selector]:dark:!bg-slate-800 [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white"
+                            className="dark:!bg-slate-900 [&_.ant-select-selector]:dark:!bg-slate-900 [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white"
                             dropdownClassName="dark:!bg-slate-800 [&_.ant-select-item]:dark:!bg-slate-800 [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-slate-700 [&_.ant-select-item-option-active]:dark:!bg-slate-700"
                             style={{
                               fontSize: "15px",

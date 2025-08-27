@@ -388,7 +388,7 @@ export default function EditLawyer({ params }: { params: { id: number } }) {
                             }
                             placeholder="Enter full name"
                             size="large"
-                            className="dark:!bg-slate-800  dark:text-[#FFFFFF]"
+                            className="dark:!bg-slate-900  dark:text-[#FFFFFF]"
                             style={{
                               borderRadius: "12px",
                               border: "1px solid #d1d5db",
@@ -424,7 +424,7 @@ export default function EditLawyer({ params }: { params: { id: number } }) {
                             }
                             placeholder="Enter email address"
                             size="large"
-                            className="dark:!bg-slate-800  dark:text-[#FFFFFF]"
+                            className="dark:!bg-slate-900  dark:text-[#FFFFFF]"
                             style={{
                               borderRadius: "12px",
                               border: "1px solid #d1d5db",
@@ -456,7 +456,7 @@ export default function EditLawyer({ params }: { params: { id: number } }) {
                             }
                             placeholder="Enter phone number"
                             size="large"
-                            className="dark:!bg-slate-800  dark:text-[#FFFFFF]"
+                            className="dark:!bg-slate-900  dark:text-[#FFFFFF]"
                             style={{
                               borderRadius: "12px",
                               border: "1px solid #d1d5db",
@@ -485,7 +485,7 @@ export default function EditLawyer({ params }: { params: { id: number } }) {
                           <Select
                             placeholder="Select specialization"
                             size="large"
-                            className="dark:!bg-slate-800 [&_.ant-select-selector]:dark:!bg-slate-800 [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white"
+                            className="dark:!bg-slate-900 [&_.ant-select-selector]:dark:!bg-slate-900 [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white"
                             dropdownClassName="dark:!bg-slate-800 [&_.ant-select-item]:dark:!bg-slate-800 [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-slate-700 [&_.ant-select-item-option-active]:dark:!bg-slate-700"
                             style={{
                               borderRadius: "12px",
@@ -536,7 +536,7 @@ export default function EditLawyer({ params }: { params: { id: number } }) {
                           <Select
                             placeholder="Select status"
                             size="large"
-                            className="dark:!bg-slate-800 [&_.ant-select-selector]:dark:!bg-slate-800 [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white"
+                            className="dark:!bg-slate-900 [&_.ant-select-selector]:dark:!bg-slate-900 [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white"
                             dropdownClassName="dark:!bg-slate-800 [&_.ant-select-item]:dark:!bg-slate-800 [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-slate-700 [&_.ant-select-item-option-active]:dark:!bg-slate-700"
                             style={{
                               borderRadius: "12px",

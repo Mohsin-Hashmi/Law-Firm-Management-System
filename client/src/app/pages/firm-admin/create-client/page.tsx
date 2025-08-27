@@ -445,7 +445,7 @@ export default function AddClient() {
                           placeholder="Enter client's full name"
                           value={fullName}
                           onChange={(e) => setFullName(e.target.value)}
-                          className="rounded-lg border-slate-300 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                          className="rounded-lg border-slate-300 dark:bg-slate-900 dark:border-slate-600 dark:text-white"
                           style={{ padding: "12px 16px", fontSize: "14px" }}
                         />
                       </Form.Item>
@@ -464,7 +464,7 @@ export default function AddClient() {
                               placeholder="Select date"
                               value={dob}
                               onChange={(date) => setDob(date)}
-                              className="w-full rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                              className="w-full rounded-lg dark:bg-slate-900 dark:border-slate-600 dark:text-white"
                               style={{ padding: "12px 16px", fontSize: "14px" }}
                               suffixIcon={<CalendarOutlined className="text-slate-400" />}
                             />
@@ -483,7 +483,7 @@ export default function AddClient() {
                               placeholder="Select gender"
                               value={gender}
                               onChange={(value) => setGender(value)}
-                              className="rounded-lg dark:bg-slate-700 [&_.ant-select-selector]:dark:!bg-slate-700 [&_.ant-select-selector]:dark:!border-slate-600 [&_.ant-select-selection-item]:dark:!text-white"
+                              className="rounded-lg dark:bg-slate-900 [&_.ant-select-selector]:dark:!bg-slate-700 [&_.ant-select-selector]:dark:!border-slate-600 [&_.ant-select-selection-item]:dark:!text-white"
                               dropdownClassName="dark:!bg-slate-700 [&_.ant-select-item]:dark:!bg-slate-700 [&_.ant-select-item]:dark:!text-white"
                             >
                               {genderOptions.map((option) => (
@@ -516,7 +516,7 @@ export default function AddClient() {
                           placeholder="client@email.com"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
-                          className="rounded-lg border-slate-300 dark:!bg-slate-800 dark:text-[#FFFFFF]"
+                          className="rounded-lg border-slate-300 dark:!bg-slate-900 dark:text-[#FFFFFF]"
                           style={{ padding: "12px 16px", fontSize: "14px" }}
                         />
                       </Form.Item>
@@ -540,7 +540,7 @@ export default function AddClient() {
                           placeholder="+1 (555) 123-4567"
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
-                          className="rounded-lg border-slate-300 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                          className="rounded-lg border-slate-300 dark:bg-slate-900 dark:border-slate-600 dark:text-white"
                           style={{ padding: "12px 16px", fontSize: "14px" }}
                         />
                       </Form.Item>
@@ -561,7 +561,7 @@ export default function AddClient() {
                           value={address}
                           onChange={(e) => setAddress(e.target.value)}
                           rows={3}
-                          className="rounded-lg border-slate-300 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                          className="rounded-lg border-slate-300 dark:bg-slate-900 dark:border-slate-600 dark:text-white"
                           style={{ fontSize: "14px" }}
                         />
                       </Form.Item>
@@ -658,7 +658,7 @@ export default function AddClient() {
                             placeholder="Enter organization name"
                             value={organization}
                             onChange={(e) => setOrganization(e.target.value)}
-                            className="rounded-lg border-slate-300 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                            className="rounded-lg border-slate-300 dark:bg-slate-900 dark:border-slate-600 dark:text-white"
                             style={{ padding: "12px 16px", fontSize: "14px" }}
                           />
                         </Form.Item>
@@ -666,7 +666,7 @@ export default function AddClient() {
 
                       <Form.Item
                         label={
-                          <span className="text-slate-700 dark:text-slate-200 font-medium">
+                          <span className="text-slate-900 dark:text-slate-200 font-medium">
                             Client Status *
                           </span>
                         }
@@ -679,7 +679,7 @@ export default function AddClient() {
                           placeholder="Select client status"
                           value={status}
                           onChange={(value) => setStatus(value)}
-                          className="rounded-lg dark:bg-slate-700 [&_.ant-select-selector]:dark:!bg-slate-700 [&_.ant-select-selector]:dark:!border-slate-600 [&_.ant-select-selection-item]:dark:!text-white"
+                          className="rounded-lg dark:bg-slate-900 [&_.ant-select-selector]:dark:!bg-slate-900 [&_.ant-select-selector]:dark:!border-slate-600 [&_.ant-select-selection-item]:dark:!text-white"
                           dropdownClassName="dark:!bg-slate-700 [&_.ant-select-item]:dark:!bg-slate-700 [&_.ant-select-item]:dark:!text-white"
                         >
                           {statusOptions.map((option) => (
@@ -710,7 +710,7 @@ export default function AddClient() {
                       >
                         <InputNumber
                           prefix={<DollarOutlined className="text-slate-400" />}
-                          className="w-full rounded-lg dark:bg-slate-700 dark:border-slate-600 [&_.ant-input-number-input]:dark:!bg-slate-700 [&_.ant-input-number-input]:dark:!text-white"
+                          className="w-full rounded-lg dark:bg-slate-900 dark:border-slate-600 [&_.ant-input-number-input]:dark:!bg-slate-700 [&_.ant-input-number-input]:dark:!text-white [&_.ant-select-selection-placeholder]:dark:!text-white"
                           style={{ padding: "12px 16px", fontSize: "14px" }}
                           min={0}
                           precision={2}
@@ -733,7 +733,7 @@ export default function AddClient() {
                           value={billingAddress}
                           onChange={(e) => setBillingAddress(e.target.value)}
                           rows={2}
-                          className="rounded-lg border-slate-300 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                          className="rounded-lg border-slate-300 dark:bg-slate-900 dark:border-slate-600 dark:text-white"
                           style={{ fontSize: "14px" }}
                         />
                       </Form.Item>

@@ -237,6 +237,7 @@ export const updateClient = async (id: number, data: ClientPayload) => {
         withCredentials: true,
       }
     );
+    console.log("update client api response is ", response);
     return response.data; // { message: string }
   } catch (error) {
     throw new Error("Error updating client: " + error);
