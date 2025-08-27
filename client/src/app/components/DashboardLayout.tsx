@@ -22,6 +22,8 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   LoadingOutlined,
+  BankOutlined,
+  FileTextOutlined
 } from "@ant-design/icons";
 import { useState } from "react";
 import { switchFirmAPI } from "../service/adminAPI";
@@ -108,13 +110,19 @@ export default function DashboardLayout({
       {
         label: "Create New Law Firm",
         href: "/pages/firm-admin/add-firm",
-        icon: <AppstoreOutlined />,
+        icon: <BankOutlined />,
         category: "Main",
       },
       {
         label: "Lawyers",
         href: "/pages/firm-admin/get-lawyers",
         icon: <UserOutlined />,
+        category: "Team Management",
+      },
+      {
+        label: "Add Lawyer",
+        href: "/pages/firm-admin/add-lawyer",
+        icon: <PlusOutlined />,
         category: "Team Management",
       },
       {
@@ -129,12 +137,19 @@ export default function DashboardLayout({
         icon: <PlusOutlined />,
         category: "Client Management",
       },
-      {
-        label: "Add Lawyer",
-        href: "/pages/firm-admin/add-lawyer",
-        icon: <PlusOutlined />,
-        category: "Team Management",
+       {
+        label: "Cases",
+        href: "/pages/firm-admin/get-cases",
+        icon: <FileTextOutlined />,
+        category: "Case Management",
       },
+      {
+        label: "Add Cases",
+        href: "/pages/firm-admin/add-case",
+        icon: <PlusOutlined />,
+        category: "Case Management",
+      },
+      
     ],
     Lawyer: [
       { label: "Home", href: "/", icon: <HomeOutlined />, category: "Main" },

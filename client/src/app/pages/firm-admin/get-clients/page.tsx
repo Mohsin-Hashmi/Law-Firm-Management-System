@@ -1,62 +1,55 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import DashboardLayout from "@/app/components/DashboardLayout";
-import { ThemeProvider } from "next-themes";
+import { useAppSelector } from "@/app/store/hooks";
+import { RootState } from "@/app/store/store";
 import {
-  Card,
-  Row,
-  Col,
-  Button,
-  Input,
-  Select,
-  Table,
-  Typography,
-  Space,
-  Avatar,
-  Badge,
-  Spin,
-  Divider,
-  Statistic,
-  Tag,
-  Dropdown,
-  Modal,
-  message,
-  Tooltip,
-} from "antd";
-import {
-  SearchOutlined,
-  FilterOutlined,
-  UserAddOutlined,
-  UserOutlined,
-  EyeOutlined,
-  EditOutlined,
+  BankOutlined,
+  CheckCircleOutlined,
   DeleteOutlined,
-  MoreOutlined,
+  DollarOutlined,
+  EditOutlined,
+  EnvironmentOutlined,
+  ExclamationCircleOutlined,
+  ExportOutlined,
+  EyeOutlined,
   MailOutlined,
   PhoneOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  ShopOutlined,
-  BankOutlined,
-  ExportOutlined,
   ReloadOutlined,
-  ExclamationCircleOutlined,
-  EnvironmentOutlined,
-  DollarOutlined,
-  CalendarOutlined,
+  SearchOutlined,
+  ShopOutlined,
   TeamOutlined,
+  UserAddOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
+import {
+  Avatar,
+  Badge,
+  Button,
+  Card,
+  Col,
+  Input,
+  message,
+  Modal,
+  Row,
+  Select,
+  Space,
+  Statistic,
+  Table,
+  Tag,
+  Tooltip,
+  Typography,
+} from "antd";
+import { ThemeProvider } from "next-themes";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 // import { getClients, deleteClient } from "@/app/service/adminAPI";
 // import { Client } from "@/app/types/client";
 const { Title, Text } = Typography;
 const { Option } = Select;
 const { confirm } = Modal;
-import { useAppSelector } from "@/app/store/hooks";
-import { RootState } from "@/app/store/store";
 // import { setClients } from "@/app/store/clientSlice";
+import { getAllClients, deleteClient } from "@/app/service/adminAPI";
 import { useAppDispatch } from "@/app/store/hooks";
-import { getAllClients } from "@/app/service/adminAPI";
 import { Client } from "@/app/types/client";
 import { toast } from "react-hot-toast";
 
@@ -84,10 +77,10 @@ export default function GetClients() {
   const fetchClients = async (firmId: number) => {
     try {
       setLoading(true);
-      const response = await getAllClients(firmId)
+      const response = await getAllClients(firmId);
       setClientsData(response);
       // dispatch(setClients(response))
-      toast.success("Fetch clients successfully")
+      toast.success("Fetch clients successfully");
       console.log("Successfully fetched clients data:", response);
     } catch (error) {
       console.error("Error fetching clients:", error);
@@ -113,7 +106,9 @@ export default function GetClients() {
         (client) =>
           client.fullName.toLowerCase().includes(searchText.toLowerCase()) ||
           client.email.toLowerCase().includes(searchText.toLowerCase()) ||
-          client.organization?.toLowerCase().includes(searchText.toLowerCase()) ||
+          client.organization
+            ?.toLowerCase()
+            .includes(searchText.toLowerCase()) ||
           client.phone.includes(searchText)
       );
     }
@@ -128,7 +123,8 @@ export default function GetClients() {
     // Filter by client type
     if (clientTypeFilter !== "all") {
       filtered = filtered.filter(
-        (client) => client.clientType.toLowerCase() === clientTypeFilter.toLowerCase()
+        (client) =>
+          client.clientType.toLowerCase() === clientTypeFilter.toLowerCase()
       );
     }
 
@@ -137,44 +133,24 @@ export default function GetClients() {
 
   /**Handle delete function */
   const handleDeleteClient = async (clientId: number) => {
-    confirm({
-      title: 'Delete Client',
-      icon: <ExclamationCircleOutlined />,
-      content: 'Are you sure you want to delete this client? This action cannot be undone.',
-      okText: 'Delete',
-      okType: 'danger',
-      cancelText: 'Cancel',
-      onOk: async () => {
-        try {
-          setDeleting(true);
-          setDeletingClientId(clientId);
+    try {
+      setDeleting(true);
+      setDeletingClientId(clientId);
 
-          // Replace with actual API call
-          // const response = await deleteClient(clientId);
-          
-          // Simulate API call
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          const response = { success: true };
-
-          if (response.success) {
-            setClientsData((prevClients) =>
-              prevClients.filter((client) => client.id !== clientId)
-            );
-            toast.success("Client deleted successfully");
-            message.success("Client deleted successfully");
-          } else {
-            throw new Error("Delete failed");
-          }
-        } catch (error) {
-          console.error("Error deleting client:", error);
-          toast.error("Failed to delete client");
-          message.error("Failed to delete client");
-        } finally {
-          setDeleting(false);
-          setDeletingClientId(null);
-        }
-      },
-    });
+      await deleteClient(clientId);
+      setClientsData((prevLawyers) =>
+        prevLawyers.filter((client) => client.id !== clientId)
+      );
+      toast.success("Lawyer deleted successfully");
+      message.success("Lawyer deleted successfully");
+    } catch (error) {
+      console.error("Error deleting lawyer:", error);
+      toast.error("Failed to delete lawyer");
+      message.error("Failed to delete lawyer");
+    } finally {
+      setDeleting(false);
+      setDeletingClientId(null);
+    }
   };
 
   const getClientTypeIcon = (type: string) => {
@@ -242,34 +218,49 @@ export default function GetClients() {
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <Avatar
             size={48}
+            src={
+              record.profileImage
+                ? `http://localhost:5000${record.profileImage}`
+                : undefined
+            }
             style={{
-              background: "#f1f5f9",
+              background: record.profileImage ? "transparent" : "#f1f5f9",
               border: "2px solid #e5e7eb",
-              color: getClientTypeColor(record.clientType),
+              color: record.profileImage
+                ? "transparent"
+                : getClientTypeColor(record.clientType),
+              flexShrink: 0, // Prevent avatar from shrinking
             }}
           >
-            {getClientTypeIcon(record.clientType)}
+            {!record.profileImage && getClientTypeIcon(record.clientType)}
           </Avatar>
-          <div>
+          <div style={{ minWidth: 0, flex: 1 }}>
             <Text
               style={{
                 fontSize: "15px",
                 fontWeight: "600",
                 color: "#111827",
                 display: "block",
+                marginBottom: "2px",
               }}
             >
               {name}
             </Text>
             <Space size="small">
               <MailOutlined style={{ color: "#9ca3af", fontSize: "12px" }} />
-              <Text style={{ fontSize: "13px", color: "#64748b" }}>
+              <Text
+                style={{ fontSize: "13px", color: "#64748b" }}
+                ellipsis={{ tooltip: true }}
+              >
                 {record.email}
               </Text>
             </Space>
             {record.organization && (
               <div>
-                <Text style={{ fontSize: "12px", color: "#9ca3af" }}>
+                <Text
+                  style={{ fontSize: "12px", color: "#9ca3af" }}
+                  ellipsis={{ tooltip: true }}
+                >
                   {record.organization}
                 </Text>
               </div>
@@ -291,15 +282,16 @@ export default function GetClients() {
           </Space>
           {record.address && (
             <Space size="small">
-              <EnvironmentOutlined style={{ color: "#9ca3af", fontSize: "12px" }} />
-              <Text 
+              <EnvironmentOutlined
+                style={{ color: "#9ca3af", fontSize: "12px" }}
+              />
+              <Text
                 style={{ fontSize: "12px", color: "#64748b" }}
                 ellipsis={{ tooltip: record.address }}
               >
-                {record.address.length > 30 
-                  ? `${record.address.substring(0, 30)}...` 
-                  : record.address
-                }
+                {record.address.length > 30
+                  ? `${record.address.substring(0, 30)}...`
+                  : record.address}
               </Text>
             </Space>
           )}
@@ -355,25 +347,29 @@ export default function GetClients() {
     {
       title: "Financial",
       key: "financial",
-      render: (record: Client) => (
-        <Space direction="vertical" size="small">
-          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-            <DollarOutlined style={{ color: "#9ca3af", fontSize: "12px" }} />
-            <Text 
-              style={{ 
-                fontSize: "13px", 
-                color: (record.outstandingBalance || 0) > 0 ? "#dc2626" : "#059669",
-                fontWeight: "500"
-              }}
-            >
-              ${Number(record.outstandingBalance || 0).toFixed(2)}
+      render: (record: Client) => {
+        const balance = Number(record.outstandingBalance) || 0;
+
+        return (
+          <Space direction="vertical" size="small">
+            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <DollarOutlined style={{ color: "#9ca3af", fontSize: "12px" }} />
+              <Text
+                style={{
+                  fontSize: "13px",
+                  color: balance > 0 ? "#dc2626" : "#059669",
+                  fontWeight: "500",
+                }}
+              >
+                ${formatCurrency(balance)}
+              </Text>
+            </div>
+            <Text style={{ fontSize: "12px", color: "#64748b" }}>
+              Cases: {record.casesCount || 0}
             </Text>
-          </div>
-          <Text style={{ fontSize: "12px", color: "#64748b" }}>
-            Cases: {record.casesCount || 0}
-          </Text>
-        </Space>
-      ),
+          </Space>
+        );
+      },
     },
     {
       title: "Actions",
@@ -431,8 +427,18 @@ export default function GetClients() {
   const potentialClients = clients.filter(
     (client) => client.status.toLowerCase() === "potential"
   );
+  const formatCurrency = (amount: number | undefined | null): string => {
+    const num = Number(amount) || 0;
+    return num.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+
+  // Fix 2: Update the totalOutstanding calculation
   const totalOutstanding = clients.reduce(
-    (sum, client) => sum + (client.outstandingBalance || 0), 0
+    (sum, client) => sum + (Number(client.outstandingBalance) || 0),
+    0
   );
 
   return (
@@ -442,7 +448,7 @@ export default function GetClients() {
           <div className="max-w-[1400px] mx-auto">
             {/* Header Section */}
             <Card
-              className="bg-emerald-900 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+              className="bg-emerald-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
               bodyStyle={{ padding: "32px" }}
             >
               <Row align="middle" justify="space-between">
@@ -665,8 +671,7 @@ export default function GetClients() {
                         Outstanding
                       </span>
                     }
-                    value={totalOutstanding}
-                    precision={2}
+                    value={formatCurrency(totalOutstanding)}
                     prefix="$"
                     valueStyle={{
                       fontSize: "32px",
@@ -739,7 +744,8 @@ export default function GetClients() {
                       Refresh
                     </Button>
                     <Text className="text-slate-500 dark:text-slate-400 text-sm">
-                      Showing {filteredClients.length} of {clients.length} clients
+                      Showing {filteredClients.length} of {clients.length}{" "}
+                      clients
                     </Text>
                   </Space>
                 </Col>

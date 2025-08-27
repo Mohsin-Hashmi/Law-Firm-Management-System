@@ -163,10 +163,10 @@ export const switchFirmAPI = async (firmId: number) => {
 };
 
 /**Create Client API Call */
-export const createClient = async (data: ClientPayload) => {
+export const createClient = async (firmId: number, data: FormData) => {
   try {
     const response = await axios.post(
-      `${BASE_URL}/api/firm-admin/${data.firmId}/addClient`,
+      `${BASE_URL}/api/firm-admin/${firmId}/addClient`,
       data,
       {
         withCredentials: true,
@@ -211,13 +211,18 @@ export const getAllClients = async (firmId: number): Promise<Client[]> => {
 /**Get Client by id API Call */
 export const getClientById = async (id: number) => {
   try {
-    const response = await axios.get<ClientPayload>(
-      `${BASE_URL}/api/firm-admin/firm/client/${id}`,
-      {
-        withCredentials: true,
-      }
-    );
-    return response.data;
+    const response = await axios.get<{
+      success: boolean;
+      message: string;
+      client: Client;
+    }>(`${BASE_URL}/api/firm-admin/firm/client/${id}`, {
+      withCredentials: true,
+    });
+    const data = response.data.client;
+    return {
+      ...data,
+      outstandingBalance: Number(data.outstandingBalance ?? 0),
+    } as Client;
   } catch (error) {
     throw new Error("Error fetching client by ID: " + error);
   }

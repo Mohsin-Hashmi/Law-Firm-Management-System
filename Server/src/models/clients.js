@@ -21,6 +21,12 @@ module.exports = (sequelize, DataTypes) => {
     },
     billingAddress: DataTypes.TEXT,
     outstandingBalance: { type: DataTypes.DECIMAL(10, 2), defaultValue: 0.0 },
+
+    // 🆕 Profile Image (URL or Path)
+    profileImage: {
+      type: DataTypes.STRING,
+      allowNull: true, // optional
+    },
   });
 
   Client.associate = (models) => {

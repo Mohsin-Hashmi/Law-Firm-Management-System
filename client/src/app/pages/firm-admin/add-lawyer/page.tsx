@@ -1,42 +1,39 @@
 "use client";
 import DashboardLayout from "@/app/components/DashboardLayout";
-import { useState } from "react";
+import { addLawyer } from "@/app/service/adminAPI";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
+import { setLawyers } from "@/app/store/lawyerSlice";
+import { RootState } from "@/app/store/store";
 import {
-  Form,
-  Input,
-  Select,
-  Button,
-  Typography,
-  Card,
-  Spin,
-  Avatar,
-  Steps,
-  Progress,
-  Divider,
-  Space,
-  Row,
-  Col,
-} from "antd";
-import {
+  ArrowLeftOutlined,
+  CameraOutlined,
+  CheckCircleOutlined,
+  LockOutlined,
   MailOutlined,
   PhoneOutlined,
-  UserOutlined,
-  BankOutlined,
-  CameraOutlined,
   SaveOutlined,
   UserAddOutlined,
-  CheckCircleOutlined,
-  ArrowLeftOutlined,
-  LockOutlined,
-  IdcardOutlined,
+  UserOutlined
 } from "@ant-design/icons";
-import { toast } from "react-hot-toast";
-import { useRouter } from "next/navigation";
-import { addLawyer } from "@/app/service/adminAPI";
-import { useAppSelector, useAppDispatch } from "@/app/store/hooks";
-import { RootState } from "@/app/store/store";
+import {
+  Avatar,
+  Button,
+  Card,
+  Col,
+  Form,
+  Input,
+  Progress,
+  Row,
+  Select,
+  Space,
+  Spin,
+  Steps,
+  Typography
+} from "antd";
 import { ThemeProvider } from "next-themes";
-import { setLawyers } from "@/app/store/lawyerSlice";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "react-hot-toast";
 
 const { Option } = Select;
 const { Title, Text } = Typography;
@@ -471,12 +468,13 @@ export default function AddLawyer() {
                             placeholder="attorney@lawfirm.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="dark:!bg-slate-800 dark:text-[#FFFFFF]"
+                            className="dark:!bg-slate-800 dark:text-[#FFFFFF] "
                             style={{
                               padding: "14px 16px",
                               borderRadius: "12px",
                               border: "1px solid #d1d5db",
                               fontSize: "15px",
+                              
                             }}
                           />
                         </Form.Item>

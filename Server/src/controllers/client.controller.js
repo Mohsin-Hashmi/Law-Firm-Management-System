@@ -69,6 +69,22 @@ const createClient = async (req, res) => {
         message: "Outstanding balance must be a number.",
       });
     }
+
+    const existingClient= await Client.findOne({
+      where: {
+        email,
+        firmId
+      }
+    });
+    if(existingClient){
+      return res.status(400).json({
+        success: false,
+        message: "A client with this email already exists in the firm"
+      })
+    }
+
+    let profileImage = null;
+    if(req.file) profileImage= `/uploads/clients/${req.file.filename}`
     const client = await Client.create({
       firmId,
       fullName,
@@ -82,6 +98,7 @@ const createClient = async (req, res) => {
       status,
       billingAddress,
       outstandingBalance,
+      profileImage
     });
     return res.status(200).json({
       success: true,
