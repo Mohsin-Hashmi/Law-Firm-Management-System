@@ -20,6 +20,10 @@ module.exports = (sequelize, DataTypes) => {
       as: "lawyers",
       foreignKey: "caseId",
     });
+    Case.hasMany(models.CaseDocument, {
+      foreignKey: "caseId",
+      as: "documents",
+    });
   };
 
   return Case;

@@ -117,7 +117,7 @@ export default function GetLawyerDetail({
           <div className="max-w-[1400px] mx-auto">
             {/* Header Section */}
             <Card
-              className="bg-blue-900 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+              className="bg-blue-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
               bodyStyle={{ padding: "32px" }}
             >
               <Row align="middle" justify="space-between">

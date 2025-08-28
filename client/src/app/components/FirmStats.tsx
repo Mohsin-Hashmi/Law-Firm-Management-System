@@ -184,7 +184,7 @@ export default function FirmStats({ firmId, role }: Props) {
     <div className="min-h-screen p-6 bg-slate-50 dark:bg-slate-900 transition-colors duration-300  ">
       {/* Professional Header */}
       <Card
-        className="bg-blue-900 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+        className="bg-blue-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
         bodyStyle={{ padding: "24px" }}
         hoverable
       >

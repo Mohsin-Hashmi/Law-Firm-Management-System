@@ -8,6 +8,7 @@ const superAdminRoutes = require("./routes/superAdmin")
 const lawyerRoutes= require("./routes/lawyer");
 const adminRoute= require("./routes/admin");
 const clientRoute= require("./routes/client");
+const caseRoute= require("./routes/case");
 const cors = require("cors");
 const { User } = require("./models");
 const { where } = require("sequelize");
@@ -74,6 +75,7 @@ app.use("/auth", authRoutes);
 app.use("/api/superadmin", superAdminRoutes);
 app.use("/api/firm-admin", adminRoute);
 app.use("/api/firm-admin",clientRoute);
+app.use("/api/firm-admin", caseRoute);
 app.use("/api/lawyers", lawyerRoutes); 
 // =====Start Server====
 app.listen(PORT, async () => {

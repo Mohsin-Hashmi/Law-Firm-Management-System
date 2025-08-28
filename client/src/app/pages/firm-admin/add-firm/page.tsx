@@ -193,7 +193,7 @@ export default function AddFirm() {
           <div className="max-w-[1200px] mx-auto">
             {/* Header Section */}
             <Card
-              className="bg-blue-900 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+              className="bg-blue-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
               bodyStyle={{ padding: "32px" }}
             >
               <Row align="middle" justify="space-between">
@@ -384,7 +384,7 @@ export default function AddFirm() {
                           setName(value);
                           setSubdomain(generateSubdomain(value));
                         }}
-                        className="dark:!bg-slate-800 dark:text-[#FFFFFF]"
+                        className="dark:!bg-slate-900 dark:text-[#FFFFFF]"
                         style={{
                           padding: "14px 16px",
                           borderRadius: "12px",
@@ -406,7 +406,7 @@ export default function AddFirm() {
                         value={subdomain}
                         readOnly
                         placeholder="auto-generated from firm name"
-                        className="dark:!bg-slate-700 dark:text-[#9ca3af]"
+                        className="dark:!bg-slate-900 dark:text-[#9ca3af]"
                         style={{
                           padding: "14px 16px",
                           borderRadius: "12px",
@@ -444,7 +444,7 @@ export default function AddFirm() {
                         placeholder="contact@lawfirm.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="dark:!bg-slate-800 dark:text-[#FFFFFF]"
+                        className="dark:!bg-slate-900 dark:text-[#FFFFFF]"
                         style={{
                           padding: "14px 16px",
                           borderRadius: "12px",
@@ -473,7 +473,7 @@ export default function AddFirm() {
                         placeholder="+1 (555) 123-4567"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className="dark:!bg-slate-800 dark:text-[#FFFFFF]"
+                        className="dark:!bg-slate-900 dark:text-[#FFFFFF]"
                         style={{
                           padding: "14px 16px",
                           borderRadius: "12px",
@@ -499,7 +499,7 @@ export default function AddFirm() {
                         value={address}
                         onChange={(e) => setAddress(e.target.value)}
                         rows={3}
-                        className="dark:!bg-slate-800 dark:text-[#FFFFFF]"
+                        className="dark:!bg-slate-900 dark:text-[#FFFFFF]"
                         style={{
                           borderRadius: "12px",
                           border: "1px solid #d1d5db",
@@ -623,7 +623,7 @@ export default function AddFirm() {
                       >
                         <InputNumber
                           prefix={<TeamOutlined style={{ color: "#9ca3af" }} />}
-                          className="dark:!bg-slate-800 dark:text-[#FFFFFF] [&_.ant-input-number-input]:dark:!bg-slate-800 [&_.ant-input-number-input]:dark:!text-white"
+                          className="dark:!bg-slate-900 dark:text-[#FFFFFF] [&_.ant-input-number-input]:dark:!bg-slate-900 [&_.ant-input-number-input]:dark:!text-white"
                           style={{
                             width: "100%",
                             borderRadius: "12px",
@@ -652,7 +652,7 @@ export default function AddFirm() {
                           prefix={
                             <FileTextOutlined style={{ color: "#9ca3af" }} />
                           }
-                          className="dark:!bg-slate-800 dark:text-[#FFFFFF] [&_.ant-input-number-input]:dark:!bg-slate-800 [&_.ant-input-number-input]:dark:!text-white"
+                          className="dark:!bg-slate-900 dark:text-[#FFFFFF] [&_.ant-input-number-input]:dark:!bg-slate-900 [&_.ant-input-number-input]:dark:!text-white"
                           style={{
                             width: "100%",
                             borderRadius: "12px",

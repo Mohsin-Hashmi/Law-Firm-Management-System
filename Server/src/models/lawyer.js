@@ -10,6 +10,11 @@ module.exports = (sequelize, DataTypes) => {
         as: "firm",
         onDelete: "CASCADE",
       });
+      Lawyer.belongsToMany(models.Case, {
+        through: models.CaseLawyer,
+        as: "cases",
+        foreignKey: "lawyerId",
+      });
     }
   }
 
