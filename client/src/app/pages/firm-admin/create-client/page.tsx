@@ -1,7 +1,7 @@
 "use client";
 import DashboardLayout from "@/app/components/DashboardLayout";
 import { createClient } from "@/app/service/adminAPI";
-import { addClient, } from "@/app/store/clientSlice";
+import { addClient } from "@/app/store/clientSlice";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { RootState } from "@/app/store/store";
 import { ClientPayload } from "@/app/types/client";
@@ -17,7 +17,7 @@ import {
   PhoneOutlined,
   SaveOutlined,
   ShopOutlined,
-  UserOutlined
+  UserOutlined,
 } from "@ant-design/icons";
 import {
   Avatar,
@@ -33,7 +33,7 @@ import {
   Select,
   Space,
   Spin,
-  Typography
+  Typography,
 } from "antd";
 import { ThemeProvider } from "next-themes";
 import { useRouter } from "next/navigation";
@@ -76,45 +76,44 @@ export default function AddClient() {
     }
   };
 
- const handleCreateClient = async () => {
-  try {
-    setLoading(true);
+  const handleCreateClient = async () => {
+    try {
+      setLoading(true);
 
-    const formData = new FormData();
-    formData.append("fullName", fullName);
-    formData.append("dob", dob);
-    formData.append("gender", gender);
-    formData.append("email", email);
-    formData.append("phone", phone);
-    formData.append("address", address);
-    formData.append("clientType", clientType);
-    formData.append("organization", organization);
-    formData.append("status", status);
-    formData.append("billingAddress", billingAddress);
-    formData.append("outstandingBalance", outstandingBalance.toString());
+      const formData = new FormData();
+      formData.append("fullName", fullName);
+      formData.append("dob", dob);
+      formData.append("gender", gender);
+      formData.append("email", email);
+      formData.append("phone", phone);
+      formData.append("address", address);
+      formData.append("clientType", clientType);
+      formData.append("organization", organization);
+      formData.append("status", status);
+      formData.append("billingAddress", billingAddress);
+      formData.append("outstandingBalance", outstandingBalance.toString());
 
-    // profile image if selected
-    if (profileImage) {
-      formData.append("profileImage", profileImage);
+      // profile image if selected
+      if (profileImage) {
+        formData.append("profileImage", profileImage);
+      }
+      const response = await createClient(firmId!, formData);
+
+      if (!response) {
+        toast.error("Error in create client API");
+        return;
+      }
+      dispatch(addClient(response.data));
+      toast.success("Client created successfully!");
+      router.push("/pages/firm-admin/get-clients");
+      resetForm();
+    } catch (err) {
+      toast.error("Something went wrong while creating the client");
+      console.log("Error creating client:", err);
+    } finally {
+      setLoading(false);
     }
-    const response = await createClient(firmId!, formData);
-
-    if (!response) {
-      toast.error("Error in create client API");
-      return;
-    }
-    dispatch(addClient(response));
-    toast.success("Client created successfully!");
-    router.push("/pages/firm-admin/get-clients");
-
-    resetForm();
-  } catch (err) {
-    toast.error("Something went wrong while creating the client");
-    console.log("Error creating client:", err);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const resetForm = () => {
     setFullName("");
@@ -204,8 +203,8 @@ export default function AddClient() {
                   <Space size="large" align="center">
                     <div
                       style={{
-                        width: "64px",
-                        height: "64px",
+                        width: "80px",
+                        height: "80px",
                         background: "rgba(255,255,255,0.15)",
                         borderRadius: "16px",
                         display: "flex",
@@ -214,7 +213,9 @@ export default function AddClient() {
                         border: "2px solid rgba(255,255,255,0.2)",
                       }}
                     >
-                      <UserOutlined style={{ fontSize: "28px", color: "white" }} />
+                      <UserOutlined
+                        style={{ fontSize: "28px", color: "white" }}
+                      />
                     </div>
                     <div>
                       <Title
@@ -222,7 +223,7 @@ export default function AddClient() {
                         style={{
                           color: "white",
                           margin: 0,
-                          fontSize: "32px",
+                          fontSize: "36px",
                           fontWeight: "700",
                           lineHeight: "1.1",
                         }}
@@ -232,13 +233,13 @@ export default function AddClient() {
                       <Text
                         style={{
                           color: "rgba(255,255,255,0.85)",
-                          fontSize: "16px",
+                          fontSize: "18px",
                           fontWeight: "400",
-                          marginTop: "4px",
                           display: "block",
                         }}
                       >
-                        Register a new client with complete contact and billing information
+                        Register a new client with complete contact and billing
+                        information
                       </Text>
                     </div>
                   </Space>
@@ -289,7 +290,6 @@ export default function AddClient() {
                   trailColor="#f1f5f9"
                   strokeWidth={8}
                   showInfo={true}
-                  
                 />
               </div>
             </Card>
@@ -339,7 +339,9 @@ export default function AddClient() {
                     className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm mb-6"
                     bodyStyle={{ padding: "24px", textAlign: "center" }}
                   >
-                    <div style={{ position: "relative", display: "inline-block" }}>
+                    <div
+                      style={{ position: "relative", display: "inline-block" }}
+                    >
                       {previewUrl ? (
                         <Avatar
                           size={100}
@@ -445,7 +447,7 @@ export default function AddClient() {
                           placeholder="Enter client's full name"
                           value={fullName}
                           onChange={(e) => setFullName(e.target.value)}
-                          className="rounded-lg border-slate-300 dark:bg-slate-900 dark:border-slate-600 dark:text-white"
+                          className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af]"
                           style={{ padding: "12px 16px", fontSize: "14px" }}
                         />
                       </Form.Item>
@@ -464,9 +466,11 @@ export default function AddClient() {
                               placeholder="Select date"
                               value={dob}
                               onChange={(date) => setDob(date)}
-                              className="w-full rounded-lg dark:bg-slate-900 dark:border-slate-600 dark:text-white"
+                              className="w-full dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:text-[#ffffff]"
                               style={{ padding: "12px 16px", fontSize: "14px" }}
-                              suffixIcon={<CalendarOutlined className="text-slate-400" />}
+                              suffixIcon={
+                                <CalendarOutlined className="text-slate-400" />
+                              }
                             />
                           </Form.Item>
                         </Col>
@@ -483,8 +487,23 @@ export default function AddClient() {
                               placeholder="Select gender"
                               value={gender}
                               onChange={(value) => setGender(value)}
-                              className="rounded-lg dark:bg-slate-900 [&_.ant-select-selector]:dark:!bg-slate-700 [&_.ant-select-selector]:dark:!border-slate-600 [&_.ant-select-selection-item]:dark:!text-white"
-                              dropdownClassName="dark:!bg-slate-700 [&_.ant-select-item]:dark:!bg-slate-700 [&_.ant-select-item]:dark:!text-white"
+                              className="
+    dark:!bg-[#2A3441] 
+    dark:!border-[#4B5563] 
+    [&_.ant-select-selector]:dark:!bg-[#2A3441] 
+    [&_.ant-select-selector]:dark:!border-[#4B5563] 
+    [&_.ant-select-selection-item]:dark:!text-white 
+    [&_.ant-select-arrow]:dark:!text-white 
+    [&_.ant-select-selector]:!min-h-[50px] 
+    [&_.ant-select-selection-placeholder]:dark:!text-[#9ca3af] 
+  "
+                              dropdownClassName="
+    dark:!bg-[#2A3441] dark:!border-[#4B5563] 
+    [&_.ant-select-item]:dark:!bg-[#2A3441] 
+    [&_.ant-select-item]:dark:!text-white 
+    [&_.ant-select-item-option-selected]:dark:!bg-[#374151] 
+    [&_.ant-select-item-option-active]:dark:!bg-[#374151]
+  "
                             >
                               {genderOptions.map((option) => (
                                 <Option key={option.value} value={option.value}>
@@ -516,7 +535,7 @@ export default function AddClient() {
                           placeholder="client@email.com"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
-                          className="rounded-lg border-slate-300 dark:!bg-slate-900 dark:text-[#FFFFFF]"
+                          className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af]"
                           style={{ padding: "12px 16px", fontSize: "14px" }}
                         />
                       </Form.Item>
@@ -540,7 +559,7 @@ export default function AddClient() {
                           placeholder="+1 (555) 123-4567"
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
-                          className="rounded-lg border-slate-300 dark:bg-slate-900 dark:border-slate-600 dark:text-white"
+                          className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af]"
                           style={{ padding: "12px 16px", fontSize: "14px" }}
                         />
                       </Form.Item>
@@ -561,7 +580,7 @@ export default function AddClient() {
                           value={address}
                           onChange={(e) => setAddress(e.target.value)}
                           rows={3}
-                          className="rounded-lg border-slate-300 dark:bg-slate-900 dark:border-slate-600 dark:text-white"
+                          className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af]"
                           style={{ fontSize: "14px" }}
                         />
                       </Form.Item>
@@ -593,7 +612,10 @@ export default function AddClient() {
                         }
                         name="clientType"
                         rules={[
-                          { required: true, message: "Please select client type" },
+                          {
+                            required: true,
+                            message: "Please select client type",
+                          },
                         ]}
                       >
                         <div className="grid grid-cols-1 gap-3">
@@ -616,7 +638,12 @@ export default function AddClient() {
                               }}
                             >
                               <div className="flex items-center gap-3">
-                                <div style={{ color: type.color, fontSize: "18px" }}>
+                                <div
+                                  style={{
+                                    color: type.color,
+                                    fontSize: "18px",
+                                  }}
+                                >
                                   {type.icon}
                                 </div>
                                 <div className="flex-1">
@@ -629,7 +656,10 @@ export default function AddClient() {
                                 </div>
                                 {clientType === type.value && (
                                   <CheckCircleOutlined
-                                    style={{ color: type.color, fontSize: "18px" }}
+                                    style={{
+                                      color: type.color,
+                                      fontSize: "18px",
+                                    }}
                                   />
                                 )}
                               </div>
@@ -658,7 +688,7 @@ export default function AddClient() {
                             placeholder="Enter organization name"
                             value={organization}
                             onChange={(e) => setOrganization(e.target.value)}
-                            className="rounded-lg border-slate-300 dark:bg-slate-900 dark:border-slate-600 dark:text-white"
+                            className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af]"
                             style={{ padding: "12px 16px", fontSize: "14px" }}
                           />
                         </Form.Item>
@@ -679,8 +709,8 @@ export default function AddClient() {
                           placeholder="Select client status"
                           value={status}
                           onChange={(value) => setStatus(value)}
-                          className="rounded-lg dark:bg-slate-900 [&_.ant-select-selector]:dark:!bg-slate-900 [&_.ant-select-selector]:dark:!border-slate-600 [&_.ant-select-selection-item]:dark:!text-white"
-                          dropdownClassName="dark:!bg-slate-700 [&_.ant-select-item]:dark:!bg-slate-700 [&_.ant-select-item]:dark:!text-white"
+                          className="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-selector]:dark:!bg-[#2A3441] [&_.ant-select-selector]:dark:!border-[#4B5563] [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white [&_.ant-select-selector]:!min-h-[50px] [&_.ant-select-selector"
+                          dropdownClassName="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-item]:dark:!bg-[#2A3441] [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-[#374151] [&_.ant-select-item-option-active]:dark:!bg-[#374151]"
                         >
                           {statusOptions.map((option) => (
                             <Option key={option.value} value={option.value}>
@@ -710,12 +740,14 @@ export default function AddClient() {
                       >
                         <InputNumber
                           prefix={<DollarOutlined className="text-slate-400" />}
-                          className="w-full rounded-lg dark:bg-slate-900 dark:border-slate-600 [&_.ant-input-number-input]:dark:!bg-slate-700 [&_.ant-input-number-input]:dark:!text-white [&_.ant-select-selection-placeholder]:dark:!text-white"
+                          className="w-full dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af] [&_.ant-select-selection-placeholder]:dark:!text-white [&_.ant-input-number-input]:dark:!text-white"
                           style={{ padding: "12px 16px", fontSize: "14px" }}
                           min={0}
                           precision={2}
                           value={outstandingBalance}
-                          onChange={(value) => setOutstandingBalance(value ?? 0)}
+                          onChange={(value) =>
+                            setOutstandingBalance(value ?? 0)
+                          }
                           placeholder="0.00"
                         />
                       </Form.Item>
@@ -733,7 +765,7 @@ export default function AddClient() {
                           value={billingAddress}
                           onChange={(e) => setBillingAddress(e.target.value)}
                           rows={2}
-                          className="rounded-lg border-slate-300 dark:bg-slate-900 dark:border-slate-600 dark:text-white"
+                          className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af]"
                           style={{ fontSize: "14px" }}
                         />
                       </Form.Item>
@@ -741,78 +773,129 @@ export default function AddClient() {
                   </Card>
 
                   {/* Client Summary */}
-                  <Card
-                    title={
-                      <Space>
-                        <CheckCircleOutlined style={{ color: "#059669" }} />
-                        <span className="text-slate-800 dark:text-white font-semibold">
-                          Client Summary
-                        </span>
-                      </Space>
-                    }
-                    className="bg-emerald-50 dark:bg-slate-700/50 border border-emerald-200 dark:border-slate-600 rounded-xl shadow-sm"
-                    bodyStyle={{ padding: "20px" }}
-                  >
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <Text className="text-slate-600 dark:text-slate-300 text-sm">
-                          Type:
-                        </Text>
-                        <Text className="text-emerald-600 dark:text-emerald-400 font-medium text-sm">
-                          {clientType}
-                        </Text>
+                  <div className="bg-gradient-to-br from-emerald-50 via-emerald-50/80 to-green-50/60 dark:from-slate-800/60 dark:via-slate-700/40 dark:to-slate-800/80 border border-emerald-200/80 dark:border-slate-600/70 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center justify-center w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl">
+                        <CheckCircleOutlined className="text-emerald-600 dark:text-emerald-400 text-lg" />
                       </div>
-                      <div className="flex justify-between items-center">
-                        <Text className="text-slate-600 dark:text-slate-300 text-sm">
-                          Status:
-                        </Text>
-                        <Text
-                          className="font-medium text-sm"
+                      <div>
+                        <Title
+                          level={4}
+                          className="text-slate-800 dark:text-slate-100 !mb-0"
                           style={{
-                            color:
-                              statusOptions.find((s) => s.value === status)?.color ||
-                              "#374151",
+                            fontSize: "18px",
+                            fontWeight: 600,
+                            letterSpacing: "-0.025em",
                           }}
                         >
-                          {statusOptions.find((s) => s.value === status)?.label ||
-                            status}
-                        </Text>
+                          Client Summary
+                        </Title>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-0">
+                          Overview & Key Details
+                        </p>
                       </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
+                        <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
+                          Type:
+                        </Text>
+                        <span className="text-emerald-600 dark:text-emerald-400 font-semibold text-sm bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-md">
+                          {clientType}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
+                        <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
+                          Status:
+                        </Text>
+                        <span
+                          className="font-semibold text-sm px-2 py-1 rounded-md"
+                          style={{
+                            color:
+                              statusOptions.find((s) => s.value === status)
+                                ?.color || "#374151",
+                            backgroundColor: `${
+                              statusOptions.find((s) => s.value === status)
+                                ?.color || "#374151"
+                            }20`,
+                          }}
+                        >
+                          {statusOptions.find((s) => s.value === status)
+                            ?.label || status}
+                        </span>
+                      </div>
+
                       {outstandingBalance > 0 && (
-                        <div className="flex justify-between items-center">
-                          <Text className="text-slate-600 dark:text-slate-300 text-sm">
+                        <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
+                          <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
                             Balance:
                           </Text>
-                          <Text className="text-red-600 dark:text-red-400 font-medium text-sm">
-                            ${Number(outstandingBalance).toLocaleString('en-US', {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2
-                            })}
-                          </Text>
+                          <span className="text-red-600 dark:text-red-400 font-semibold text-sm bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-md">
+                            $
+                            {Number(outstandingBalance).toLocaleString(
+                              "en-US",
+                              {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              }
+                            )}
+                          </span>
                         </div>
                       )}
+
                       {profileImage && (
-                        <div className="flex justify-between items-center">
-                          <Text className="text-slate-600 dark:text-slate-300 text-sm">
+                        <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
+                          <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
                             Photo:
                           </Text>
-                          <Text className="text-emerald-600 dark:text-emerald-400 font-medium text-sm">
-                            ✓ Selected
-                          </Text>
+                          <span className="text-emerald-600 dark:text-emerald-400 font-semibold text-sm bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-md flex items-center gap-1">
+                            <svg
+                              className="w-3 h-3"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                            Selected
+                          </span>
                         </div>
                       )}
+
                       {clientType !== "Individual" && organization && (
-                        <div className="flex justify-between items-center">
-                          <Text className="text-slate-600 dark:text-slate-300 text-sm">
+                        <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
+                          <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
                             Organization:
                           </Text>
-                          <Text className="text-slate-800 dark:text-white font-medium text-sm">
+                          <span className="text-slate-800 dark:text-white font-semibold text-sm bg-slate-100 dark:bg-slate-600/30 px-2 py-1 rounded-md">
                             {organization}
-                          </Text>
+                          </span>
                         </div>
                       )}
                     </div>
-                  </Card>
+
+                    <div className="mt-5 pt-4 border-t border-emerald-200/50 dark:border-slate-600/50">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                        <svg
+                          className="w-3 h-3"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        Client information ready for review
+                      </p>
+                    </div>
+                  </div>
                 </Col>
               </Row>
 
@@ -838,7 +921,9 @@ export default function AddClient() {
                     style={{
                       background: isHovered ? "#047857" : "#059669",
                       borderColor: isHovered ? "#047857" : "#059669",
-                      transform: isHovered ? "translateY(-1px)" : "translateY(0)",
+                      transform: isHovered
+                        ? "translateY(-1px)"
+                        : "translateY(0)",
                       minWidth: "160px",
                     }}
                     onMouseEnter={() => setIsHovered(true)}

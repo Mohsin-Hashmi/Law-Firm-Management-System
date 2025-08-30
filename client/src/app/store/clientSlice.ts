@@ -20,6 +20,7 @@ const clientSlice = createSlice({
   reducers: {
     setClients(state, action: PayloadAction<Client[]>) {
       state.clients = action.payload;
+      
     },
     addClient(state, action: PayloadAction<Client>) {
       state.clients.push(action.payload);

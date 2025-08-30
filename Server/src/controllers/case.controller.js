@@ -61,9 +61,9 @@ const createCase = async (req, res) => {
 
     if (req.files && req.files.length > 0) {
       const docs = req.files.map((file) => ({
-        name: file.originalname,
-        path: file.path, // or file.location if using cloud
-        mimeType: file.mimetype,
+        fileName: file.originalname,
+        filePath: file.path,
+        fileType: file.mimetype,
         caseId: newCase.id,
       }));
 

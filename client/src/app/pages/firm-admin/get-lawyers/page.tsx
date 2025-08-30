@@ -374,7 +374,7 @@ export default function GetLawyers() {
           <div className="max-w-[1400px] mx-auto">
             {/* Header Section */}
             <Card
-              className="bg-blue-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+              className="bg-[#E43636] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
               bodyStyle={{ padding: "32px" }}
             >
               <Row align="middle" justify="space-between">
@@ -382,8 +382,8 @@ export default function GetLawyers() {
                   <Space size="large">
                     <div
                       style={{
-                        width: "80px",
-                        height: "80px",
+                        width: "70px",
+                        height: "70px",
                         background: "rgba(255,255,255,0.15)",
                         borderRadius: "16px",
                         display: "flex",
@@ -421,7 +421,7 @@ export default function GetLawyers() {
                     </div>
                   </Space>
                 </Col>
-                <Col className="pt-7">
+                <Col className="pt-7 float-right inline-block">
                   <Space size="middle">
                     <Button
                       type="primary"

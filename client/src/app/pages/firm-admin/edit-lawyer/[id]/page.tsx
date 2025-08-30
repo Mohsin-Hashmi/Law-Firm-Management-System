@@ -199,7 +199,7 @@ export default function EditLawyer({ params }: { params: { id: number } }) {
           <div className="max-w-[1200px] mx-auto">
             {/* Header Section */}
             <Card
-              className="bg-blue-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+              className="bg-[#E43636] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
               bodyStyle={{ padding: "32px" }}
             >
               <Row align="middle" justify="space-between">
@@ -236,7 +236,7 @@ export default function EditLawyer({ params }: { params: { id: number } }) {
                       </Title>
                       <Text
                         style={{
-                          color: "rgba(255,255,255,0.8)",
+                          color: "#fff",
                           fontSize: "18px",
                           fontWeight: "400",
                         }}
@@ -388,9 +388,8 @@ export default function EditLawyer({ params }: { params: { id: number } }) {
                             }
                             placeholder="Enter full name"
                             size="large"
-                            className="dark:!bg-slate-900  dark:text-[#FFFFFF]"
+                            className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af]"
                             style={{
-                              borderRadius: "12px",
                               border: "1px solid #d1d5db",
                               padding: "12px 16px",
                             }}
@@ -424,9 +423,8 @@ export default function EditLawyer({ params }: { params: { id: number } }) {
                             }
                             placeholder="Enter email address"
                             size="large"
-                            className="dark:!bg-slate-900  dark:text-[#FFFFFF]"
+                            className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af]"
                             style={{
-                              borderRadius: "12px",
                               border: "1px solid #d1d5db",
                               padding: "12px 16px",
                             }}
@@ -456,9 +454,8 @@ export default function EditLawyer({ params }: { params: { id: number } }) {
                             }
                             placeholder="Enter phone number"
                             size="large"
-                            className="dark:!bg-slate-900  dark:text-[#FFFFFF]"
+                            className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af]"
                             style={{
-                              borderRadius: "12px",
                               border: "1px solid #d1d5db",
                               padding: "12px 16px",
                             }}
@@ -485,10 +482,9 @@ export default function EditLawyer({ params }: { params: { id: number } }) {
                           <Select
                             placeholder="Select specialization"
                             size="large"
-                            className="dark:!bg-slate-900 [&_.ant-select-selector]:dark:!bg-slate-900 [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white"
+                            className="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-selector]:dark:!bg-[#2A3441] [&_.ant-select-selector]:dark:!border-[#4B5563] [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white [&_.ant-select-selector]:!min-h-[50px] [&_.ant-select-selector]:!px-4"
                             dropdownClassName="dark:!bg-slate-800 [&_.ant-select-item]:dark:!bg-slate-800 [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-slate-700 [&_.ant-select-item-option-active]:dark:!bg-slate-700"
                             style={{
-                              borderRadius: "12px",
                             }}
                             suffixIcon={
                               <BankOutlined style={{ color: "#9ca3af" }} />
@@ -536,10 +532,9 @@ export default function EditLawyer({ params }: { params: { id: number } }) {
                           <Select
                             placeholder="Select status"
                             size="large"
-                            className="dark:!bg-slate-900 [&_.ant-select-selector]:dark:!bg-slate-900 [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white"
-                            dropdownClassName="dark:!bg-slate-800 [&_.ant-select-item]:dark:!bg-slate-800 [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-slate-700 [&_.ant-select-item-option-active]:dark:!bg-slate-700"
+                            className="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-selector]:dark:!bg-[#2A3441] [&_.ant-select-selector]:dark:!border-[#4B5563] [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white [&_.ant-select-selector]:!min-h-[50px] [&_.ant-select-selector]:!px-4"
+                            dropdownClassName="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-item]:dark:!bg-[#2A3441] [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-[#374151] [&_.ant-select-item-option-active]:dark:!bg-[#374151]"
                             style={{
-                              borderRadius: "12px",
                             }}
                           >
                             <Option value="Active">

@@ -50,6 +50,7 @@ const { confirm } = Modal;
 // import { setClients } from "@/app/store/clientSlice";
 import { getAllClients, deleteClient } from "@/app/service/adminAPI";
 import { useAppDispatch } from "@/app/store/hooks";
+import { setClients } from "@/app/store/clientSlice";
 import { Client } from "@/app/types/client";
 import { toast } from "react-hot-toast";
 
@@ -79,7 +80,7 @@ export default function GetClients() {
       setLoading(true);
       const response = await getAllClients(firmId);
       setClientsData(response);
-      // dispatch(setClients(response))
+      dispatch(setClients(response))
       toast.success("Fetch clients successfully");
       console.log("Successfully fetched clients data:", response);
     } catch (error) {

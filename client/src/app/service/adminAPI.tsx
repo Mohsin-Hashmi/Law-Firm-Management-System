@@ -257,3 +257,27 @@ export const deleteClient = async (id: number) => {
     throw new Error("Error deleting client: " + error);
   }
 };
+
+/**
+ * Case Related APIs
+ */
+
+export const createCase = async (firmId: number, data: FormData) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/api/firm-admin/${firmId}/addCase`,
+      data,
+      {
+        withCredentials: true,
+      }
+    );
+    console.log("create case api response is", response);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error creating case:",
+      error
+    );
+    throw new Error("Error creating case: " + error);
+  }
+};

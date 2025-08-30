@@ -1,4 +1,3 @@
-
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -124,7 +123,7 @@ export default function EditClient({ params }: { params: { id: number } }) {
 
       // Call the API with the correct parameters
       const response = await updateClient(clientId, clientData);
-      
+
       toast.success("Client profile updated successfully!");
       router.push(`/pages/firm-admin/get-client-detail/${clientId}`);
     } catch (error) {
@@ -405,9 +404,8 @@ export default function EditClient({ params }: { params: { id: number } }) {
                             }
                             placeholder="Enter full name"
                             size="large"
-                            className="dark:!bg-slate-900  dark:text-[#FFFFFF]"
+                            className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af]"
                             style={{
-                              borderRadius: "12px",
                               border: "1px solid #d1d5db",
                               padding: "12px 16px",
                             }}
@@ -441,9 +439,8 @@ export default function EditClient({ params }: { params: { id: number } }) {
                             }
                             placeholder="Enter email address"
                             size="large"
-                            className="dark:!bg-slate-900  dark:text-[#FFFFFF]"
+                            className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af]"
                             style={{
-                              borderRadius: "12px",
                               border: "1px solid #d1d5db",
                               padding: "12px 16px",
                             }}
@@ -473,9 +470,8 @@ export default function EditClient({ params }: { params: { id: number } }) {
                             }
                             placeholder="Enter phone number"
                             size="large"
-                            className="dark:!bg-slate-900  dark:text-[#FFFFFF]"
+                            className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af]"
                             style={{
-                              borderRadius: "12px",
                               border: "1px solid #d1d5db",
                               padding: "12px 16px",
                             }}
@@ -496,10 +492,10 @@ export default function EditClient({ params }: { params: { id: number } }) {
                           <DatePicker
                             placeholder="Select date of birth"
                             size="large"
-                            className="w-full dark:!bg-slate-900 [&_.ant-picker-input>input]:dark:!text-white [&_.ant-picker-suffix]:dark:!text-white"
+                            className="w-full dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:text-[#ffffff]"
                             style={{
-                              borderRadius: "12px",
                               border: "1px solid #d1d5db",
+                              padding: "12px 16px",
                             }}
                             suffixIcon={
                               <CalendarOutlined style={{ color: "#9ca3af" }} />
@@ -521,8 +517,23 @@ export default function EditClient({ params }: { params: { id: number } }) {
                           <Select
                             placeholder="Select gender"
                             size="large"
-                            className="dark:!bg-slate-900 [&_.ant-select-selector]:dark:!bg-slate-900 [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white"
-                            dropdownClassName="dark:!bg-slate-800 [&_.ant-select-item]:dark:!bg-slate-800 [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-slate-700 [&_.ant-select-item-option-active]:dark:!bg-slate-700"
+                            className="
+    dark:!bg-[#2A3441] 
+    dark:!border-[#4B5563] 
+    [&_.ant-select-selector]:dark:!bg-[#2A3441] 
+    [&_.ant-select-selector]:dark:!border-[#4B5563] 
+    [&_.ant-select-selection-item]:dark:!text-white 
+    [&_.ant-select-arrow]:dark:!text-white 
+    [&_.ant-select-selector]:!min-h-[50px] 
+    [&_.ant-select-selection-placeholder]:dark:!text-[#9ca3af] 
+  "
+                            dropdownClassName="
+    dark:!bg-[#2A3441] dark:!border-[#4B5563] 
+    [&_.ant-select-item]:dark:!bg-[#2A3441] 
+    [&_.ant-select-item]:dark:!text-white 
+    [&_.ant-select-item-option-selected]:dark:!bg-[#374151] 
+    [&_.ant-select-item-option-active]:dark:!bg-[#374151]
+  "
                             style={{
                               borderRadius: "12px",
                             }}
@@ -553,11 +564,24 @@ export default function EditClient({ params }: { params: { id: number } }) {
                           <Select
                             placeholder="Select client type"
                             size="large"
-                            className="dark:!bg-slate-900 [&_.ant-select-selector]:dark:!bg-slate-900 [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white"
-                            dropdownClassName="dark:!bg-slate-800 [&_.ant-select-item]:dark:!bg-slate-800 [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-slate-700 [&_.ant-select-item-option-active]:dark:!bg-slate-700"
-                            style={{
-                              borderRadius: "12px",
-                            }}
+                            className="
+    dark:!bg-[#2A3441] 
+    dark:!border-[#4B5563] 
+    [&_.ant-select-selector]:dark:!bg-[#2A3441] 
+    [&_.ant-select-selector]:dark:!border-[#4B5563] 
+    [&_.ant-select-selection-item]:dark:!text-white 
+    [&_.ant-select-arrow]:dark:!text-white 
+    [&_.ant-select-selector]:!min-h-[50px] 
+    [&_.ant-select-selection-placeholder]:dark:!text-[#9ca3af] 
+  "
+                            dropdownClassName="
+    dark:!bg-[#2A3441] dark:!border-[#4B5563] 
+    [&_.ant-select-item]:dark:!bg-[#2A3441] 
+    [&_.ant-select-item]:dark:!text-white 
+    [&_.ant-select-item-option-selected]:dark:!bg-[#374151] 
+    [&_.ant-select-item-option-active]:dark:!bg-[#374151]
+  "
+                            style={{}}
                             suffixIcon={
                               <TeamOutlined style={{ color: "#9ca3af" }} />
                             }
@@ -585,9 +609,8 @@ export default function EditClient({ params }: { params: { id: number } }) {
                             }
                             placeholder="Enter organization name"
                             size="large"
-                            className="dark:!bg-slate-900  dark:text-[#FFFFFF]"
+                            className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af]"
                             style={{
-                              borderRadius: "12px",
                               border: "1px solid #d1d5db",
                               padding: "12px 16px",
                             }}
@@ -608,9 +631,8 @@ export default function EditClient({ params }: { params: { id: number } }) {
                           <TextArea
                             placeholder="Enter full address"
                             rows={3}
-                            className="dark:!bg-slate-900  dark:text-[#FFFFFF]"
+                            className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af]"
                             style={{
-                              borderRadius: "12px",
                               border: "1px solid #d1d5db",
                             }}
                           />
@@ -630,9 +652,8 @@ export default function EditClient({ params }: { params: { id: number } }) {
                           <TextArea
                             placeholder="Enter billing address (if different from address)"
                             rows={3}
-                            className="dark:!bg-slate-900  dark:text-[#FFFFFF]"
+                            className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af]"
                             style={{
-                              borderRadius: "12px",
                               border: "1px solid #d1d5db",
                             }}
                           />
@@ -650,16 +671,15 @@ export default function EditClient({ params }: { params: { id: number } }) {
                           name="outstandingBalance"
                         >
                           <InputNumber
-                            prefix={<DollarOutlined style={{ color: "#9ca3af" }} />}
+                            prefix={
+                              <DollarOutlined style={{ color: "#9ca3af" }} />
+                            }
                             placeholder="0.00"
                             size="large"
                             min={0}
                             precision={2}
-                            className="w-full dark:!bg-slate-900 [&_.ant-input-number-input]:dark:!text-white"
-                            style={{
-                              borderRadius: "12px",
-                              border: "1px solid #d1d5db",
-                            }}
+                            className="w-full dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af] [&_.ant-select-selection-placeholder]:dark:!text-white [&_.ant-input-number-input]:dark:!text-white"
+                            style={{ padding: "6px 10px", fontSize: "14px" }}
                           />
                         </Form.Item>
                       </Col>
@@ -680,11 +700,9 @@ export default function EditClient({ params }: { params: { id: number } }) {
                           <Select
                             placeholder="Select status"
                             size="large"
-                            className="dark:!bg-slate-900 [&_.ant-select-selector]:dark:!bg-slate-900 [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white"
-                            dropdownClassName="dark:!bg-slate-800 [&_.ant-select-item]:dark:!bg-slate-800 [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-slate-700 [&_.ant-select-item-option-active]:dark:!bg-slate-700"
-                            style={{
-                              borderRadius: "12px",
-                            }}
+                            className="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-selector]:dark:!bg-[#2A3441] [&_.ant-select-selector]:dark:!border-[#4B5563] [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white [&_.ant-select-selector]:!min-h-[50px] [&_.ant-select-selector"
+                            dropdownClassName="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-item]:dark:!bg-[#2A3441] [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-[#374151] [&_.ant-select-item-option-active]:dark:!bg-[#374151]"
+                            
                           >
                             <Option value="Active">
                               <Space>
@@ -694,6 +712,7 @@ export default function EditClient({ params }: { params: { id: number } }) {
                                     height: "8px",
                                     background: "#10b981",
                                     borderRadius: "50%",
+                                    
                                   }}
                                 />
                                 Active
@@ -858,40 +877,51 @@ export default function EditClient({ params }: { params: { id: number } }) {
                       <Space>
                         <TeamOutlined style={{ color: "#9ca3af" }} />
                         <Text style={{ color: "#64748b" }}>
-                          {form.getFieldValue("clientType") || client.clientType}
+                          {form.getFieldValue("clientType") ||
+                            client.clientType}
                         </Text>
                       </Space>
-                      {(form.getFieldValue("organization") || client.organization) && (
+                      {(form.getFieldValue("organization") ||
+                        client.organization) && (
                         <Space>
                           <BankOutlined style={{ color: "#9ca3af" }} />
                           <Text style={{ color: "#64748b" }}>
-                            {form.getFieldValue("organization") || client.organization}
+                            {form.getFieldValue("organization") ||
+                              client.organization}
                           </Text>
                         </Space>
                       )}
                     </Space>
 
-                    {(form.getFieldValue("outstandingBalance") || client.outstandingBalance) && (
+                    {(form.getFieldValue("outstandingBalance") ||
+                      client.outstandingBalance) && (
                       <Space>
                         <DollarOutlined style={{ color: "#9ca3af" }} />
                         <Text style={{ color: "#64748b" }}>
                           Outstanding: $
-                          {(form.getFieldValue("outstandingBalance") || client.outstandingBalance || 0).toFixed(2)}
+                          {(
+                            form.getFieldValue("outstandingBalance") ||
+                            client.outstandingBalance ||
+                            0
+                          ).toFixed(2)}
                         </Text>
                       </Space>
                     )}
 
                     <div>
                       {(() => {
-                        const status = form.getFieldValue("status") || client.status;
+                        const status =
+                          form.getFieldValue("status") || client.status;
                         const statusConfig = {
                           Active: { color: "#10b981", textColor: "#059669" },
                           Past: { color: "#6b7280", textColor: "#374151" },
                           Potential: { color: "#f59e0b", textColor: "#d97706" },
                           Suspended: { color: "#ef4444", textColor: "#dc2626" },
                         };
-                        const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.Active;
-                        
+                        const config =
+                          statusConfig[status as keyof typeof statusConfig] ||
+                          statusConfig.Active;
+
                         return (
                           <Space>
                             <div
@@ -902,7 +932,12 @@ export default function EditClient({ params }: { params: { id: number } }) {
                                 borderRadius: "50%",
                               }}
                             />
-                            <Text style={{ color: config.textColor, fontWeight: "500" }}>
+                            <Text
+                              style={{
+                                color: config.textColor,
+                                fontWeight: "500",
+                              }}
+                            >
                               {status}
                             </Text>
                           </Space>

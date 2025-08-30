@@ -28,6 +28,18 @@ import {
   DashboardOutlined,
   TrophyOutlined,
 } from "@ant-design/icons";
+import {
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  Tooltip,
+} from "recharts";
 import { getStats } from "../service/adminAPI";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { setFirm, setError, setLoading, clearFirm } from "../store/firmSlice";
@@ -39,6 +51,14 @@ interface Props {
   firmId: number;
   role?: string;
 }
+const chartData = [
+  { name: "Jan", value: 20 },
+  { name: "Feb", value: 35 },
+  { name: "Mar", value: 25 },
+  { name: "Apr", value: 50 },
+  { name: "May", value: 40 },
+  { name: "Jun", value: 60 },
+];
 
 export default function FirmStats({ firmId, role }: Props) {
   const dispatch = useAppDispatch();
@@ -267,7 +287,7 @@ export default function FirmStats({ firmId, role }: Props) {
           <Col xs={24} sm={12} lg={6} key={index}>
             <Card
               className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
-              bodyStyle={{ padding: "24px" }}
+              bodyStyle={{ padding: "20px" }}
               hoverable
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = "translateY(-4px)";
@@ -317,6 +337,44 @@ export default function FirmStats({ firmId, role }: Props) {
                     }}
                     className="text-blue-600 dark:text-green-500 [&_.ant-statistic-content-value]:dark:!text-green-500 mb-[10px]"
                   />
+
+                  {/* Mini Graph */}
+                  <div style={{ width: "100%", height: 50 }}>
+                    <ResponsiveContainer>
+                      <AreaChart data={chartData}>
+                        <defs>
+                          <linearGradient
+                            id="colorValue"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop
+                              offset="5%"
+                              stopColor={stat.color}
+                              stopOpacity={0.8}
+                            />
+                            <stop
+                              offset="95%"
+                              stopColor={stat.color}
+                              stopOpacity={0}
+                            />
+                          </linearGradient>
+                        </defs>
+                        <XAxis dataKey="name" hide />
+                        <YAxis hide />
+                        <Tooltip />
+                        <Area
+                          type="monotone"
+                          dataKey="value"
+                          stroke={stat.color}
+                          fillOpacity={1}
+                          fill="url(#colorValue)"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
                   <Text className="text-slate-500 dark:text-white text-sm font-medium block mt-1">
                     {stat.title}
                   </Text>

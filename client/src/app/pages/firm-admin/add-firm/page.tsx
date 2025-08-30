@@ -384,7 +384,7 @@ export default function AddFirm() {
                           setName(value);
                           setSubdomain(generateSubdomain(value));
                         }}
-                        className="dark:!bg-slate-900 dark:text-[#FFFFFF]"
+                        className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:!text-gray-300"
                         style={{
                           padding: "14px 16px",
                           borderRadius: "12px",
@@ -406,7 +406,7 @@ export default function AddFirm() {
                         value={subdomain}
                         readOnly
                         placeholder="auto-generated from firm name"
-                        className="dark:!bg-slate-900 dark:text-[#9ca3af]"
+                        className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:!text-gray-300"
                         style={{
                           padding: "14px 16px",
                           borderRadius: "12px",
@@ -415,7 +415,7 @@ export default function AddFirm() {
                         }}
                         suffix={
                           <Text
-                            className="text-[#9ca3af] dark:text-[#6b7280]"
+                            className="!text-[#232323]"
                             style={{ fontSize: "14px" }}
                           >
                             .lawfirm.com
@@ -444,7 +444,7 @@ export default function AddFirm() {
                         placeholder="contact@lawfirm.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="dark:!bg-slate-900 dark:text-[#FFFFFF]"
+                        className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:!text-gray-300"
                         style={{
                           padding: "14px 16px",
                           borderRadius: "12px",
@@ -473,7 +473,7 @@ export default function AddFirm() {
                         placeholder="+1 (555) 123-4567"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className="dark:!bg-slate-900 dark:text-[#FFFFFF]"
+                        className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:!text-gray-300"
                         style={{
                           padding: "14px 16px",
                           borderRadius: "12px",
@@ -499,7 +499,7 @@ export default function AddFirm() {
                         value={address}
                         onChange={(e) => setAddress(e.target.value)}
                         rows={3}
-                        className="dark:!bg-slate-900 dark:text-[#FFFFFF]"
+                        className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:!text-gray-300"
                         style={{
                           borderRadius: "12px",
                           border: "1px solid #d1d5db",
@@ -623,7 +623,7 @@ export default function AddFirm() {
                       >
                         <InputNumber
                           prefix={<TeamOutlined style={{ color: "#9ca3af" }} />}
-                          className="dark:!bg-slate-900 dark:text-[#FFFFFF] [&_.ant-input-number-input]:dark:!bg-slate-900 [&_.ant-input-number-input]:dark:!text-white"
+                          className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] [&_.ant-input-number-input]:dark:!bg-[#2A3441] [&_.ant-input-number-input]:dark:!text-white [&_.ant-input-number-input]:dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af]"
                           style={{
                             width: "100%",
                             borderRadius: "12px",
@@ -652,7 +652,7 @@ export default function AddFirm() {
                           prefix={
                             <FileTextOutlined style={{ color: "#9ca3af" }} />
                           }
-                          className="dark:!bg-slate-900 dark:text-[#FFFFFF] [&_.ant-input-number-input]:dark:!bg-slate-900 [&_.ant-input-number-input]:dark:!text-white"
+                          className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] [&_.ant-input-number-input]:dark:!bg-[#2A3441] [&_.ant-input-number-input]:dark:!text-white [&_.ant-input-number-input]:dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af]"
                           style={{
                             width: "100%",
                             borderRadius: "12px",
@@ -667,41 +667,79 @@ export default function AddFirm() {
                     </div>
 
                     {/* Plan Features */}
-                    <div className="bg-blue-50 dark:bg-slate-700/50 border border-blue-200 dark:border-slate-600 rounded-xl p-5 mt-6">
-                      <Title
-                        level={5}
-                        className="text-[#1e40af] dark:text-[#60a5fa]"
-                        style={{
-                          marginBottom: "12px",
-                          fontSize: "16px",
-                        }}
-                      >
-                        <BuildOutlined style={{ marginRight: "8px" }} />
-                        {
-                          subscriptionPlans.find(
-                            (p) => p.value === subscription_plan
-                          )?.label
-                        }{" "}
-                        Features
-                      </Title>
-                      <ul
-                        className="text-[#334155] dark:text-[#cbd5e1]"
-                        style={{
-                          margin: 0,
-                          paddingLeft: "20px",
-                        }}
-                      >
+                    <div className="bg-gradient-to-br from-blue-50 via-blue-50/80 to-indigo-50/60 dark:from-slate-800/60 dark:via-slate-700/40 dark:to-slate-800/80 border border-blue-200/80 dark:border-slate-600/70 rounded-2xl p-6 mt-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="flex items-center justify-center w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
+                          <BuildOutlined className="text-blue-600 dark:text-blue-400 text-lg" />
+                        </div>
+                        <div>
+                          <Title
+                            level={4}
+                            className="text-slate-800 dark:text-slate-100 !mb-0"
+                            style={{
+                              fontSize: "18px",
+                              fontWeight: 600,
+                              letterSpacing: "-0.025em",
+                            }}
+                          >
+                            {
+                              subscriptionPlans.find(
+                                (p) => p.value === subscription_plan
+                              )?.label
+                            }
+                          </Title>
+                          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-0">
+                            Plan Features & Benefits
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
                         {subscriptionPlans
                           .find((p) => p.value === subscription_plan)
                           ?.features.map((feature, index) => (
-                            <li
+                            <div
                               key={index}
-                              style={{ fontSize: "14px", marginBottom: "4px" }}
+                              className="flex items-start gap-3 group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150"
                             >
-                              {feature}
-                            </li>
+                              <div className="flex items-center justify-center w-5 h-5 bg-green-100 dark:bg-green-900/30 rounded-full mt-0.5 flex-shrink-0">
+                                <svg
+                                  className="w-3 h-3 text-green-600 dark:text-green-400"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2.5}
+                                    d="M5 13l4 4L19 7"
+                                  />
+                                </svg>
+                              </div>
+                              <span className="text-slate-700 dark:text-slate-200 text-sm leading-relaxed font-medium">
+                                {feature}
+                              </span>
+                            </div>
                           ))}
-                      </ul>
+                      </div>
+
+                      <div className="mt-5 pt-4 border-t border-blue-200/50 dark:border-slate-600/50">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                          <svg
+                            className="w-3 h-3"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          All features are included in your current plan
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>

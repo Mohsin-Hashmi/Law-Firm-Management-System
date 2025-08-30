@@ -13,7 +13,7 @@ import {
   PhoneOutlined,
   SaveOutlined,
   UserAddOutlined,
-  UserOutlined
+  UserOutlined,
 } from "@ant-design/icons";
 import {
   Avatar,
@@ -28,7 +28,7 @@ import {
   Space,
   Spin,
   Steps,
-  Typography
+  Typography,
 } from "antd";
 import { ThemeProvider } from "next-themes";
 import { useRouter } from "next/navigation";
@@ -50,7 +50,7 @@ interface FormValues {
 
 export default function AddLawyer() {
   const router = useRouter();
-  const dispatch= useAppDispatch();
+  const dispatch = useAppDispatch();
   const firmId = useAppSelector((state: RootState) => state.firm.firm?.firmId);
   console.log("Firm id is", firmId);
   const [form] = Form.useForm<FormValues>();
@@ -99,7 +99,6 @@ export default function AddLawyer() {
       dispatch(setLawyers(response.data.newLawyer));
       toast.success("Attorney added successfully!");
       router.push("/pages/firm-admin/get-lawyers");
-      
 
       // Reset form
       setName("");
@@ -152,7 +151,7 @@ export default function AddLawyer() {
           <div className="max-w-[1200px] mx-auto">
             {/* Header Section */}
             <Card
-              className="bg-blue-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+              className="bg-[#E43636] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
               bodyStyle={{ padding: "32px" }}
             >
               <Row align="middle" justify="space-between">
@@ -189,7 +188,7 @@ export default function AddLawyer() {
                       </Title>
                       <Text
                         style={{
-                          color: "rgba(255,255,255,0.8)",
+                          color: "#ffffff",
                           fontSize: "18px",
                           fontWeight: "400",
                         }}
@@ -433,10 +432,9 @@ export default function AddLawyer() {
                             placeholder="Enter full legal name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="dark:!bg-slate-900 dark:text-[#FFFFFF]"
+                            className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af]"
                             style={{
                               padding: "14px 16px",
-                              borderRadius: "12px",
                               border: "1px solid #d1d5db",
                               fontSize: "15px",
                             }}
@@ -468,13 +466,11 @@ export default function AddLawyer() {
                             placeholder="attorney@lawfirm.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="dark:!bg-slate-900 dark:text-[#FFFFFF] "
+                            className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af]"
                             style={{
                               padding: "14px 16px",
-                              borderRadius: "12px",
                               border: "1px solid #d1d5db",
                               fontSize: "15px",
-                              
                             }}
                           />
                         </Form.Item>
@@ -503,10 +499,9 @@ export default function AddLawyer() {
                             placeholder="+1 (555) 123-4567"
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
-                            className="dark:!bg-slate-900 dark:text-[#FFFFFF]"
+                            className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af]"
                             style={{
                               padding: "14px 16px",
-                              borderRadius: "12px",
                               border: "1px solid #d1d5db",
                               fontSize: "15px",
                             }}
@@ -528,12 +523,10 @@ export default function AddLawyer() {
                             placeholder="Select primary area of practice"
                             value={specialization}
                             onChange={(value) => setSpecialization(value)}
-                            className="dark:!bg-slate-900 [&_.ant-select-selector]:dark:!bg-slate-900 [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white [&_.ant-select-selection-placeholder]:dark:!text-white [&_.ant-select-selector]:!py-2 [&_.ant-select-selector]:!px-3
-"
-                            dropdownClassName="dark:!bg-slate-800 [&_.ant-select-item]:dark:!bg-slate-800 [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-slate-700 [&_.ant-select-item-option-active]:dark:!bg-slate-700"
+                            className="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-selector]:dark:!bg-[#2A3441] [&_.ant-select-selector]:dark:!border-[#4B5563] [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white [&_.ant-select-selection-placeholder]:dark:!text-[#9ca3af] [&_.ant-select-selector]:!min-h-[50px] [&_.ant-select-selector]:!px-4"
+                            dropdownClassName="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-item]:dark:!bg-[#2A3441] [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-[#374151] [&_.ant-select-item-option-active]:dark:!bg-[#374151]"
                             style={{
                               fontSize: "15px",
-
                             }}
                             showSearch
                             allowClear
@@ -571,8 +564,8 @@ export default function AddLawyer() {
                           <Select
                             value={status}
                             onChange={(value) => setStatus(value)}
-                            className="dark:!bg-slate-900 [&_.ant-select-selector]:dark:!bg-slate-900 [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white"
-                            dropdownClassName="dark:!bg-slate-800 [&_.ant-select-item]:dark:!bg-slate-800 [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-slate-700 [&_.ant-select-item-option-active]:dark:!bg-slate-700"
+                            className="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-selector]:dark:!bg-[#2A3441] [&_.ant-select-selector]:dark:!border-[#4B5563] [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white [&_.ant-select-selector]:!min-h-[50px] [&_.ant-select-selector]:!px-4"
+                            dropdownClassName="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-item]:dark:!bg-[#2A3441] [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-[#374151] [&_.ant-select-item-option-active]:dark:!bg-[#374151]"
                             style={{
                               fontSize: "15px",
                             }}
@@ -648,7 +641,6 @@ export default function AddLawyer() {
                         size="large"
                         onClick={() => router.back()}
                         style={{
-                          borderRadius: "12px",
                           border: "1px solid #d1d5db",
                           fontWeight: "600",
                           padding: "12px 32px",
@@ -668,7 +660,6 @@ export default function AddLawyer() {
                         style={{
                           background: isHovered ? "#1d4ed8" : "#1e40af",
                           borderColor: isHovered ? "#1d4ed8" : "#1e40af",
-                          borderRadius: "12px",
                           padding: "12px 40px",
                           fontSize: "15px",
                           fontWeight: "600",

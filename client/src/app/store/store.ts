@@ -6,6 +6,7 @@ import userReducer from "./userSlice";
 import firmReducer from "./firmSlice";
 import lawyerReducer from "./lawyerSlice";
 import clientReducer from "./clientSlice";
+import caseReducer from  "./caseSlice";
 
 // combine all reducers
 const rootReducer = combineReducers({
@@ -13,6 +14,7 @@ const rootReducer = combineReducers({
   firm: firmReducer,
   lawyer: lawyerReducer,
   client: clientReducer,
+  case: caseReducer
 });
 
 // persist config
