@@ -16,6 +16,7 @@ export interface ClientPayload {
 
 export interface Client extends ClientPayload {
   id: number;
+  client: Client;
   profileImage: string,
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string

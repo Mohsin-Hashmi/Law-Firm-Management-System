@@ -65,6 +65,7 @@ const createCase = async (req, res) => {
         filePath: file.path,
         fileType: file.mimetype,
         caseId: newCase.id,
+        uploadedBy: req.user.id,
       }));
 
       await CaseDocument.bulkCreate(docs);
@@ -187,6 +188,7 @@ const updateCaseStatus = async (req, res) => {
   } catch (err) {}
 };
 
+// THis api for client dashboard
 const getAllCasesOfClient = async (req, res) => {
   try {
     const { clientId } = req.params;
@@ -301,6 +303,7 @@ const getAllCasesOfFirm = async (req, res) => {
   }
 };
 
+// This API is for lawyer dashboard
 const getAllCasesOfLawyer = async (req, res) => {
   try {
   } catch (err) {}

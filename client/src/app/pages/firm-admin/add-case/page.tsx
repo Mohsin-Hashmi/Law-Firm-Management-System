@@ -41,6 +41,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import type { UploadFile } from "antd/es/upload/interface";
+import { CaseLawyer } from "@/app/types/case";
 
 const { Option } = Select;
 const { Title, Text } = Typography;
@@ -50,28 +51,22 @@ const { Dragger } = Upload;
 export default function AddCase() {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state: RootState) => state.user?.user);
-  const clients = useAppSelector(
-    (state: RootState) => state.client?.clients || []
-  );
+  const clients = useAppSelector((state: RootState) => state.client?.clients || []);
+
+  console.log("Client are :", clients);
   const lawyers = useAppSelector(
     (state: RootState) => state.lawyer?.lawyers || []
   );
   const firmId = user?.firmId;
   const router = useRouter();
-const [form] = Form.useForm();
+  const [form] = Form.useForm();
 
   // State values
-  const [title, setTitle] = useState("");
-  const [caseNumber, setCaseNumber] = useState("");
-  const [caseType, setCaseType] = useState("");
-  const [status, setStatus] = useState("Open");
-  const [description, setDescription] = useState("");
-  const [clientId, setClientId] = useState<number | undefined>();
-  const [lawyerIds, setLawyerIds] = useState<number[]>([]);
   const [documents, setDocuments] = useState<File[]>([]);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [loading, setLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [caseNumber, setCaseNumber] = useState("");
 
   // Generate case number automatically
   useEffect(() => {
@@ -84,31 +79,47 @@ const [form] = Form.useForm();
     };
 
     if (!caseNumber) {
-      setCaseNumber(generateCaseNumber());
+      const newCaseNumber = generateCaseNumber();
+      setCaseNumber(newCaseNumber);
+      form.setFieldValue("caseNumber", newCaseNumber);
     }
-  }, [caseNumber]);
+  }, [caseNumber, form]);
 
-  const handleCreateCase = async () => {
+  const handleCreateCase = async (values: any) => {
     try {
       setLoading(true);
+      console.log("Form values:", values);
 
-      if (!clientId) {
+      if (!values.clientId) {
         toast.error("Please select a client");
+        setLoading(false);
+        return;
+      }
+
+      if (!values.title) {
+        toast.error("Please enter a case title");
+        setLoading(false);
+        return;
+      }
+
+      if (!values.caseType) {
+        toast.error("Please select a case type");
+        setLoading(false);
         return;
       }
 
       const formData = new FormData();
-      formData.append("title", title);
-      formData.append("caseNumber", caseNumber);
-      formData.append("caseType", caseType);
-      formData.append("status", status);
-      formData.append("description", description);
-      formData.append("clientId", clientId.toString());
+      formData.append("title", values.title);
+      formData.append("caseNumber", values.caseNumber);
+      formData.append("caseType", values.caseType);
+      formData.append("status", values.status || "Open");
+      formData.append("description", values.description || "");
+      formData.append("clientId", values.clientId.toString());
       formData.append("firmId", firmId!.toString());
 
       // Add lawyer IDs
-      if (lawyerIds.length > 0) {
-        lawyerIds.forEach((id) => {
+      if (values.lawyerIds && values.lawyerIds.length > 0) {
+        values.lawyerIds.forEach((id: number) => {
           formData.append("lawyerIds", id.toString());
         });
       }
@@ -117,15 +128,16 @@ const [form] = Form.useForm();
       documents.forEach((file) => {
         formData.append("documents", file);
       });
-
       const response = await createCase(firmId!, formData);
       console.log("response of create case is", response);
+
       if (!response?.data) {
         toast.error("Error in create case API");
         return;
       }
+
       dispatch(addCase(response.data));
-      toast.success("Client created successfully!");
+      toast.success("Case created successfully!");
       router.push("/pages/firm-admin/get-cases");
       resetForm();
     } catch (err) {
@@ -137,26 +149,21 @@ const [form] = Form.useForm();
   };
 
   const resetForm = () => {
-    setTitle("");
-    setCaseNumber("");
-    setCaseType("");
-    setStatus("Open");
-    setDescription("");
-    setClientId(undefined);
-    setLawyerIds([]);
     setDocuments([]);
     setFileList([]);
+    setCaseNumber("");
     form.resetFields();
   };
 
   const getFormProgress = () => {
+    const values = form.getFieldsValue();
     let progress = 0;
-    if (title) progress += 25;
-    if (caseNumber) progress += 15;
-    if (clientId) progress += 25;
-    if (caseType) progress += 15;
-    if (status) progress += 10;
-    if (description) progress += 10;
+    if (values.title) progress += 25;
+    if (values.caseNumber) progress += 15;
+    if (values.clientId) progress += 25;
+    if (values.caseType) progress += 15;
+    if (values.status) progress += 10;
+    if (values.description) progress += 10;
     return progress;
   };
 
@@ -233,6 +240,10 @@ const [form] = Form.useForm();
       .filter(Boolean) as File[];
 
     setDocuments(files);
+  };
+
+  const handleCaseTypeChange = (value: string) => {
+    form.setFieldValue("caseType", value);
   };
 
   return (
@@ -342,12 +353,17 @@ const [form] = Form.useForm();
             </Card>
 
             {/* Main Form */}
-            <Form<Case>
+            <Form
               form={form}
               layout="vertical"
               onFinish={handleCreateCase}
+              onFinishFailed={(errorInfo) => {
+                console.log("Form validation failed:", errorInfo);
+                toast.error("Please fill in all required fields");
+              }}
               initialValues={{
                 status: "Open",
+                caseNumber: caseNumber,
               }}
               size="large"
             >
@@ -404,9 +420,7 @@ const [form] = Form.useForm();
                             <FileTextOutlined className="text-slate-400" />
                           }
                           placeholder="Enter case title"
-                          value={title}
-                          onChange={(e) => setTitle(e.target.value)}
-                          className="rounded-lg border-slate-300 dark:bg-slate-900 dark:border-slate-600 dark:text-white"
+                          className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af]"
                           style={{ padding: "12px 16px", fontSize: "14px" }}
                         />
                       </Form.Item>
@@ -428,9 +442,7 @@ const [form] = Form.useForm();
                         <Input
                           prefix={<NumberOutlined className="text-slate-400" />}
                           placeholder="Auto-generated case number"
-                          value={caseNumber}
-                          onChange={(e) => setCaseNumber(e.target.value)}
-                          className="rounded-lg border-slate-300 dark:bg-slate-900 dark:border-slate-600 dark:text-white"
+                          className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af]"
                           style={{ padding: "12px 16px", fontSize: "14px" }}
                         />
                       </Form.Item>
@@ -453,17 +465,17 @@ const [form] = Form.useForm();
                           {caseTypes.map((type) => (
                             <div
                               key={type.value}
-                              onClick={() => setCaseType(type.value)}
+                              onClick={() => handleCaseTypeChange(type.value)}
                               className="cursor-pointer transition-all duration-200 hover:shadow-md"
                               style={{
                                 border:
-                                  caseType === type.value
+                                  form.getFieldValue("caseType") === type.value
                                     ? `2px solid ${type.color}`
                                     : "1px solid #e2e8f0",
                                 borderRadius: "12px",
                                 padding: "16px",
                                 background:
-                                  caseType === type.value
+                                  form.getFieldValue("caseType") === type.value
                                     ? `${type.color}08`
                                     : undefined,
                               }}
@@ -485,7 +497,8 @@ const [form] = Form.useForm();
                                     {type.description}
                                   </div>
                                 </div>
-                                {caseType === type.value && (
+                                {form.getFieldValue("caseType") ===
+                                  type.value && (
                                   <CheckCircleOutlined
                                     style={{
                                       color: type.color,
@@ -509,11 +522,9 @@ const [form] = Form.useForm();
                       >
                         <TextArea
                           placeholder="Enter case description, objectives, and relevant details"
-                          value={description}
-                          onChange={(e) => setDescription(e.target.value)}
                           rows={4}
-                          className="rounded-lg border-slate-300 dark:bg-slate-900 dark:border-slate-600 dark:text-white"
-                          style={{ fontSize: "14px" }}
+                          className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af]"
+                          style={{ padding: "12px 16px", fontSize: "14px" }}
                         />
                       </Form.Item>
                     </div>
@@ -618,18 +629,31 @@ const [form] = Form.useForm();
                     >
                       <Select
                         placeholder="Choose client for this case"
-                        value={clientId}
-                        onChange={(value) => setClientId(value)}
-                        optionFilterProp="label" // 👈 tells Select to filter by label
-                        className="rounded-lg dark:bg-slate-900 [&_.ant-select-selector]:dark:!bg-slate-900 [&_.ant-select-selector]:dark:!border-slate-600 [&_.ant-select-selection-item]:dark:!text-white"
-                        dropdownClassName="dark:!bg-slate-700 [&_.ant-select-item]:dark:!bg-slate-700 [&_.ant-select-item]:dark:!text-white"
+                        optionFilterProp="label"
+                        className="
+    dark:!bg-[#2A3441] 
+    dark:!border-[#4B5563] 
+    [&_.ant-select-selector]:dark:!bg-[#2A3441] 
+    [&_.ant-select-selector]:dark:!border-[#4B5563] 
+    [&_.ant-select-selection-item]:dark:!text-white 
+    [&_.ant-select-arrow]:dark:!text-white 
+    [&_.ant-select-selector]:!min-h-[50px] 
+    [&_.ant-select-selection-placeholder]:dark:!text-[#9ca3af] 
+  "
+                        dropdownClassName="
+    dark:!bg-[#2A3441] dark:!border-[#4B5563] 
+    [&_.ant-select-item]:dark:!bg-[#2A3441] 
+    [&_.ant-select-item]:dark:!text-white 
+    [&_.ant-select-item-option-selected]:dark:!bg-[#374151] 
+    [&_.ant-select-item-option-active]:dark:!bg-[#374151]
+  "
                         showSearch
                       >
                         {clients.map((client) => (
                           <Option
                             key={client.id}
                             value={client.id}
-                            label={client.fullName} // 👈 now filtering/search works properly
+                            label={client.fullName}
                           >
                             <div className="flex items-center gap-3">
                               <UserOutlined className="text-slate-400" />
@@ -647,30 +671,33 @@ const [form] = Form.useForm();
                       </Select>
                     </Form.Item>
 
-                    {clientId && (
-                      <div className="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-                        <Text className="text-slate-700 dark:text-slate-200 text-sm font-medium block mb-2">
-                          Selected Client:
-                        </Text>
-                        <div className="flex items-center gap-3">
-                          <UserOutlined className="text-blue-500" />
-                          <div>
-                            <Text className="text-slate-800 dark:text-white font-medium">
-                              {
-                                clients.find((c) => c.id === clientId)
-                                  ?.fullName
-                              }
+                    <Form.Item shouldUpdate noStyle>
+                      {() => {
+                        const selectedClientId = form.getFieldValue("clientId");
+                        const selectedClient = clients.find(
+                          (c) => c.id === selectedClientId
+                        );
+
+                        return selectedClient ? (
+                          <div className="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                            <Text className="text-slate-700 dark:text-slate-200 text-sm font-medium block mb-2">
+                              Selected Client:
                             </Text>
-                            <Text className="text-slate-500 dark:text-slate-400 text-xs block">
-                              {
-                                clients.find((c) => c.id === clientId)
-                                  ?.email
-                              }
-                            </Text>
+                            <div className="flex items-center gap-3">
+                              <UserOutlined className="text-blue-500" />
+                              <div>
+                                <Text className="text-slate-800 dark:text-white font-medium">
+                                  {selectedClient.fullName}
+                                </Text>
+                                <Text className="text-slate-500 dark:text-slate-400 text-xs block">
+                                  {selectedClient.email}
+                                </Text>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      </div>
-                    )}
+                        ) : null;
+                      }}
+                    </Form.Item>
                   </Card>
 
                   {/* Lawyer Assignment */}
@@ -697,11 +724,24 @@ const [form] = Form.useForm();
                       <Select
                         mode="multiple"
                         placeholder="Select lawyers to assign to this case"
-                        value={lawyerIds}
-                        onChange={(values) => setLawyerIds(values)}
                         optionFilterProp="label"
-                        className="rounded-lg dark:bg-slate-900 [&_.ant-select-selector]:dark:!bg-slate-900 [&_.ant-select-selector]:dark:!border-slate-600 [&_.ant-select-selection-item]:dark:!text-white"
-                        dropdownClassName="dark:!bg-slate-700 [&_.ant-select-item]:dark:!bg-slate-700 [&_.ant-select-item]:dark:!text-white"
+                        className="
+    dark:!bg-[#2A3441] 
+    dark:!border-[#4B5563] 
+    [&_.ant-select-selector]:dark:!bg-[#2A3441] 
+    [&_.ant-select-selector]:dark:!border-[#4B5563] 
+    [&_.ant-select-selection-item]:dark:!text-white 
+    [&_.ant-select-arrow]:dark:!text-white 
+    [&_.ant-select-selector]:!min-h-[50px] 
+    [&_.ant-select-selection-placeholder]:dark:!text-[#9ca3af] 
+  "
+                        dropdownClassName="
+    dark:!bg-[#2A3441] dark:!border-[#4B5563] 
+    [&_.ant-select-item]:dark:!bg-[#2A3441] 
+    [&_.ant-select-item]:dark:!text-white 
+    [&_.ant-select-item-option-selected]:dark:!bg-[#374151] 
+    [&_.ant-select-item-option-active]:dark:!bg-[#374151]
+  "
                         showSearch
                       >
                         {lawyers.map((lawyer) => (
@@ -724,31 +764,41 @@ const [form] = Form.useForm();
                       </Select>
                     </Form.Item>
 
-                    {lawyerIds.length > 0 && (
-                      <div className="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-                        <Text className="text-slate-700 dark:text-slate-200 text-sm font-medium block mb-3">
-                          Assigned Lawyers ({lawyerIds.length}):
-                        </Text>
-                        <div className="space-y-2">
-                          {lawyerIds.map((id) => {
-                            const lawyer = lawyers.find((l) => l.id === id);
-                            return lawyer ? (
-                              <div key={id} className="flex items-center gap-3">
-                                <TeamOutlined className="text-blue-500" />
-                                <div>
-                                  <Text className="text-slate-800 dark:text-white font-medium text-sm">
-                                    {lawyer.name}
-                                  </Text>
-                                  <Text className="text-slate-500 dark:text-slate-400 text-xs block">
-                                    {lawyer.email}
-                                  </Text>
-                                </div>
-                              </div>
-                            ) : null;
-                          })}
-                        </div>
-                      </div>
-                    )}
+                    <Form.Item shouldUpdate noStyle>
+                      {() => {
+                        const selectedLawyerIds =
+                          form.getFieldValue("lawyerIds") || [];
+
+                        return selectedLawyerIds.length > 0 ? (
+                          <div className="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                            <Text className="text-slate-700 dark:text-slate-200 text-sm font-medium block mb-3">
+                              Assigned Lawyers ({selectedLawyerIds.length}):
+                            </Text>
+                            <div className="space-y-2">
+                              {selectedLawyerIds.map((id: number) => {
+                                const lawyer = lawyers.find((l) => l.id === id);
+                                return lawyer ? (
+                                  <div
+                                    key={id}
+                                    className="flex items-center gap-3"
+                                  >
+                                    <TeamOutlined className="text-blue-500" />
+                                    <div>
+                                      <Text className="text-slate-800 dark:text-white font-medium text-sm">
+                                        {lawyer.name}
+                                      </Text>
+                                      <Text className="text-slate-500 dark:text-slate-400 text-xs block">
+                                        {lawyer.email}
+                                      </Text>
+                                    </div>
+                                  </div>
+                                ) : null;
+                              })}
+                            </div>
+                          </div>
+                        ) : null;
+                      }}
+                    </Form.Item>
                   </Card>
 
                   {/* Case Status */}
@@ -777,10 +827,23 @@ const [form] = Form.useForm();
                     >
                       <Select
                         placeholder="Select case status"
-                        value={status}
-                        onChange={(value) => setStatus(value)}
-                        className="rounded-lg dark:bg-slate-900 [&_.ant-select-selector]:dark:!bg-slate-900 [&_.ant-select-selector]:dark:!border-slate-600 [&_.ant-select-selection-item]:dark:!text-white"
-                        dropdownClassName="dark:!bg-slate-700 [&_.ant-select-item]:dark:!bg-slate-700 [&_.ant-select-item]:dark:!text-white"
+                        className="
+    dark:!bg-[#2A3441] 
+    dark:!border-[#4B5563] 
+    [&_.ant-select-selector]:dark:!bg-[#2A3441] 
+    [&_.ant-select-selector]:dark:!border-[#4B5563] 
+    [&_.ant-select-selection-item]:dark:!text-white 
+    [&_.ant-select-arrow]:dark:!text-white 
+    [&_.ant-select-selector]:!min-h-[50px] 
+    [&_.ant-select-selection-placeholder]:dark:!text-[#9ca3af] 
+  "
+                        dropdownClassName="
+    dark:!bg-[#2A3441] dark:!border-[#4B5563] 
+    [&_.ant-select-item]:dark:!bg-[#2A3441] 
+    [&_.ant-select-item]:dark:!text-white 
+    [&_.ant-select-item-option-selected]:dark:!bg-[#374151] 
+    [&_.ant-select-item-option-active]:dark:!bg-[#374151]
+  "
                       >
                         {statusOptions.map((option) => (
                           <Option key={option.value} value={option.value}>
@@ -802,7 +865,7 @@ const [form] = Form.useForm();
                   </Card>
                 </Col>
 
-                {/* Right Column - Case Summary */}
+                {/* Case Summary Column */}
                 <Col xs={24} lg={12}>
                   <Card
                     title={
@@ -816,80 +879,96 @@ const [form] = Form.useForm();
                     className="bg-blue-50 dark:bg-slate-700/50 border border-blue-200 dark:border-slate-600 rounded-xl shadow-sm h-fit"
                     bodyStyle={{ padding: "24px" }}
                   >
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <Text className="text-slate-600 dark:text-slate-300 text-sm">
-                          Status:
-                        </Text>
-                        <Text
-                          className="font-medium text-sm"
-                          style={{
-                            color:
-                              statusOptions.find((s) => s.value === status)
-                                ?.color || "#374151",
-                          }}
-                        >
-                          {statusOptions.find((s) => s.value === status)
-                            ?.label || status}
-                        </Text>
-                      </div>
+                    <Form.Item shouldUpdate noStyle>
+                      {() => {
+                        const values = form.getFieldsValue();
+                        const selectedClient = clients.find(
+                          (c) => c.id === values.clientId
+                        );
+                        const selectedLawyers: CaseLawyer[] = (
+                          values.lawyerIds || []
+                        )
+                          .map((id: number) =>
+                            lawyers.find((l: CaseLawyer) => l.id === id)
+                          ) // type `l`
+                          .filter((l): l is CaseLawyer => Boolean(l)); // type guard  
 
-                      <div className="flex justify-between items-center">
-                        <Text className="text-slate-600 dark:text-slate-300 text-sm">
-                          Client:
-                        </Text>
-                         <Text className="text-slate-800 dark:text-white font-medium text-sm">
-                          {clientId 
-                            ? clients.find(c => c.id === clientId)?.fullName || "Selected"
-                            : "Not selected"
-                          }
-                        </Text> 
-                      </div>
+                        return (
+                          <div className="space-y-4">
+                            <div className="flex justify-between items-center">
+                              <Text className="text-slate-600 dark:text-slate-300 text-sm">
+                                Status:
+                              </Text>
+                              <Text
+                                className="font-medium text-sm"
+                                style={{
+                                  color:
+                                    statusOptions.find(
+                                      (s) => s.value === values.status
+                                    )?.color || "#374151",
+                                }}
+                              >
+                                {statusOptions.find(
+                                  (s) => s.value === values.status
+                                )?.label ||
+                                  values.status ||
+                                  "Open"}
+                              </Text>
+                            </div>
 
-                      <div className="flex justify-between items-center">
-                        <Text className="text-slate-600 dark:text-slate-300 text-sm">
-                          Lawyers:
-                        </Text>
-                        <Text className="text-slate-800 dark:text-white font-medium text-sm">
-                          {lawyerIds.length > 0
-                            ? `${lawyerIds.length} assigned`
-                            : "None assigned"}
-                        </Text>
-                      </div>
+                            <div className="flex justify-between items-center">
+                              <Text className="text-slate-600 dark:text-slate-300 text-sm">
+                                Client:
+                              </Text>
+                              <Text className="text-slate-800 dark:text-white font-medium text-sm">
+                                {selectedClient?.fullName || "Not selected"}
+                              </Text>
+                            </div>
 
-                      {documents.length > 0 && (
-                        <div className="flex justify-between items-center">
-                          <Text className="text-slate-600 dark:text-slate-300 text-sm">
-                            Documents:
-                          </Text>
-                          <Text className="text-blue-600 dark:text-blue-400 font-medium text-sm">
-                            {documents.length} files
-                          </Text>
-                        </div>
-                      )}
+                            <div className="flex justify-between items-center">
+                              <Text className="text-slate-600 dark:text-slate-300 text-sm">
+                                Lawyers:
+                              </Text>
+                              <Text className="text-slate-800 dark:text-white font-medium text-sm">
+                                {selectedLawyers.length > 0
+                                  ? `${selectedLawyers.length} assigned`
+                                  : "None assigned"}
+                              </Text>
+                            </div>
 
-                       {lawyerIds.length > 0 && (
-                        <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-600">
-                          <Text className="text-slate-700 dark:text-slate-200 font-medium text-sm block mb-2">
-                            Assigned Team:
-                          </Text>
-                          <div className="flex flex-wrap gap-2">
-                            {lawyerIds.map((id) => {
-                              const lawyer = lawyers.find(l => l.id === id);
-                              return lawyer ? (
-                                <Tag 
-                                  key={id}
-                                  color="blue"
-                                  className="rounded-lg px-3 py-1"
-                                >
-                                  {lawyer.name}
-                                </Tag>
-                              ) : null;
-                            })}
+                            {documents.length > 0 && (
+                              <div className="flex justify-between items-center">
+                                <Text className="text-slate-600 dark:text-slate-300 text-sm">
+                                  Documents:
+                                </Text>
+                                <Text className="text-blue-600 dark:text-blue-400 font-medium text-sm">
+                                  {documents.length} files
+                                </Text>
+                              </div>
+                            )}
+
+                            {selectedLawyers.length > 0 && (
+                              <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-600">
+                                <Text className="text-slate-700 dark:text-slate-200 font-medium text-sm block mb-2">
+                                  Assigned Team:
+                                </Text>
+                                <div className="flex flex-wrap gap-2">
+                                  {selectedLawyers.map((lawyer) => (
+                                    <Tag
+                                      key={lawyer.id}
+                                      color="blue"
+                                      className="rounded-lg px-3 py-1"
+                                    >
+                                      {lawyer.name}
+                                    </Tag>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                           </div>
-                        </div>
-                      )} 
-                    </div>
+                        );
+                      }}
+                    </Form.Item>
                   </Card>
                 </Col>
               </Row>

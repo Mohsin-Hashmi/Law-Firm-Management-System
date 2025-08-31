@@ -2,6 +2,7 @@ import axios from "axios";
 import BASE_URL from "../utils/constant";
 import { FirmPayload, LawyerPayload, FirmStats, Lawyer } from "../types/firm";
 import { ClientPayload, Client } from "../types/client";
+import { Case } from "../types/case";
 
 /**Create firm API call */
 export const createFirm = async (data: FirmPayload) => {
@@ -279,5 +280,25 @@ export const createCase = async (firmId: number, data: FormData) => {
       error
     );
     throw new Error("Error creating case: " + error);
+  }
+};
+
+export const getAllCasesOfFirm = async (firmId: number): Promise<Case[]> => {
+  try {
+    const response = await axios.get<{ cases: Case[] }>(
+      `${BASE_URL}/api/firm-admin/firm/${firmId}/cases`,
+      { withCredentials: true }
+    );
+
+    return response.data.cases;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        `Error fetching cases of firm: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    }
+    throw new Error("Unexpected error while fetching clients");
   }
 };
