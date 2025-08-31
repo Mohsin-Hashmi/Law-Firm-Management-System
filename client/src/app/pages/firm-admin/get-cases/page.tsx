@@ -1,4 +1,3 @@
-
 "use client";
 import DashboardLayout from "@/app/components/DashboardLayout";
 import { useAppSelector } from "@/app/store/hooks";
@@ -46,6 +45,7 @@ import { useAppDispatch } from "@/app/store/hooks";
 import { setCases } from "@/app/store/caseSlice";
 import { Case } from "@/app/types/case";
 import { toast } from "react-hot-toast";
+import { deleteCaseByFrim } from "@/app/service/adminAPI";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -128,14 +128,13 @@ export default function GetCases() {
   };
 
   /**Handle delete function */
-  const handleDeleteCase = async (caseId: number) => {
+  const handleDeleteCase = async (firmId: number, id: number) => {
     try {
       setDeleting(true);
-      setDeletingCaseId(caseId);
-
-    //   await deleteCase(caseId);
+      setDeletingCaseId(id);
+      await deleteCaseByFrim(firmId, id);
       setCasesData((prevCases) =>
-        prevCases.filter((case_) => case_.id !== caseId)
+        prevCases.filter((case_) => case_.id !== id)
       );
       toast.success("Case deleted successfully");
       message.success("Case deleted successfully");
@@ -232,7 +231,7 @@ export default function GetCases() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              border: `2px solid ${getCaseTypeColor(record.caseType  || "")}40`,
+              border: `2px solid ${getCaseTypeColor(record.caseType || "")}40`,
               flexShrink: 0,
             }}
           >
@@ -252,7 +251,11 @@ export default function GetCases() {
             </Text>
             <Space size="small">
               <Text
-                style={{ fontSize: "13px", color: "#64748b", fontWeight: "500" }}
+                style={{
+                  fontSize: "13px",
+                  color: "#64748b",
+                  fontWeight: "500",
+                }}
               >
                 {record.caseNumber}
               </Text>
@@ -280,7 +283,9 @@ export default function GetCases() {
         <Space direction="vertical" size="small">
           <Space size="small">
             <UserOutlined style={{ color: "#9ca3af", fontSize: "12px" }} />
-            <Text style={{ fontSize: "13px", color: "#374151", fontWeight: "500" }}>
+            <Text
+              style={{ fontSize: "13px", color: "#374151", fontWeight: "500" }}
+            >
               {record.client?.fullName || "N/A"}
             </Text>
           </Space>
@@ -347,14 +352,18 @@ export default function GetCases() {
       render: (record: Case) => (
         <Space direction="vertical" size="small">
           <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-            <ClockCircleOutlined style={{ color: "#9ca3af", fontSize: "12px" }} />
+            <ClockCircleOutlined
+              style={{ color: "#9ca3af", fontSize: "12px" }}
+            />
             <Text style={{ fontSize: "12px", color: "#64748b" }}>
               Opened: {formatDate(record.openedAt)}
             </Text>
           </div>
           {record.closedAt && (
             <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-              <CheckCircleOutlined style={{ color: "#9ca3af", fontSize: "12px" }} />
+              <CheckCircleOutlined
+                style={{ color: "#9ca3af", fontSize: "12px" }}
+              />
               <Text style={{ fontSize: "12px", color: "#64748b" }}>
                 Closed: {formatDate(record.closedAt)}
               </Text>
@@ -370,8 +379,14 @@ export default function GetCases() {
         <Space direction="vertical" size="small">
           {record.lawyers && record.lawyers.length > 0 ? (
             record.lawyers.map((lawyer, index) => (
-              <div key={index} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                <Avatar size={20} style={{ backgroundColor: "#f1f5f9", color: "#059669" }}>
+              <div
+                key={index}
+                style={{ display: "flex", alignItems: "center", gap: "4px" }}
+              >
+                <Avatar
+                  size={20}
+                  style={{ backgroundColor: "#f1f5f9", color: "#059669" }}
+                >
                   {lawyer.name.charAt(0)}
                 </Avatar>
                 <Text style={{ fontSize: "12px", color: "#374151" }}>
@@ -380,7 +395,13 @@ export default function GetCases() {
               </div>
             ))
           ) : (
-            <Text style={{ fontSize: "12px", color: "#9ca3af", fontStyle: "italic" }}>
+            <Text
+              style={{
+                fontSize: "12px",
+                color: "#9ca3af",
+                fontStyle: "italic",
+              }}
+            >
               No lawyers assigned
             </Text>
           )}
@@ -398,11 +419,14 @@ export default function GetCases() {
               size="small"
               icon={<EyeOutlined />}
               onClick={() =>
-                router.push(`/pages/firm-admin/get-case-detail/${record.id}`)
+                router.push(
+                  `/pages/firm-admin/get-case-detail/${record.id}`
+                )
               }
               style={{ borderRadius: "6px" }}
             />
           </Tooltip>
+
           <Tooltip title="Edit Case">
             <Button
               type="text"
@@ -422,14 +446,7 @@ export default function GetCases() {
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                confirm({
-                  title: "Are you sure you want to delete this case?",
-                  content: "This action cannot be undone.",
-                  okText: "Yes, Delete",
-                  okType: "danger",
-                  cancelText: "Cancel",
-                  onOk: () => handleDeleteCase(record.id),
-                });
+                handleDeleteCase(record.firmId, record.id);
               }}
               loading={deleting && deletingCaseId === record.id}
               style={{
@@ -455,7 +472,7 @@ export default function GetCases() {
   );
 
   // Get unique case types for filter
-  const uniqueCaseTypes = [...new Set(cases.map(case_ => case_.caseType))];
+  const uniqueCaseTypes = [...new Set(cases.map((case_) => case_.caseType))];
 
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
@@ -517,9 +534,7 @@ export default function GetCases() {
                       type="primary"
                       size="large"
                       icon={<PlusOutlined />}
-                      onClick={() =>
-                        router.push("/pages/firm-admin/add-case")
-                      }
+                      onClick={() => router.push("/pages/firm-admin/add-case")}
                       style={{
                         background: "white",
                         borderColor: "white",
@@ -745,8 +760,10 @@ export default function GetCases() {
                     className="w-full [&_.ant-select-selector]:!rounded-xl [&_.ant-select-selector]:dark:!bg-slate-900 [&_.ant-select-selector]:dark:!border-slate-600 [&_.ant-select-selector]:dark:!text-white"
                   >
                     <Option value="all">All Types</Option>
-                    {uniqueCaseTypes.map(type => (
-                      <Option key={type} value={type}>{type}</Option>
+                    {uniqueCaseTypes.map((type) => (
+                      <Option key={type} value={type}>
+                        {type}
+                      </Option>
                     ))}
                   </Select>
                 </Col>

@@ -45,6 +45,8 @@ import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { setFirm, setError, setLoading, clearFirm } from "../store/firmSlice";
 import { useRouter } from "next/navigation";
 import { RootState } from "../store/store";
+import { useSelector } from "react-redux";
+import useApp from "antd/es/app/useApp";
 
 const { Title, Text } = Typography;
 interface Props {

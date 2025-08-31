@@ -92,14 +92,21 @@ const createCase = async (req, res) => {
 const getCaseById = async (req, res) => {
   try {
     const { caseId } = req.params;
+    const firmId = req.user.firmId;
     if (!caseId) {
       return res.status(404).json({
         success: false,
         message: "Case Id is required",
       });
     }
+    if(!firmId){
+      return res.status(404).json({
+        success: false,
+        message: "Firm Id is required",
+      });
+    }
     const caseData = await Case.findOne({
-      where: { id: caseId },
+      where: { id: caseId, firmId },
       include: [
         {
           model: Client,
@@ -109,6 +116,10 @@ const getCaseById = async (req, res) => {
           model: Lawyer,
           as: "lawyers",
           through: { attributes: [] },
+        },
+        {
+          model: CaseDocument,
+          as: "documents", 
         },
       ],
     });
@@ -120,7 +131,7 @@ const getCaseById = async (req, res) => {
     }
     return res.json({
       success: true,
-      data: caseData,
+      case: caseData,
     });
   } catch (err) {
     return res.status(500).json({
@@ -171,7 +182,7 @@ const deleteCase = async (req, res) => {
     return res.json({
       success: true,
       message: "Case deleted successfully",
-      data: caseData,
+      case: caseData,
     });
   } catch (err) {
     return res.status(500).json({

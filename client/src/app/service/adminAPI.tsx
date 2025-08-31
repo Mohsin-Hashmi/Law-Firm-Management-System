@@ -275,10 +275,7 @@ export const createCase = async (firmId: number, data: FormData) => {
     console.log("create case api response is", response);
     return response.data;
   } catch (error) {
-    console.error(
-      "Error creating case:",
-      error
-    );
+    console.error("Error creating case:", error);
     throw new Error("Error creating case: " + error);
   }
 };
@@ -291,6 +288,44 @@ export const getAllCasesOfFirm = async (firmId: number): Promise<Case[]> => {
     );
 
     return response.data.cases;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        `Error fetching cases of firm: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    }
+    throw new Error("Unexpected error while fetching clients");
+  }
+};
+
+export const getCaseById = async (firmId: number, id: number) => {
+  try {
+    const resposne = await axios.get(
+      `${BASE_URL}/api/firm-admin/firm/${firmId}/cases/${id}`,
+      { withCredentials: true }
+    );
+    return resposne.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        `Error fetching cases of firm: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    }
+    throw new Error("Unexpected error while fetching clients");
+  }
+};
+
+export const deleteCaseByFrim = async (firmId: number, id: number) => {
+  try {
+    const response = await axios.delete(
+      `${BASE_URL}/api/firm-admin/firm/${firmId}/cases/${id}`,
+      { withCredentials: true }
+    );
+    return response.data.case;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(

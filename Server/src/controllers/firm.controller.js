@@ -1,5 +1,5 @@
 const { sequelize } = require("../models");
-const { Firm, User, AdminFirm, Lawyer, Client } = require("../models/index.js");
+const { Firm, User, AdminFirm, Lawyer, Client, Case } = require("../models/index.js");
 const { FirmValidation } = require("../utils/validation.js");
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
@@ -197,7 +197,7 @@ const firmStats = async (req, res) => {
     // Counts
     const lawyersCount = await Lawyer.count({ where: { firmId } });
     const clientsCount = await Client.count({ where: { firmId} });
-    const totalUsersCount = await User.count();
+    const totalUsersCount = await Case.count();
     const activeLawyersCount = await Lawyer.count({
       where: { firmId, status: "active" },
     });
