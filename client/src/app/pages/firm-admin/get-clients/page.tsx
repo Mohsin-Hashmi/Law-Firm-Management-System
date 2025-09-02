@@ -385,6 +385,7 @@ export default function GetClients() {
               onClick={() =>
                 router.push(`/pages/firm-admin/get-client-detail/${record.id}`)
               }
+              className="hover:!bg-blue-50 hover:!text-blue-600 dark:hover:!bg-blue-900/30 dark:hover:!text-blue-400"
               style={{ borderRadius: "6px" }}
             />
           </Tooltip>
@@ -396,6 +397,7 @@ export default function GetClients() {
               onClick={() =>
                 router.push(`/pages/firm-admin/edit-client/${record.id}`)
               }
+              className="hover:!bg-amber-50 hover:!text-amber-600 dark:hover:!bg-amber-900/30 dark:hover:!text-amber-400"
               style={{ borderRadius: "6px" }}
             />
           </Tooltip>
@@ -410,6 +412,7 @@ export default function GetClients() {
                 handleDeleteClient(record.id);
               }}
               loading={deleting && deletingClientId === record.id}
+               className="hover:!bg-red-50 hover:!text-red-600 dark:hover:!bg-red-900/30 dark:hover:!text-red-400"
               style={{
                 borderRadius: "6px",
                 color: "#dc2626",
@@ -710,7 +713,15 @@ export default function GetClients() {
                     value={statusFilter}
                     onChange={setStatusFilter}
                     size="large"
-                    className="w-full [&_.ant-select-selector]:!rounded-xl [&_.ant-select-selector]:dark:!bg-slate-900 [&_.ant-select-selector]:dark:!border-slate-600 [&_.ant-select-selector]:dark:!text-white"
+                    className="w-full 
+    [&_.ant-select-selector]:!rounded-xl 
+    [&_.ant-select-selector]:dark:!bg-slate-900 
+    [&_.ant-select-selector]:dark:!border-slate-600 
+    [&_.ant-select-selector]:dark:!text-white
+    [&_.ant-select-selection-item]:dark:!text-white
+    [&_.ant-select-selection-placeholder]:dark:!text-gray-400
+    [&_.ant-select-arrow]:dark:!text-white
+  "
                   >
                     <Option value="all">All Status</Option>
                     <Option value="Active">Active</Option>
@@ -725,7 +736,15 @@ export default function GetClients() {
                     value={clientTypeFilter}
                     onChange={setClientTypeFilter}
                     size="large"
-                    className="w-full [&_.ant-select-selector]:!rounded-xl [&_.ant-select-selector]:dark:!bg-slate-900 [&_.ant-select-selector]:dark:!border-slate-600 [&_.ant-select-selector]:dark:!text-white"
+                     className="w-full 
+    [&_.ant-select-selector]:!rounded-xl 
+    [&_.ant-select-selector]:dark:!bg-slate-900 
+    [&_.ant-select-selector]:dark:!border-slate-600 
+    [&_.ant-select-selector]:dark:!text-white
+    [&_.ant-select-selection-item]:dark:!text-white
+    [&_.ant-select-selection-placeholder]:dark:!text-gray-400
+    [&_.ant-select-arrow]:dark:!text-white
+  "
                   >
                     <Option value="all">All Types</Option>
                     <Option value="Individual">Individual</Option>

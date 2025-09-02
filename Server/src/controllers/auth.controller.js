@@ -6,7 +6,7 @@ const axios = require("axios");
 const {
   UserSignUpValidation,
   UserLoginInValidation,
-} = require("../utils/validation");
+} = require("../utils/validation.js");
 const { Firm, User, AdminFirm, Lawyer } = require("../models/index.js");
 const { where } = require("sequelize");
 

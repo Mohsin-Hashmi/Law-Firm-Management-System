@@ -1,5 +1,13 @@
 const { sequelize } = require("../models");
-const { Firm, User, AdminFirm, Lawyer, Client, Case } = require("../models/index.js");
+const {
+  Firm,
+  User,
+  AdminFirm,
+  Lawyer,
+  Client,
+  Case,
+  CaseLawyer,
+} = require("../models/index.js");
 const { FirmValidation } = require("../utils/validation.js");
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
@@ -196,7 +204,7 @@ const firmStats = async (req, res) => {
 
     // Counts
     const lawyersCount = await Lawyer.count({ where: { firmId } });
-    const clientsCount = await Client.count({ where: { firmId} });
+    const clientsCount = await Client.count({ where: { firmId } });
     const totalUsersCount = await Case.count();
     const activeLawyersCount = await Lawyer.count({
       where: { firmId, status: "active" },
@@ -277,7 +285,7 @@ const getAllLawyer = async (req, res) => {
 /**Get a Lawyers by ID API */
 const getLawyerById = async (req, res) => {
   try {
-    const adminId = req.user.id;   // from JWT
+    const adminId = req.user.id; // from JWT
     const adminFirmId = req.user.firmId; // from JWT
     console.log("logged in user is ", adminId, "with firmId:", adminId);
 
@@ -292,7 +300,9 @@ const getLawyerById = async (req, res) => {
     // Fetch lawyer
     const lawyer = await Lawyer.findOne({ where: { id: lawyerId } });
     if (!lawyer) {
-      return res.status(404).json({ success: false, error: "Lawyer not found" });
+      return res
+        .status(404)
+        .json({ success: false, error: "Lawyer not found" });
     }
 
     console.log("Lawyer firmId:", lawyer.firmId);
@@ -319,8 +329,6 @@ const getLawyerById = async (req, res) => {
     });
   }
 };
-;
-
 /**Update a Lawyers by ID API */
 const updateLawyer = async (req, res) => {
   try {
@@ -372,7 +380,6 @@ const updateLawyer = async (req, res) => {
   }
 };
 
-
 /**Delete a Lawyers by ID API */
 const deleteLawyer = async (req, res) => {
   try {
@@ -386,7 +393,9 @@ const deleteLawyer = async (req, res) => {
 
     const lawyer = await Lawyer.findOne({ where: { id } });
     if (!lawyer)
-      return res.status(404).json({ success: false, message: "Lawyer not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Lawyer not found" });
 
     let allowedFirmIds = [];
 
@@ -406,7 +415,9 @@ const deleteLawyer = async (req, res) => {
 
     await lawyer.destroy();
 
-    return res.status(200).json({ success: true, message: "Lawyer deleted successfully" });
+    return res
+      .status(200)
+      .json({ success: true, message: "Lawyer deleted successfully" });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -416,6 +427,7 @@ const deleteLawyer = async (req, res) => {
   }
 };
 
+// switch firm api
 
 const switchFirm = async (req, res) => {
   try {
@@ -451,6 +463,52 @@ const switchFirm = async (req, res) => {
   }
 };
 
+//lawyer performance api
+const getLawyerPerformance = async (req, res) => {
+  try {
+    const { id: lawyerId } = req.params;
+
+    const lawyer = await Lawyer.findByPk(lawyerId, {
+      include: [
+        {
+          model: Case,
+          as: "cases",
+          through: { attributes: [] },
+        },
+      ],
+    });
+
+    if (!lawyer) {
+      return res.status(404).json({ message: "Lawyer not found" });
+    }
+
+    // Performance stats
+    const totalCases = lawyer.cases.length;
+    const completedCases = lawyer.cases.filter(
+      (c) => c.status === "Closed"
+    ).length;
+    const activeCases = lawyer.cases.filter((c) => c.status === "Open").length;
+    const wonCases = lawyer.cases.filter((c) => c.status === "Won").length;
+    const lostCases = lawyer.cases.filter((c) => c.status === "Lost").length;
+
+    const successRate = totalCases > 0 ? (wonCases / totalCases) * 100 : 0;
+
+    return res.json({
+      lawyerId,
+      name: lawyer.name,
+      totalCases,
+      completedCases,
+      activeCases,
+      wonCases,
+      lostCases,
+      successRate,
+    });
+  } catch (error) {
+    console.error("Error in performace is", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 module.exports = {
   createFirm,
   firmStats,
@@ -460,4 +518,5 @@ module.exports = {
   deleteLawyer,
   updateLawyer,
   switchFirm,
+  getLawyerPerformance,
 };

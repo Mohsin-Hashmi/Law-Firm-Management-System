@@ -57,7 +57,7 @@ import { useAppDispatch } from "@/app/store/hooks";
 
 export default function GetLawyers() {
   const router = useRouter();
-  const dispatch= useAppDispatch();
+  const dispatch = useAppDispatch();
   const user = useAppSelector((state: RootState) => state.user.user);
   const firmId = user?.firmId;
   const [lawyers, setLawyersData] = useState<Lawyer[]>([]);
@@ -80,7 +80,7 @@ export default function GetLawyers() {
       setLoading(true);
       const response = await getLawyers(firmId);
       setLawyersData(response);
-      dispatch(setLawyers(response))
+      dispatch(setLawyers(response));
       console.log("Successfully fetched lawyers data:", response);
     } catch (error) {
       console.error("Error fetching lawyers:", error);
@@ -322,6 +322,7 @@ export default function GetLawyers() {
               onClick={() =>
                 router.push(`/pages/firm-admin/get-lawyer-detail/${record.id}`)
               }
+              className="hover:!bg-blue-50 hover:!text-blue-600 dark:hover:!bg-blue-900/30 dark:hover:!text-blue-400"
               style={{ borderRadius: "6px" }}
             />
           </Tooltip>
@@ -333,6 +334,7 @@ export default function GetLawyers() {
               onClick={() =>
                 router.push(`/pages/firm-admin/edit-lawyer/${record.id}`)
               }
+              className="hover:!bg-amber-50 hover:!text-amber-600 dark:hover:!bg-amber-900/30 dark:hover:!text-amber-400"
               style={{ borderRadius: "6px" }}
             />
           </Tooltip>
@@ -347,6 +349,7 @@ export default function GetLawyers() {
                 console.log("Direct delete button clicked for:", record.id);
                 handleDeleteLawyer(record.id); // ✅ Fixed: Call handleDeleteLawyer instead of getActionMenuItems
               }}
+              className="hover:!bg-red-50 hover:!text-red-600 dark:hover:!bg-red-900/30 dark:hover:!text-red-400"
               loading={deleting && deletingLawyerId === record.id}
               style={{
                 borderRadius: "6px",
@@ -633,15 +636,26 @@ export default function GetLawyers() {
                 </Col>
                 <Col xs={12} sm={6} md={4}>
                   <Select
-                    placeholder="Filter by Status"
-                    value={statusFilter}
-                    onChange={setStatusFilter}
+                    placeholder="Filter by Specialization"
+                    value={specializationFilter}
+                    onChange={setSpecializationFilter}
                     size="large"
-                    className="w-full [&_.ant-select-selector]:!rounded-xl [&_.ant-select-selector]:dark:!bg-slate-900 [&_.ant-select-selector]:dark:!border-slate-600 [&_.ant-select-selector]:dark:!text-white"
+                    className="w-full 
+    [&_.ant-select-selector]:!rounded-xl 
+    [&_.ant-select-selector]:dark:!bg-slate-900 
+    [&_.ant-select-selector]:dark:!border-slate-600 
+    [&_.ant-select-selector]:dark:!text-white
+    [&_.ant-select-selection-item]:dark:!text-white
+    [&_.ant-select-selection-placeholder]:dark:!text-gray-400
+    [&_.ant-select-arrow]:dark:!text-white
+  "
                   >
-                    <Option value="all">All Status</Option>
-                    <Option value="Active">Active</Option>
-                    <Option value="Inactive">Inactive</Option>
+                    <Option value="all">All Specializations</Option>
+                    {getUniqueSpecializations().map((spec) => (
+                      <Option key={spec} value={spec}>
+                        {spec}
+                      </Option>
+                    ))}
                   </Select>
                 </Col>
                 <Col xs={12} sm={6} md={4}>
@@ -650,7 +664,15 @@ export default function GetLawyers() {
                     value={specializationFilter}
                     onChange={setSpecializationFilter}
                     size="large"
-                    className="w-full [&_.ant-select-selector]:!rounded-xl [&_.ant-select-selector]:dark:!bg-slate-900 [&_.ant-select-selector]:dark:!border-slate-600 [&_.ant-select-selector]:dark:!text-white"
+                     className="w-full 
+    [&_.ant-select-selector]:!rounded-xl 
+    [&_.ant-select-selector]:dark:!bg-slate-900 
+    [&_.ant-select-selector]:dark:!border-slate-600 
+    [&_.ant-select-selector]:dark:!text-white
+    [&_.ant-select-selection-item]:dark:!text-white
+    [&_.ant-select-selection-placeholder]:dark:!text-gray-400
+    [&_.ant-select-arrow]:dark:!text-white
+  "
                   >
                     <Option value="all">All Specializations</Option>
                     {getUniqueSpecializations().map((spec) => (

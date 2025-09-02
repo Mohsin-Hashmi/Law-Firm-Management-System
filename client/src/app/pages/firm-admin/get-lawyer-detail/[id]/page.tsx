@@ -17,6 +17,7 @@ import {
   Statistic,
   Badge,
   Tooltip,
+  
 } from "antd";
 import {
   UserOutlined,
@@ -30,11 +31,15 @@ import {
   TeamOutlined,
   FileTextOutlined,
   CalendarOutlined,
+  
 } from "@ant-design/icons";
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis } from "recharts";
 import { getLawyerById } from "@/app/service/adminAPI";
 import { Lawyer } from "@/app/types/firm";
 import { toast } from "react-hot-toast";
 import { ThemeProvider } from "next-themes";
+import { LawyerPerformance } from "@/app/types/lawyer";
+import { getLawyerPerformance } from "@/app/service/adminAPI";
 
 const { Title, Text } = Typography;
 
@@ -47,7 +52,24 @@ export default function GetLawyerDetail({
   const lawyerId = params.id;
 
   const [lawyer, setLawyer] = useState<Lawyer | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [performanceData, setPerformaceData] =
+    useState<LawyerPerformance | null>(null);
+  const [loadingLawyer, setLoadingLawyer] = useState(true);
+  const [loadingPerformance, setLoadingPerformance] = useState(true);
+  const chartData = [
+    {
+      name: "Completed",
+      value: performanceData?.completedCases ?? 0,
+      color: "#059669",
+    },
+    {
+      name: "Active",
+      value: performanceData?.activeCases ?? 0,
+      color: "#1e40af",
+    },
+    { name: "Won", value: performanceData?.wonCases ?? 0, color: "#10b981" },
+    { name: "Lost", value: performanceData?.lostCases ?? 0, color: "#ef4444" },
+  ];
 
   useEffect(() => {
     if (lawyerId) fetchLawyerDetail();
@@ -55,7 +77,7 @@ export default function GetLawyerDetail({
 
   const fetchLawyerDetail = async () => {
     try {
-      setLoading(true);
+      setLoadingLawyer(true);
       const data = await getLawyerById(lawyerId);
       setLawyer(data);
       toast.success("successfully fetched lawyer detail");
@@ -63,11 +85,27 @@ export default function GetLawyerDetail({
       console.error("Error fetching lawyer detail:", error);
       toast.error("Failed to fetch lawyer detail");
     } finally {
-      setLoading(false);
+      setLoadingLawyer(false);
     }
   };
+  // Lawyer performance
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoadingPerformance(true);
+        const res = await getLawyerPerformance(lawyerId);
+        setPerformaceData(res);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingPerformance(false);
+      }
+    };
 
-  if (loading) {
+    fetchData();
+  }, [lawyerId]);
+
+  if (loadingLawyer) {
     return (
       <DashboardLayout>
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex justify-center items-center transition-colors duration-300">
@@ -371,6 +409,105 @@ export default function GetLawyerDetail({
                             {lawyer.phone}
                           </Text>
                         </Space>
+                      </Card>
+                    </Col>
+                    <Col>
+                      <Card
+                        bordered={false}
+                        className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 w-full"
+                        bodyStyle={{ padding: "20px" }}
+                      >
+                        <Title
+                          level={4}
+                          className="text-[#111827] dark:text-[#FFFFFF] mb-[16px]"
+                        >
+                          Performance Overview
+                        </Title>
+
+                        {loadingPerformance ? (
+                          <p className="text-gray-500 dark:text-gray-400">
+                            Loading performance data...
+                          </p>
+                        ) : performanceData ? (
+                          <div style={{ width: "100%", height: 300 }}>
+                            <ResponsiveContainer>
+                              <AreaChart
+                                data={[
+                                  {
+                                    name: "Completed",
+                                    value: performanceData.completedCases,
+                                    color: "#059669",
+                                  },
+                                  {
+                                    name: "Active",
+                                    value: performanceData.activeCases,
+                                    color: "#1e40af",
+                                  },
+                                  {
+                                    name: "Won",
+                                    value: performanceData.wonCases,
+                                    color: "#10b981",
+                                  },
+                                  {
+                                    name: "Lost",
+                                    value: performanceData.lostCases,
+                                    color: "#ef4444",
+                                  },
+                                ]}
+                              >
+                                <defs>
+                                  {[
+                                    { name: "Completed", color: "#059669" },
+                                    { name: "Active", color: "#1e40af" },
+                                    { name: "Won", color: "#10b981" },
+                                    { name: "Lost", color: "#ef4444" },
+                                  ].map((stat) => (
+                                    <linearGradient
+                                      key={stat.name}
+                                      id={`color${stat.name}`}
+                                      x1="0"
+                                      y1="0"
+                                      x2="0"
+                                      y2="1"
+                                    >
+                                      <stop
+                                        offset="5%"
+                                        stopColor={stat.color}
+                                        stopOpacity={0.8}
+                                      />
+                                      <stop
+                                        offset="95%"
+                                        stopColor={stat.color}
+                                        stopOpacity={0}
+                                      />
+                                    </linearGradient>
+                                  ))}
+                                </defs>
+                                <XAxis dataKey="name" />
+                                <YAxis />
+                                <Tooltip />
+                                {[
+                                  { name: "Completed", color: "#059669" },
+                                  { name: "Active", color: "#1e40af" },
+                                  { name: "Won", color: "#10b981" },
+                                  { name: "Lost", color: "#ef4444" },
+                                ].map((stat) => (
+                                  <Area
+                                    key={stat.name}
+                                    type="monotone"
+                                    dataKey="value"
+                                    stroke={stat.color}
+                                    fill={`url(#color${stat.name})`}
+                                  />
+                                ))}
+                              </AreaChart>
+                            </ResponsiveContainer>
+                          </div>
+                        ) : (
+                          <p className="text-red-500 dark:text-red-400">
+                            No performance data found.
+                          </p>
+                        )}
                       </Card>
                     </Col>
                   </Row>

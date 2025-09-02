@@ -7,7 +7,8 @@ const {
   getLawyerById,
   updateLawyer,
   deleteLawyer,
-  switchFirm
+  switchFirm,
+  getLawyerPerformance
 } = require("../controllers/firm.controller");
 const adminRoute = express();
 const { userAuth, firmAdminAuth } = require("../middlewares/authMiddleware");
@@ -61,5 +62,5 @@ adminRoute.delete(
 
 adminRoute.post("/switch-firm", userAuth, firmAdminAuth,  switchFirm);
 
-
+adminRoute.get("/:id/performance", userAuth, firmAdminAuth,getLawyerPerformance)
 module.exports = adminRoute;

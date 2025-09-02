@@ -118,21 +118,21 @@ export default function GetCaseDetail({
     }
   }, [caseId, firmId]);
 
-  const fetchCaseDetail = async () => {
-    if (firmId === undefined) return; // extra safeguard
-    try {
-      setLoading(true);
-      const data = await getCaseById(firmId, caseId);
-      console.log("Case data is:", data);
-      setCaseData(data);
-      toast.success("Successfully fetched case detail");
-    } catch (error) {
-      console.error("Error fetching case detail:", error);
-      toast.error("Failed to fetch case detail");
-    } finally {
-      setLoading(false);
-    }
-  };
+ const fetchCaseDetail = async () => {
+  if (firmId === undefined) return;
+  try {
+    setLoading(true);
+    const data = await getCaseById(firmId, caseId);
+    // If API returns { success: true, case: {...} }
+    setCaseData(data.case); // <-- use data.case, not data
+    toast.success("Successfully fetched case detail");
+  } catch (error) {
+    console.error("Error fetching case detail:", error);
+    toast.error("Failed to fetch case detail");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const getStatusColor = (status: string) => {
     switch (status) {

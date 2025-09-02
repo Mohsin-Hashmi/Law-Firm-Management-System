@@ -523,17 +523,34 @@ export default function AddLawyer() {
                             placeholder="Select primary area of practice"
                             value={specialization}
                             onChange={(value) => setSpecialization(value)}
-                            className="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-selector]:dark:!bg-[#2A3441] [&_.ant-select-selector]:dark:!border-[#4B5563] [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white [&_.ant-select-selection-placeholder]:dark:!text-[#9ca3af] [&_.ant-select-selector]:!min-h-[50px] [&_.ant-select-selector]:!px-4"
-                            dropdownClassName="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-item]:dark:!bg-[#2A3441] [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-[#374151] [&_.ant-select-item-option-active]:dark:!bg-[#374151]"
-                            style={{
-                              fontSize: "15px",
-                            }}
+                            className="
+    dark:!bg-[#2A3441] 
+    dark:!border-[#4B5563] 
+    [&_.ant-select-selector]:dark:!bg-[#2A3441] 
+    [&_.ant-select-selector]:dark:!border-[#4B5563] 
+    [&_.ant-select-selection-item]:dark:!text-white 
+    [&_.ant-select-arrow]:dark:!text-white 
+    [&_.ant-select-selection-placeholder]:dark:!text-[#9ca3af] 
+    [&_.ant-select-selector]:!min-h-[50px] 
+    [&_.ant-select-selector]:!px-4
+    [&_.ant-select-arrow]:!top-8
+    [&_.ant-select-arrow]:!-translate-y-1/2
+  "
+                            dropdownClassName="
+    dark:!bg-[#2A3441] 
+    dark:!border-[#4B5563] 
+    [&_.ant-select-item]:dark:!bg-[#2A3441] 
+    [&_.ant-select-item]:dark:!text-white 
+    [&_.ant-select-item-option-selected]:dark:!bg-[#374151] 
+    [&_.ant-select-item-option-active]:dark:!bg-[#374151]
+  "
+                            style={{ fontSize: "15px" }}
                             showSearch
                             allowClear
                             filterOption={(input, option) =>
                               (option?.children as unknown as string)
                                 .toLowerCase()
-                                .indexOf(input.toLowerCase()) >= 0
+                                .includes(input.toLowerCase())
                             }
                           >
                             {specializationOptions.map((spec) => (
@@ -564,7 +581,8 @@ export default function AddLawyer() {
                           <Select
                             value={status}
                             onChange={(value) => setStatus(value)}
-                            className="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-selector]:dark:!bg-[#2A3441] [&_.ant-select-selector]:dark:!border-[#4B5563] [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white [&_.ant-select-selector]:!min-h-[50px] [&_.ant-select-selector]:!px-4"
+                            className="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-selector]:dark:!bg-[#2A3441] [&_.ant-select-selector]:dark:!border-[#4B5563] [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white [&_.ant-select-selector]:!min-h-[50px] [&_.ant-select-selector]:!px-4 [&_.ant-select-arrow]:!top-8
+                            [&_.ant-select-arrow]:!-translate-y-1/2"
                             dropdownClassName="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-item]:dark:!bg-[#2A3441] [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-[#374151] [&_.ant-select-item-option-active]:dark:!bg-[#374151]"
                             style={{
                               fontSize: "15px",

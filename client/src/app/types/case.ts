@@ -12,6 +12,7 @@ export interface CaseClient {
   id: number;
   fullName: string;
   email: string;
+  profileImage?: string | null;
 }
 
 export interface CaseLawyer {
@@ -30,7 +31,6 @@ export interface Case {
   closedAt?: string | null;
   description?: string;
   firmId: number,
-
   // associations
   client: CaseClient;
   lawyers: CaseLawyer[];

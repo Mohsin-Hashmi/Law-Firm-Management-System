@@ -51,7 +51,9 @@ const { Dragger } = Upload;
 export default function AddCase() {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state: RootState) => state.user?.user);
-  const clients = useAppSelector((state: RootState) => state.client?.clients || []);
+  const clients = useAppSelector(
+    (state: RootState) => state.client?.clients || []
+  );
 
   console.log("Client are :", clients);
   const lawyers = useAppSelector(
@@ -639,6 +641,8 @@ export default function AddCase() {
     [&_.ant-select-arrow]:dark:!text-white 
     [&_.ant-select-selector]:!min-h-[50px] 
     [&_.ant-select-selection-placeholder]:dark:!text-[#9ca3af] 
+    [&_.ant-select-arrow]:!top-8
+    [&_.ant-select-arrow]:!-translate-y-1/2
   "
                         dropdownClassName="
     dark:!bg-[#2A3441] dark:!border-[#4B5563] 
@@ -836,6 +840,8 @@ export default function AddCase() {
     [&_.ant-select-arrow]:dark:!text-white 
     [&_.ant-select-selector]:!min-h-[50px] 
     [&_.ant-select-selection-placeholder]:dark:!text-[#9ca3af] 
+    [&_.ant-select-arrow]:!top-8
+    [&_.ant-select-arrow]:!-translate-y-1/2
   "
                         dropdownClassName="
     dark:!bg-[#2A3441] dark:!border-[#4B5563] 
@@ -867,18 +873,29 @@ export default function AddCase() {
 
                 {/* Case Summary Column */}
                 <Col xs={24} lg={12}>
-                  <Card
-                    title={
-                      <Space>
-                        <CheckCircleOutlined style={{ color: "#2563eb" }} />
-                        <span className="text-slate-800 dark:text-white font-semibold">
+                  <div className="bg-gradient-to-br from-emerald-50 via-emerald-50/80 to-green-50/60 dark:from-slate-800/60 dark:via-slate-700/40 dark:to-slate-800/80 border border-emerald-200/80 dark:border-slate-600/70 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center justify-center w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl">
+                        <CheckCircleOutlined className="text-emerald-600 dark:text-emerald-400 text-lg" />
+                      </div>
+                      <div>
+                        <Title
+                          level={4}
+                          className="text-slate-800 dark:text-slate-100 !mb-0"
+                          style={{
+                            fontSize: "18px",
+                            fontWeight: 600,
+                            letterSpacing: "-0.025em",
+                          }}
+                        >
                           Case Summary
-                        </span>
-                      </Space>
-                    }
-                    className="bg-blue-50 dark:bg-slate-700/50 border border-blue-200 dark:border-slate-600 rounded-xl shadow-sm h-fit"
-                    bodyStyle={{ padding: "24px" }}
-                  >
+                        </Title>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-0">
+                          Overview & Key Details
+                        </p>
+                      </div>
+                    </div>
+
                     <Form.Item shouldUpdate noStyle>
                       {() => {
                         const values = form.getFieldsValue();
@@ -890,22 +907,27 @@ export default function AddCase() {
                         )
                           .map((id: number) =>
                             lawyers.find((l: CaseLawyer) => l.id === id)
-                          ) // type `l`
-                          .filter((l): l is CaseLawyer => Boolean(l)); // type guard  
+                          )
+                          .filter((l): l is CaseLawyer => Boolean(l));
 
                         return (
-                          <div className="space-y-4">
-                            <div className="flex justify-between items-center">
-                              <Text className="text-slate-600 dark:text-slate-300 text-sm">
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
+                              <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
                                 Status:
                               </Text>
-                              <Text
-                                className="font-medium text-sm"
+                              <span
+                                className="font-semibold text-sm px-2 py-1 rounded-md"
                                 style={{
                                   color:
                                     statusOptions.find(
                                       (s) => s.value === values.status
                                     )?.color || "#374151",
+                                  backgroundColor: `${
+                                    statusOptions.find(
+                                      (s) => s.value === values.status
+                                    )?.color || "#374151"
+                                  }20`,
                                 }}
                               >
                                 {statusOptions.find(
@@ -913,42 +935,42 @@ export default function AddCase() {
                                 )?.label ||
                                   values.status ||
                                   "Open"}
-                              </Text>
+                              </span>
                             </div>
 
-                            <div className="flex justify-between items-center">
-                              <Text className="text-slate-600 dark:text-slate-300 text-sm">
+                            <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
+                              <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
                                 Client:
                               </Text>
-                              <Text className="text-slate-800 dark:text-white font-medium text-sm">
+                              <span className="text-slate-800 dark:text-white font-semibold text-sm bg-slate-100 dark:bg-slate-600/30 px-2 py-1 rounded-md">
                                 {selectedClient?.fullName || "Not selected"}
-                              </Text>
+                              </span>
                             </div>
 
-                            <div className="flex justify-between items-center">
-                              <Text className="text-slate-600 dark:text-slate-300 text-sm">
+                            <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
+                              <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
                                 Lawyers:
                               </Text>
-                              <Text className="text-slate-800 dark:text-white font-medium text-sm">
+                              <span className="text-slate-800 dark:text-white font-semibold text-sm bg-slate-100 dark:bg-slate-600/30 px-2 py-1 rounded-md">
                                 {selectedLawyers.length > 0
                                   ? `${selectedLawyers.length} assigned`
                                   : "None assigned"}
-                              </Text>
+                              </span>
                             </div>
 
                             {documents.length > 0 && (
-                              <div className="flex justify-between items-center">
-                                <Text className="text-slate-600 dark:text-slate-300 text-sm">
+                              <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
+                                <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
                                   Documents:
                                 </Text>
-                                <Text className="text-blue-600 dark:text-blue-400 font-medium text-sm">
+                                <span className="text-emerald-600 dark:text-emerald-400 font-semibold text-sm bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-md">
                                   {documents.length} files
-                                </Text>
+                                </span>
                               </div>
                             )}
 
                             {selectedLawyers.length > 0 && (
-                              <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-600">
+                              <div className="mt-4 pt-4 border-t border-emerald-200/50 dark:border-slate-600/50">
                                 <Text className="text-slate-700 dark:text-slate-200 font-medium text-sm block mb-2">
                                   Assigned Team:
                                 </Text>
@@ -957,7 +979,7 @@ export default function AddCase() {
                                     <Tag
                                       key={lawyer.id}
                                       color="blue"
-                                      className="rounded-lg px-3 py-1"
+                                      className="rounded-lg px-3 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-none font-medium text-sm"
                                     >
                                       {lawyer.name}
                                     </Tag>
@@ -969,7 +991,24 @@ export default function AddCase() {
                         );
                       }}
                     </Form.Item>
-                  </Card>
+
+                    <div className="mt-5 pt-4 border-t border-emerald-200/50 dark:border-slate-600/50">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                        <svg
+                          className="w-3 h-3"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        Case information ready for review
+                      </p>
+                    </div>
+                  </div>
                 </Col>
               </Row>
 
@@ -979,8 +1018,13 @@ export default function AddCase() {
                   <Button
                     size="large"
                     onClick={() => router.back()}
-                    className="px-8 py-2 h-12 rounded-xl border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
-                    style={{ minWidth: "120px" }}
+                    style={{
+                      border: "1px solid #d1d5db",
+                      fontWeight: "600",
+                      padding: "12px 32px",
+                      height: "48px",
+                      color: "#374151",
+                    }}
                   >
                     Cancel
                   </Button>
@@ -991,14 +1035,18 @@ export default function AddCase() {
                     size="large"
                     icon={<SaveOutlined />}
                     loading={loading}
-                    className="px-8 py-2 h-12 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
                     style={{
-                      background: isHovered ? "#1d4ed8" : "#2563eb",
-                      borderColor: isHovered ? "#1d4ed8" : "#2563eb",
+                      background: isHovered ? "#1d4ed8" : "#1e40af",
+                      borderColor: isHovered ? "#1d4ed8" : "#1e40af",
+                      padding: "12px 40px",
+                      fontSize: "15px",
+                      fontWeight: "600",
+                      height: "48px",
+                      boxShadow: "0 4px 12px rgba(30, 64, 175, 0.25)",
                       transform: isHovered
                         ? "translateY(-1px)"
                         : "translateY(0)",
-                      minWidth: "160px",
+                      transition: "all 0.2s ease",
                     }}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}

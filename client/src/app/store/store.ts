@@ -14,14 +14,14 @@ const rootReducer = combineReducers({
   firm: firmReducer,
   lawyer: lawyerReducer,
   client: clientReducer,
-  case: caseReducer
+  case: caseReducer,
 });
 
 // persist config
 const persistConfig = {
   key: "root",
   storage, // using localStorage
-  whitelist: ["user", "firm", "lawyer", "client"], // choose which slices you want to persist
+  whitelist: ["user", "firm", "lawyer", "client", ], // choose which slices you want to persist
 };
 
 // create persisted reducer

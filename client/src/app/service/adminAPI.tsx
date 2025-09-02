@@ -163,6 +163,18 @@ export const switchFirmAPI = async (firmId: number) => {
   return res.data;
 };
 
+export const getLawyerPerformance = async (lawyerId: number | string) => {
+  try {
+    const res = await axios.get(`/admin/${lawyerId}/performance`, {
+      withCredentials: true, // only if you are using cookies/sessions
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching lawyer performance:", error);
+    throw error;
+  }
+};
+
 /**Create Client API Call */
 export const createClient = async (firmId: number, data: FormData) => {
   try {

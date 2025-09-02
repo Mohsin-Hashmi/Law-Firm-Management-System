@@ -496,6 +496,8 @@ export default function AddClient() {
     [&_.ant-select-arrow]:dark:!text-white 
     [&_.ant-select-selector]:!min-h-[50px] 
     [&_.ant-select-selection-placeholder]:dark:!text-[#9ca3af] 
+    [&_.ant-select-arrow]:!top-8
+    [&_.ant-select-arrow]:!-translate-y-1/2
   "
                               dropdownClassName="
     dark:!bg-[#2A3441] dark:!border-[#4B5563] 
@@ -709,7 +711,8 @@ export default function AddClient() {
                           placeholder="Select client status"
                           value={status}
                           onChange={(value) => setStatus(value)}
-                          className="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-selector]:dark:!bg-[#2A3441] [&_.ant-select-selector]:dark:!border-[#4B5563] [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white [&_.ant-select-selector]:!min-h-[50px] [&_.ant-select-selector"
+                          className="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-selector]:dark:!bg-[#2A3441] [&_.ant-select-selector]:dark:!border-[#4B5563] [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white [&_.ant-select-selector]:!min-h-[50px] [&_.ant-select-selector [&_.ant-select-arrow]:!top-8
+                          [&_.ant-select-arrow]:!-translate-y-1/2"
                           dropdownClassName="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-item]:dark:!bg-[#2A3441] [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-[#374151] [&_.ant-select-item-option-active]:dark:!bg-[#374151]"
                         >
                           {statusOptions.map((option) => (
@@ -905,8 +908,13 @@ export default function AddClient() {
                   <Button
                     size="large"
                     onClick={() => router.back()}
-                    className="px-8 py-2 h-12 rounded-xl border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
-                    style={{ minWidth: "120px" }}
+                    style={{
+                      border: "1px solid #d1d5db",
+                      fontWeight: "600",
+                      padding: "12px 32px",
+                      height: "48px",
+                      color: "#374151",
+                    }}
                   >
                     Cancel
                   </Button>
@@ -917,14 +925,18 @@ export default function AddClient() {
                     size="large"
                     icon={<SaveOutlined />}
                     loading={loading}
-                    className="px-8 py-2 h-12 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
                     style={{
-                      background: isHovered ? "#047857" : "#059669",
-                      borderColor: isHovered ? "#047857" : "#059669",
+                      background: isHovered ? "#1d4ed8" : "#1e40af",
+                      borderColor: isHovered ? "#1d4ed8" : "#1e40af",
+                      padding: "12px 40px",
+                      fontSize: "15px",
+                      fontWeight: "600",
+                      height: "48px",
+                      boxShadow: "0 4px 12px rgba(30, 64, 175, 0.25)",
                       transform: isHovered
                         ? "translateY(-1px)"
                         : "translateY(0)",
-                      minWidth: "160px",
+                      transition: "all 0.2s ease",
                     }}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}

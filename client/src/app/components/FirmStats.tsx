@@ -45,8 +45,10 @@ import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { setFirm, setError, setLoading, clearFirm } from "../store/firmSlice";
 import { useRouter } from "next/navigation";
 import { RootState } from "../store/store";
-import { useSelector } from "react-redux";
-import useApp from "antd/es/app/useApp";
+import { setLawyers } from "../store/lawyerSlice";
+import { getLawyers } from "../service/adminAPI";
+import { getAllClients } from "../service/adminAPI";
+import { setClients } from "../store/clientSlice";
 
 const { Title, Text } = Typography;
 interface Props {
@@ -83,6 +85,11 @@ export default function FirmStats({ firmId, role }: Props) {
         const data = await getStats(firmId, role);
         dispatch(setFirm(data));
         dispatch(setError(null));
+        const lawyer= await getLawyers(firmId)
+        dispatch(setLawyers(lawyer));
+        const clients= await getAllClients(firmId)
+        dispatch(setClients(clients));
+        
       } catch (err) {
         console.error("Error fetching stats:", err);
         dispatch(setError("Failed to fetch stats"));
@@ -94,6 +101,10 @@ export default function FirmStats({ firmId, role }: Props) {
     fetchStats();
   }, [firmId, role, dispatch]);
 
+
+ 
+  
+
   const handleAddClient = () => {
     router.push("/pages/firm-admin/create-client");
   };
@@ -102,6 +113,9 @@ export default function FirmStats({ firmId, role }: Props) {
     router.push("/pages/firm-admin/add-lawyer");
   };
 
+  const handleAddCase = ()=>{
+    router.push("/pages/firm-admin/add-case")
+  }
   // Show loading spinner when loading OR when there's no stats yet (during firm switch)
   if (loading || (!stats && !error)) {
     return (
@@ -461,6 +475,7 @@ export default function FirmStats({ firmId, role }: Props) {
               <Button
                 type="text"
                 block
+                onClick={handleAddCase}
                 className="text-left h-12 rounded-xl border border-slate-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600"
               >
                 <Space

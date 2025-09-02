@@ -13,3 +13,14 @@ export interface Lawyer {
   createdAt: string; 
   updatedAt: string;
 }
+
+export interface LawyerPerformance {
+  lawyerId: string;
+  name: string;
+  totalCases: number;
+  completedCases: number;
+  activeCases: number;
+  wonCases: number;
+  lostCases: number;
+  successRate: number;
+}
