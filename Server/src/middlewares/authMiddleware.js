@@ -5,14 +5,12 @@ const { User } = require("../models");
 
 const userAuth = async (req, res, next) => {
   try {
-    const token = req.cookies.token; 
+    const token = req.cookies.token;
     if (!token) {
-      return res
-        .status(401)
-        .json({
-          success: false,
-          error: "Please login to access this resource",
-        });
+      return res.status(401).json({
+        success: false,
+        error: "Please login to access this resource",
+      });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -23,7 +21,7 @@ const userAuth = async (req, res, next) => {
 
     req.user = {
       id: user.id,
-      role: user.role,
+      role: user.role.name, // now it’s a string
       firmId: decoded.firmId ?? user.firmId,
     };
 

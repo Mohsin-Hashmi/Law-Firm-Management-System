@@ -165,10 +165,14 @@ export const switchFirmAPI = async (firmId: number) => {
 
 export const getLawyerPerformance = async (lawyerId: number | string) => {
   try {
-    const res = await axios.get(`/admin/${lawyerId}/performance`, {
-      withCredentials: true, // only if you are using cookies/sessions
-    });
-    return res.data;
+    const response = await axios.get(
+      `${BASE_URL}/api/firm-admin/${lawyerId}/performance`,
+      {
+        withCredentials: true, // only if you are using cookies/sessions
+      }
+    );
+    console.log("lawyer performance api response", response.data);
+    return response.data;
   } catch (error) {
     console.error("Error fetching lawyer performance:", error);
     throw error;
@@ -312,6 +316,26 @@ export const getAllCasesOfFirm = async (firmId: number): Promise<Case[]> => {
   }
 };
 
+export const getAllCasesOfLawyer = async (lawyerId: number): Promise<Case[]> => {
+  try {
+    const response = await axios.get<{ cases: Case[] }>(
+      `${BASE_URL}/api/firm-admin/lawyer/${lawyerId}/cases`,
+      { withCredentials: true }
+    );
+
+    return response.data.cases;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        `Error fetching cases of lawyer: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    }
+    throw new Error("Unexpected error while fetching cases of lawyer");
+  }
+};
+
 export const getCaseById = async (firmId: number, id: number) => {
   try {
     const resposne = await axios.get(
@@ -336,6 +360,30 @@ export const deleteCaseByFrim = async (firmId: number, id: number) => {
     const response = await axios.delete(
       `${BASE_URL}/api/firm-admin/firm/${firmId}/cases/${id}`,
       { withCredentials: true }
+    );
+    return response.data.case;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        `Error fetching cases of firm: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    }
+    throw new Error("Unexpected error while fetching clients");
+  }
+};
+
+export const updateCaseStatus = async (firmId: number, id: number, status: string) => {
+  try {
+    const response = await axios.patch(
+      `${BASE_URL}/api/firm-admin/firm/${firmId}/cases/${id}/status`,
+      {
+        status
+      },
+      {
+        withCredentials: true,
+      }
     );
     return response.data.case;
   } catch (error) {

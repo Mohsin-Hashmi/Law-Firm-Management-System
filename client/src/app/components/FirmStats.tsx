@@ -49,7 +49,8 @@ import { setLawyers } from "../store/lawyerSlice";
 import { getLawyers } from "../service/adminAPI";
 import { getAllClients } from "../service/adminAPI";
 import { setClients } from "../store/clientSlice";
-
+import { getAllCasesOfFirm } from "../service/adminAPI";
+import { setCases } from "../store/caseSlice";
 const { Title, Text } = Typography;
 interface Props {
   firmId: number;
@@ -72,7 +73,9 @@ export default function FirmStats({ firmId, role }: Props) {
     loading,
     error,
   } = useAppSelector((state: RootState) => state.firm);
-
+  const { cases } = useAppSelector((state: RootState) => state.case);
+  const openCasesCount = cases?.filter((c) => c.status === "Open").length || 0;
+  const totalCasesCount = cases?.length || 0;
   useEffect(() => {
     if (!firmId || !role) return;
 
@@ -85,11 +88,12 @@ export default function FirmStats({ firmId, role }: Props) {
         const data = await getStats(firmId, role);
         dispatch(setFirm(data));
         dispatch(setError(null));
-        const lawyer= await getLawyers(firmId)
+        const lawyer = await getLawyers(firmId);
         dispatch(setLawyers(lawyer));
-        const clients= await getAllClients(firmId)
+        const clients = await getAllClients(firmId);
         dispatch(setClients(clients));
-        
+        const cases = await getAllCasesOfFirm(firmId);
+        dispatch(setCases(cases));
       } catch (err) {
         console.error("Error fetching stats:", err);
         dispatch(setError("Failed to fetch stats"));
@@ -101,10 +105,6 @@ export default function FirmStats({ firmId, role }: Props) {
     fetchStats();
   }, [firmId, role, dispatch]);
 
-
- 
-  
-
   const handleAddClient = () => {
     router.push("/pages/firm-admin/create-client");
   };
@@ -113,9 +113,9 @@ export default function FirmStats({ firmId, role }: Props) {
     router.push("/pages/firm-admin/add-lawyer");
   };
 
-  const handleAddCase = ()=>{
-    router.push("/pages/firm-admin/add-case")
-  }
+  const handleAddCase = () => {
+    router.push("/pages/firm-admin/add-case");
+  };
   // Show loading spinner when loading OR when there's no stats yet (during firm switch)
   if (loading || (!stats && !error)) {
     return (
@@ -194,7 +194,7 @@ export default function FirmStats({ firmId, role }: Props) {
     },
     {
       title: "Open Cases",
-      value: stats.casesCount || 0,
+      value: openCasesCount || 0,
       icon: <FileOutlined />,
       color: "#dc2626",
       background: "#fef2f2",

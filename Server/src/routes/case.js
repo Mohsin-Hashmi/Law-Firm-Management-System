@@ -54,6 +54,7 @@ caseRoute.put(
   "/firm/:firmId/cases/:caseId",
   userAuth,
   firmAdminAuth,
+  upload.array("documents", 5), 
   updateCase
 );
 caseRoute.delete(
@@ -62,7 +63,7 @@ caseRoute.delete(
   firmAdminAuth,
   deleteCase
 );
-caseRoute.patch(
+caseRoute.patch(  
   "/firm/:firmId/cases/:caseId/status",
   userAuth,
   firmAdminAuth,
@@ -77,7 +78,7 @@ caseRoute.get(
   getAllCasesOfClient
 );
 caseRoute.get(
-  "/lawyers/:lawyerId/cases",
+  "/lawyer/:lawyerId/cases",
   userAuth,
   firmAdminAuth,
   getAllCasesOfLawyer

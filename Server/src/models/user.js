@@ -1,11 +1,15 @@
-'use strict';
-const { Model } = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
+      User.belongsTo(models.Role, { foreignKey: "roleId", as: "role" });
       // A User can be connected to many Firms (through AdminFirm)
-      User.hasMany(models.AdminFirm, { foreignKey: "adminId", as: "adminFirms" });
+      User.hasMany(models.AdminFirm, {
+        foreignKey: "adminId",
+        as: "adminFirms",
+      });
     }
   }
 
@@ -17,18 +21,22 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false, // ensure every user has an email
       },
       password: DataTypes.STRING,
-      role: {
-        type: DataTypes.ENUM('Super Admin', 'Firm Admin', 'Lawyer', 'Client'),
-        defaultValue: 'Lawyer',
+      roleId: {
+        type: DataTypes.INTEGER,
+        allowNull: false, // ensure every user has a role
+        references: {
+          model: "roles",
+          key: "id",
+        },
       },
     },
     {
       sequelize,
-      modelName: 'User',
+      modelName: "User",
       indexes: [
         {
           unique: true,
-          fields: ['email'], // enforce unique email across system
+          fields: ["email"], // enforce unique email across system
         },
       ],
     }

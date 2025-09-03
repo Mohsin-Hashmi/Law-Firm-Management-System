@@ -99,7 +99,7 @@ const getCaseById = async (req, res) => {
         message: "Case Id is required",
       });
     }
-    if(!firmId){
+    if (!firmId) {
       return res.status(404).json({
         success: false,
         message: "Firm Id is required",
@@ -119,7 +119,7 @@ const getCaseById = async (req, res) => {
         },
         {
           model: CaseDocument,
-          as: "documents", 
+          as: "documents",
         },
       ],
     });
@@ -142,10 +142,140 @@ const getCaseById = async (req, res) => {
   }
 };
 
-//pending
 const updateCase = async (req, res) => {
   try {
-  } catch (err) {}
+    const { caseId } = req.params;
+    const {
+      title,
+      caseType,
+      description,
+      clientId,
+      lawyerIds,
+      status,
+      openedAt,
+      closedAt,
+      documentIdsToRemove,
+    } = req.body;
+
+    const firmId = req.user.firmId;
+
+    if (!caseId) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Case ID is required" });
+    }
+
+    // === 1. Find Case ===
+    const caseRecord = await Case.findOne({ where: { id: caseId, firmId } });
+    if (!caseRecord) {
+      return res.status(404).json({
+        success: false,
+        error: "Case not found or doesn’t belong to this firm",
+      });
+    }
+
+    // === 2. Validate client (if provided) ===
+    if (clientId) {
+      const client = await Client.findOne({ where: { id: clientId, firmId } });
+      if (!client) {
+        return res.status(404).json({
+          success: false,
+          error: "Client not found or doesn’t belong to this firm",
+        });
+      }
+    }
+
+    // === 3. Update Case Fields ===
+    await caseRecord.update({
+      title: title ?? caseRecord.title,
+      caseType: caseType ?? caseRecord.caseType,
+      description: description ?? caseRecord.description,
+      clientId: clientId ?? caseRecord.clientId,
+      status: status ?? caseRecord.status,
+      openedAt: openedAt ?? caseRecord.openedAt,
+      closedAt: closedAt ?? caseRecord.closedAt,
+    });
+
+    // === 4. Update Lawyers ===
+    if (lawyerIds) {
+      let lawyerIdArray = [];
+
+      if (Array.isArray(lawyerIds)) {
+        lawyerIdArray = lawyerIds
+          .map((id) => Number(id))
+          .filter((id) => !isNaN(id)); // remove invalid ones
+      } else if (typeof lawyerIds === "string") {
+        try {
+          // case: JSON string like "[1,2]"
+          const parsed = JSON.parse(lawyerIds);
+          lawyerIdArray = Array.isArray(parsed)
+            ? parsed.map((id) => Number(id)).filter((id) => !isNaN(id))
+            : [Number(parsed)].filter((id) => !isNaN(id));
+        } catch {
+          // case: single value string "3"
+          const num = Number(lawyerIds);
+          if (!isNaN(num)) lawyerIdArray = [num];
+        }
+      }
+
+      if (lawyerIdArray.length > 0) {
+        const lawyers = await Lawyer.findAll({
+          where: { id: { [Op.in]: lawyerIdArray }, firmId },
+        });
+
+        if (lawyers.length === 0) {
+          return res.status(404).json({
+            success: false,
+            error: "No valid lawyers found for provided IDs",
+          });
+        }
+
+        await caseRecord.setLawyers(lawyers);
+      }
+    }
+
+    // === 5. Handle Documents ===
+    // (a) Delete selected documents
+    if (documentIdsToRemove && Array.isArray(documentIdsToRemove)) {
+      await CaseDocument.destroy({
+        where: {
+          id: { [Op.in]: documentIdsToRemove },
+          caseId: caseRecord.id,
+        },
+      });
+    }
+
+    // (b) Add new uploaded documents
+    if (req.files && req.files.length > 0) {
+      const docs = req.files.map((file) => ({
+        fileName: file.originalname,
+        filePath: file.path,
+        fileType: file.mimetype,
+        caseId: caseRecord.id,
+        uploadedBy: req.user.id,
+      }));
+
+      await CaseDocument.bulkCreate(docs);
+    }
+
+    // === 6. Fetch updated case with relations ===
+    const updatedCase = await Case.findByPk(caseRecord.id, {
+      include: [
+        { model: Client, as: "client" },
+        { model: Lawyer, as: "lawyers" },
+        { model: CaseDocument, as: "documents" }, // ✅ include docs
+      ],
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Case updated successfully",
+      case: updatedCase,
+    });
+  } catch (err) {
+    console.error("Update Case Error:", err);
+    return res.status(500).json({ success: false, error: "Server Error" });
+  }
 };
 
 const deleteCase = async (req, res) => {
@@ -193,10 +323,40 @@ const deleteCase = async (req, res) => {
   }
 };
 
-// pending
 const updateCaseStatus = async (req, res) => {
   try {
-  } catch (err) {}
+    const { caseId } = req.params;
+    const { status } = req.body; // new status
+    const firmId = req.user.firmId;
+    if (!caseId) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Case ID is required" });
+    }
+
+    if (!status) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Status is required" });
+    }
+
+    const caseRecord = await Case.findOne({ where: { id: caseId, firmId } });
+    if (!caseRecord) {
+      return res.status(404).json({
+        success: false,
+        error: "Case not found or doesn’t belong to this firm",
+      });
+    }
+    await caseRecord.update({ status });
+    return res.status(200).json({
+      success: true,
+      message: "Case status updated successfully",
+      case: caseRecord,
+    });
+  } catch (err) {
+    console.error("Update Case Status Error:", err);
+    return res.status(500).json({ success: false, error: "Server Error" });
+  }
 };
 
 // THis api for client dashboard
@@ -293,8 +453,10 @@ const getAllCasesOfFirm = async (req, res) => {
     });
 
     if (!cases || cases.length === 0) {
-      return res.status(404).json({
-        success: false,
+      return res.json({
+        success: true,
+        count: 0,
+        cases: [],
         message: "No cases found for this firm",
       });
     }
@@ -317,7 +479,57 @@ const getAllCasesOfFirm = async (req, res) => {
 // This API is for lawyer dashboard
 const getAllCasesOfLawyer = async (req, res) => {
   try {
-  } catch (err) {}
+    const { lawyerId } = req.params;
+    if (!lawyerId) {
+      return res.status(400).json({
+        success: false,
+        message: "Lawyer Id is required",
+      });
+    }
+
+    // Fetch all cases assigned to this lawyer
+    const cases = await Case.findAll({
+      include: [
+        {
+          model: Client,
+          as: "client",
+          attributes: ["id", "fullName", "email", "phone"],
+        },
+        {
+          model: Lawyer,
+          as: "lawyers",
+          through: { attributes: [] }, // hide junction table
+          attributes: ["id", "name", "email"],
+          where: { id: lawyerId }, // filter cases where this lawyer is assigned
+        },
+        {
+          model: CaseDocument,
+          as: "documents",
+          attributes: ["id", "fileName", "fileType", "filePath", "uploadedBy"],
+        },
+      ],
+    });
+
+    if (!cases || cases.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No cases found for this lawyer",
+      });
+    }
+
+    return res.json({
+      success: true,
+      count: cases.length,
+      cases: cases,
+    });
+  } catch (err) {
+    console.error("Error is", err);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: err.message,
+    });
+  }
 };
 
 /**

@@ -1,20 +1,17 @@
-"use strict";
-
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.addColumn("Users", "firmId", {
+    await queryInterface.addColumn("users", "roleId", {
       type: Sequelize.INTEGER,
       allowNull: true,
       references: {
-        model: "Firms", // the name of your Firms table
+        model: "roles", // must match table name
         key: "id",
       },
       onUpdate: "CASCADE",
       onDelete: "SET NULL",
     });
   },
-
-  async down(queryInterface, Sequelize) {
-    await queryInterface.removeColumn("Users", "firmId");
+  async down(queryInterface) {
+    await queryInterface.removeColumn("users", "roleId");
   },
 };

@@ -17,7 +17,6 @@ import {
   Statistic,
   Badge,
   Tooltip,
-  
 } from "antd";
 import {
   UserOutlined,
@@ -31,7 +30,6 @@ import {
   TeamOutlined,
   FileTextOutlined,
   CalendarOutlined,
-  
 } from "@ant-design/icons";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis } from "recharts";
 import { getLawyerById } from "@/app/service/adminAPI";
@@ -40,6 +38,9 @@ import { toast } from "react-hot-toast";
 import { ThemeProvider } from "next-themes";
 import { LawyerPerformance } from "@/app/types/lawyer";
 import { getLawyerPerformance } from "@/app/service/adminAPI";
+import { getAllCasesOfLawyer } from "@/app/service/adminAPI";
+import { setCases } from "@/app/store/caseSlice";
+import { Case } from "@/app/types/case";
 
 const { Title, Text } = Typography;
 
@@ -56,20 +57,8 @@ export default function GetLawyerDetail({
     useState<LawyerPerformance | null>(null);
   const [loadingLawyer, setLoadingLawyer] = useState(true);
   const [loadingPerformance, setLoadingPerformance] = useState(true);
-  const chartData = [
-    {
-      name: "Completed",
-      value: performanceData?.completedCases ?? 0,
-      color: "#059669",
-    },
-    {
-      name: "Active",
-      value: performanceData?.activeCases ?? 0,
-      color: "#1e40af",
-    },
-    { name: "Won", value: performanceData?.wonCases ?? 0, color: "#10b981" },
-    { name: "Lost", value: performanceData?.lostCases ?? 0, color: "#ef4444" },
-  ];
+  const [lawyerCases, setLawyerCases] = useState<Case[]>([]);
+ 
 
   useEffect(() => {
     if (lawyerId) fetchLawyerDetail();
@@ -105,6 +94,20 @@ export default function GetLawyerDetail({
     fetchData();
   }, [lawyerId]);
 
+  // Lawyers Cases
+ useEffect(() => {
+  const fetchCases = async () => {
+    try {
+      const cases = await getAllCasesOfLawyer(lawyerId);
+      setLawyerCases(cases);
+      console.log("Lawyer cases:", cases);
+    } catch (err) {
+      console.error("Error fetching lawyer cases:", err);
+    }
+  };
+
+  if (lawyerId) fetchCases();
+}, [lawyerId]);
   if (loadingLawyer) {
     return (
       <DashboardLayout>
@@ -255,14 +258,13 @@ export default function GetLawyerDetail({
                         padding: "8px 16px",
                         fontSize: "14px",
                         fontWeight: "500",
-                        marginBottom: "16px",
                       }}
                     >
                       <BankOutlined style={{ marginRight: "6px" }} />
                       {lawyer.specialization || "General Practice"}
                     </Tag>
 
-                    <div style={{ marginTop: "16px" }}>
+                    <div style={{ marginTop: "8px" }}>
                       {lawyer.status.toLowerCase() === "active" ? (
                         <Badge
                           status="success"
@@ -411,7 +413,7 @@ export default function GetLawyerDetail({
                         </Space>
                       </Card>
                     </Col>
-                    <Col>
+                    <Col span={24}>
                       <Card
                         bordered={false}
                         className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 w-full"
@@ -430,76 +432,56 @@ export default function GetLawyerDetail({
                           </p>
                         ) : performanceData ? (
                           <div style={{ width: "100%", height: 300 }}>
-                            <ResponsiveContainer>
+                            <ResponsiveContainer width="100%" height={300}>
                               <AreaChart
                                 data={[
                                   {
                                     name: "Completed",
                                     value: performanceData.completedCases,
-                                    color: "#059669",
                                   },
                                   {
                                     name: "Active",
                                     value: performanceData.activeCases,
-                                    color: "#1e40af",
                                   },
                                   {
                                     name: "Won",
                                     value: performanceData.wonCases,
-                                    color: "#10b981",
                                   },
                                   {
                                     name: "Lost",
                                     value: performanceData.lostCases,
-                                    color: "#ef4444",
                                   },
                                 ]}
                               >
                                 <defs>
-                                  {[
-                                    { name: "Completed", color: "#059669" },
-                                    { name: "Active", color: "#1e40af" },
-                                    { name: "Won", color: "#10b981" },
-                                    { name: "Lost", color: "#ef4444" },
-                                  ].map((stat) => (
-                                    <linearGradient
-                                      key={stat.name}
-                                      id={`color${stat.name}`}
-                                      x1="0"
-                                      y1="0"
-                                      x2="0"
-                                      y2="1"
-                                    >
-                                      <stop
-                                        offset="5%"
-                                        stopColor={stat.color}
-                                        stopOpacity={0.8}
-                                      />
-                                      <stop
-                                        offset="95%"
-                                        stopColor={stat.color}
-                                        stopOpacity={0}
-                                      />
-                                    </linearGradient>
-                                  ))}
+                                  <linearGradient
+                                    id="colorSky"
+                                    x1="0"
+                                    y1="0"
+                                    x2="0"
+                                    y2="1"
+                                  >
+                                    <stop
+                                      offset="5%"
+                                      stopColor="#87CEEB"
+                                      stopOpacity={0.8}
+                                    />
+                                    <stop
+                                      offset="95%"
+                                      stopColor="#87CEEB"
+                                      stopOpacity={0}
+                                    />
+                                  </linearGradient>
                                 </defs>
                                 <XAxis dataKey="name" />
                                 <YAxis />
                                 <Tooltip />
-                                {[
-                                  { name: "Completed", color: "#059669" },
-                                  { name: "Active", color: "#1e40af" },
-                                  { name: "Won", color: "#10b981" },
-                                  { name: "Lost", color: "#ef4444" },
-                                ].map((stat) => (
-                                  <Area
-                                    key={stat.name}
-                                    type="monotone"
-                                    dataKey="value"
-                                    stroke={stat.color}
-                                    fill={`url(#color${stat.name})`}
-                                  />
-                                ))}
+                                <Area
+                                  type="monotone"
+                                  dataKey="value"
+                                  stroke="#1E90FF" // line color (DodgerBlue)
+                                  fill="url(#colorSky)" // gradient fill (SkyBlue)
+                                />
                               </AreaChart>
                             </ResponsiveContainer>
                           </div>
@@ -540,7 +522,7 @@ export default function GetLawyerDetail({
                         Total Cases
                       </span>
                     }
-                    value={lawyer.casesCount ?? 0}
+                    value={lawyerCases.length}
                     valueStyle={{
                       color: "#1e40af",
                       fontSize: "36px",
@@ -670,7 +652,7 @@ export default function GetLawyerDetail({
                       </span>
                     </Space>
                   }
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
+                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 h-[320px]"
                   headStyle={{
                     borderBottom: "1px solid #f1f5f9",
                     background: "#fafbfc",
@@ -788,7 +770,7 @@ export default function GetLawyerDetail({
                       </span>
                     </Space>
                   }
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
+                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 h-[320px]"
                   headStyle={{
                     borderBottom: "1px solid #f1f5f9",
                     background: "#fafbfc",

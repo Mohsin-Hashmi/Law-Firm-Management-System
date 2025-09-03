@@ -289,7 +289,7 @@ export default function AddClient() {
                   strokeColor="#059669"
                   trailColor="#f1f5f9"
                   strokeWidth={8}
-                  showInfo={true}
+                  showInfo={false}
                 />
               </div>
             </Card>

@@ -7,14 +7,13 @@ const {
   UserSignUpValidation,
   UserLoginInValidation,
 } = require("../utils/validation.js");
-const { Firm, User, AdminFirm, Lawyer } = require("../models/index.js");
+const { Firm, User, AdminFirm, Lawyer, Role } = require("../models/index.js");
 const { where } = require("sequelize");
 
 // Signup api for normal users like superadmin lawyer and clients
 const SignUp = async (req, res) => {
   try {
     const { name, email, password, confirmPassword } = req.body;
-    let role = "Firm Admin";
 
     // Validate input
     const validationResult = UserSignUpValidation(req, res);
@@ -27,8 +26,19 @@ const SignUp = async (req, res) => {
       });
     }
     const HASHED_PASSWORD = await bcrypt.hash(password, 10);
+    const roleObj = await Role.findOne({ where: { name: "Firm Admin" } });
+    if (!roleObj) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Role not found" });
+    }
 
-    const userData = { name, email, password: HASHED_PASSWORD, role };
+    const userData = {
+      name,
+      email,
+      password: HASHED_PASSWORD,
+      roleId: roleObj.id,
+    };
 
     const user = await User.create(userData);
     const safeUser = user.toJSON();
@@ -57,6 +67,7 @@ const LoginIn = async (req, res) => {
     const user = await User.findOne({
       where: { email },
       include: [
+        { model: Role, as: "role" }, 
         {
           model: AdminFirm,
           as: "adminFirms",
@@ -82,7 +93,7 @@ const LoginIn = async (req, res) => {
     const token = jwt.sign(
       {
         id: user.id,
-        role: user.role,
+        role: user.role.name,
         firmId: user.adminFirms?.length > 0 ? user.adminFirms[0].firm.id : null, // 👈 use firm.id
       },
       process.env.JWT_SECRET,
@@ -115,13 +126,11 @@ const LoginIn = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Internal server error",
-        error: err.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: err.message,
+    });
   }
 };
 

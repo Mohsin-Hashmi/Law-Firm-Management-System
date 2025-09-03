@@ -5,6 +5,7 @@ import { addCase } from "@/app/store/caseSlice";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { RootState } from "@/app/store/store";
 import { Case } from "@/app/types/case";
+import clsx from "clsx";
 import {
   ArrowLeftOutlined,
   BankOutlined,
@@ -51,6 +52,7 @@ const { Dragger } = Upload;
 export default function AddCase() {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state: RootState) => state.user?.user);
+   const selectedCaseType = Form.useWatch("caseType");
   const clients = useAppSelector(
     (state: RootState) => state.client?.clients || []
   );
@@ -140,7 +142,7 @@ export default function AddCase() {
 
       dispatch(addCase(response.data));
       toast.success("Case created successfully!");
-      router.push("/pages/firm-admin/get-cases");
+      router.push(`/pages/firm-admin/get-cases/${firmId}`);
       resetForm();
     } catch (err) {
       toast.error("Something went wrong while creating the case");
@@ -349,7 +351,7 @@ export default function AddCase() {
                   strokeColor="#2563eb"
                   trailColor="#f1f5f9"
                   strokeWidth={8}
-                  showInfo={true}
+                  showInfo={false}
                 />
               </div>
             </Card>
@@ -464,53 +466,56 @@ export default function AddCase() {
                         ]}
                       >
                         <div className="grid grid-cols-1 gap-3">
-                          {caseTypes.map((type) => (
-                            <div
-                              key={type.value}
-                              onClick={() => handleCaseTypeChange(type.value)}
-                              className="cursor-pointer transition-all duration-200 hover:shadow-md"
-                              style={{
-                                border:
-                                  form.getFieldValue("caseType") === type.value
-                                    ? `2px solid ${type.color}`
-                                    : "1px solid #e2e8f0",
-                                borderRadius: "12px",
-                                padding: "16px",
-                                background:
-                                  form.getFieldValue("caseType") === type.value
+                          {caseTypes.map((type) => {
+                           const isSelected = selectedCaseType === type.value;
+
+                            return (
+                              <div
+                                key={type.value}
+                                onClick={() => handleCaseTypeChange(type.value)}
+                                className={clsx(
+                                  "cursor-pointer transition-all duration-200 rounded-xl p-4",
+                                  "hover:shadow-md border",
+                                  isSelected
+                                    ? "border-2"
+                                    : "border border-slate-200 dark:border-slate-700"
+                                )}
+                                style={{
+                                  borderColor: isSelected
+                                    ? type.color
+                                    : undefined,
+                                  backgroundColor: isSelected
                                     ? `${type.color}08`
                                     : undefined,
-                              }}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div
-                                  style={{
-                                    color: type.color,
-                                    fontSize: "18px",
-                                  }}
-                                >
-                                  {type.icon}
-                                </div>
-                                <div className="flex-1">
-                                  <div className="text-slate-800 dark:text-white font-medium text-sm">
-                                    {type.label}
+                                }}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div
+                                    className="text-lg"
+                                    style={{ color: type.color }}
+                                  >
+                                    {type.icon}
                                   </div>
-                                  <div className="text-slate-500 dark:text-slate-400 text-xs">
-                                    {type.description}
+                                  <div className="flex-1">
+                                    <div className="text-slate-800 dark:text-white font-medium text-sm">
+                                      {type.label}
+                                    </div>
+                                    <div className="text-slate-500 dark:text-slate-400 text-xs">
+                                      {type.description}
+                                    </div>
                                   </div>
+                                  {isSelected && (
+                                    <CheckCircleOutlined
+                                      style={{
+                                        color: type.color,
+                                        fontSize: "18px",
+                                      }}
+                                    />
+                                  )}
                                 </div>
-                                {form.getFieldValue("caseType") ===
-                                  type.value && (
-                                  <CheckCircleOutlined
-                                    style={{
-                                      color: type.color,
-                                      fontSize: "18px",
-                                    }}
-                                  />
-                                )}
                               </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </Form.Item>
 

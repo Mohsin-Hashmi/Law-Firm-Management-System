@@ -19,6 +19,7 @@ import {
   BankTwoTone,
   UserOutlined,
   UserAddOutlined,
+  DownOutlined,
 } from "@ant-design/icons";
 import {
   Avatar,
@@ -38,6 +39,7 @@ import {
   Pagination,
   Spin,
   Empty,
+  Dropdown,
 } from "antd";
 import { ThemeProvider } from "next-themes";
 import { useRouter } from "next/navigation";
@@ -48,6 +50,7 @@ import { setCases } from "@/app/store/caseSlice";
 import { Case } from "@/app/types/case";
 import { toast } from "react-hot-toast";
 import { deleteCaseByFrim } from "@/app/service/adminAPI";
+import { updateCaseStatus } from "@/app/service/adminAPI";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -68,6 +71,8 @@ export default function GetCases() {
   const [caseTypeFilter, setCaseTypeFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(6);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [updatingCaseId, setUpdatingCaseId] = useState<number | null>(null);
 
   useEffect(() => {
     filterCases();
@@ -160,6 +165,38 @@ export default function GetCases() {
         }
       },
     });
+  };
+
+  const handleStatusUpdate = async (
+    firmId: number,
+    id: number,
+    newStatus: "Open" | "Closed" | "On Hold" | "Appeal"
+  ) => {
+    if (!firmId) return;
+    try {
+      setUpdatingStatus(true);
+      setUpdatingCaseId(id);
+
+      await updateCaseStatus(firmId, id, newStatus);
+
+      // Update local state
+      setCasesData((prevCases) =>
+        prevCases.map(
+          (case_): Case =>
+            case_.id === id ? { ...case_, status: newStatus } : case_
+        )
+      );
+
+      toast.success(`Case status updated to ${newStatus}`);
+      message.success(`Case status updated to ${newStatus}`);
+    } catch (error) {
+      console.error("Error updating case status:", error);
+      toast.error("Failed to update case status");
+      message.error("Failed to update case status");
+    } finally {
+      setUpdatingStatus(false);
+      setUpdatingCaseId(null);
+    }
   };
 
   /**Handle assign lawyer */
@@ -289,6 +326,57 @@ export default function GetCases() {
               )}
             </div>
           </div>
+          {/* <Dropdown
+            // menu={{ items: statusMenuItems }}
+            trigger={["click"]}
+            placement="bottomRight"
+            disabled={updatingStatus && updatingCaseId === caseData.id}
+            overlayClassName="custom-dropdown"
+          >
+            <div
+              className="cursor-pointer hover:shadow-md transition-all duration-200"
+              style={{
+                background: `${getStatusColor(caseData.status)}15`,
+                padding: "12px 16px",
+                borderRadius: "10px",
+                border: `1px solid ${getStatusColor(caseData.status)}30`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                minWidth: "160px",
+              }}
+            >
+              <div
+                style={{
+                  width: "8px",
+                  height: "8px",
+                  borderRadius: "50%",
+                  backgroundColor: getStatusColor(caseData.status),
+                }}
+              />
+              <span
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  color: getStatusColor(caseData.status),
+                  textTransform: "uppercase",
+                }}
+              >
+                {caseData.status}
+              </span>
+              {updatingStatus && updatingCaseId === caseData.id ? (
+                <Spin size="small" />
+              ) : (
+                <DownOutlined
+                  style={{
+                    fontSize: "12px",
+                    color: getStatusColor(caseData.status),
+                  }}
+                />
+              )}
+            </div>
+          </Dropdown> */}
 
           {/* Status Badge */}
           <div
@@ -324,7 +412,6 @@ export default function GetCases() {
             </span>
           </div>
         </div>
-        
 
         {/* Client Details and Case Type - Parallel Layout */}
         <div className="flex items-center gap-8 !mt-4">

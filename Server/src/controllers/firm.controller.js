@@ -205,7 +205,7 @@ const firmStats = async (req, res) => {
     // Counts
     const lawyersCount = await Lawyer.count({ where: { firmId } });
     const clientsCount = await Client.count({ where: { firmId } });
-    const totalUsersCount = await Case.count();
+    const totalUsersCount = (await Case.count({ where: { firmId } })) || 0;
     const activeLawyersCount = await Lawyer.count({
       where: { firmId, status: "active" },
     });
@@ -228,7 +228,10 @@ const firmStats = async (req, res) => {
       stats: {
         totalUsers: totalUsersCount,
         activeUsers: activeLawyersCount + clientsCount,
-        inactiveUsers: totalUsersCount - (activeLawyersCount + clientsCount),
+        inactiveUsers: Math.max(
+          0,
+          totalUsersCount - (activeLawyersCount + clientsCount)
+        ),
       },
     });
   } catch (err) {

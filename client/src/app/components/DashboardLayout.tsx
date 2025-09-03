@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { Select, Spin } from "antd"; // Import Spin from antd
 import { switchFirm } from "../store/userSlice";
+import { usePathname } from "next/navigation";
 import {
   HomeOutlined,
   InfoCircleOutlined,
@@ -23,7 +24,7 @@ import {
   MenuUnfoldOutlined,
   LoadingOutlined,
   BankOutlined,
-  FileTextOutlined
+  FileTextOutlined,
 } from "@ant-design/icons";
 import { useState } from "react";
 import { switchFirmAPI } from "../service/adminAPI";
@@ -40,6 +41,7 @@ export default function DashboardLayout({
 }) {
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const pathname = usePathname();
   const role = useAppSelector((state) => state.user.user?.role);
   const user = useAppSelector((state) => state.user.user);
   const [collapsed, setCollapsed] = useState(false);
@@ -137,7 +139,7 @@ export default function DashboardLayout({
         icon: <PlusOutlined />,
         category: "Client Management",
       },
-       {
+      {
         label: "Cases",
         href: "/pages/firm-admin/get-cases",
         icon: <FileTextOutlined />,
@@ -149,7 +151,6 @@ export default function DashboardLayout({
         icon: <PlusOutlined />,
         category: "Case Management",
       },
-      
     ],
     Lawyer: [
       { label: "Home", href: "/", icon: <HomeOutlined />, category: "Main" },
@@ -345,7 +346,7 @@ export default function DashboardLayout({
             <div className="hidden md:block">
               {role === "Firm Admin" &&
                 user?.firms &&
-                user.firms.length > 1  && (
+                user.firms.length > 1 && (
                   <div
                     className={`px-3 py-1 rounded-full text-base font-medium text-white bg-blue-500`}
                   >
@@ -407,7 +408,31 @@ export default function DashboardLayout({
                     const lawyers = await getLawyers(value);
                     dispatch(setLawyers(lawyers));
                     dispatch(clearFirm()); // if you have this in firmSlice
-
+                    if (
+                      pathname.startsWith("/pages/firm-admin/get-lawyer-detail")
+                    ) {
+                      router.push("/pages/dashboard");
+                    }
+                    if (pathname.startsWith("/pages/firm-admin/edit-lawyer")) {
+                      router.push("/pages/dashboard");
+                    }
+                    if (
+                      pathname.startsWith("/pages/firm-admin/get-client-detail")
+                    ) {
+                      router.push("/pages/dashboard");
+                    }
+                    if (pathname.startsWith("/pages/firm-admin/edit-client")) {
+                      router.push("/pages/dashboard");
+                    }
+                     if (pathname.startsWith("/pages/firm-admin/add-lawyer")) {
+                      router.push("/pages/dashboard");
+                    }
+                    if (pathname.startsWith("/pages/firm-admin/create-client")) {
+                      router.push("/pages/dashboard");
+                    }
+                     if (pathname.startsWith("/pages/firm-admin/add-case")) {
+                      router.push("/pages/dashboard");
+                    }
                     toast.success("Switched firm successfully");
                   } catch (err) {
                     console.error("Error switching firm:", err);
