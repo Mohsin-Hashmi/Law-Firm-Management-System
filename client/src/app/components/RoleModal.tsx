@@ -247,7 +247,7 @@ const RoleModal: React.FC<RoleModalProps> = ({
             onClick={handleSubmit}
             disabled={!roleName.trim() || Object.values(selectedPerms).every(v => !v)}
             icon={<CheckCircleOutlined />}
-            className="h-9 px-4 rounded-lg bg-blue-600 hover:bg-blue-700"
+            className="h-9 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 dark:text-white"
           >
             Save changes
           </Button>

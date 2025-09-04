@@ -64,17 +64,14 @@ export default function DashboardLayout({
   // Custom loading icon for the spinner
   const antIcon = <LoadingOutlined style={{ fontSize: 16 }} spin />;
   type NavLink = {
-  label: string;
-  href?: string; // optional because some items are buttons
-  icon: React.ReactNode;
-  category?: string;
-  onClick?: () => void; // optional click handler
-};
+    label: string;
+    href?: string; // optional because some items are buttons
+    icon: React.ReactNode;
+    category?: string;
+    onClick?: () => void; // optional click handler
+  };
 
-  const navLinksMap: Record<
-    string,
-    NavLink[]
-  > = {
+  const navLinksMap: Record<string, NavLink[]> = {
     "Super Admin": [
       { label: "Home", href: "/", icon: <HomeOutlined />, category: "Main" },
       {
@@ -128,10 +125,10 @@ export default function DashboardLayout({
         category: "Main",
       },
       {
-        label: "Role Management",
+        label: "Add New Role ",
         href: "#", // since it's a modal, we won't navigate
         icon: <TeamOutlined />,
-        category: "Management", // adjust category as needed
+        category: "Role Management", // adjust category as needed
         onClick: handleOpenRoleModal, // call modal open
       },
       {
@@ -170,8 +167,6 @@ export default function DashboardLayout({
         icon: <PlusOutlined />,
         category: "Case Management",
       },
-
-      
     ],
     Lawyer: [
       { label: "Home", href: "/", icon: <HomeOutlined />, category: "Main" },
@@ -307,9 +302,12 @@ export default function DashboardLayout({
                       <button
                         key={navItem.label}
                         onClick={navItem.onClick}
-                        className={`flex items-center ${
+                        className={`w-full flex items-center ${
                           collapsed ? "justify-center px-3" : "px-3"
-                        } py-3 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all duration-200 group relative`}
+                        } py-3 text-slate-700 dark:text-slate-300 rounded-xl 
+  hover:bg-slate-50 dark:hover:bg-slate-800 
+  hover:text-slate-900 dark:hover:text-white 
+  transition-all duration-200 group relative`}
                         title={collapsed ? navItem.label : ""}
                       >
                         <span className="text-lg group-hover:scale-110 transition-transform duration-200">
@@ -347,13 +345,13 @@ export default function DashboardLayout({
           </div>
         </nav>
         <RoleModal
-  visible={isRoleModalVisible}
-  onClose={handleCloseRoleModal}
-  onRoleCreated={(newRole) => {
-    console.log("New role created:", newRole);
-    // Optionally, refresh your nav links or update state
-  }}
-/>
+          visible={isRoleModalVisible}
+          onClose={handleCloseRoleModal}
+          onRoleCreated={(newRole) => {
+            console.log("New role created:", newRole);
+            // Optionally, refresh your nav links or update state
+          }}
+        />
 
         {/* Logout Button */}
         <div className="px-4 py-4 border-t border-slate-100 dark:border-slate-700">

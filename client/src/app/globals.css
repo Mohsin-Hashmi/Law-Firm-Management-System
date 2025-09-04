@@ -98,3 +98,16 @@ body {
 .custom-firm-table .ant-pagination {
   justify-content: center;
 }
+
+.dark .confirmation-modal .ant-modal-content {
+  background-color: #0f172a !important;
+  border: none !important;
+  opacity: 1;
+}
+
+
+.dark .role-management-modal .ant-modal-content {
+  background-color: #0f172a !important;
+  border: none !important;
+  opacity: 1;
+}

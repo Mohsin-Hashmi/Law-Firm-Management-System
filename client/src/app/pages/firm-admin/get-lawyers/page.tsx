@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "@/app/components/DashboardLayout";
 import { ThemeProvider } from "next-themes";
+import ConfirmationModal from "@/app/components/ConfirmationModal";
 import {
   Card,
   Row,
@@ -69,6 +70,8 @@ export default function GetLawyers() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [specializationFilter, setSpecializationFilter] =
     useState<string>("all");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedLawyer, setSelectedLawyer] = useState<Lawyer | null>(null);
 
   useEffect(() => {
     filterLawyers();
@@ -130,30 +133,32 @@ export default function GetLawyers() {
     setFilteredLawyers(filtered);
   };
 
+  const handleOpenDeleteModal = (lawyer: Lawyer) => {
+    setSelectedLawyer(lawyer);
+    setModalVisible(true);
+  };
+
   /**Handle delete function */
-  const handleDeleteLawyer = async (lawyerId: number) => {
+  const handleConfirmDelete = async () => {
+    if (!selectedLawyer) return;
     try {
       setDeleting(true);
-      setDeletingLawyerId(lawyerId);
-
-      const response = await deleteLawyer(lawyerId);
-
+      const response = await deleteLawyer(selectedLawyer.id);
       if (response.success) {
-        setLawyersData((prevLawyers) =>
-          prevLawyers.filter((lawyer) => lawyer.id !== lawyerId)
+        setLawyersData((prev) =>
+          prev.filter((l) => l.id !== selectedLawyer.id)
         );
         toast.success("Lawyer deleted successfully");
-        message.success("Lawyer deleted successfully");
       } else {
         throw new Error(response.message || "Delete failed");
       }
     } catch (error) {
-      console.error("Error deleting lawyer:", error);
+      console.error(error);
       toast.error("Failed to delete lawyer");
-      message.error("Failed to delete lawyer");
     } finally {
       setDeleting(false);
-      setDeletingLawyerId(null);
+      setModalVisible(false);
+      setSelectedLawyer(null);
     }
   };
 
@@ -188,10 +193,7 @@ export default function GetLawyers() {
       key: "delete",
       icon: <DeleteOutlined />,
       label: "Delete Lawyer",
-      onClick: () => {
-        console.log("Delete menu item clicked for:", lawyer.id);
-        handleDeleteLawyer(lawyer.id);
-      },
+      onClick: () => handleOpenDeleteModal(lawyer),
       danger: true,
     },
   ];
@@ -346,18 +348,21 @@ export default function GetLawyers() {
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                console.log("Direct delete button clicked for:", record.id);
-                handleDeleteLawyer(record.id); // ✅ Fixed: Call handleDeleteLawyer instead of getActionMenuItems
+                handleOpenDeleteModal(record); // ✅ call the modal here directly
               }}
-              className="hover:!bg-red-50 hover:!text-red-600 dark:hover:!bg-red-900/30 dark:hover:!text-red-400"
-              loading={deleting && deletingLawyerId === record.id}
-              style={{
-                borderRadius: "6px",
-                color: "#dc2626",
-              }}
+              loading={deleting && selectedLawyer?.id === record.id}
               danger
+              className="hover:!bg-red-50 hover:!text-red-600 dark:hover:!bg-red-900/30 dark:hover:!text-red-400"
+              style={{ borderRadius: "6px", color: "#dc2626" }}
             />
           </Tooltip>
+          <ConfirmationModal
+            visible={modalVisible}
+            entityName={selectedLawyer?.name || ""}
+            action="delete"
+            onConfirm={handleConfirmDelete}
+            onCancel={() => setModalVisible(false)}
+          />
         </Space>
       ),
     },
@@ -664,7 +669,7 @@ export default function GetLawyers() {
                     value={specializationFilter}
                     onChange={setSpecializationFilter}
                     size="large"
-                     className="w-full 
+                    className="w-full 
     [&_.ant-select-selector]:!rounded-xl 
     [&_.ant-select-selector]:dark:!bg-slate-900 
     [&_.ant-select-selector]:dark:!border-slate-600 
