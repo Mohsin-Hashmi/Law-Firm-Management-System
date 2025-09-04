@@ -142,7 +142,7 @@ export default function AddCase() {
 
       dispatch(addCase(response.data));
       toast.success("Case created successfully!");
-      router.push(`/pages/firm-admin/get-cases/${firmId}`);
+      router.push("/pages/firm-admin/get-cases");
       resetForm();
     } catch (err) {
       toast.error("Something went wrong while creating the case");

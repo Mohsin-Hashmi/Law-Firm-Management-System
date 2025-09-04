@@ -82,8 +82,11 @@ export default function AddFirm() {
         max_users: maxUsers,
         max_cases: maxCases,
       };
-
-      const response = await createFirm(payload);
+      if (!user?.role) {
+        toast.error("User role is missing. Cannot create firm.");
+        return;
+      }
+      const response = await createFirm(payload, user.role);
       if (!response) {
         toast.error("Failed to create firm");
         return;

@@ -7,6 +7,7 @@ const {
   Client,
   Case,
   CaseLawyer,
+  Role
 } = require("../models/index.js");
 const { FirmValidation } = require("../utils/validation.js");
 const validator = require("validator");
@@ -204,17 +205,15 @@ const firmStats = async (req, res) => {
 
     // Counts
     const lawyersCount = await Lawyer.count({ where: { firmId } });
-    const clientsCount = await Client.count({ where: { firmId } });
-    const totalUsersCount = (await Case.count({ where: { firmId } })) || 0;
+    const clientsCount = await Client.count({ where: { firmId }});
+    const totalCasesCount = await Case.count({ where: { firmId } });
     const activeLawyersCount = await Lawyer.count({
       where: { firmId, status: "active" },
     });
 
-    const recentClients = await User.findAll({
-      where: { role: "Client" },
-      order: [["createdAt", "DESC"]],
-      limit: 5,
-      attributes: ["id", "name", "email", "createdAt"],
+    // Recent clients
+    const recentClients = await Client.findAll({
+      where: { firmId },
     });
 
     res.json({
@@ -222,24 +221,23 @@ const firmStats = async (req, res) => {
       firmName: firm.name,
       lawyersCount,
       clientsCount,
-      totalUsersCount,
+      totalCasesCount,
       activeLawyersCount,
       recentClients,
       stats: {
-        totalUsers: totalUsersCount,
+        totalUsers: lawyersCount + clientsCount,
         activeUsers: activeLawyersCount + clientsCount,
         inactiveUsers: Math.max(
           0,
-          totalUsersCount - (activeLawyersCount + clientsCount)
+          lawyersCount + clientsCount - (activeLawyersCount + clientsCount)
         ),
       },
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to fetch firm stats" });
+    console.error("Firm stats error:", err);
+    res.status(500).json({ error: "Failed to fetch firm stats", details: err.message });
   }
 };
-
 /** Get all Lawyers API */
 const getAllLawyer = async (req, res) => {
   try {

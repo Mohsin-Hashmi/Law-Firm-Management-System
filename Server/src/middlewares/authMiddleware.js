@@ -21,12 +21,12 @@ const userAuth = async (req, res, next) => {
 
     req.user = {
       id: user.id,
-      role: user.role.name, // now it’s a string
-      firmId: decoded.firmId ?? user.firmId,
+      role: decoded.role || user.role?.name, // now it’s a string
+      firmId: decoded.firmId ?? null,
     };
 
     next();
-  } catch (err) {
+  } catch (err) {``
     return res
       .status(401)
       .json({ success: false, error: "Invalid token, Please login again" });

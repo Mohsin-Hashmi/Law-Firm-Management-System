@@ -4,11 +4,19 @@ import { FirmPayload, LawyerPayload, FirmStats, Lawyer } from "../types/firm";
 import { ClientPayload, Client } from "../types/client";
 import { Case } from "../types/case";
 
+
+
 /**Create firm API call */
-export const createFirm = async (data: FirmPayload) => {
-  const response = await axios.post(`${BASE_URL}/api/firm-admin/firm`, data, {
-    withCredentials: true,
-  });
+export const createFirm = async (data: FirmPayload, role?: string) => {
+  // Decide API path based on role
+  const rolePath = role === "Super Admin" ? "super-admin" : "firm-admin";
+
+  const response = await axios.post(
+    `${BASE_URL}/api/${rolePath}/firm`,
+    data,
+    { withCredentials: true }
+  );
+
   return response;
 };
 
@@ -355,7 +363,7 @@ export const getCaseById = async (firmId: number, id: number) => {
   }
 };
 
-export const deleteCaseByFrim = async (firmId: number, id: number) => {
+export const deleteCaseByFirm = async (firmId: number, id: number) => {
   try {
     const response = await axios.delete(
       `${BASE_URL}/api/firm-admin/firm/${firmId}/cases/${id}`,

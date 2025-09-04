@@ -336,8 +336,8 @@ export default function DashboardLayout({
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Top Header */}
-        <header className="h-20 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-8 shadow-sm dark:shadow-2xl">
-          <div className="flex items-center space-x-4">
+        <header className="h-20 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-6 shadow-sm dark:shadow-2xl">
+          <div className="flex items-center justify-between ">
             <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
               {role === "Super Admin" && "Super Admin Panel"}
               {role === "Firm Admin" && ""}

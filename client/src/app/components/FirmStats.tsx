@@ -90,10 +90,27 @@ export default function FirmStats({ firmId, role }: Props) {
         dispatch(setError(null));
         const lawyer = await getLawyers(firmId);
         dispatch(setLawyers(lawyer));
-        const clients = await getAllClients(firmId);
-        dispatch(setClients(clients));
-        const cases = await getAllCasesOfFirm(firmId);
-        dispatch(setCases(cases));
+        try {
+          const clients = await getAllClients(firmId);
+          if (clients) {
+            dispatch(setClients(clients));
+          } else {
+            dispatch(setClients([])); // fallback empty list
+            console.warn("No clients found or firmId missing:", clients);
+          }
+        } catch (err) {
+          console.warn("Error fetching clients:", err);
+          dispatch(setClients([]));
+        }
+
+        // ✅ Fetch cases safely
+        try {
+          const cases = await getAllCasesOfFirm(firmId);
+          dispatch(setCases(cases || []));
+        } catch (err) {
+          console.warn("Error fetching cases:", err);
+          dispatch(setCases([]));
+        }
       } catch (err) {
         console.error("Error fetching stats:", err);
         dispatch(setError("Failed to fetch stats"));

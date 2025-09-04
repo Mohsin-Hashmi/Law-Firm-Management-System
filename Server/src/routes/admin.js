@@ -8,12 +8,14 @@ const {
   updateLawyer,
   deleteLawyer,
   switchFirm,
-  getLawyerPerformance
+  getLawyerPerformance,
 } = require("../controllers/firm.controller");
 const adminRoute = express();
 const { userAuth, firmAdminAuth } = require("../middlewares/authMiddleware");
 const multer = require("multer");
 const path = require("path");
+const permissions = require("../constants/permissions");
+const checkPermission = require("../middlewares/checkPermission");
 
 // Multer storage config
 const storage = multer.diskStorage({
@@ -28,7 +30,13 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // Routes
-adminRoute.post("/firm", userAuth, firmAdminAuth, createFirm);
+adminRoute.post(
+  "/firm",
+  userAuth,
+  firmAdminAuth,
+  checkPermission(permissions.CREATE_FIRM),
+  createFirm
+);
 
 // Add lawyer with profile image
 adminRoute.post(
@@ -36,14 +44,10 @@ adminRoute.post(
   userAuth,
   firmAdminAuth,
   upload.single("profileImage"),
+  checkPermission(permissions.MANAGE_LAWYERS),
   createLawyer
 );
-adminRoute.get(
-  "/firms/:id/stats", 
-  userAuth, 
-  firmAdminAuth, 
-  firmStats
-);
+adminRoute.get("/firms/:id/stats", userAuth, firmAdminAuth, firmStats);
 adminRoute.get("/firms/lawyers", userAuth, firmAdminAuth, getAllLawyer);
 adminRoute.get("/firm/lawyer/:id", userAuth, firmAdminAuth, getLawyerById);
 adminRoute.put(
@@ -53,14 +57,14 @@ adminRoute.put(
   upload.single("profileImage"),
   updateLawyer
 );
-adminRoute.delete(
-  "/firm/lawyer/:id",
+adminRoute.delete("/firm/lawyer/:id", userAuth, firmAdminAuth, deleteLawyer);
+
+adminRoute.post("/switch-firm", userAuth, firmAdminAuth, switchFirm);
+
+adminRoute.get(
+  "/:id/performance",
   userAuth,
   firmAdminAuth,
-  deleteLawyer
+  getLawyerPerformance
 );
-
-adminRoute.post("/switch-firm", userAuth, firmAdminAuth,  switchFirm);
-
-adminRoute.get("/:id/performance", userAuth, firmAdminAuth,getLawyerPerformance)
 module.exports = adminRoute;

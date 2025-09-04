@@ -49,7 +49,7 @@ import { useAppDispatch } from "@/app/store/hooks";
 import { setCases } from "@/app/store/caseSlice";
 import { Case } from "@/app/types/case";
 import { toast } from "react-hot-toast";
-import { deleteCaseByFrim } from "@/app/service/adminAPI";
+import { deleteCaseByFirm } from "@/app/service/adminAPI";
 import { updateCaseStatus } from "@/app/service/adminAPI";
 
 const { Title, Text } = Typography;
@@ -149,7 +149,7 @@ export default function GetCases() {
         try {
           setDeleting(true);
           setDeletingCaseId(id);
-          await deleteCaseByFrim(firmId, id);
+          await deleteCaseByFirm(firmId, id);
           setCasesData((prevCases) =>
             prevCases.filter((case_) => case_.id !== id)
           );

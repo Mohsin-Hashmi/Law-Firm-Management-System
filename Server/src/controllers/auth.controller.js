@@ -25,7 +25,10 @@ const SignUp = async (req, res) => {
         error: "Password and Confirm Password do not match",
       });
     }
+
     const HASHED_PASSWORD = await bcrypt.hash(password, 10);
+
+    // By default assigning Firm Admin role
     const roleObj = await Role.findOne({ where: { name: "Firm Admin" } });
     if (!roleObj) {
       return res
@@ -41,13 +44,17 @@ const SignUp = async (req, res) => {
     };
 
     const user = await User.create(userData);
-    const safeUser = user.toJSON();
-    delete safeUser.password;
 
     res.status(201).json({
       success: true,
       message: "User signup successfully",
-      safeUser: user,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: roleObj.name, 
+        firms: [],          
+      },
     });
   } catch (err) {
     console.log("Signup error:", err);
@@ -115,7 +122,7 @@ const LoginIn = async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role,
+        role: user.role?.name,
         firms: user.adminFirms.map((af) => ({
           id: af.firm.id,
           name: af.firm.name,

@@ -20,6 +20,8 @@ import {
   List,
   Empty,
   Progress,
+  Table,
+  Modal,
 } from "antd";
 import {
   UserOutlined,
@@ -40,6 +42,9 @@ import {
   DollarOutlined,
   DownloadOutlined,
   EyeOutlined,
+  TrophyOutlined,
+  BarChartOutlined,
+  SafetyOutlined,
 } from "@ant-design/icons";
 import { getCaseById } from "@/app/service/adminAPI";
 import { toast } from "react-hot-toast";
@@ -95,8 +100,85 @@ interface Case {
   lawyers: Lawyer[];
   documents: CaseDocument[];
 }
+
 import { useAppSelector } from "@/app/store/hooks";
 import { RootState } from "@/app/store/store";
+
+// Circular Progress Component
+const CircularProgress = ({ 
+  percent, 
+  size = 120, 
+  strokeWidth = 8, 
+  color = "#059669",
+  title,
+  subtitle 
+}: {
+  percent: number;
+  size?: number;
+  strokeWidth?: number;
+  color?: string;
+  title: string;
+  subtitle?: string;
+}) => {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const offset = circumference - (percent / 100) * circumference;
+
+  return (
+    <div className="flex flex-col items-center">
+      <div className="relative" style={{ width: size, height: size }}>
+        <svg
+          className="transform -rotate-90"
+          width={size}
+          height={size}
+        >
+          {/* Background circle */}
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke="#e5e7eb"
+            strokeWidth={strokeWidth}
+            fill="transparent"
+            className="dark:stroke-slate-600"
+          />
+          {/* Progress circle */}
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke={color}
+            strokeWidth={strokeWidth}
+            fill="transparent"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
+            className="transition-all duration-500 ease-out"
+            style={{
+              filter: 'drop-shadow(0 0 4px rgba(5, 150, 105, 0.3))'
+            }}
+          />
+        </svg>
+        {/* Center text */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-2xl font-bold text-slate-800 dark:text-white">
+            {percent}%
+          </span>
+        </div>
+      </div>
+      <div className="mt-3 text-center">
+        <Text className="text-sm font-semibold text-slate-700 dark:text-white block">
+          {title}
+        </Text>
+        {subtitle && (
+          <Text className="text-xs text-slate-500 dark:text-slate-400">
+            {subtitle}
+          </Text>
+        )}
+      </div>
+    </div>
+  );
+};
 
 export default function GetCaseDetail({
   params,
@@ -111,6 +193,8 @@ export default function GetCaseDetail({
 
   const [caseData, setCaseData] = useState<Case | null>(null);
   const [loading, setLoading] = useState(true);
+  const [documentModalVisible, setDocumentModalVisible] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<CaseDocument | null>(null);
 
   useEffect(() => {
     if (caseId && firmId !== undefined) {
@@ -118,26 +202,26 @@ export default function GetCaseDetail({
     }
   }, [caseId, firmId]);
 
- const fetchCaseDetail = async () => {
-  if (firmId === undefined) return;
-  try {
-    setLoading(true);
-    const data = await getCaseById(firmId, caseId);
-    // If API returns { success: true, case: {...} }
-    setCaseData(data.case); // <-- use data.case, not data
-    toast.success("Successfully fetched case detail");
-  } catch (error) {
-    console.error("Error fetching case detail:", error);
-    toast.error("Failed to fetch case detail");
-  } finally {
-    setLoading(false);
-  }
-};
+  const fetchCaseDetail = async () => {
+    if (firmId === undefined) return;
+    try {
+      setLoading(true);
+      const data = await getCaseById(firmId, caseId);
+      setCaseData(data.case);
+      toast.success("Successfully fetched case detail");
+    } catch (error) {
+      console.error("Error fetching case detail:", error);
+      toast.error("Failed to fetch case detail");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
       case "ongoing":
+      case "open":
         return { color: "#059669", bg: "#f0fdf4", border: "#bbf7d0" };
       case "closed":
       case "completed":
@@ -178,6 +262,7 @@ export default function GetCaseDetail({
         return 25;
       case "active":
       case "ongoing":
+      case "open":
         return 65;
       case "completed":
       case "closed":
@@ -187,11 +272,109 @@ export default function GetCaseDetail({
     }
   };
 
+  const handleDocumentView = (document: CaseDocument) => {
+    setSelectedDocument(document);
+    setDocumentModalVisible(true);
+  };
+
+  const documentColumns = [
+    {
+      title: 'Document',
+      dataIndex: 'fileName',
+      key: 'fileName',
+      render: (text: string, record: CaseDocument) => (
+        <Space>
+          <Avatar
+            size={40}
+            icon={<FileTextOutlined />}
+            className="bg-blue-50 text-blue-600 border border-blue-200"
+          />
+          <div>
+            <Text className="font-semibold text-slate-800 dark:text-white block">
+              {text}
+            </Text>
+            {record.documentType && (
+              <Tag
+                // size="small"
+                className="mt-1"
+                color="blue"
+              >
+                {record.documentType}
+              </Tag>
+            )}
+          </div>
+        </Space>
+      ),
+    },
+    {
+      title: 'Size',
+      dataIndex: 'fileSize',
+      key: 'fileSize',
+      render: (size: number) => (
+        <Text className="text-slate-600 dark:text-slate-300">
+          {formatFileSize(size)}
+        </Text>
+      ),
+    },
+    {
+      title: 'Upload Date',
+      dataIndex: 'uploadDate',
+      key: 'uploadDate',
+      render: (date: string) => (
+        <Text className="text-slate-600 dark:text-slate-300">
+          {new Date(date).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })}
+        </Text>
+      ),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (text: any, record: CaseDocument) => (
+        <Space>
+          <Tooltip title="View Document">
+            <Button
+              type="text"
+              icon={<EyeOutlined />}
+              onClick={() => handleDocumentView(record)}
+              className="text-blue-600 hover:bg-blue-50 border border-blue-200 rounded-lg"
+            />
+          </Tooltip>
+          <Tooltip title="Download">
+            <Button
+              type="text"
+              icon={<DownloadOutlined />}
+              onClick={() => {
+                const link = document.createElement("a");
+                link.href = `http://localhost:5000${record.fileUrl}`;
+                link.download = record.fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              }}
+              className="text-emerald-600 hover:bg-emerald-50 border border-emerald-200 rounded-lg"
+            />
+          </Tooltip>
+        </Space>
+      ),
+    },
+  ];
+
   if (loading) {
     return (
       <DashboardLayout>
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex justify-center items-center transition-colors duration-300">
-          <Spin size="large" />
+          <div className="text-center">
+            <Spin size="large" />
+            <div className="mt-4">
+              <Text className="text-slate-600 dark:text-slate-400">
+                Loading case details...
+              </Text>
+            </div>
+          </div>
         </div>
       </DashboardLayout>
     );
@@ -235,32 +418,57 @@ export default function GetCaseDetail({
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <DashboardLayout>
-        <div className="min-h-screen p-6 bg-slate-50 dark:bg-slate-900 transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
+        <div className="min-h-screen p-6 bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
           <div className="max-w-[1400px] mx-auto">
-            {/* Header Section */}
+            
+            {/* Professional Header */}
             <Card
-              className="bg-blue-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+              className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-slate-800 dark:to-slate-900 border-none rounded-2xl shadow-xl mb-8"
               bodyStyle={{ padding: "32px" }}
             >
               <Row align="middle" justify="space-between">
                 <Col>
                   <Space size="large">
-                    <div
-                      className="w-20 h-20 flex items-center justify-center rounded-2xl 
-                     border-2 border-white/30 bg-white/10 backdrop-blur-md"
-                    >
-                      <FolderOpenOutlined className="text-white text-3xl" />
+                    <div className="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 border-white/20 backdrop-blur-sm">
+                      <SafetyOutlined className="text-[32px] text-white" />
                     </div>
                     <div>
                       <Title
                         level={1}
-                        className="!text-white !m-0 text-3xl font-semibold tracking-tight"
+                        className="!text-white !m-0 text-4xl font-bold tracking-tight"
                       >
-                        Case Details
+                        {caseData.title}
                       </Title>
-                      <Text className="text-white/80 text-lg">
-                        Comprehensive case information and management
+                      <Text className="text-white/90 text-lg font-medium">
+                        Case ID: #{caseData.id?.toString().padStart(6, "0")}
                       </Text>
+                      <div className="mt-3">
+                        <Space size="middle" wrap>
+                          <Tag
+                            style={{
+                              backgroundColor: "rgba(255,255,255,0.2)",
+                              color: "white",
+                              border: "1px solid rgba(255,255,255,0.3)",
+                              borderRadius: "8px",
+                              padding: "4px 12px",
+                              fontSize: "13px",
+                              fontWeight: "500",
+                              backdropFilter: "blur(10px)",
+                            }}
+                          >
+                            <BankOutlined className="mr-1" />
+                            {caseData.caseType}
+                          </Tag>
+                          <Badge
+                            status="success"
+                            text={
+                              <span className="text-white/90 text-sm font-medium">
+                                {caseData.status}
+                              </span>
+                            }
+                          />
+                        </Space>
+                      </div>
                     </div>
                   </Space>
                 </Col>
@@ -270,9 +478,7 @@ export default function GetCaseDetail({
                       icon={<ArrowLeftOutlined />}
                       onClick={() => router.back()}
                       size="large"
-                      className="rounded-xl font-semibold px-6 h-12 
-                     bg-white/20 border-white/30 text-white backdrop-blur 
-                     hover:!bg-white/30 hover:!text-white"
+                      className="rounded-xl font-semibold px-6 h-12 bg-white/20 border-white/30 text-white backdrop-blur hover:!bg-white/30 hover:!text-white"
                     >
                       Back
                     </Button>
@@ -281,12 +487,9 @@ export default function GetCaseDetail({
                       size="large"
                       icon={<EditOutlined />}
                       onClick={() =>
-                        router.push(
-                          `/pages/firm-admin/edit-case/${caseData.id}`
-                        )
+                        router.push(`/pages/firm-admin/edit-case/${caseData.id}`)
                       }
-                      className="rounded-xl font-semibold px-6 h-12 
-                     bg-white text-blue-600 shadow-md"
+                      className="rounded-xl font-semibold px-6 h-12 bg-white text-blue-600 shadow-lg hover:!bg-white hover:!text-blue-700"
                     >
                       Edit Case
                     </Button>
@@ -295,32 +498,78 @@ export default function GetCaseDetail({
               </Row>
             </Card>
 
-            {/* Case Overview Card */}
+            {/* Progress and Key Metrics */}
+            <Row gutter={[24, 24]} className="mb-8">
+              <Col xs={24} lg={8}>
+                <Card
+                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
+                  bodyStyle={{ padding: "32px", textAlign: "center" }}
+                >
+                  <CircularProgress
+                    percent={getProgressValue()}
+                    title="Case Progress"
+                    subtitle="Overall completion"
+                    color="#059669"
+                  />
+                </Card>
+              </Col>
+              
+              <Col xs={24} lg={8}>
+                <Card
+                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
+                  bodyStyle={{ padding: "32px", textAlign: "center" }}
+                >
+                  <CircularProgress
+                    percent={caseData.lawyers?.length ? (caseData.lawyers.length / 5) * 100 : 0}
+                    title="Team Utilization"
+                    subtitle={`${caseData.lawyers?.length || 0} lawyers assigned`}
+                    color="#1e40af"
+                  />
+                </Card>
+              </Col>
+              
+              <Col xs={24} lg={8}>
+                <Card
+                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
+                  bodyStyle={{ padding: "32px", textAlign: "center" }}
+                >
+                  <CircularProgress
+                    percent={caseData.documents?.length ? Math.min((caseData.documents.length / 10) * 100, 100) : 0}
+                    title="Documentation"
+                    subtitle={`${caseData.documents?.length || 0} documents`}
+                    color="#7c3aed"
+                  />
+                </Card>
+              </Col>
+            </Row>
+
+            {/* Case Overview */}
             <Card
-              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
-              bodyStyle={{ padding: "40px" }}
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 mb-8"
+              title={
+                <Space>
+                  <TrophyOutlined className="text-blue-600 dark:text-blue-400" />
+                  <span className="text-slate-900 dark:text-white font-bold text-lg">
+                    Case Overview
+                  </span>
+                </Space>
+              }
+              bodyStyle={{ padding: "32px" }}
             >
-              <Row gutter={[32, 32]} align="top">
-                {/* Case Basic Info */}
+              <Row gutter={[32, 32]}>
                 <Col xs={24} lg={16}>
-                  <div>
-                    <div style={{ marginBottom: "24px" }}>
-                      <Title
-                        level={2}
-                        style={{ marginBottom: "8px", color: "#111827" }}
-                      >
-                        {caseData.title}
-                      </Title>
-                      <Space size="middle" wrap>
+                  <Space direction="vertical" size="large" style={{ width: "100%" }}>
+                    <div>
+                      <Space size="middle" wrap className="mb-4">
                         <Tag
                           style={{
                             backgroundColor: statusStyle.bg,
                             color: statusStyle.color,
                             border: `1px solid ${statusStyle.border}`,
                             borderRadius: "8px",
-                            padding: "6px 14px",
+                            padding: "6px 16px",
                             fontSize: "14px",
-                            fontWeight: "500",
+                            fontWeight: "600",
                           }}
                         >
                           {caseData.status}
@@ -331,518 +580,153 @@ export default function GetCaseDetail({
                             color: priorityStyle.color,
                             border: `1px solid ${priorityStyle.border}`,
                             borderRadius: "8px",
-                            padding: "6px 14px",
+                            padding: "6px 16px",
                             fontSize: "14px",
-                            fontWeight: "500",
+                            fontWeight: "600",
                           }}
                         >
                           {caseData.priority} Priority
                         </Tag>
-                        <Tag
-                          color="#f0fdf4"
-                          style={{
-                            color: "#059669",
-                            border: "1px solid #bbf7d0",
-                            borderRadius: "8px",
-                            padding: "6px 14px",
-                            fontSize: "14px",
-                            fontWeight: "500",
-                          }}
-                        >
-                          <BankOutlined style={{ marginRight: "6px" }} />
-                          {caseData.caseType}
-                        </Tag>
                       </Space>
-                    </div>
-
-                    <div style={{ marginBottom: "24px" }}>
-                      <Text
-                        style={{
-                          fontSize: "14px",
-                          color: "#64748b",
-                          fontWeight: "500",
-                        }}
-                      >
-                        Case Description
-                      </Text>
-                      <div style={{ marginTop: "8px" }}>
-                        <Text
-                          style={{
-                            fontSize: "16px",
-                            color: "#111827",
-                            lineHeight: "1.6",
-                          }}
-                        >
+                      
+                      <div className="mb-6">
+                        <Text className="text-slate-600 dark:text-slate-400 text-sm font-semibold block mb-2">
+                          Case Description
+                        </Text>
+                        <Text className="text-slate-800 dark:text-white text-base leading-relaxed">
                           {caseData.description}
                         </Text>
                       </div>
                     </div>
-
-                    <div style={{ marginTop: "24px" }}>
-                      <Text
-                        style={{
-                          fontSize: "14px",
-                          color: "#64748b",
-                          fontWeight: "500",
-                        }}
-                      >
-                        Case Progress
-                      </Text>
-                      <Progress
-                        percent={getProgressValue()}
-                        status={
-                          caseData.status === "completed"
-                            ? "success"
-                            : "active"
-                        }
-                        strokeColor="#059669"
-                        style={{ marginTop: "8px" }}
-                      />
-                    </div>
-                  </div>
+                  </Space>
                 </Col>
 
-                {/* Case Statistics */}
                 <Col xs={24} lg={8}>
-                  <Space
-                    direction="vertical"
-                    size="large"
-                    style={{ width: "100%" }}
+                  <Card
+                    bordered={false}
+                    className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 rounded-xl"
+                    bodyStyle={{ padding: "24px" }}
                   >
-                    <Card
-                      bordered={false}
-                      className="bg-slate-50 dark:bg-slate-700 rounded-xl"
-                      bodyStyle={{ padding: "20px" }}
-                    >
+                    <Space direction="vertical" style={{ width: "100%" }} size="large">
                       <Statistic
                         title={
-                          <span
-                            style={{
-                              color: "#059669",
-                              fontSize: "14px",
-                              fontWeight: "600",
-                            }}
-                          >
-                            Case ID
+                          <span className="text-emerald-600 dark:text-emerald-400 text-sm font-semibold">
+                            Estimated Value
                           </span>
                         }
-                        value={`#${caseData.id?.toString().padStart(6, "0")}`}
+                        value={caseData.estimatedValue || 0}
+                        prefix="$"
                         valueStyle={{
                           color: "#059669",
                           fontSize: "24px",
                           fontWeight: "700",
                         }}
-                        prefix={<IdcardOutlined style={{ color: "#059669" }} />}
+                        formatter={(value) => `${Number(value).toLocaleString()}`}
                       />
-                    </Card>
-
-                    <Card
-                      bordered={false}
-                      className="bg-slate-50 dark:bg-slate-700 rounded-xl"
-                      bodyStyle={{ padding: "20px" }}
-                    >
+                      
                       <Statistic
                         title={
-                          <span
-                            style={{
-                              color: "#1e40af",
-                              fontSize: "14px",
-                              fontWeight: "600",
-                            }}
-                          >
-                            Assigned Lawyers
+                          <span className="text-blue-600 dark:text-blue-400 text-sm font-semibold">
+                            Actual Value
                           </span>
                         }
-                        value={caseData.lawyers?.length || 0}
+                        value={caseData.actualValue || 0}
+                        prefix="$"
                         valueStyle={{
                           color: "#1e40af",
                           fontSize: "24px",
                           fontWeight: "700",
                         }}
-                        prefix={<TeamOutlined style={{ color: "#1e40af" }} />}
+                        formatter={(value) => `${Number(value).toLocaleString()}`}
                       />
-                    </Card>
-
-                    <Card
-                      bordered={false}
-                      className="bg-slate-50 dark:bg-slate-700 rounded-xl"
-                      bodyStyle={{ padding: "20px" }}
-                    >
-                      <Statistic
-                        title={
-                          <span
-                            style={{
-                              color: "#7c3aed",
-                              fontSize: "14px",
-                              fontWeight: "600",
-                            }}
-                          >
-                            Documents
-                          </span>
-                        }
-                        value={caseData.documents?.length || 0}
-                        valueStyle={{
-                          color: "#7c3aed",
-                          fontSize: "24px",
-                          fontWeight: "700",
-                        }}
-                        prefix={
-                          <FileTextOutlined style={{ color: "#7c3aed" }} />
-                        }
-                      />
-                    </Card>
-                  </Space>
+                    </Space>
+                  </Card>
                 </Col>
               </Row>
             </Card>
 
-            {/* Performance Statistics */}
-            <Row gutter={[24, 24]} style={{ marginBottom: "32px" }}>
-              <Col xs={24} sm={12} lg={6}>
-                <Card
-                  style={{
-                    borderRadius: "16px",
-                    border: "1px solid #bbf7d0",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                    background:
-                      "linear-gradient(135deg, #f0fdf4 0%, #bbf7d0 100%)",
-                  }}
-                  bodyStyle={{ padding: "28px" }}
-                >
-                  <Statistic
-                    title={
-                      <span
-                        style={{
-                          color: "#059669",
-                          fontSize: "14px",
-                          fontWeight: "600",
-                        }}
-                      >
-                        Start Date
-                      </span>
-                    }
-                    value={new Date(caseData.startDate).toLocaleDateString(
-                      "en-US",
-                      {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      }
-                    )}
-                    valueStyle={{
-                      color: "#059669",
-                      fontSize: "18px",
-                      fontWeight: "700",
-                    }}
-                    prefix={<CalendarOutlined style={{ color: "#059669" }} />}
-                  />
-                </Card>
-              </Col>
-
-              <Col xs={24} sm={12} lg={6}>
-                <Card
-                  style={{
-                    borderRadius: "16px",
-                    border: "1px solid #dbeafe",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                    background:
-                      "linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)",
-                  }}
-                  bodyStyle={{ padding: "28px" }}
-                >
-                  <Statistic
-                    title={
-                      <span
-                        style={{
-                          color: "#1e40af",
-                          fontSize: "14px",
-                          fontWeight: "600",
-                        }}
-                      >
-                        {caseData.endDate ? "End Date" : "Duration"}
-                      </span>
-                    }
-                    value={
-                      caseData.endDate
-                        ? new Date(caseData.endDate).toLocaleDateString(
-                            "en-US",
-                            {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                            }
-                          )
-                        : `${Math.floor(
-                            (new Date().getTime() -
-                              new Date(caseData.startDate).getTime()) /
-                              (1000 * 60 * 60 * 24)
-                          )} days`
-                    }
-                    valueStyle={{
-                      color: "#1e40af",
-                      fontSize: "18px",
-                      fontWeight: "700",
-                    }}
-                    prefix={
-                      <ClockCircleOutlined style={{ color: "#1e40af" }} />
-                    }
-                  />
-                </Card>
-              </Col>
-
-              <Col xs={24} sm={12} lg={6}>
-                <Card
-                  style={{
-                    borderRadius: "16px",
-                    border: "1px solid #fde68a",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                    background:
-                      "linear-gradient(135deg, #fffbeb 0%, #fde68a 100%)",
-                  }}
-                  bodyStyle={{ padding: "28px" }}
-                >
-                  <Statistic
-                    title={
-                      <span
-                        style={{
-                          color: "#d97706",
-                          fontSize: "14px",
-                          fontWeight: "600",
-                        }}
-                      >
-                        Estimated Value
-                      </span>
-                    }
-                    value={caseData.estimatedValue || 0}
-                    prefix="$"
-                    valueStyle={{
-                      color: "#d97706",
-                      fontSize: "20px",
-                      fontWeight: "700",
-                    }}
-                    formatter={(value) => `${Number(value).toLocaleString()}`}
-                  />
-                </Card>
-              </Col>
-
-              <Col xs={24} sm={12} lg={6}>
-                <Card
-                  style={{
-                    borderRadius: "16px",
-                    border: "1px solid #e9d5ff",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                    background:
-                      "linear-gradient(135deg, #faf5ff 0%, #e9d5ff 100%)",
-                  }}
-                  bodyStyle={{ padding: "28px" }}
-                >
-                  <Statistic
-                    title={
-                      <span
-                        style={{
-                          color: "#7c3aed",
-                          fontSize: "14px",
-                          fontWeight: "600",
-                        }}
-                      >
-                        Actual Value
-                      </span>
-                    }
-                    value={caseData.actualValue || 0}
-                    prefix="$"
-                    valueStyle={{
-                      color: "#7c3aed",
-                      fontSize: "20px",
-                      fontWeight: "700",
-                    }}
-                    formatter={(value) => `${Number(value).toLocaleString()}`}
-                  />
-                </Card>
-              </Col>
-            </Row>
-
-            <Row gutter={[24, 24]}>
+            {/* Client and Team Information */}
+            <Row gutter={[24, 24]} className="mb-8">
               {/* Client Information */}
               <Col xs={24} lg={12}>
                 <Card
                   title={
                     <Space>
-                      <UserOutlined style={{ color: "#059669" }} />
-                      <span style={{ color: "#111827", fontWeight: "600" }}>
+                      <UserOutlined className="text-emerald-600 dark:text-emerald-400" />
+                      <span className="text-slate-900 dark:text-white font-bold">
                         Client Information
                       </span>
                     </Space>
                   }
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
-                  headStyle={{
-                    borderBottom: "1px solid #f1f5f9",
-                    background: "#fafbfc",
-                    borderRadius: "16px 16px 0 0",
-                  }}
+                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 h-full"
                   bodyStyle={{ padding: "24px" }}
                 >
-                  <div style={{ textAlign: "center", marginBottom: "24px" }}>
-                    {/* <Avatar
+                  <div className="text-center mb-6">
+                    <Avatar
                       size={80}
                       src={
-                        caseData.client.profileImage
+                        caseData.client?.profileImage
                           ? `http://localhost:5000${caseData.client.profileImage}`
                           : undefined
                       }
-                      icon={!caseData.client.profileImage && <UserOutlined />}
-                      style={{
-                        background: caseData.client.profileImage
-                          ? "transparent"
-                          : "#f1f5f9",
-                        border: "2px solid #e5e7eb",
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                        marginBottom: "16px",
-                      }}
-                    /> */}
-                    <Title level={4} style={{ margin: 0, color: "#111827" }}>
-                      {caseData?.client?.fullName}
+                      icon={<UserOutlined />}
+                      className="bg-gradient-to-br from-emerald-100 to-emerald-200 border-2 border-emerald-300 shadow-lg mb-4"
+                    />
+                    <Title level={4} className="text-slate-800 dark:text-white m-0">
+                      {caseData.client?.fullName}
                     </Title>
-                     <Tag
-                      style={{
-                        backgroundColor: "#f0fdf4",
-                        color: "#059669",
-                        border: "1px solid #bbf7d0",
-                        borderRadius: "8px",
-                        marginTop: "8px",
-                      }}
+                    <Tag
+                      className="mt-2"
+                      color="green"
                     >
-                      {caseData?.client?.clientType}
-                    </Tag> 
+                      {caseData.client?.clientType}
+                    </Tag>
                   </div>
 
-                  <Space
-                    direction="vertical"
-                    size="middle"
-                    style={{ width: "100%" }}
-                  >
-                    <div>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          marginBottom: "8px",
-                        }}
-                      >
-                        <MailOutlined
-                          style={{
-                            color: "#059669",
-                            fontSize: "16px",
-                            marginRight: "8px",
-                          }}
-                        />
-                        <Text
-                          style={{
-                            fontSize: "14px",
-                            color: "#64748b",
-                            fontWeight: "500",
-                          }}
-                        >
+                  <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+                    <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                      <div className="flex items-center mb-2">
+                        <MailOutlined className="text-emerald-600 mr-2" />
+                        <Text className="text-slate-600 dark:text-slate-400 text-sm font-medium">
                           Email
                         </Text>
                       </div>
-                       <Text
-                        style={{
-                          fontSize: "16px",
-                          color: "#111827",
-                          fontWeight: "500",
-                        }}
-                        copyable={{ tooltips: ["Copy email", "Email copied!"] }}
+                      <Text
+                        className="text-slate-800 dark:text-white font-medium"
+                        copyable={{ tooltips: ["Copy email", "Copied!"] }}
                       >
-                        {caseData?.client?.email}
-                      </Text> 
+                        {caseData.client?.email}
+                      </Text>
                     </div>
 
-                    <div>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          marginBottom: "8px",
-                        }}
-                      >
-                        <PhoneOutlined
-                          style={{
-                            color: "#059669",
-                            fontSize: "16px",
-                            marginRight: "8px",
-                          }}
-                        />
-                        <Text
-                          style={{
-                            fontSize: "14px",
-                            color: "#64748b",
-                            fontWeight: "500",
-                          }}
-                        >
+                    <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                      <div className="flex items-center mb-2">
+                        <PhoneOutlined className="text-emerald-600 mr-2" />
+                        <Text className="text-slate-600 dark:text-slate-400 text-sm font-medium">
                           Phone
                         </Text>
                       </div>
                       <Text
-                        style={{
-                          fontSize: "16px",
-                          color: "#111827",
-                          fontWeight: "500",
-                        }}
-                        copyable={{ tooltips: ["Copy phone", "Phone copied!"] }}
+                        className="text-slate-800 dark:text-white font-medium"
+                        copyable={{ tooltips: ["Copy phone", "Copied!"] }}
                       >
-                        {caseData?.client?.phone}
+                        {caseData.client?.phone}
                       </Text>
                     </div>
 
-                    {caseData?.client?.address && (
-                      <div>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            marginBottom: "8px",
-                          }}
-                        >
-                          <HomeOutlined
-                            style={{
-                              color: "#059669",
-                              fontSize: "16px",
-                              marginRight: "8px",
-                            }}
-                          />
-                          <Text
-                            style={{
-                              fontSize: "14px",
-                              color: "#64748b",
-                              fontWeight: "500",
-                            }}
-                          >
+                    {caseData.client?.address && (
+                      <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                        <div className="flex items-center mb-2">
+                          <HomeOutlined className="text-emerald-600 mr-2" />
+                          <Text className="text-slate-600 dark:text-slate-400 text-sm font-medium">
                             Address
                           </Text>
                         </div>
-                        <Text
-                          style={{
-                            fontSize: "16px",
-                            color: "#111827",
-                            fontWeight: "500",
-                          }}
-                        >
-                          {caseData?.client?.address}
+                        <Text className="text-slate-800 dark:text-white font-medium">
+                          {caseData.client.address}
                         </Text>
                       </div>
                     )}
-
-                    <Button
-                      type="link"
-                      onClick={() =>
-                        router.push(
-                          `/pages/firm-admin/get-client/${caseData.client.id}`
-                        )
-                      }
-                      style={{ padding: 0, marginTop: "16px" }}
-                    >
-                      View Full Client Profile →
-                    </Button>
                   </Space>
                 </Card>
               </Col>
@@ -852,27 +736,20 @@ export default function GetCaseDetail({
                 <Card
                   title={
                     <Space>
-                      <TeamOutlined style={{ color: "#059669" }} />
-                      <span style={{ color: "#111827", fontWeight: "600" }}>
-                        Assigned Lawyers ({caseData?.lawyers?.length || 0})
+                      <TeamOutlined className="text-blue-600 dark:text-blue-400" />
+                      <span className="text-slate-900 dark:text-white font-bold">
+                        Legal Team ({caseData.lawyers?.length || 0})
                       </span>
                     </Space>
                   }
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
-                  headStyle={{
-                    borderBottom: "1px solid #f1f5f9",
-                    background: "#fafbfc",
-                    borderRadius: "16px 16px 0 0",
-                  }}
+                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 h-full"
                   bodyStyle={{ padding: "24px" }}
                 >
-                  {caseData.lawyers && caseData?.lawyers.length > 0 ? (
+                  {caseData.lawyers && caseData.lawyers.length > 0 ? (
                     <List
                       dataSource={caseData.lawyers}
                       renderItem={(lawyer) => (
-                        <List.Item
-                          style={{ border: "none", padding: "12px 0" }}
-                        >
+                        <List.Item className="border-none px-0 py-3">
                           <List.Item.Meta
                             avatar={
                               <Avatar
@@ -883,47 +760,27 @@ export default function GetCaseDetail({
                                     : undefined
                                 }
                                 icon={<UserOutlined />}
-                                style={{
-                                  background: lawyer.profileImage
-                                    ? "transparent"
-                                    : "#f1f5f9",
-                                  border: "1px solid #e5e7eb",
-                                }}
+                                className="bg-gradient-to-br from-blue-100 to-blue-200 border border-blue-300"
                               />
                             }
                             title={
-                              <Text
-                                style={{
-                                  fontSize: "16px",
-                                  fontWeight: "600",
-                                  color: "#111827",
-                                }}
-                              >
+                              <Text className="text-slate-800 dark:text-white font-semibold text-base">
                                 {lawyer.fullName}
                               </Text>
                             }
                             description={
                               <Space direction="vertical" size="small">
-                                <Text
-                                  style={{ color: "#64748b", fontSize: "14px" }}
-                                >
+                                <Text className="text-slate-600 dark:text-slate-400 text-sm">
                                   {lawyer.email}
                                 </Text>
-                                <Text
-                                  style={{ color: "#64748b", fontSize: "14px" }}
-                                >
+                                <Text className="text-slate-600 dark:text-slate-400 text-sm">
                                   {lawyer.phone}
                                 </Text>
                                 {lawyer.specialization && (
                                   <Tag
-                                    style={{
-                                      backgroundColor: "#eff6ff",
-                                      color: "#1e40af",
-                                      border: "1px solid #dbeafe",
-                                      borderRadius: "6px",
-                                      fontSize: "12px", // 👈 instead of size="small"
-                                      padding: "2px 8px",
-                                    }}
+                                    color="blue"
+                                    // size="small"
+                                    className="text-xs"
                                   >
                                     {lawyer.specialization}
                                   </Tag>
@@ -936,173 +793,45 @@ export default function GetCaseDetail({
                     />
                   ) : (
                     <Empty
-                      image={
-                        <TeamOutlined
-                          style={{ fontSize: "48px", color: "#d1d5db" }}
-                        />
-                      }
-                      description="No lawyers assigned to this case"
+                      image={<TeamOutlined style={{ fontSize: "48px", color: "#d1d5db" }} />}
+                      description="No lawyers assigned"
                     />
                   )}
                 </Card>
               </Col>
             </Row>
 
-            {/* Case Documents */}
+            {/* Case Documents Table */}
             <Card
               title={
                 <Space>
-                  <FileTextOutlined style={{ color: "#059669" }} />
-                  <span style={{ color: "#111827", fontWeight: "600" }}>
+                  <FileTextOutlined className="text-purple-600 dark:text-purple-400" />
+                  <span className="text-slate-900 dark:text-white font-bold text-lg">
                     Case Documents ({caseData.documents?.length || 0})
                   </span>
                 </Space>
               }
-              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
-              headStyle={{
-                borderBottom: "1px solid #f1f5f9",
-                background: "#fafbfc",
-                borderRadius: "16px 16px 0 0",
-              }}
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 mb-8"
               bodyStyle={{ padding: "24px" }}
             >
               {caseData.documents && caseData.documents.length > 0 ? (
-                <Row gutter={[16, 16]}>
-                  {caseData.documents.map((document) => (
-                    <Col xs={24} sm={12} lg={8} key={document.id}>
-                      <Card
-                        bordered={false}
-                        className="bg-slate-50 dark:bg-slate-700 rounded-xl hover:shadow-md transition-all duration-300"
-                        bodyStyle={{ padding: "20px" }}
-                      >
-                        <Space
-                          direction="vertical"
-                          size="middle"
-                          style={{ width: "100%" }}
-                        >
-                          <div style={{ textAlign: "center" }}>
-                            <FileTextOutlined
-                              style={{
-                                fontSize: "32px",
-                                color: "#059669",
-                                marginBottom: "8px",
-                              }}
-                            />
-                          </div>
-
-                          <div style={{ textAlign: "center" }}>
-                            <Text
-                              style={{
-                                fontSize: "16px",
-                                fontWeight: "600",
-                                color: "#111827",
-                                display: "block",
-                                marginBottom: "4px",
-                              }}
-                            >
-                              {document.fileName}
-                            </Text>
-
-                            {document.documentType && (
-                              <Tag
-                                style={{
-                                  backgroundColor: "#eff6ff",
-                                  color: "#1e40af",
-                                  border: "1px solid #dbeafe",
-                                  borderRadius: "6px",
-                                  marginBottom: "8px",
-                                  fontSize: "12px",
-                                  padding: "2px 8px",
-                                }}
-                              >
-                                {document.documentType}
-                              </Tag>
-                            )}
-
-                            <Text
-                              style={{
-                                fontSize: "12px",
-                                color: "#64748b",
-                                display: "block",
-                                marginBottom: "4px",
-                              }}
-                            >
-                              {formatFileSize(document.fileSize)}
-                            </Text>
-
-                            <Text
-                              style={{
-                                fontSize: "12px",
-                                color: "#64748b",
-                                display: "block",
-                              }}
-                            >
-                              {new Date(document.uploadDate).toLocaleDateString(
-                                "en-US",
-                                {
-                                  month: "short",
-                                  day: "numeric",
-                                  year: "numeric",
-                                }
-                              )}
-                            </Text>
-                          </div>
-
-                          <Space
-                            size="small"
-                            style={{ width: "100%", justifyContent: "center" }}
-                          >
-                            <Tooltip title="View Document">
-                              <Button
-                                type="text"
-                                icon={<EyeOutlined />}
-                                onClick={() =>
-                                  window.open(
-                                    `http://localhost:5000${document.fileUrl}`,
-                                    "_blank"
-                                  )
-                                }
-                                style={{
-                                  color: "#059669",
-                                  border: "1px solid #bbf7d0",
-                                  borderRadius: "8px",
-                                }}
-                              />
-                            </Tooltip>
-                            {/* <Tooltip title="Download Document">
-                              <Button
-                                type="text"
-                                icon={<DownloadOutlined />}
-                                onClick={() => {
-                                  const link = document.createElement("a");
-                                  link.href = `http://localhost:5000${document.fileUrl}`;
-                                  link.download = document.fileName;
-                                  document.body.appendChild(link);
-                                  link.click();
-                                  document.body.removeChild(link);
-                                }}
-                                style={{
-                                  color: "#1e40af",
-                                  border: "1px solid #dbeafe",
-                                  borderRadius: "8px",
-                                }}
-                              />
-                            </Tooltip> */}
-                          </Space>
-                        </Space>
-                      </Card>
-                    </Col>
-                  ))}
-                </Row>
+                <Table
+                  dataSource={caseData.documents}
+                  columns={documentColumns}
+                  rowKey="id"
+                  pagination={{
+                    pageSize: 10,
+                    showSizeChanger: true,
+                    showTotal: (total, range) =>
+                      `${range[0]}-${range[1]} of ${total} documents`,
+                  }}
+                  className="[&_.ant-table-thead>tr>th]:bg-slate-50 [&_.ant-table-thead>tr>th]:dark:bg-slate-700 [&_.ant-table-thead>tr>th]:border-slate-200 [&_.ant-table-thead>tr>th]:dark:border-slate-600"
+                />
               ) : (
                 <Empty
-                  image={
-                    <FileTextOutlined
-                      style={{ fontSize: "64px", color: "#d1d5db" }}
-                    />
-                  }
+                  image={<FileTextOutlined style={{ fontSize: "64px", color: "#d1d5db" }} />}
                   description={
-                    <span style={{ color: "#64748b", fontSize: "16px" }}>
+                    <span className="text-slate-600 dark:text-slate-400 text-lg">
                       No documents uploaded for this case
                     </span>
                   }
@@ -1110,11 +839,7 @@ export default function GetCaseDetail({
                   <Button
                     type="primary"
                     icon={<FileTextOutlined />}
-                    style={{
-                      background: "#059669",
-                      borderColor: "#059669",
-                      borderRadius: "8px",
-                    }}
+                    className="bg-purple-600 hover:bg-purple-700 border-purple-600 rounded-lg mt-4"
                   >
                     Upload First Document
                   </Button>
@@ -1122,278 +847,251 @@ export default function GetCaseDetail({
               )}
             </Card>
 
-            {/* Case Timeline & Dates */}
-            <Row gutter={[24, 24]} style={{ marginBottom: "32px" }}>
+            {/* Timeline and Financial Summary */}
+            <Row gutter={[24, 24]} className="mb-8">
+              {/* Case Timeline */}
               <Col xs={24} lg={12}>
                 <Card
                   title={
                     <Space>
-                      <CalendarOutlined style={{ color: "#059669" }} />
-                      <span style={{ color: "#111827", fontWeight: "600" }}>
+                      <CalendarOutlined className="text-amber-600 dark:text-amber-400" />
+                      <span className="text-slate-900 dark:text-white font-bold">
                         Case Timeline
                       </span>
                     </Space>
                   }
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
-                  headStyle={{
-                    borderBottom: "1px solid #f1f5f9",
-                    background: "#fafbfc",
-                    borderRadius: "16px 16px 0 0",
-                  }}
+                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 h-full"
                   bodyStyle={{ padding: "24px" }}
                 >
-                  <Space
-                    direction="vertical"
-                    size="large"
-                    style={{ width: "100%" }}
-                  >
-                    <div>
-                      <Text
-                        style={{
-                          fontSize: "14px",
-                          color: "#64748b",
-                          fontWeight: "500",
-                        }}
-                      >
+                  <Space direction="vertical" size="large" style={{ width: "100%" }}>
+                    <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+                      <Text className="text-amber-700 dark:text-amber-300 text-sm font-semibold block mb-1">
                         Case Created
                       </Text>
-                      <br />
-                      <Text
-                        style={{
-                          fontSize: "16px",
-                          color: "#111827",
-                          fontWeight: "500",
-                        }}
-                      >
-                        {new Date(caseData.createdAt).toLocaleDateString(
-                          "en-US",
-                          {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          }
-                        )}
+                      <Text className="text-slate-800 dark:text-white text-lg font-bold">
+                        {new Date(caseData.createdAt).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </Text>
+                      <Text className="text-slate-600 dark:text-slate-400 text-sm">
+                        {new Date(caseData.createdAt).toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </Text>
                     </div>
 
-                    <div>
-                      <Text
-                        style={{
-                          fontSize: "14px",
-                          color: "#64748b",
-                          fontWeight: "500",
-                        }}
-                      >
+                    <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                      <Text className="text-blue-700 dark:text-blue-300 text-sm font-semibold block mb-1">
                         Start Date
                       </Text>
-                      <br />
-                      <Text
-                        style={{
-                          fontSize: "16px",
-                          color: "#111827",
-                          fontWeight: "500",
-                        }}
-                      >
-                        {new Date(caseData.startDate).toLocaleDateString(
-                          "en-US",
-                          {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          }
-                        )}
+                      <Text className="text-slate-800 dark:text-white text-lg font-bold">
+                        {new Date(caseData.startDate).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
                       </Text>
                     </div>
 
                     {caseData.endDate && (
-                      <div>
-                        <Text
-                          style={{
-                            fontSize: "14px",
-                            color: "#64748b",
-                            fontWeight: "500",
-                          }}
-                        >
+                      <div className="p-4 bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 rounded-xl border border-emerald-200 dark:border-emerald-800">
+                        <Text className="text-emerald-700 dark:text-emerald-300 text-sm font-semibold block mb-1">
                           End Date
                         </Text>
-                        <br />
-                        <Text
-                          style={{
-                            fontSize: "16px",
-                            color: "#111827",
-                            fontWeight: "500",
-                          }}
-                        >
-                          {new Date(caseData.endDate).toLocaleDateString(
-                            "en-US",
-                            {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            }
-                          )}
+                        <Text className="text-slate-800 dark:text-white text-lg font-bold">
+                          {new Date(caseData.endDate).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
                         </Text>
                       </div>
                     )}
 
-                    <div>
-                      <Text
-                        style={{
-                          fontSize: "14px",
-                          color: "#64748b",
-                          fontWeight: "500",
-                        }}
-                      >
+                    <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
+                      <Text className="text-purple-700 dark:text-purple-300 text-sm font-semibold block mb-1">
                         Last Updated
                       </Text>
-                      <br />
-                      <Text
-                        style={{
-                          fontSize: "16px",
-                          color: "#111827",
-                          fontWeight: "500",
-                        }}
-                      >
-                        {new Date(caseData.updatedAt).toLocaleDateString(
-                          "en-US",
-                          {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          }
-                        )}
+                      <Text className="text-slate-800 dark:text-white text-lg font-bold">
+                        {new Date(caseData.updatedAt).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </Text>
+                      <Text className="text-slate-600 dark:text-slate-400 text-sm">
+                        {new Date(caseData.updatedAt).toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </Text>
+                    </div>
+
+                    <div className="p-4 bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-700 dark:to-gray-700 rounded-xl border border-slate-200 dark:border-slate-600">
+                      <Text className="text-slate-700 dark:text-slate-300 text-sm font-semibold block mb-1">
+                        Duration
+                      </Text>
+                      <Text className="text-slate-800 dark:text-white text-lg font-bold">
+                        {caseData.endDate
+                          ? Math.floor(
+                              (new Date(caseData.endDate).getTime() -
+                                new Date(caseData.startDate).getTime()) /
+                                (1000 * 60 * 60 * 24)
+                            )
+                          : Math.floor(
+                              (new Date().getTime() -
+                                new Date(caseData.startDate).getTime()) /
+                                (1000 * 60 * 60 * 24)
+                            )}{" "}
+                        days
+                      </Text>
+                      <Text className="text-slate-600 dark:text-slate-400 text-sm">
+                        {caseData.endDate ? "Total duration" : "Ongoing"}
                       </Text>
                     </div>
                   </Space>
                 </Card>
               </Col>
 
-              {/* Financial Information */}
+              {/* Financial Summary */}
               <Col xs={24} lg={12}>
                 <Card
                   title={
                     <Space>
-                      <DollarOutlined style={{ color: "#059669" }} />
-                      <span style={{ color: "#111827", fontWeight: "600" }}>
-                        Financial Information
+                      <DollarOutlined className="text-emerald-600 dark:text-emerald-400" />
+                      <span className="text-slate-900 dark:text-white font-bold">
+                        Financial Summary
                       </span>
                     </Space>
                   }
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
-                  headStyle={{
-                    borderBottom: "1px solid #f1f5f9",
-                    background: "#fafbfc",
-                    borderRadius: "16px 16px 0 0",
-                  }}
+                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 h-full"
                   bodyStyle={{ padding: "24px" }}
                 >
-                  <Space
-                    direction="vertical"
-                    size="large"
-                    style={{ width: "100%" }}
-                  >
+                  <Space direction="vertical" size="large" style={{ width: "100%" }}>
                     <Row gutter={16}>
                       <Col span={12}>
                         <Card
                           bordered={false}
-                          className="bg-blue-50 dark:bg-slate-600 rounded-lg"
-                          bodyStyle={{ padding: "16px", textAlign: "center" }}
+                          className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 rounded-xl border border-blue-200 dark:border-blue-700"
+                          bodyStyle={{ padding: "20px", textAlign: "center" }}
                         >
-                          <Text
-                            style={{
-                              fontSize: "12px",
-                              color: "#64748b",
-                              fontWeight: "500",
-                            }}
-                          >
-                            Estimated Value
-                          </Text>
-                          <br />
-                          <Text
-                            style={{
-                              fontSize: "20px",
+                          <Statistic
+                            title={
+                              <span className="text-blue-700 dark:text-blue-300 text-xs font-bold">
+                                ESTIMATED VALUE
+                              </span>
+                            }
+                            value={caseData.estimatedValue || 0}
+                            prefix="$"
+                            valueStyle={{
                               color: "#1e40af",
-                              fontWeight: "700",
+                              fontSize: "20px",
+                              fontWeight: "800",
                             }}
-                          >
-                            ${(caseData.estimatedValue || 0).toLocaleString()}
-                          </Text>
+                            formatter={(value) => `${Number(value).toLocaleString()}`}
+                          />
                         </Card>
                       </Col>
                       <Col span={12}>
                         <Card
                           bordered={false}
-                          className="bg-green-50 dark:bg-slate-600 rounded-lg"
-                          bodyStyle={{ padding: "16px", textAlign: "center" }}
+                          className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/30 dark:to-emerald-800/30 rounded-xl border border-emerald-200 dark:border-emerald-700"
+                          bodyStyle={{ padding: "20px", textAlign: "center" }}
                         >
-                          <Text
-                            style={{
-                              fontSize: "12px",
-                              color: "#64748b",
-                              fontWeight: "500",
-                            }}
-                          >
-                            Actual Value
-                          </Text>
-                          <br />
-                          <Text
-                            style={{
-                              fontSize: "20px",
+                          <Statistic
+                            title={
+                              <span className="text-emerald-700 dark:text-emerald-300 text-xs font-bold">
+                                ACTUAL VALUE
+                              </span>
+                            }
+                            value={caseData.actualValue || 0}
+                            prefix="$"
+                            valueStyle={{
                               color: "#059669",
-                              fontWeight: "700",
+                              fontSize: "20px",
+                              fontWeight: "800",
                             }}
-                          >
-                            ${(caseData.actualValue || 0).toLocaleString()}
-                          </Text>
+                            formatter={(value) => `${Number(value).toLocaleString()}`}
+                          />
                         </Card>
                       </Col>
                     </Row>
 
                     {caseData.estimatedValue && caseData.actualValue && (
-                      <div>
-                        <Text
-                          style={{
-                            fontSize: "14px",
-                            color: "#64748b",
-                            fontWeight: "500",
-                          }}
-                        >
-                          Value Difference
-                        </Text>
-                        <br />
-                        <Text
-                          style={{
-                            fontSize: "16px",
-                            color:
-                              caseData.actualValue >= caseData.estimatedValue
-                                ? "#059669"
-                                : "#dc2626",
-                            fontWeight: "600",
-                          }}
-                        >
-                          {caseData.actualValue >= caseData.estimatedValue
-                            ? "+"
-                            : "-"}
-                          $
-                          {Math.abs(
-                            caseData.actualValue - caseData.estimatedValue
-                          ).toLocaleString()}{" "}
-                          (
-                          {(
-                            (Math.abs(
+                      <Card
+                        bordered={false}
+                        className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 rounded-xl border border-slate-200 dark:border-slate-600"
+                        bodyStyle={{ padding: "20px" }}
+                      >
+                        <div className="text-center">
+                          <Text className="text-slate-600 dark:text-slate-400 text-sm font-semibold block mb-2">
+                            Value Difference
+                          </Text>
+                          <Text
+                            className="text-2xl font-bold"
+                            style={{
+                              color:
+                                caseData.actualValue >= caseData.estimatedValue
+                                  ? "#059669"
+                                  : "#dc2626",
+                            }}
+                          >
+                            {caseData.actualValue >= caseData.estimatedValue ? "+" : ""}
+                            $
+                            {Math.abs(
                               caseData.actualValue - caseData.estimatedValue
-                            ) /
-                              caseData.estimatedValue) *
-                            100
-                          ).toFixed(1)}
-                          %)
-                        </Text>
-                      </div>
+                            ).toLocaleString()}
+                          </Text>
+                          <Text
+                            className="text-sm font-medium"
+                            style={{
+                              color:
+                                caseData.actualValue >= caseData.estimatedValue
+                                  ? "#059669"
+                                  : "#dc2626",
+                            }}
+                          >
+                            ({caseData.actualValue >= caseData.estimatedValue ? "+" : ""}
+                            {(
+                              (Math.abs(
+                                caseData.actualValue - caseData.estimatedValue
+                              ) /
+                                caseData.estimatedValue) *
+                              100
+                            ).toFixed(1)}
+                            %)
+                          </Text>
+                        </div>
+                      </Card>
                     )}
+
+                    <Card
+                      bordered={false}
+                      className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-800/30 rounded-xl border border-purple-200 dark:border-purple-700"
+                      bodyStyle={{ padding: "20px" }}
+                    >
+                      <Row gutter={16}>
+                        <Col span={12} className="text-center">
+                          <Text className="text-purple-700 dark:text-purple-300 text-xs font-bold block mb-1">
+                            PRIORITY LEVEL
+                          </Text>
+                          <Text className="text-purple-800 dark:text-purple-200 text-lg font-bold">
+                            {caseData.priority}
+                          </Text>
+                        </Col>
+                        <Col span={12} className="text-center">
+                          <Text className="text-purple-700 dark:text-purple-300 text-xs font-bold block mb-1">
+                            CASE TYPE
+                          </Text>
+                          <Text className="text-purple-800 dark:text-purple-200 text-lg font-bold">
+                            {caseData.caseType}
+                          </Text>
+                        </Col>
+                      </Row>
+                    </Card>
                   </Space>
                 </Card>
               </Col>
@@ -1401,12 +1099,12 @@ export default function GetCaseDetail({
 
             {/* Action Buttons */}
             <Card
-              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mt-[40px]"
-              bodyStyle={{ padding: "24px" }}
+              className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg"
+              bodyStyle={{ padding: "32px" }}
             >
               <Row justify="center">
                 <Col>
-                  <Space size="large">
+                  <Space size="large" wrap>
                     <Button
                       type="primary"
                       size="large"
@@ -1414,15 +1112,7 @@ export default function GetCaseDetail({
                       onClick={() =>
                         router.push(`/pages/firm-admin/edit-case/${caseId}`)
                       }
-                      style={{
-                        background: "#059669",
-                        borderColor: "#059669",
-                        borderRadius: "12px",
-                        fontWeight: "600",
-                        padding: "12px 32px",
-                        height: "48px",
-                        boxShadow: "0 4px 12px rgba(5, 150, 105, 0.3)",
-                      }}
+                      className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 border-none rounded-xl font-semibold px-8 h-12 shadow-lg"
                     >
                       Edit Case
                     </Button>
@@ -1431,14 +1121,7 @@ export default function GetCaseDetail({
                       size="large"
                       icon={<FolderOpenOutlined />}
                       onClick={() => router.push("/pages/firm-admin/get-cases")}
-                      style={{
-                        borderRadius: "12px",
-                        border: "1px solid #d1d5db",
-                        fontWeight: "600",
-                        padding: "12px 32px",
-                        height: "48px",
-                        color: "#374151",
-                      }}
+                      className="rounded-xl border-2 border-slate-300 dark:border-slate-600 font-semibold px-8 h-12 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                     >
                       View All Cases
                     </Button>
@@ -1451,14 +1134,7 @@ export default function GetCaseDetail({
                           `/pages/firm-admin/get-client/${caseData.client.id}`
                         )
                       }
-                      style={{
-                        borderRadius: "12px",
-                        border: "1px solid #059669",
-                        fontWeight: "600",
-                        padding: "12px 32px",
-                        height: "48px",
-                        color: "#059669",
-                      }}
+                      className="rounded-xl border-2 border-blue-300 dark:border-blue-600 font-semibold px-8 h-12 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/30"
                     >
                       View Client Profile
                     </Button>
@@ -1467,17 +1143,9 @@ export default function GetCaseDetail({
                       size="large"
                       icon={<FileTextOutlined />}
                       onClick={() => {
-                        // Add logic to upload new document
                         toast.success("Document upload feature coming soon");
                       }}
-                      style={{
-                        borderRadius: "12px",
-                        border: "1px solid #1e40af",
-                        fontWeight: "600",
-                        padding: "12px 32px",
-                        height: "48px",
-                        color: "#1e40af",
-                      }}
+                      className="rounded-xl border-2 border-purple-300 dark:border-purple-600 font-semibold px-8 h-12 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/30"
                     >
                       Upload Document
                     </Button>
@@ -1486,6 +1154,82 @@ export default function GetCaseDetail({
               </Row>
             </Card>
           </div>
+
+          {/* Document View Modal */}
+          <Modal
+            title={
+              <Space>
+                <FileTextOutlined className="text-blue-600" />
+                <span className="font-semibold">Document Viewer</span>
+              </Space>
+            }
+            open={documentModalVisible}
+            onCancel={() => {
+              setDocumentModalVisible(false);
+              setSelectedDocument(null);
+            }}
+            footer={[
+              <Button
+                key="download"
+                type="primary"
+                icon={<DownloadOutlined />}
+                onClick={() => {
+                  if (selectedDocument) {
+                    const link = document.createElement("a");
+                    link.href = `http://localhost:5000${selectedDocument.fileUrl}`;
+                    link.download = selectedDocument.fileName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }
+                }}
+                className="bg-emerald-600 hover:bg-emerald-700 border-emerald-600"
+              >
+                Download
+              </Button>,
+              <Button
+                key="close"
+                onClick={() => {
+                  setDocumentModalVisible(false);
+                  setSelectedDocument(null);
+                }}
+              >
+                Close
+              </Button>,
+            ]}
+            width="80%"
+            style={{ maxWidth: "1200px" }}
+          >
+            {selectedDocument && (
+              <div className="text-center">
+                <div className="mb-4">
+                  <Title level={4} className="text-slate-800 dark:text-white">
+                    {selectedDocument.fileName}
+                  </Title>
+                  <Space size="middle">
+                    <Text className="text-slate-600 dark:text-slate-400">
+                      Size: {formatFileSize(selectedDocument.fileSize)}
+                    </Text>
+                    <Text className="text-slate-600 dark:text-slate-400">
+                      Uploaded: {new Date(selectedDocument.uploadDate).toLocaleDateString()}
+                    </Text>
+                    {selectedDocument.documentType && (
+                      <Tag color="blue">{selectedDocument.documentType}</Tag>
+                    )}
+                  </Space>
+                </div>
+                <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-8">
+                  <iframe
+                    src={`http://localhost:5000${selectedDocument.fileUrl}`}
+                    width="100%"
+                    height="600px"
+                    className="rounded-lg"
+                    title={selectedDocument.fileName}
+                  />
+                </div>
+              </div>
+            )}
+          </Modal>
         </div>
       </DashboardLayout>
     </ThemeProvider>
