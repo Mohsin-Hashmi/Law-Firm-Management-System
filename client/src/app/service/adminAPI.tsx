@@ -4,18 +4,14 @@ import { FirmPayload, LawyerPayload, FirmStats, Lawyer } from "../types/firm";
 import { ClientPayload, Client } from "../types/client";
 import { Case } from "../types/case";
 
-
-
 /**Create firm API call */
 export const createFirm = async (data: FirmPayload, role?: string) => {
   // Decide API path based on role
   const rolePath = role === "Super Admin" ? "super-admin" : "firm-admin";
 
-  const response = await axios.post(
-    `${BASE_URL}/api/${rolePath}/firm`,
-    data,
-    { withCredentials: true }
-  );
+  const response = await axios.post(`${BASE_URL}/api/${rolePath}/firm`, data, {
+    withCredentials: true,
+  });
 
   return response;
 };
@@ -324,7 +320,9 @@ export const getAllCasesOfFirm = async (firmId: number): Promise<Case[]> => {
   }
 };
 
-export const getAllCasesOfLawyer = async (lawyerId: number): Promise<Case[]> => {
+export const getAllCasesOfLawyer = async (
+  lawyerId: number
+): Promise<Case[]> => {
   try {
     const response = await axios.get<{ cases: Case[] }>(
       `${BASE_URL}/api/firm-admin/lawyer/${lawyerId}/cases`,
@@ -382,12 +380,16 @@ export const deleteCaseByFirm = async (firmId: number, id: number) => {
   }
 };
 
-export const updateCaseStatus = async (firmId: number, id: number, status: string) => {
+export const updateCaseStatus = async (
+  firmId: number,
+  id: number,
+  status: string
+) => {
   try {
     const response = await axios.patch(
       `${BASE_URL}/api/firm-admin/firm/${firmId}/cases/${id}/status`,
       {
-        status
+        status,
       },
       {
         withCredentials: true,
@@ -405,3 +407,36 @@ export const updateCaseStatus = async (firmId: number, id: number, status: strin
     throw new Error("Unexpected error while fetching clients");
   }
 };
+
+/**
+ * Role Permission APIs
+ * 1=> Get Permissoins
+ * 2=> Create Permission
+ */
+
+export const getPermissions = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}/api/roles/get-permissions`, {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    console.log("Error in get permission API", error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        `Error fetching cases of firm: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    }
+    throw new Error("Unexpected error while fetching clients");
+  }
+};
+
+export const createRole = async()=>{
+  try{
+    await axios.post(`${BASE_URL}`)
+  }catch(error){
+
+  }
+}

@@ -47,17 +47,42 @@ adminRoute.post(
   checkPermission(permissions.MANAGE_LAWYERS),
   createLawyer
 );
-adminRoute.get("/firms/:id/stats", userAuth, firmAdminAuth, firmStats);
-adminRoute.get("/firms/lawyers", userAuth, firmAdminAuth, getAllLawyer);
-adminRoute.get("/firm/lawyer/:id", userAuth, firmAdminAuth, getLawyerById);
+adminRoute.get(
+  "/firms/:id/stats",
+  userAuth,
+  firmAdminAuth,
+  checkPermission(permissions.VIEW_STATS),
+  firmStats
+);
+adminRoute.get(
+  "/firms/lawyers",
+  userAuth,
+  firmAdminAuth,
+  checkPermission(permissions.MANAGE_LAWYERS),
+  getAllLawyer
+);
+adminRoute.get(
+  "/firm/lawyer/:id",
+  userAuth,
+  firmAdminAuth,
+  checkPermission(permissions.MANAGE_LAWYERS),
+  getLawyerById
+);
 adminRoute.put(
   "/firm/lawyer/:id",
   userAuth,
   firmAdminAuth,
+  checkPermission(permissions.MANAGE_LAWYERS),
   upload.single("profileImage"),
   updateLawyer
 );
-adminRoute.delete("/firm/lawyer/:id", userAuth, firmAdminAuth, deleteLawyer);
+adminRoute.delete(
+  "/firm/lawyer/:id",
+  userAuth,
+  firmAdminAuth,
+  checkPermission(permissions.MANAGE_LAWYERS),
+  deleteLawyer
+);
 
 adminRoute.post("/switch-firm", userAuth, firmAdminAuth, switchFirm);
 

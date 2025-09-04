@@ -26,13 +26,14 @@ import {
   BankOutlined,
   FileTextOutlined,
 } from "@ant-design/icons";
-import { useState } from "react";
 import { switchFirmAPI } from "../service/adminAPI";
 import { getLawyers } from "../service/adminAPI";
 import { setLawyers } from "../store/lawyerSlice";
 import ThemeToggle from "./ThemeToggle";
 import { clearFirm } from "../store/firmSlice";
 import { clearLawyers } from "../store/lawyerSlice";
+import RoleModal from "./RoleModal";
+import { useState } from "react";
 
 export default function DashboardLayout({
   children,
@@ -46,6 +47,10 @@ export default function DashboardLayout({
   const user = useAppSelector((state) => state.user.user);
   const [collapsed, setCollapsed] = useState(false);
   const [isSwitchingFirm, setIsSwitchingFirm] = useState(false); // Add loading state
+  const [isRoleModalVisible, setIsRoleModalVisible] = useState(false);
+
+  const handleOpenRoleModal = () => setIsRoleModalVisible(true);
+  const handleCloseRoleModal = () => setIsRoleModalVisible(false);
 
   const handleLogout = async () => {
     const response = await logoutUser();
@@ -58,10 +63,17 @@ export default function DashboardLayout({
 
   // Custom loading icon for the spinner
   const antIcon = <LoadingOutlined style={{ fontSize: 16 }} spin />;
+  type NavLink = {
+  label: string;
+  href?: string; // optional because some items are buttons
+  icon: React.ReactNode;
+  category?: string;
+  onClick?: () => void; // optional click handler
+};
 
   const navLinksMap: Record<
     string,
-    { label: string; href: string; icon: React.ReactNode; category?: string }[]
+    NavLink[]
   > = {
     "Super Admin": [
       { label: "Home", href: "/", icon: <HomeOutlined />, category: "Main" },
@@ -110,10 +122,17 @@ export default function DashboardLayout({
         category: "Main",
       },
       {
-        label: "Create New Law Firm",
+        label: "Add New Business",
         href: "/pages/firm-admin/add-firm",
         icon: <BankOutlined />,
         category: "Main",
+      },
+      {
+        label: "Role Management",
+        href: "#", // since it's a modal, we won't navigate
+        icon: <TeamOutlined />,
+        category: "Management", // adjust category as needed
+        onClick: handleOpenRoleModal, // call modal open
       },
       {
         label: "Lawyers",
@@ -151,6 +170,8 @@ export default function DashboardLayout({
         icon: <PlusOutlined />,
         category: "Case Management",
       },
+
+      
     ],
     Lawyer: [
       { label: "Home", href: "/", icon: <HomeOutlined />, category: "Main" },
@@ -281,35 +302,58 @@ export default function DashboardLayout({
                   </h3>
                 )}
                 <div className="space-y-1">
-                  {links.map((link) => (
-                    <Link
-                      key={link.label}
-                      href={link.href}
-                      className={`flex items-center ${
-                        collapsed ? "justify-center px-3" : "px-3"
-                      } py-3 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all duration-200 group relative`}
-                      title={collapsed ? link.label : ""}
-                    >
-                      <span className="text-lg group-hover:scale-110 transition-transform duration-200">
-                        {link.icon}
-                      </span>
-                      {!collapsed && (
-                        <span className="ml-3 text-sm font-medium">
-                          {link.label}
+                  {links.map((navItem) =>
+                    navItem.onClick ? (
+                      <button
+                        key={navItem.label}
+                        onClick={navItem.onClick}
+                        className={`flex items-center ${
+                          collapsed ? "justify-center px-3" : "px-3"
+                        } py-3 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all duration-200 group relative`}
+                        title={collapsed ? navItem.label : ""}
+                      >
+                        <span className="text-lg group-hover:scale-110 transition-transform duration-200">
+                          {navItem.icon}
                         </span>
-                      )}
-                      {collapsed && (
-                        <div className="absolute left-16 bg-slate-800 dark:bg-slate-700 text-white dark:text-white px-2 py-1 rounded-md text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
-                          {link.label}
-                        </div>
-                      )}
-                    </Link>
-                  ))}
+                        {!collapsed && (
+                          <span className="ml-3 text-sm font-medium">
+                            {navItem.label}
+                          </span>
+                        )}
+                      </button>
+                    ) : (
+                      <Link
+                        key={navItem.label}
+                        href={navItem.href!}
+                        className={`flex items-center ${
+                          collapsed ? "justify-center px-3" : "px-3"
+                        } py-3 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all duration-200 group relative`}
+                        title={collapsed ? navItem.label : ""}
+                      >
+                        <span className="text-lg group-hover:scale-110 transition-transform duration-200">
+                          {navItem.icon}
+                        </span>
+                        {!collapsed && (
+                          <span className="ml-3 text-sm font-medium">
+                            {navItem.label}
+                          </span>
+                        )}
+                      </Link>
+                    )
+                  )}
                 </div>
               </div>
             ))}
           </div>
         </nav>
+        <RoleModal
+  visible={isRoleModalVisible}
+  onClose={handleCloseRoleModal}
+  onRoleCreated={(newRole) => {
+    console.log("New role created:", newRole);
+    // Optionally, refresh your nav links or update state
+  }}
+/>
 
         {/* Logout Button */}
         <div className="px-4 py-4 border-t border-slate-100 dark:border-slate-700">
@@ -424,13 +468,15 @@ export default function DashboardLayout({
                     if (pathname.startsWith("/pages/firm-admin/edit-client")) {
                       router.push("/pages/dashboard");
                     }
-                     if (pathname.startsWith("/pages/firm-admin/add-lawyer")) {
+                    if (pathname.startsWith("/pages/firm-admin/add-lawyer")) {
                       router.push("/pages/dashboard");
                     }
-                    if (pathname.startsWith("/pages/firm-admin/create-client")) {
+                    if (
+                      pathname.startsWith("/pages/firm-admin/create-client")
+                    ) {
                       router.push("/pages/dashboard");
                     }
-                     if (pathname.startsWith("/pages/firm-admin/add-case")) {
+                    if (pathname.startsWith("/pages/firm-admin/add-case")) {
                       router.push("/pages/dashboard");
                     }
                     toast.success("Switched firm successfully");

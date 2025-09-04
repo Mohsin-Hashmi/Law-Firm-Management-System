@@ -5,4 +5,5 @@ module.exports = {
   VIEW_STATS: "view_stats",
   MANAGE_LAWYERS: "manage_lawyers",
   MANAGE_CLIENTS: "manage_clients",
+  CREATE_ROLE: "create_role"
 };

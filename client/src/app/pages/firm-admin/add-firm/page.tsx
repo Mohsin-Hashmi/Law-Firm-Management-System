@@ -229,7 +229,7 @@ export default function AddFirm() {
                           letterSpacing: "-0.025em",
                         }}
                       >
-                        Create New Law Firm
+                        Add New Business
                       </Title>
                       <Text
                         style={{

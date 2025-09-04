@@ -9,6 +9,7 @@ const lawyerRoutes = require("./routes/lawyer");
 const adminRoute = require("./routes/admin");
 const clientRoute = require("./routes/client");
 const caseRoute = require("./routes/case");
+const roleRoutes = require("./routes/role");
 const cors = require("cors");
 const { User, Role  } = require("./models");
 const { where } = require("sequelize");
@@ -87,6 +88,7 @@ app.use("/api/firm-admin", adminRoute);
 app.use("/api/firm-admin", clientRoute);
 app.use("/api/firm-admin", caseRoute);
 app.use("/api/lawyers", lawyerRoutes);
+app.use("/api/roles", roleRoutes);
 // =====Start Server====
 app.listen(PORT, async () => {
   console.log(`App is listening at port ${PORT}`);
