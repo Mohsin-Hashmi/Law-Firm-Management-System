@@ -4,6 +4,7 @@ import { addLawyer } from "@/app/service/adminAPI";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { setLawyers } from "@/app/store/lawyerSlice";
 import { RootState } from "@/app/store/store";
+import ConfirmationModal from "@/app/components/ConfirmationModal";
 import {
   ArrowLeftOutlined,
   CameraOutlined,
@@ -66,6 +67,7 @@ export default function AddLawyer() {
   const [loading, setLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
 
   // Preview image before submit
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,7 +76,12 @@ export default function AddLawyer() {
       setPreviewUrl(URL.createObjectURL(e.target.files[0]));
     }
   };
-
+  const showCreationModal = () => setIsCreateModalVisible(true);
+  const hideCreateModal = () => setIsCreateModalVisible(false);
+  const handleConfirmCreate = () => {
+    hideCreateModal();
+    form.submit(); // Trigger form submission
+  };
   const handleCreateLawyer = async () => {
     try {
       setLoading(true);
@@ -671,28 +678,38 @@ export default function AddLawyer() {
 
                       <Button
                         type="primary"
-                        htmlType="submit"
                         size="large"
                         icon={<SaveOutlined />}
-                        loading={loading}
-                        style={{
-                          background: isHovered ? "#1d4ed8" : "#1e40af",
-                          borderColor: isHovered ? "#1d4ed8" : "#1e40af",
-                          padding: "12px 40px",
-                          fontSize: "15px",
-                          fontWeight: "600",
-                          height: "48px",
-                          boxShadow: "0 4px 12px rgba(30, 64, 175, 0.25)",
-                          transform: isHovered
-                            ? "translateY(-1px)"
-                            : "translateY(0)",
-                          transition: "all 0.2s ease",
+                        onClick={async () => {
+                          try {
+                            // validateFields will throw if any required field is empty
+                            await form.validateFields();
+                           
+                            showCreationModal();
+                          } catch (err) {
+                            
+                            console.log("Validation failed:", err);
+                          }
                         }}
-                        onMouseEnter={() => setIsHovered(true)}
-                        onMouseLeave={() => setIsHovered(false)}
+                        style={{
+                          background: "#1e40af",
+                          borderColor: "#1e40af",
+                          borderRadius: "12px",
+                          fontWeight: "600",
+                          padding: "12px 32px",
+                          height: "48px",
+                          boxShadow: "0 4px 12px rgba(30, 64, 175, 0.3)",
+                        }}
                       >
-                        Add Lawyer to Firm
+                        Add Lawyer To Firm
                       </Button>
+                      <ConfirmationModal
+                        visible={isCreateModalVisible}
+                        entityName={name || "Lawyer"}
+                        action="create"
+                        onConfirm={handleConfirmCreate}
+                        onCancel={hideCreateModal}
+                      />
                     </Space>
 
                     <div style={{ marginTop: "24px", textAlign: "center" }}>

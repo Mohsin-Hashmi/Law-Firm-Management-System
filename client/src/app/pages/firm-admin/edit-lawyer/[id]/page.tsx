@@ -92,6 +92,7 @@ export default function EditLawyer({ params }: { params: { id: number } }) {
     hideUpdateModal();
     form.submit(); // Trigger form submission
   };
+   
   const handleSubmit = async (values: Lawyer) => {
     try {
       setSubmitting(true);

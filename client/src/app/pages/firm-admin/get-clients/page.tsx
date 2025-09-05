@@ -2,6 +2,7 @@
 import DashboardLayout from "@/app/components/DashboardLayout";
 import { useAppSelector } from "@/app/store/hooks";
 import { RootState } from "@/app/store/store";
+import ConfirmationModal from "@/app/components/ConfirmationModal";
 import {
   BankOutlined,
   CheckCircleOutlined,
@@ -67,6 +68,8 @@ export default function GetClients() {
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [clientTypeFilter, setClientTypeFilter] = useState<string>("all");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
 
   useEffect(() => {
     filterClients();
@@ -80,7 +83,7 @@ export default function GetClients() {
       setLoading(true);
       const response = await getAllClients(firmId);
       setClientsData(response);
-      dispatch(setClients(response))
+      dispatch(setClients(response));
       toast.success("Fetch clients successfully");
       console.log("Successfully fetched clients data:", response);
     } catch (error) {
@@ -132,22 +135,28 @@ export default function GetClients() {
     setFilteredClients(filtered);
   };
 
+  const handleOpenDeleteModal = (client: Client) => {
+    setSelectedClient(client);
+    setModalVisible(true);
+  };
+
   /**Handle delete function */
-  const handleDeleteClient = async (clientId: number) => {
+  const handleDeleteClient = async () => {
+    if (!selectedClient) return;
     try {
       setDeleting(true);
-      setDeletingClientId(clientId);
-
-      await deleteClient(clientId);
-      setClientsData((prevLawyers) =>
-        prevLawyers.filter((client) => client.id !== clientId)
-      );
-      toast.success("Lawyer deleted successfully");
-      message.success("Lawyer deleted successfully");
+      const response = await deleteClient(selectedClient.id);
+      if (response) {
+        setClientsData((prev) =>
+          prev.filter((c) => c.id !== selectedClient.id)
+        );
+        toast.success("Lawyer deleted successfully");
+      } else {
+        throw new Error(response || "Delete failed");
+      }
     } catch (error) {
       console.error("Error deleting lawyer:", error);
       toast.error("Failed to delete lawyer");
-      message.error("Failed to delete lawyer");
     } finally {
       setDeleting(false);
       setDeletingClientId(null);
@@ -409,15 +418,22 @@ export default function GetClients() {
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                handleDeleteClient(record.id);
+                handleOpenDeleteModal(record);
               }}
               loading={deleting && deletingClientId === record.id}
-               className="hover:!bg-red-50 hover:!text-red-600 dark:hover:!bg-red-900/30 dark:hover:!text-red-400"
+              className="hover:!bg-red-50 hover:!text-red-600 dark:hover:!bg-red-900/30 dark:hover:!text-red-400"
               style={{
                 borderRadius: "6px",
                 color: "#dc2626",
               }}
               danger
+            />
+            <ConfirmationModal
+              visible={modalVisible}
+              entityName={selectedClient?.fullName || ""}
+              action="delete"
+              onConfirm={handleDeleteClient}
+              onCancel={() => setModalVisible(false)}
             />
           </Tooltip>
         </Space>
@@ -736,7 +752,7 @@ export default function GetClients() {
                     value={clientTypeFilter}
                     onChange={setClientTypeFilter}
                     size="large"
-                     className="w-full 
+                    className="w-full 
     [&_.ant-select-selector]:!rounded-xl 
     [&_.ant-select-selector]:dark:!bg-slate-900 
     [&_.ant-select-selector]:dark:!border-slate-600 

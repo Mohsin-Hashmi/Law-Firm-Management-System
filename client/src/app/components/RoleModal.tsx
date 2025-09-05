@@ -43,6 +43,7 @@ const RoleModal: React.FC<RoleModalProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedPerms, setSelectedPerms] = useState<Record<string, boolean>>({});
   const [roleName, setRoleName] = useState<string>("");
+  const [roleEmail, setRoleEmail]= useState<string>("")
 
   useEffect(() => {
     const fetchPermissions = async () => {
@@ -143,10 +144,13 @@ const RoleModal: React.FC<RoleModalProps> = ({
       centered
       closeIcon={<CloseOutlined className="text-slate-400 hover:text-slate-600" />}
       className="role-management-modal"
+      style={{
+        padding: "5px 10px"
+      }}
     >
       <div className="">
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-3">
           <Space size="middle" className="mb-1">
             <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
               <IeOutlined className="text-blue-600 dark:text-blue-400 text-lg" />
@@ -176,8 +180,8 @@ const RoleModal: React.FC<RoleModalProps> = ({
         ) : (
           <div>
             {/* Role Name Input */}
-            <div className="mb-6">
-              <Text className="text-slate-700 dark:text-slate-300 font-medium mb-2 block">
+            <div className="mb-3">
+              <Text className="text-slate-700 dark:text-slate-300 font-medium mb-1 block">
                 Role Name
               </Text>
               <Input
@@ -187,6 +191,7 @@ const RoleModal: React.FC<RoleModalProps> = ({
                 className="h-10 rounded-lg"
                 prefix={<UserOutlined className="text-slate-400" />}
               />
+             
             </div>
 
             <Divider className="border-slate-200 dark:border-slate-600 my-4" />

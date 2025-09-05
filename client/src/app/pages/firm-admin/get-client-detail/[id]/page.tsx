@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "@/app/components/DashboardLayout";
+import ConfirmationModal from "@/app/components/ConfirmationModal";
 import {
   Card,
   Row,
@@ -52,6 +53,9 @@ export default function GetClientDetail({
   const [client, setClient] = useState<Client | null>(null);
   const [loading, setLoading] = useState(true);
 
+
+
+
   useEffect(() => {
     if (clientId) fetchClientDetail();
   }, [clientId]);
@@ -70,7 +74,7 @@ export default function GetClientDetail({
       setLoading(false);
     }
   };
-
+ 
   if (loading) {
     return (
       <DashboardLayout>

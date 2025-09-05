@@ -44,6 +44,7 @@ import { ClientPayload, Client } from "@/app/types/client";
 import type { UploadProps, UploadFile } from "antd";
 import { toast } from "react-hot-toast";
 import dayjs from "dayjs";
+import ConfirmationModal from "@/app/components/ConfirmationModal";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -59,6 +60,7 @@ export default function EditClient({ params }: { params: { id: number } }) {
   const [submitting, setSubmitting] = useState(false);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [previewImage, setPreviewImage] = useState<string>("");
+  const [isUpdatedModalVisible, setIsUpdateModalVisible] = useState(false);
 
   useEffect(() => {
     if (clientId) fetchClientDetail();
@@ -99,6 +101,12 @@ export default function EditClient({ params }: { params: { id: number } }) {
     } finally {
       setLoading(false);
     }
+  };
+  const showUpdateModal = () => setIsUpdateModalVisible(true);
+  const hideUpdateModal = () => setIsUpdateModalVisible(false);
+  const handleConfirmUpdate = () => {
+    hideUpdateModal();
+    form.submit(); // Trigger form submission
   };
 
   const handleSubmit = async (values: ClientPayload) => {
@@ -707,7 +715,6 @@ export default function EditClient({ params }: { params: { id: number } }) {
                             className="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-selector]:dark:!bg-[#2A3441] [&_.ant-select-selector]:dark:!border-[#4B5563] [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white [&_.ant-select-selector]:!min-h-[50px] [&_.ant-select-selector [&_.ant-select-arrow]:!top-8
                             [&_.ant-select-arrow]:!-translate-y-1/2"
                             dropdownClassName="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-item]:dark:!bg-[#2A3441] [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-[#374151] [&_.ant-select-item-option-active]:dark:!bg-[#374151]"
-                            
                           >
                             <Option value="Active">
                               <Space>
@@ -717,7 +724,6 @@ export default function EditClient({ params }: { params: { id: number } }) {
                                     height: "8px",
                                     background: "#10b981",
                                     borderRadius: "50%",
-                                    
                                   }}
                                 />
                                 Active
@@ -799,6 +805,7 @@ export default function EditClient({ params }: { params: { id: number } }) {
                         htmlType="submit"
                         loading={submitting}
                         icon={<SaveOutlined />}
+                        onClick={showUpdateModal}
                         style={{
                           background: "#059669",
                           borderColor: "#059669",
@@ -811,6 +818,13 @@ export default function EditClient({ params }: { params: { id: number } }) {
                       >
                         {submitting ? "Updating..." : "Update Client Profile"}
                       </Button>
+                      <ConfirmationModal
+                        visible={isUpdatedModalVisible}
+                        entityName={client?.fullName || "Client"}
+                        action="update"
+                        onConfirm={handleConfirmUpdate}
+                        onCancel={hideUpdateModal}
+                      />
                     </Space>
                   </Col>
                 </Row>

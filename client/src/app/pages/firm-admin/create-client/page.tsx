@@ -5,6 +5,7 @@ import { addClient } from "@/app/store/clientSlice";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { RootState } from "@/app/store/store";
 import { ClientPayload } from "@/app/types/client";
+import ConfirmationModal from "@/app/components/ConfirmationModal";
 import {
   ArrowLeftOutlined,
   BankOutlined,
@@ -67,6 +68,7 @@ export default function AddClient() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
 
   // Preview image before submit
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,6 +76,13 @@ export default function AddClient() {
       setProfileImage(e.target.files[0]);
       setPreviewUrl(URL.createObjectURL(e.target.files[0]));
     }
+  };
+  const showCreationModal = () => setIsCreateModalVisible(true);
+  const hideCreateModal = () => setIsCreateModalVisible(false);
+  const handleConfirmCreate = async () => {
+    await form.validateFields();
+    hideCreateModal();
+    handleCreateClient();
   };
 
   const handleCreateClient = async () => {
@@ -298,7 +307,6 @@ export default function AddClient() {
             <Form<ClientPayload>
               form={form}
               layout="vertical"
-              onFinish={handleCreateClient}
               initialValues={{
                 clientType: "Individual",
                 status: "Active",
@@ -925,6 +933,16 @@ export default function AddClient() {
                     size="large"
                     icon={<SaveOutlined />}
                     loading={loading}
+                    onClick={async () => {
+                      try {
+                        // validateFields will throw if any required field is empty
+                        await form.validateFields();
+
+                        showCreationModal();
+                      } catch (err) {
+                        console.log("Validation failed:", err);
+                      }
+                    }}
                     style={{
                       background: isHovered ? "#1d4ed8" : "#1e40af",
                       borderColor: isHovered ? "#1d4ed8" : "#1e40af",
@@ -943,6 +961,13 @@ export default function AddClient() {
                   >
                     Create Client
                   </Button>
+                  <ConfirmationModal
+                    visible={isCreateModalVisible}
+                    entityName={fullName || "Lawyer"}
+                    action="create"
+                    onConfirm={handleConfirmCreate}
+                    onCancel={hideCreateModal}
+                  />
                 </div>
 
                 <div className="text-center mt-4">
