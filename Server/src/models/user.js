@@ -19,8 +19,15 @@ module.exports = (sequelize, DataTypes) => {
       email: {
         type: DataTypes.STRING,
         allowNull: false, // ensure every user has an email
+        unique: true,
       },
       password: DataTypes.STRING,
+      
+      mustChangePassword: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
       roleId: {
         type: DataTypes.INTEGER,
         allowNull: false, // ensure every user has a role

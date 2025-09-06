@@ -18,7 +18,6 @@ import { toast } from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { addUser } from "../store/userSlice";
 
-
 type AuthFormProps = {
   type: "login" | "signup";
 };
@@ -97,75 +96,86 @@ export default function AuthForm({ type }: AuthFormProps) {
     setError(newError);
     return isValid;
   };
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  const isValid = validate();
-  if (!isValid) return;
+    const isValid = validate();
+    if (!isValid) return;
 
-  setIsLoading(true);
+    setIsLoading(true);
 
-  try {
-    if (type === "signup") {
-      if (password !== confirmPassword) {
-        toast.error("Passwords do not match");
-        return;
-      }
-      const payload = { name, email, password, confirmPassword };
-      let role = "Firm Admin";
-      if (window.location.pathname.includes("lawyer")) role = "Lawyer";
+    try {
+      if (type === "signup") {
+        if (password !== confirmPassword) {
+          toast.error("Passwords do not match");
+          return;
+        }
+        const payload = { name, email, password, confirmPassword };
+        let role = "Firm Admin";
+        if (window.location.pathname.includes("lawyer")) role = "Lawyer";
 
-      const response = await signupUser(payload, role);
-      dispatch(addUser(response.data.safeUser));
-      toast.success("Signup Successfully");
+        const response = await signupUser(payload, role);
+        dispatch(addUser(response.data.safeUser));
+        toast.success("Signup Successfully");
 
-      setName("");
-      setEmail("");
-      setPassword("");
-      setConfirmPassword("");
-      router.push("/auth/login");
-    } else {
-      // Login
-      const payload = { email, password };
-      const response = await loginUser(payload);
-
-      if (!response.data.success) {
-        toast.error(response.data.message || "Login failed");
-        return;
-      }
-
-      const user = response.data.user;
-
-      // Ensure Redux store has active firm and all firms
-      const currentFirmId = user.currentFirmId || (user.firms?.[0]?.id ?? null);
-
-      dispatch(
-        addUser({
-          ...user,
-          firms: user.firms || [],
-          currentFirmId,
-          firmId: currentFirmId, // active firm for Redux
-        })
-      );
-
-      toast.success("Login successfully");
-
-      setEmail("");
-      setPassword("");
-      // Redirect based on firm presence
-      if (currentFirmId) {
-        router.push("/pages/dashboard"); // user has a firm → go dashboard
+        setName("");
+        setEmail("");
+        setPassword("");
+        setConfirmPassword("");
+        router.push("/auth/login");
       } else {
-        router.push("/pages/firm-admin/add-firm"); // no firm → add firm page
+        // Login
+        const payload = { email, password };
+        const response = await loginUser(payload);
+
+        if (!response.data.success) {
+          toast.error(response.data.message || "Login failed");
+          return;
+        }
+
+        const user = response.data.user;
+        const currentFirmId =
+          user.currentFirmId || (user.firms?.[0]?.id ?? null);
+        // Save user in Redux no matter what
+        dispatch(
+          addUser({
+            ...user,
+            mustChangePassword: user.mustChangePassword,
+            firms: user.firms || [],
+            currentFirmId,
+            firmId: currentFirmId,
+          })
+        );
+
+        if (response.data.mustChangePassword) {
+          toast("You need to reset your password before continuing.");
+          // go straight to dashboard — the modal will handle reset
+          if (currentFirmId) {
+            router.push("/pages/dashboard");
+          } else {
+            router.push("/pages/firm-admin/add-firm");
+          }
+          return;
+        }
+
+        // ✅ Normal login success flow
+        toast.success("Login successfully");
+        setEmail("");
+        setPassword("");
+        // Redirect based on firm presence
+        if (currentFirmId) {
+          router.push("/pages/dashboard");
+        } else {
+          router.push("/pages/firm-admin/add-firm");
+        }
       }
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("An error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    console.error("Login error:", error);
-    toast.error ("An error occurred. Please try again.");
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 flex items-center justify-center p-4">

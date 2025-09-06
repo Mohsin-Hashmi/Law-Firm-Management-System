@@ -37,7 +37,7 @@ const ConfirmationModal = ({
           icon: (
             <DeleteOutlined className="text-red-600 dark:text-red-400 text-lg" />
           ),
-          bgColor: "bg-red-100 dark:bg-red-900/30",
+          bgColor: "bg-red-100 dark:bg-red-500/30",
           buttonColor: "bg-red-600 hover:bg-red-700",
           isDanger: true,
         };
@@ -89,6 +89,7 @@ const ConfirmationModal = ({
         <CloseOutlined className="text-slate-400 hover:text-slate-600" />
       }
       className="confirmation-modal"
+      maskStyle={{ backgroundColor: "rgba(0, 0, 0, 0.1)" }}
     >
       <div className="p-2">
         {/* Header */}

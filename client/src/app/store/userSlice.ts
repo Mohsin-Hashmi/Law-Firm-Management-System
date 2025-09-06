@@ -12,6 +12,7 @@ export interface User {
   firmId?: number; // current firm ID
   currentFirmId?: number; // optional
   firms?: { id: number; name: string }[]; // array of firms
+  mustChangePassword?: boolean;
 }
 
 interface UserState {
@@ -26,6 +27,9 @@ const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
+    setUser(state, action: PayloadAction<User>) {
+      state.user = action.payload;
+    },
     addUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
     },
@@ -45,6 +49,6 @@ const userSlice = createSlice({
     },
   },
 });
-export const { addUser, removeUser, switchFirm, updateUserFirms } =
+export const {setUser, addUser, removeUser, switchFirm, updateUserFirms } =
   userSlice.actions;
 export default userSlice.reducer;

@@ -33,7 +33,8 @@ import ThemeToggle from "./ThemeToggle";
 import { clearFirm } from "../store/firmSlice";
 import { clearLawyers } from "../store/lawyerSlice";
 import RoleModal from "./RoleModal";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import ResetPasswordModal from "./ResetPasswordModal";
 
 export default function DashboardLayout({
   children,
@@ -48,6 +49,13 @@ export default function DashboardLayout({
   const [collapsed, setCollapsed] = useState(false);
   const [isSwitchingFirm, setIsSwitchingFirm] = useState(false); // Add loading state
   const [isRoleModalVisible, setIsRoleModalVisible] = useState(false);
+  const [showReset, setShowReset] = useState(false);
+  useEffect(() => {
+     console.log("User in DashboardLayout:", user);
+    if (user?.mustChangePassword) {
+      setShowReset(true);
+    }
+  }, [user]);
 
   const handleOpenRoleModal = () => setIsRoleModalVisible(true);
   const handleCloseRoleModal = () => setIsRoleModalVisible(false);
@@ -190,7 +198,7 @@ export default function DashboardLayout({
       },
       {
         label: "Add Client",
-        href: "/",
+        href: "/pages/firm-admin/create-client",
         icon: <PlusOutlined />,
         category: "Client Management",
       },
@@ -233,6 +241,15 @@ export default function DashboardLayout({
           </div>
         </div>
       )}
+       <ResetPasswordModal
+        visible={showReset}
+        userId={user?.id}
+        onClose={() => setShowReset(false)}
+        onSuccess={() => {
+          // Optional: Update Redux state to clear mustChangePassword
+          console.log("Password reset successful!");
+        }}
+      />
 
       {/* Sidebar */}
       <aside

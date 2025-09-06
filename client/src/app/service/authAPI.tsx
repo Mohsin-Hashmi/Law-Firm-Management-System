@@ -22,3 +22,11 @@ export const signupUser = async (data: SignupPayload, role?: string) => {
 export const logoutUser = async () => {
   return await axios.post(`${BASE_URL}/auth/logout`);
 };
+
+export const resetPassword= async(userId: number, newPassword: string)=>{
+  const response = await axios.post(`${BASE_URL}/auth/reset-password`, {
+    userId,
+    newPassword
+  },{withCredentials:true})
+  return response.data
+}

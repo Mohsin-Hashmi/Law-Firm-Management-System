@@ -1,3 +1,5 @@
+const dotenv = require("dotenv");
+dotenv.config();
 const { sequelize } = require("../models");
 const {
   Firm,
@@ -7,11 +9,13 @@ const {
   Client,
   Case,
   CaseLawyer,
-  Role
+  Role,
 } = require("../models/index.js");
 const { FirmValidation } = require("../utils/validation.js");
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const { where } = require("sequelize");
 
 const createFirm = async (req, res) => {
   const t = await sequelize.transaction();
@@ -136,15 +140,52 @@ const createLawyer = async (req, res) => {
         error: "A lawyer with this email already exists in this firm",
       });
     }
+    const existingUser = await User.findOne({
+      where: { email },
+      transaction: t,
+    });
+    if (existingUser) {
+      await t.rollback();
+      return res.status(400).json({
+        success: false,
+        error: "A user with this email already exists",
+      });
+    }
 
     // Handle profile image
     let profileImage = null;
     if (req.file) profileImage = `/uploads/lawyers/${req.file.filename}`;
 
+    // Find Laywer Role
+    const lawyerRole = await Role.findOne({
+      where: { name: "Lawyer" },
+      transaction: t,
+    });
+    if (!lawyerRole) {
+      await t.rollback();
+      return res.status(400).json({
+        success: false,
+        error: "Lawyer role not found",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(process.env.DUMMY_PASSWORD, 10);
+    const user = await User.create(
+      {
+        name,
+        email,
+        password: hashedPassword,
+        roleId: lawyerRole.id,
+        mustChangePassword: true,
+      },
+      { transaction: t }
+    );
+
     // Create lawyer
     const lawyer = await Lawyer.create(
       {
         firmId,
+        userId: user.id,
         name,
         email,
         phone,
@@ -154,12 +195,14 @@ const createLawyer = async (req, res) => {
       },
       { transaction: t }
     );
-
+    
+    
     await t.commit();
     return res.status(201).json({
       success: true,
       message: "Lawyer created successfully",
       newLawyer: lawyer,
+      user: user,
     });
   } catch (error) {
     await t.rollback();
@@ -205,7 +248,7 @@ const firmStats = async (req, res) => {
 
     // Counts
     const lawyersCount = await Lawyer.count({ where: { firmId } });
-    const clientsCount = await Client.count({ where: { firmId }});
+    const clientsCount = await Client.count({ where: { firmId } });
     const totalCasesCount = await Case.count({ where: { firmId } });
     const activeLawyersCount = await Lawyer.count({
       where: { firmId, status: "active" },
@@ -235,7 +278,9 @@ const firmStats = async (req, res) => {
     });
   } catch (err) {
     console.error("Firm stats error:", err);
-    res.status(500).json({ error: "Failed to fetch firm stats", details: err.message });
+    res
+      .status(500)
+      .json({ error: "Failed to fetch firm stats", details: err.message });
   }
 };
 /** Get all Lawyers API */
@@ -413,9 +458,11 @@ const deleteLawyer = async (req, res) => {
     //     message: "Admin not allowed to delete this lawyer",
     //   });
     // }
-
+    const userId = lawyer.userId;
     await lawyer.destroy();
-
+    if (userId) {
+      await User.destroy({ where: { id: userId } });
+    }
     return res
       .status(200)
       .json({ success: true, message: "Lawyer deleted successfully" });

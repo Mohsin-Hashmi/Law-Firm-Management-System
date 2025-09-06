@@ -15,6 +15,11 @@ module.exports = (sequelize, DataTypes) => {
         as: "cases",
         foreignKey: "lawyerId",
       });
+      Lawyer.belongsTo(models.User, {
+        foreignKey: "userId",
+        as: "user",
+        onDelete: "CASCADE",
+      });
     }
   }
 
@@ -25,6 +30,15 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         references: {
           model: "Firms", // Must match table name
+          key: "id",
+        },
+        onDelete: "CASCADE",
+      },
+      userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: "Users", // must match the User table name
           key: "id",
         },
         onDelete: "CASCADE",

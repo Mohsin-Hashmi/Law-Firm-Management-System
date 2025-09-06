@@ -52,8 +52,8 @@ const SignUp = async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: roleObj.name, 
-        firms: [],          
+        role: roleObj.name,
+        firms: [],
       },
     });
   } catch (err) {
@@ -70,11 +70,10 @@ const LoginIn = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user with related firms
     const user = await User.findOne({
       where: { email },
       include: [
-        { model: Role, as: "role" }, 
+        { model: Role, as: "role" },
         {
           model: AdminFirm,
           as: "adminFirms",
@@ -96,23 +95,38 @@ const LoginIn = async (req, res) => {
         .json({ success: false, message: "Invalid credentials" });
     }
 
-    // JWT Token
+    // ✅ HERE: Check mustChangePassword BEFORE generating token
+    if (user.mustChangePassword) {
+      return res.status(200).json({
+        success: true,
+        mustChangePassword: true,
+        message: "Password reset required before accessing dashboard",
+        user: {
+          id: user.id,
+          email: user.email,
+          role: user.role?.name,
+          mustChangePassword: true, // 👈 added here
+        },
+      });
+    }
+
+    // ✅ Normal login flow continues here...
     const token = jwt.sign(
       {
         id: user.id,
         role: user.role.name,
-        firmId: user.adminFirms?.length > 0 ? user.adminFirms[0].firm.id : null, // 👈 use firm.id
+        firmId:
+          user.adminFirms?.length > 0 ? user.adminFirms[0].firm.id : null,
       },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
-    // Save token in httpOnly cookie
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // true if https
+      secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     res.status(200).json({
@@ -123,6 +137,7 @@ const LoginIn = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role?.name,
+        mustChangePassword: user.mustChangePassword, // 👈 also safe to include here
         firms: user.adminFirms.map((af) => ({
           id: af.firm.id,
           name: af.firm.name,
@@ -154,4 +169,41 @@ const Logout = (req, res) => {
   }
 };
 
-module.exports = { SignUp, LoginIn, Logout };
+const resetPassword = async (req, res) => {
+  try {
+    const { userId, newPassword } = req.body;
+
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters long",
+      });
+    }
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedPassword;
+    user.mustChangePassword = false; // ✅ allow login normally now
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Password has been reset successfully. Please log in again.",
+    });
+  } catch (error) {
+    console.error("Reset password error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+module.exports = { SignUp, LoginIn, Logout, resetPassword };
