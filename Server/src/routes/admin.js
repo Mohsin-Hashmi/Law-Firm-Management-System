@@ -44,7 +44,7 @@ adminRoute.post(
   userAuth,
   firmAdminAuth,
   upload.single("profileImage"),
-  checkPermission(permissions.MANAGE_LAWYERS),
+  checkPermission(permissions.CREATE_LAWYER),
   createLawyer
 );
 adminRoute.get(
@@ -58,21 +58,21 @@ adminRoute.get(
   "/firms/lawyers",
   userAuth,
   firmAdminAuth,
-  checkPermission(permissions.MANAGE_LAWYERS),
+  checkPermission(permissions.READ_LAWYER),
   getAllLawyer
 );
 adminRoute.get(
   "/firm/lawyer/:id",
   userAuth,
   firmAdminAuth,
-  checkPermission(permissions.MANAGE_LAWYERS),
+  checkPermission(permissions.READ_LAWYER),
   getLawyerById
 );
 adminRoute.put(
   "/firm/lawyer/:id",
   userAuth,
   firmAdminAuth,
-  checkPermission(permissions.MANAGE_LAWYERS),
+  checkPermission(permissions.UPDATE_LAWYER),
   upload.single("profileImage"),
   updateLawyer
 );
@@ -90,6 +90,7 @@ adminRoute.get(
   "/:id/performance",
   userAuth,
   firmAdminAuth,
+  checkPermission(permissions.READ_LAWYER),
   getLawyerPerformance
 );
 module.exports = adminRoute;

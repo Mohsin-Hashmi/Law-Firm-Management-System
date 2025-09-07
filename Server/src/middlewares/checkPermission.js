@@ -8,7 +8,9 @@ const checkPermission = (requiredPermissions) => {
       if (!userRole) {
         return res.status(403).json({ success: false, error: "Role not found" });
       }
-
+      if (userRole === "Super Admin") {
+        return next();
+      }
       // Get role with its permissions
       const role = await Role.findOne({
         where: { name: userRole },

@@ -13,6 +13,7 @@ export interface User {
   currentFirmId?: number; // optional
   firms?: { id: number; name: string }[]; // array of firms
   mustChangePassword?: boolean;
+  permissions: string[];
 }
 
 interface UserState {

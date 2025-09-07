@@ -10,6 +10,7 @@ import { toast } from "react-hot-toast";
 import { Select, Spin } from "antd"; // Import Spin from antd
 import { switchFirm } from "../store/userSlice";
 import { usePathname } from "next/navigation";
+import { usePermission } from "../hooks/usePermission";
 import {
   HomeOutlined,
   InfoCircleOutlined,
@@ -25,6 +26,7 @@ import {
   LoadingOutlined,
   BankOutlined,
   FileTextOutlined,
+  DashboardOutlined,
 } from "@ant-design/icons";
 import { switchFirmAPI } from "../service/adminAPI";
 import { getLawyers } from "../service/adminAPI";
@@ -41,6 +43,7 @@ export default function DashboardLayout({
 }: {
   children?: React.ReactNode;
 }) {
+  const { hasPermission } = usePermission();
   const dispatch = useAppDispatch();
   const router = useRouter();
   const pathname = usePathname();
@@ -51,7 +54,7 @@ export default function DashboardLayout({
   const [isRoleModalVisible, setIsRoleModalVisible] = useState(false);
   const [showReset, setShowReset] = useState(false);
   useEffect(() => {
-     console.log("User in DashboardLayout:", user);
+    console.log("User in DashboardLayout:", user);
     if (user?.mustChangePassword) {
       setShowReset(true);
     }
@@ -77,130 +80,135 @@ export default function DashboardLayout({
     icon: React.ReactNode;
     category?: string;
     onClick?: () => void; // optional click handler
+    requiredPermissions?: string[];
   };
 
   const navLinksMap: Record<string, NavLink[]> = {
     "Super Admin": [
-      { label: "Home", href: "/", icon: <HomeOutlined />, category: "Main" },
       {
-        label: "About",
-        href: "/pages/about-us",
-        icon: <InfoCircleOutlined />,
+        label: "Dashboard",
+        href: "/pages/super-admin/dashboard",
+        icon: <DashboardOutlined />,
         category: "Main",
-      },
-      {
-        label: "Services",
-        href: "/pages/our-services",
-        icon: <AppstoreOutlined />,
-        category: "Main",
+        requiredPermissions: ["view_stats"],
       },
       {
         label: "Firms",
-        href: "/pages/super-admin/get-firms",
-        icon: <TeamOutlined />,
-        category: "Management",
+        href: "/pages/super-admin/firms",
+        icon: <BankOutlined />,
+        category: "Firm Management",
+        requiredPermissions: ["create_firm", "update_firm", "delete_firm"],
       },
       {
-        label: "Add Firm",
-        href: "/pages/super-admin/add-firm",
-        icon: <PlusOutlined />,
-        category: "Management",
+        label: "Roles",
+        href: "/pages/super-admin/roles",
+        icon: <SettingOutlined />,
+        category: "Role Management",
+        requiredPermissions: ["create_role"],
       },
     ],
+
     "Firm Admin": [
       {
         label: "Dashboard",
         href: "/pages/dashboard",
-        icon: <HomeOutlined />,
+        icon: <DashboardOutlined />,
         category: "Main",
-      },
-      {
-        label: "About",
-        href: "/pages/about-us",
-        icon: <InfoCircleOutlined />,
-        category: "Main",
-      },
-      {
-        label: "Services",
-        href: "/pages/our-services",
-        icon: <AppstoreOutlined />,
-        category: "Main",
+        requiredPermissions: ["view_stats"],
       },
       {
         label: "Add New Business",
         href: "/pages/firm-admin/add-firm",
         icon: <BankOutlined />,
         category: "Main",
+        requiredPermissions: ["create_firm"],
       },
-      {
-        label: "Add New Role ",
-        href: "#", // since it's a modal, we won't navigate
-        icon: <TeamOutlined />,
-        category: "Role Management", // adjust category as needed
-        onClick: handleOpenRoleModal, // call modal open
+       {
+        label: "Add New Role",
+        icon: <PlusOutlined />,
+        category: "Role Management",
+        requiredPermissions: ["create_role"],
+        onClick: ()=> handleOpenRoleModal()
       },
       {
         label: "Lawyers",
         href: "/pages/firm-admin/get-lawyers",
         icon: <UserOutlined />,
         category: "Team Management",
+        requiredPermissions: ["read_lawyer"],
       },
       {
         label: "Add Lawyer",
         href: "/pages/firm-admin/add-lawyer",
         icon: <PlusOutlined />,
         category: "Team Management",
+        requiredPermissions: ["create_lawyer"],
       },
       {
         label: "Clients",
         href: "/pages/firm-admin/get-clients",
-        icon: <UserOutlined />,
-        category: "Client Management",
-      },
-      {
-        label: "Add Clients",
-        href: "/pages/firm-admin/create-client",
-        icon: <PlusOutlined />,
-        category: "Client Management",
-      },
-      {
-        label: "Cases",
-        href: "/pages/firm-admin/get-cases",
-        icon: <FileTextOutlined />,
-        category: "Case Management",
-      },
-      {
-        label: "Add Cases",
-        href: "/pages/firm-admin/add-case",
-        icon: <PlusOutlined />,
-        category: "Case Management",
-      },
-    ],
-    Lawyer: [
-      { label: "Home", href: "/", icon: <HomeOutlined />, category: "Main" },
-      {
-        label: "About",
-        href: "/pages/about-us",
-        icon: <InfoCircleOutlined />,
-        category: "Main",
-      },
-      {
-        label: "Services",
-        href: "/pages/our-services",
-        icon: <AppstoreOutlined />,
-        category: "Main",
-      },
-      {
-        label: "My Clients",
-        href: "/",
         icon: <TeamOutlined />,
         category: "Client Management",
+        requiredPermissions: ["read_client"],
       },
       {
         label: "Add Client",
         href: "/pages/firm-admin/create-client",
         icon: <PlusOutlined />,
         category: "Client Management",
+        requiredPermissions: ["create_client"],
+      },
+       {
+        label: "Cases",
+        href: "/pages/firm-admin/get-cases",
+        icon: <FileTextOutlined />,
+        category: "Case Management",
+        requiredPermissions: ["read_case"],
+      },
+      {
+        label: "Add Case",
+        href: "/pages/firm-admin/add-case",
+        icon: <PlusOutlined />,
+        category: "Case Management",
+        requiredPermissions: ["create_case"],
+      },
+    ],
+
+    Lawyer: [
+      {
+        label: "Dashboard",
+        href: "/pages/lawyer/dashboard",
+        icon: <DashboardOutlined />,
+        category: "Main",
+        requiredPermissions: ["view_stats"], // ✅ only if you give lawyers stats access
+      },
+      {
+        label: "Clients",
+        href: "/pages/firm-admin/get-clients",
+        icon: <TeamOutlined />,
+        category: "Client Management",
+        requiredPermissions: ["read_client"],
+      },
+      {
+        label: "Add Client",
+        href: "/pages/firm-admin/create-client",
+        icon: <PlusOutlined />,
+        category: "Client Management",
+        requiredPermissions: ["create_client"],
+      },
+       {
+        label: "Cases",
+        href: "/pages/firm-admin/get-cases",
+        icon: <FileTextOutlined />,
+        category: "Case Management",
+        requiredPermissions: ["read_case"],
+      },
+      {
+        label: "Add Case",
+        href: "/pages/firm-admin/add-case",
+        icon: <PlusOutlined />,
+        category: "Case Management",
+        requiredPermissions: ["create_case"],
       },
     ],
   };
@@ -241,7 +249,7 @@ export default function DashboardLayout({
           </div>
         </div>
       )}
-       <ResetPasswordModal
+      <ResetPasswordModal
         visible={showReset}
         userId={user?.id}
         onClose={() => setShowReset(false)}
@@ -314,8 +322,15 @@ export default function DashboardLayout({
                   </h3>
                 )}
                 <div className="space-y-1">
-                  {links.map((navItem) =>
-                    navItem.onClick ? (
+                  {links.map((navItem) => {
+                    if (
+                      navItem.requiredPermissions &&
+                      !hasPermission(navItem.requiredPermissions)
+                    ) {
+                      return null; // hide if user doesn’t have permission
+                    }
+
+                    return navItem.onClick ? (
                       <button
                         key={navItem.label}
                         onClick={navItem.onClick}
@@ -354,8 +369,8 @@ export default function DashboardLayout({
                           </span>
                         )}
                       </Link>
-                    )
-                  )}
+                    );
+                  })}
                 </div>
               </div>
             ))}

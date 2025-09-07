@@ -18,6 +18,8 @@ import {
   CloseOutlined,
 } from "@ant-design/icons";
 import { getPermissions } from "../service/adminAPI";
+import { createRole } from "../service/adminAPI";
+import { toast } from "react-hot-toast";
 
 const { Title, Text } = Typography;
 
@@ -43,7 +45,6 @@ const RoleModal: React.FC<RoleModalProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedPerms, setSelectedPerms] = useState<Record<string, boolean>>({});
   const [roleName, setRoleName] = useState<string>("");
-  const [roleEmail, setRoleEmail]= useState<string>("")
 
   useEffect(() => {
     const fetchPermissions = async () => {
@@ -94,10 +95,10 @@ const RoleModal: React.FC<RoleModalProps> = ({
     }
 
     try {
-      // Uncomment when API is ready
-      // await createRole({ name: roleName, permissions: enabledPermissions });
+    
+       await createRole({ name: roleName, permissions: enabledPermissions });
       
-      message.success("Role created successfully");
+      toast.success("Role created successfully");
       setRoleName("");
       setSelectedPerms({});
       onRoleCreated(roleName);

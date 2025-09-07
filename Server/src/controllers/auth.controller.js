@@ -7,7 +7,7 @@ const {
   UserSignUpValidation,
   UserLoginInValidation,
 } = require("../utils/validation.js");
-const { Firm, User, AdminFirm, Lawyer, Role } = require("../models/index.js");
+const { Firm, User, AdminFirm, Lawyer, Role, Permission  } = require("../models/index.js");
 const { where } = require("sequelize");
 
 // Signup api for normal users like superadmin lawyer and clients
@@ -73,7 +73,7 @@ const LoginIn = async (req, res) => {
     const user = await User.findOne({
       where: { email },
       include: [
-        { model: Role, as: "role" },
+        { model: Role, as: "role", include: [{ model: Permission, as: "permissions" }], },
         {
           model: AdminFirm,
           as: "adminFirms",
@@ -106,6 +106,7 @@ const LoginIn = async (req, res) => {
           email: user.email,
           role: user.role?.name,
           mustChangePassword: true, // 👈 added here
+          permissions: user.role?.permissions.map((p) => p.name) || [],
         },
       });
     }
@@ -138,6 +139,7 @@ const LoginIn = async (req, res) => {
         email: user.email,
         role: user.role?.name,
         mustChangePassword: user.mustChangePassword, // 👈 also safe to include here
+        permissions: user.role?.permissions.map((p) => p.name) || [],
         firms: user.adminFirms.map((af) => ({
           id: af.firm.id,
           name: af.firm.name,

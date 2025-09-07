@@ -11,6 +11,8 @@ const {
 } = require("../controllers/client.controller");
 const multer = require("multer");
 const path = require("path");
+const checkPermission = require("../middlewares/checkPermission");
+const permissions = require("../constants/permissions");
 
 // Multer storage config
 const storage = multer.diskStorage({
@@ -29,16 +31,36 @@ clientRoute.post(
   userAuth,
   firmAdminAuth,
   upload.single("profileImage"),
+  checkPermission(permissions.CREATE_CLIENT),
   createClient
 );
 clientRoute.get(
   "/firm/:firmId/clients",
   userAuth,
   firmAdminAuth,
+  checkPermission(permissions.READ_CLIENT),
   getAllClients
 );
-clientRoute.get("/firm/client/:id", userAuth, firmAdminAuth, getClientById);
-clientRoute.put("/firm/client/:id", userAuth, firmAdminAuth, updateClient);
-clientRoute.delete("/firm/client/:id", userAuth, firmAdminAuth, deleteClient);
+clientRoute.get(
+  "/firm/client/:id",
+  userAuth,
+  firmAdminAuth,
+  checkPermission(permissions.READ_CLIENT),
+  getClientById
+);
+clientRoute.put(
+  "/firm/client/:id",
+  userAuth,
+  firmAdminAuth,
+  checkPermission(permissions.UPDATE_CLIENT),
+  updateClient
+);
+clientRoute.delete(
+  "/firm/client/:id",
+  userAuth,
+  firmAdminAuth,
+  checkPermission(permissions.DELETE_CLIENT),
+  deleteClient
+);
 
 module.exports = clientRoute;

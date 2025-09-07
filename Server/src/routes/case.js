@@ -17,6 +17,8 @@ const {
 } = require("../controllers/case.controller");
 const multer = require("multer");
 const path = require("path");
+const permissions = require("../constants/permissions");
+const checkPermission = require("../middlewares/checkPermission");
 
 // Multer storage config
 const storage = multer.diskStorage({
@@ -36,37 +38,43 @@ caseRoute.post(
   userAuth,
   firmAdminAuth,
   upload.array("documents", 5),
+  checkPermission(permissions.CREATE_CASE),
   createCase
 );
 caseRoute.get(
   "/firm/:firmId/cases",
   userAuth,
   firmAdminAuth,
+  checkPermission(permissions.READ_CASE),
   getAllCasesOfFirm
 );
 caseRoute.get(
   "/firm/:firmId/cases/:caseId",
   userAuth,
   firmAdminAuth,
+  checkPermission(permissions.READ_CASE),
   getCaseById
 );
 caseRoute.put(
   "/firm/:firmId/cases/:caseId",
   userAuth,
   firmAdminAuth,
-  upload.array("documents", 5), 
+  upload.array("documents", 5),
+  checkPermission(permissions.UPDATE_CASE),
   updateCase
 );
 caseRoute.delete(
   "/firm/:firmId/cases/:caseId",
   userAuth,
   firmAdminAuth,
+  checkPermission(permissions.DELETE_CASE),
   deleteCase
 );
-caseRoute.patch(  
+caseRoute.patch(
   "/firm/:firmId/cases/:caseId/status",
   userAuth,
   firmAdminAuth,
+  checkPermission(permissions.UPDATE_CASE_STATUS),
   updateCaseStatus
 );
 
@@ -75,12 +83,14 @@ caseRoute.get(
   "/clients/:clientId/cases",
   userAuth,
   firmAdminAuth,
+  checkPermission(permissions.READ_CASE),
   getAllCasesOfClient
 );
 caseRoute.get(
   "/lawyer/:lawyerId/cases",
   userAuth,
   firmAdminAuth,
+  checkPermission(permissions.READ_CASE),
   getAllCasesOfLawyer
 );
 
@@ -90,24 +100,28 @@ caseRoute.post(
   userAuth,
   firmAdminAuth,
   upload.array("documents", 5),
+  checkPermission(permissions.UPLOAD_CASE_DOCUMENT),
   addDocumentsByCase
 );
 caseRoute.get(
   "/firm/:firmId/cases/:caseId/documents",
   userAuth,
   firmAdminAuth,
+  checkPermission(permissions.VIEW_CASE_DOCUMENTS),
   getAllDocumentsByCase
 );
 caseRoute.get(
   "/firm/:firmId/cases/:caseId/documents/:docId",
   userAuth,
   firmAdminAuth,
+  checkPermission(permissions.VIEW_CASE_DOCUMENTS),
   getOneDocumentOfCase
 );
 caseRoute.delete(
   "/firm/:firmId/cases/:caseId/documents/:docId",
   userAuth,
   firmAdminAuth,
+  checkPermission(permissions.DELETE_CASE_DOCUMENT),
   deleteDocumentOfCase
 );
 

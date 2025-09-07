@@ -3,7 +3,7 @@ import BASE_URL from "../utils/constant";
 import { FirmPayload, LawyerPayload, FirmStats, Lawyer } from "../types/firm";
 import { ClientPayload, Client } from "../types/client";
 import { Case } from "../types/case";
-
+import { CreateRolePayload } from "../types/role";
 /**Create firm API call */
 export const createFirm = async (data: FirmPayload, role?: string) => {
   // Decide API path based on role
@@ -433,10 +433,13 @@ export const getPermissions = async () => {
   }
 };
 
-export const createRole = async()=>{
+export const createRole = async(roleData: CreateRolePayload)=>{
   try{
-    await axios.post(`${BASE_URL}`)
+    const response = await axios.post(`${BASE_URL}/api/roles/create-role`, roleData, {
+      withCredentials: true
+    })
+    return response.data;
   }catch(error){
-
+     console.error("Error creating role:",error);
   }
 }

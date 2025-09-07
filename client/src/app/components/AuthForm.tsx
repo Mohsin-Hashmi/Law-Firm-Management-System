@@ -134,6 +134,7 @@ export default function AuthForm({ type }: AuthFormProps) {
         }
 
         const user = response.data.user;
+        console.log("Login user is :", user);
         const currentFirmId =
           user.currentFirmId || (user.firms?.[0]?.id ?? null);
         // Save user in Redux no matter what
