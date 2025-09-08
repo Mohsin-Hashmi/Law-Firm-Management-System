@@ -43,6 +43,10 @@ export default function AuthForm({ type }: AuthFormProps) {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
+  // Get redirect parameter from URL
+  const searchParams = new URLSearchParams(window.location.search);
+  const redirectTo = searchParams.get('redirect') || '/pages/dashboard';
+
   const validate = () => {
     const newError: typeof error = {
       name: "",
@@ -163,9 +167,9 @@ export default function AuthForm({ type }: AuthFormProps) {
         toast.success("Login successfully");
         setEmail("");
         setPassword("");
-        // Redirect based on firm presence
+        // Redirect based on firm presence or to the intended page
         if (currentFirmId) {
-          router.push("/pages/dashboard");
+          router.push(redirectTo);
         } else {
           router.push("/pages/firm-admin/add-firm");
         }

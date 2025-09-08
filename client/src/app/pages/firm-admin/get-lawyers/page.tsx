@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import DashboardLayout from "@/app/components/DashboardLayout";
 import { ThemeProvider } from "next-themes";
 import ConfirmationModal from "@/app/components/ConfirmationModal";
+import { usePermission } from "@/app/hooks/usePermission";
+
 import {
   Card,
   Row,
@@ -57,6 +59,7 @@ import { setLawyers } from "@/app/store/lawyerSlice";
 import { useAppDispatch } from "@/app/store/hooks";
 
 export default function GetLawyers() {
+  const { hasPermission } = usePermission();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const user = useAppSelector((state: RootState) => state.user.user);
@@ -340,22 +343,24 @@ export default function GetLawyers() {
               style={{ borderRadius: "6px" }}
             />
           </Tooltip>
-          <Tooltip title="Delete Lawyer">
-            <Button
-              type="text"
-              size="small"
-              icon={<DeleteOutlined />}
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                handleOpenDeleteModal(record); // ✅ call the modal here directly
-              }}
-              loading={deleting && selectedLawyer?.id === record.id}
-              danger
-              className="hover:!bg-red-50 hover:!text-red-600 dark:hover:!bg-red-900/30 dark:hover:!text-red-400"
-              style={{ borderRadius: "6px", color: "#dc2626" }}
-            />
-          </Tooltip>
+          {hasPermission("delete_lawyer") && (
+            <Tooltip title="Delete Lawyer">
+              <Button
+                type="text"
+                size="small"
+                icon={<DeleteOutlined />}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  handleOpenDeleteModal(record);
+                }}
+                loading={deleting && selectedLawyer?.id === record.id}
+                danger
+                className="hover:!bg-red-50 hover:!text-red-600 dark:hover:!bg-red-900/30 dark:hover:!text-red-400"
+                style={{ borderRadius: "6px", color: "#dc2626" }}
+              />
+            </Tooltip>
+          )}
           <ConfirmationModal
             visible={modalVisible}
             entityName={selectedLawyer?.name || ""}

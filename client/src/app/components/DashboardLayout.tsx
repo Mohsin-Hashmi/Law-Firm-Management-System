@@ -11,6 +11,7 @@ import { Select, Spin } from "antd"; // Import Spin from antd
 import { switchFirm } from "../store/userSlice";
 import { usePathname } from "next/navigation";
 import { usePermission } from "../hooks/usePermission";
+import AssignRoleModal from "./AssignRoleModal";
 import {
   HomeOutlined,
   InfoCircleOutlined,
@@ -52,6 +53,8 @@ export default function DashboardLayout({
   const [collapsed, setCollapsed] = useState(false);
   const [isSwitchingFirm, setIsSwitchingFirm] = useState(false); // Add loading state
   const [isRoleModalVisible, setIsRoleModalVisible] = useState(false);
+  const [isAssignRoleModalVisible, setIsAssignRoleModalVisible] =
+    useState(false);
   const [showReset, setShowReset] = useState(false);
   useEffect(() => {
     console.log("User in DashboardLayout:", user);
@@ -62,6 +65,8 @@ export default function DashboardLayout({
 
   const handleOpenRoleModal = () => setIsRoleModalVisible(true);
   const handleCloseRoleModal = () => setIsRoleModalVisible(false);
+  const handleOpenAssignRoleModal = () => setIsAssignRoleModalVisible(true);
+  const handleCloseAssignRoleModal = () => setIsAssignRoleModalVisible(false);
 
   const handleLogout = async () => {
     const response = await logoutUser();
@@ -117,19 +122,27 @@ export default function DashboardLayout({
         requiredPermissions: ["view_stats"],
       },
       {
+        label: "Assign Role", 
+        icon: <UserOutlined />,
+        category: "Role Management",
+        requiredPermissions: ["assign_role"],
+        onClick: () => handleOpenAssignRoleModal(),
+      },
+      {
+        label: "Add New Role",
+        icon: <PlusOutlined />,
+        category: "Role Management",
+        requiredPermissions: ["create_role"],
+        onClick: () => handleOpenRoleModal(),
+      },
+      {
         label: "Add New Business",
         href: "/pages/firm-admin/add-firm",
         icon: <BankOutlined />,
         category: "Main",
         requiredPermissions: ["create_firm"],
       },
-       {
-        label: "Add New Role",
-        icon: <PlusOutlined />,
-        category: "Role Management",
-        requiredPermissions: ["create_role"],
-        onClick: ()=> handleOpenRoleModal()
-      },
+
       {
         label: "Lawyers",
         href: "/pages/firm-admin/get-lawyers",
@@ -158,7 +171,7 @@ export default function DashboardLayout({
         category: "Client Management",
         requiredPermissions: ["create_client"],
       },
-       {
+      {
         label: "Cases",
         href: "/pages/firm-admin/get-cases",
         icon: <FileTextOutlined />,
@@ -196,7 +209,7 @@ export default function DashboardLayout({
         category: "Client Management",
         requiredPermissions: ["create_client"],
       },
-       {
+      {
         label: "Cases",
         href: "/pages/firm-admin/get-cases",
         icon: <FileTextOutlined />,
@@ -383,6 +396,15 @@ export default function DashboardLayout({
             console.log("New role created:", newRole);
             // Optionally, refresh your nav links or update state
           }}
+        />
+        <AssignRoleModal
+          visible={isAssignRoleModalVisible}
+          onClose={handleCloseAssignRoleModal}
+          onRoleAssigned={(assignedUser) => {
+            console.log("Role assigned:", assignedUser);
+            // maybe refresh data or show success message here
+          }}
+          
         />
 
         {/* Logout Button */}

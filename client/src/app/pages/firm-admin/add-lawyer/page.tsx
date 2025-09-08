@@ -50,6 +50,7 @@ interface FormValues {
 }
 
 export default function AddLawyer() {
+ 
   const router = useRouter();
   const dispatch = useAppDispatch();
   const firmId = useAppSelector((state: RootState) => state.firm.firm?.firmId);

@@ -1,5 +1,4 @@
-const dotenv = require("dotenv");
-dotenv.config();
+const dotenv= require('dotenv');
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
@@ -208,4 +207,52 @@ const resetPassword = async (req, res) => {
     });
   }
 };
-module.exports = { SignUp, LoginIn, Logout, resetPassword };
+
+const getCurrentUser = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id, {
+      include: [
+        { model: Role, as: "role", include: [{ model: Permission, as: "permissions" }] },
+        {
+          model: AdminFirm,
+          as: "adminFirms",
+          include: [{ model: Firm, as: "firm" }],
+        },
+      ],
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role?.name,
+        mustChangePassword: user.mustChangePassword,
+        permissions: user.role?.permissions.map((p) => p.name) || [],
+        firms: user.adminFirms.map((af) => ({
+          id: af.firm.id,
+          name: af.firm.name,
+        })),
+        currentFirmId: user.adminFirms?.length > 0 ? user.adminFirms[0].firmId : null,
+        firmId: user.adminFirms?.length > 0 ? user.adminFirms[0].firmId : null,
+      },
+    });
+  } catch (error) {
+    console.error("Get current user error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+module.exports = { SignUp, LoginIn, Logout, resetPassword, getCurrentUser };

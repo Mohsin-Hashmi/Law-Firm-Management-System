@@ -6,9 +6,13 @@ module.exports = {
 
     // Fetch all permissions
     const [permissions] = await queryInterface.sequelize.query(
-      `SELECT id, name FROM Permissions;`
+      `SELECT id, name FROM \`Permissions\`;`
     );
-
+    if (!permissions || permissions.length === 0) {
+      throw new Error(
+        "No permissions found! Make sure permissions are seeded first."
+      );
+    }
     const rolePermissions = [];
 
     // Map role IDs to permissions
@@ -37,6 +41,7 @@ module.exports = {
         "upload_case_document",
         "delete_case_document",
         "view_stats",
+        "assign_role",
       ], // Firm Admin → granular
       3: [
         "read_client",

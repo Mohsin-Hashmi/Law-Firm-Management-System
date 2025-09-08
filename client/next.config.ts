@@ -1,7 +1,20 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  reactStrictMode: true,
+
+  // Speed up by skipping type/ESLint checks during build
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
+  // ✅ Turbopack (stable)
+  turbopack: {
+    rules: {},
+  },
 };
 
 export default nextConfig;

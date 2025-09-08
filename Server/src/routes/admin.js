@@ -80,7 +80,7 @@ adminRoute.delete(
   "/firm/lawyer/:id",
   userAuth,
   firmAdminAuth,
-  checkPermission(permissions.MANAGE_LAWYERS),
+  checkPermission(permissions.DELETE_LAWYER),
   deleteLawyer
 );
 

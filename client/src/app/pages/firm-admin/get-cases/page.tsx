@@ -19,7 +19,6 @@ import {
   BankTwoTone,
   UserOutlined,
   UserAddOutlined,
-  DownOutlined,
 } from "@ant-design/icons";
 import {
   Avatar,
@@ -28,7 +27,6 @@ import {
   Col,
   Input,
   message,
-  Modal,
   Row,
   Select,
   Space,
@@ -36,11 +34,10 @@ import {
   Tag,
   Tooltip,
   Typography,
-  Pagination,
   Spin,
-  Empty,
-  Dropdown,
+  Table,
 } from "antd";
+import { ColumnsType } from "antd/es/table";
 import { ThemeProvider } from "next-themes";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -54,7 +51,6 @@ import { updateCaseStatus } from "@/app/service/adminAPI";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
-const { confirm } = Modal;
 
 export default function GetCases() {
   const router = useRouter();
@@ -70,9 +66,7 @@ export default function GetCases() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [caseTypeFilter, setCaseTypeFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(6);
-  const [updatingStatus, setUpdatingStatus] = useState(false);
-  const [updatingCaseId, setUpdatingCaseId] = useState<number | null>(null);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     filterCases();
@@ -139,63 +133,20 @@ export default function GetCases() {
 
   /**Handle delete function */
   const handleDeleteCase = async (firmId: number, id: number) => {
-    confirm({
-      title: "Are you sure you want to delete this case?",
-      content: "This action cannot be undone.",
-      okText: "Delete",
-      okType: "danger",
-      cancelText: "Cancel",
-      onOk: async () => {
-        try {
-          setDeleting(true);
-          setDeletingCaseId(id);
-          await deleteCaseByFirm(firmId, id);
-          setCasesData((prevCases) =>
-            prevCases.filter((case_) => case_.id !== id)
-          );
-          toast.success("Case deleted successfully");
-          message.success("Case deleted successfully");
-        } catch (error) {
-          console.error("Error deleting case:", error);
-          toast.error("Failed to delete case");
-          message.error("Failed to delete case");
-        } finally {
-          setDeleting(false);
-          setDeletingCaseId(null);
-        }
-      },
-    });
-  };
-
-  const handleStatusUpdate = async (
-    firmId: number,
-    id: number,
-    newStatus: "Open" | "Closed" | "On Hold" | "Appeal"
-  ) => {
-    if (!firmId) return;
     try {
-      setUpdatingStatus(true);
-      setUpdatingCaseId(id);
-
-      await updateCaseStatus(firmId, id, newStatus);
-
-      // Update local state
-      setCasesData((prevCases) =>
-        prevCases.map(
-          (case_): Case =>
-            case_.id === id ? { ...case_, status: newStatus } : case_
-        )
-      );
-
-      toast.success(`Case status updated to ${newStatus}`);
-      message.success(`Case status updated to ${newStatus}`);
+      setDeleting(true);
+      setDeletingCaseId(id);
+      await deleteCaseByFirm(firmId, id);
+      setCasesData((prevCases) => prevCases.filter((case_) => case_.id !== id));
+      toast.success("Case deleted successfully");
+      message.success("Case deleted successfully");
     } catch (error) {
-      console.error("Error updating case status:", error);
-      toast.error("Failed to update case status");
-      message.error("Failed to update case status");
+      console.error("Error deleting case:", error);
+      toast.error("Failed to delete case");
+      message.error("Failed to delete case");
     } finally {
-      setUpdatingStatus(false);
-      setUpdatingCaseId(null);
+      setDeleting(false);
+      setDeletingCaseId(null);
     }
   };
 
@@ -270,403 +221,282 @@ export default function GetCases() {
   // Get unique case types for filter
   const uniqueCaseTypes = [...new Set(cases.map((case_) => case_.caseType))];
 
-  // Pagination logic
-  const startIndex = (currentPage - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-  const paginatedCases = filteredCases.slice(startIndex, endIndex);
-
-  // Enhanced Case Card Component - Single row layout
-  const CaseCard = ({ caseData }: { caseData: Case }) => (
-    <Card
-      className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg "
-      bodyStyle={{ padding: "24px" }}
-    >
-      {/* Main Content Container */}
-      <div className="flex flex-col space-y-6">
-        {/* Header Section */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4 flex-1">
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "#1e293b",
-                borderRadius: "12px",
-                width: "56px",
-                height: "56px",
-              }}
-            >
-              <BankTwoTone
-                twoToneColor="#1890ff"
-                style={{ fontSize: "24px" }}
-              />
-            </div>
-
-            <div>
-              <Title
-                level={4}
-                className="!mb-0 !text-slate-800 dark:!text-slate-200 !font-semibold !text-xl"
-                ellipsis={{ tooltip: caseData.title }}
-              >
-                {caseData.title}
-              </Title>
-
-              <Text className="text-slate-500 dark:text-slate-400 font-mono text-sm block italic">
-                {caseData.caseNumber}
-              </Text>
-
-              {caseData.description && (
-                <Text
-                  className="text-slate-600 dark:text-slate-400 text-sm mt-1 leading-relaxed block italic"
-                  ellipsis={{ tooltip: caseData.description }}
-                >
-                  “{caseData.description}”
-                </Text>
-              )}
-            </div>
-          </div>
-          {/* <Dropdown
-            // menu={{ items: statusMenuItems }}
-            trigger={["click"]}
-            placement="bottomRight"
-            disabled={updatingStatus && updatingCaseId === caseData.id}
-            overlayClassName="custom-dropdown"
-          >
-            <div
-              className="cursor-pointer hover:shadow-md transition-all duration-200"
-              style={{
-                background: `${getStatusColor(caseData.status)}15`,
-                padding: "12px 16px",
-                borderRadius: "10px",
-                border: `1px solid ${getStatusColor(caseData.status)}30`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-                minWidth: "160px",
-              }}
-            >
-              <div
-                style={{
-                  width: "8px",
-                  height: "8px",
-                  borderRadius: "50%",
-                  backgroundColor: getStatusColor(caseData.status),
-                }}
-              />
-              <span
-                style={{
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  color: getStatusColor(caseData.status),
-                  textTransform: "uppercase",
-                }}
-              >
-                {caseData.status}
-              </span>
-              {updatingStatus && updatingCaseId === caseData.id ? (
-                <Spin size="small" />
-              ) : (
-                <DownOutlined
-                  style={{
-                    fontSize: "12px",
-                    color: getStatusColor(caseData.status),
-                  }}
-                />
-              )}
-            </div>
-          </Dropdown> */}
-
-          {/* Status Badge */}
+  // Table columns definition
+  const columns: ColumnsType<Case> = [
+    {
+      title: "Case Details",
+      key: "caseDetails",
+      width: 280,
+      fixed: "left",
+      render: (_: unknown, record: Case) => (
+        <div className="flex items-center gap-3">
           <div
             style={{
-              background: `${getStatusColor(caseData.status)}15`,
-              padding: "12px 12px",
-              borderRadius: "10px",
-              border: `1px solid ${getStatusColor(caseData.status)}30`,
+              width: "48px",
+              height: "48px",
+              backgroundColor: "#1e293b",
+              borderRadius: "12px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              gap: "6px",
-              minWidth: "150px",
             }}
           >
-            <div
-              style={{
-                width: "8px",
-                height: "8px",
-                borderRadius: "50%",
-                backgroundColor: getStatusColor(caseData.status),
-              }}
-            />
-            <span
-              style={{
-                fontSize: "14px",
-                fontWeight: "600",
-                color: getStatusColor(caseData.status),
-                textTransform: "uppercase",
-              }}
+            <BankTwoTone twoToneColor="#1890ff" style={{ fontSize: "20px" }} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <Text
+              className="block text-slate-900 dark:text-slate-200 font-semibold text-base"
+              ellipsis={{ tooltip: record.title }}
             >
-              {caseData.status}
-            </span>
+              {record.title}
+            </Text>
+            <Text className="block text-slate-500 dark:text-slate-400 font-mono text-sm">
+              {record.caseNumber}
+            </Text>
+            {record.description && (
+              <Text
+                className="block text-slate-600 dark:text-slate-400 text-xs mt-1 italic"
+                ellipsis={{ tooltip: record.description }}
+              >
+                {`"${record.description}"`}
+              </Text>
+            )}
           </div>
         </div>
-
-        {/* Client Details and Case Type - Parallel Layout */}
-        <div className="flex items-center gap-8 !mt-4">
-          {/* Client Information */}
-          <div className="flex-1">
-            <Text className="block text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-wider mb-3">
-              Client Information
+      ),
+    },
+    {
+      title: "Client",
+      key: "client",
+      width: 220,
+      render: (_: unknown, record: Case) => (
+        <div className="flex items-center gap-3">
+          <Avatar
+            size={40}
+            src={
+              record.client?.profileImage
+                ? record.client.profileImage.startsWith("http")
+                  ? record.client.profileImage
+                  : `http://localhost:5000${record.client.profileImage}`
+                : undefined
+            }
+            style={{
+              backgroundColor: "#f1f5f9",
+              color: "#059669",
+              fontSize: "16px",
+              fontWeight: "600",
+              border: "1px solid #e5e7eb",
+            }}
+          >
+            {!record.client?.profileImage &&
+              (record.client?.fullName?.charAt(0) || "N")}
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <Text
+              className="block text-slate-900 dark:text-slate-200 font-medium"
+              ellipsis={{ tooltip: record.client?.fullName }}
+            >
+              {record.client?.fullName || "No client assigned"}
             </Text>
-            <div className="flex items-center gap-3 p-4 bg-gray-100 dark:bg-slate-700/50 rounded-xl min-h-24">
-              <Avatar
-                size={60}
-                src={
-                  caseData.client?.profileImage
-                    ? caseData.client.profileImage.startsWith("http")
-                      ? caseData.client.profileImage
-                      : `http://localhost:5000${caseData.client.profileImage}`
-                    : undefined
-                }
-                style={{
-                  backgroundColor: "#f1f5f9",
-                  color: "#059669",
-                  fontSize: "18px",
-                  fontWeight: "600",
-                  border: "2px solid #e5e7eb",
-                }}
+            {record.client?.email && (
+              <Text
+                className="block text-slate-500 dark:text-slate-400 text-xs"
+                ellipsis={{ tooltip: record.client.email }}
               >
-                {!caseData.client?.profileImage &&
-                  (caseData.client?.fullName?.charAt(0) || "N")}
-              </Avatar>
-
-              <div className="flex-1 min-w-0">
-                <Text className="block text-slate-900 dark:text-slate-200 font-medium text-base">
-                  {caseData.client?.fullName || "No client assigned"}
-                </Text>
-                {caseData.client?.email && (
-                  <Text
-                    className="block text-slate-800 dark:text-slate-400 text-sm mt-0.5"
-                    ellipsis={{ tooltip: caseData.client.email }}
-                  >
-                    {caseData.client.email}
-                  </Text>
-                )}
-              </div>
-            </div>
+                {record.client.email}
+              </Text>
+            )}
           </div>
-
-          {/* Case Type and Dates */}
-          <div className="flex-1">
-            <Text className="block text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-wider mb-3">
-              Case Details
-            </Text>
-            <div className="space-y-3 p-4 bg-gray-100 dark:bg-slate-700/50 rounded-xl min-h-24">
-              <div className="flex items-center justify-between">
-                <Text className="text-slate-900 dark:text-slate-400 text-base font-medium uppercase tracking-wider">
-                  Type
+        </div>
+      ),
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      width: 120,
+      render: (status: string) => (
+        <Tag
+          style={{
+            background: `${getStatusColor(status)}15`,
+            color: getStatusColor(status),
+            border: `1px solid ${getStatusColor(status)}30`,
+            borderRadius: "8px",
+            padding: "4px 12px",
+            fontSize: "12px",
+            fontWeight: "600",
+            textTransform: "uppercase",
+          }}
+        >
+          <div
+            style={{
+              width: "6px",
+              height: "6px",
+              borderRadius: "50%",
+              backgroundColor: getStatusColor(status),
+              display: "inline-block",
+              marginRight: "6px",
+            }}
+          />
+          {status}
+        </Tag>
+      ),
+    },
+    {
+      title: "Case Type",
+      dataIndex: "caseType",
+      key: "caseType",
+      width: 130,
+      render: (caseType: string) => (
+        <Tag
+          icon={getCaseTypeIcon(caseType || "")}
+          style={{
+            background: `${getCaseTypeColor(caseType || "")}15`,
+            color: getCaseTypeColor(caseType || ""),
+            border: `1px solid ${getCaseTypeColor(caseType || "")}30`,
+            borderRadius: "8px",
+            padding: "4px 12px",
+            fontSize: "12px",
+            fontWeight: "600",
+            textTransform: "uppercase",
+          }}
+        >
+          {caseType}
+        </Tag>
+      ),
+    },
+    {
+      title: "Created Date",
+      dataIndex: "openedAt",
+      key: "openedAt",
+      width: 120,
+      render: (date: string) => (
+        <div>
+          <Text className="block text-slate-700 dark:text-slate-300 text-sm font-medium">
+            {formatDate(date)}
+          </Text>
+        </div>
+      ),
+      sorter: (a: Case, b: Case) =>
+        new Date(a.openedAt).getTime() - new Date(b.openedAt).getTime(),
+    },
+    {
+      title: "Assigned Lawyers",
+      key: "lawyers",
+      width: 200,
+      render: (_: unknown, record: Case) => (
+        <div>
+          {record.lawyers && record.lawyers.length > 0 ? (
+            <div className="flex items-center gap-2">
+              <Avatar.Group maxCount={2} size={28}>
+                {record.lawyers.map((lawyer, index) => (
+                  <Tooltip key={index} title={lawyer.name}>
+                    <Avatar
+                      size={28}
+                      style={{
+                        backgroundColor: "#f1f5f9",
+                        color: "#059669",
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        border: "1px solid white",
+                      }}
+                    >
+                      {lawyer.name.charAt(0)}
+                    </Avatar>
+                  </Tooltip>
+                ))}
+              </Avatar.Group>
+              <div>
+                <Text className="block text-slate-800 dark:text-slate-200 text-sm font-medium">
+                  {record.lawyers.length} Lawyer
+                  {record.lawyers.length > 1 ? "s" : ""}
                 </Text>
-                <Tag
-                  icon={getCaseTypeIcon(caseData.caseType || "")}
-                  style={{
-                    background: `${getCaseTypeColor(
-                      caseData.caseType || ""
-                    )}15`,
-                    color: getCaseTypeColor(caseData.caseType || ""),
-                    border: `1px solid ${getCaseTypeColor(
-                      caseData.caseType || ""
-                    )}30`,
-                    borderRadius: "8px",
-                    padding: "4px 8px",
-                    fontSize: "14px",
-                    fontWeight: "600",
-                    margin: 0,
-                    minWidth: "90px",
-                    textAlign: "center",
+                <Text
+                  className="block text-slate-500 dark:text-slate-400 text-xs"
+                  ellipsis={{
+                    tooltip: record.lawyers
+                      .map((lawyer) => lawyer.name)
+                      .join(", "),
                   }}
                 >
-                  {caseData.caseType}
-                </Tag>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <Text className="text-slate-900 dark:text-slate-400 text-base font-medium uppercase tracking-wider">
-                  Opened
-                </Text>
-                <Text className="text-slate-700 dark:text-slate-300 text-sm font-medium">
-                  {formatDate(caseData.openedAt)}
+                  {record.lawyers.map((lawyer) => lawyer.name).join(", ")}
                 </Text>
               </div>
-
-              {caseData.closedAt && (
-                <div className="flex items-center justify-between">
-                  <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase tracking-wider">
-                    Closed
-                  </Text>
-                  <Text className="text-slate-700 dark:text-slate-300 text-sm font-medium">
-                    {formatDate(caseData.closedAt)}
-                  </Text>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Assigned Lawyers Section */}
-        <div className="!mt-4">
-          <Text className="block text-slate-500 dark:text-slate-400 text-sm  font-medium uppercase tracking-wider mb-3">
-            Legal Team
-          </Text>
-
-          {caseData.lawyers && caseData.lawyers.length > 0 ? (
-            <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl">
-              <div className="flex items-center gap-3">
-                <Avatar.Group maxCount={5} size={36}>
-                  {caseData.lawyers.map((lawyer, index) => (
-                    <Tooltip key={index} title={lawyer.name}>
-                      <Avatar
-                        size={60}
-                        style={{
-                          backgroundColor: "#f1f5f9",
-                          color: "#059669",
-                          fontSize: "18px",
-                          fontWeight: "600",
-                          border: "2px solid white",
-                        }}
-                      >
-                        {lawyer.name.charAt(0)}
-                      </Avatar>
-                    </Tooltip>
-                  ))}
-                </Avatar.Group>
-                <div>
-                  <Text className="block text-slate-800 dark:text-slate-200 font-medium text-base">
-                    {caseData.lawyers.length} Lawyer
-                    {caseData.lawyers.length > 1 ? "s" : ""} Assigned
-                  </Text>
-                  <Text className="text-slate-500 dark:text-slate-400 text-sm">
-                    {caseData.lawyers.map((lawyer) => lawyer.name).join(", ")}
-                  </Text>
-                </div>
-              </div>
-
-              <Button
-                type="text"
-                icon={<UserAddOutlined />}
-                onClick={() => handleAssignLawyer(caseData.id)}
-                className="hover:!bg-blue-50 hover:!text-blue-600 dark:hover:!bg-blue-900/30 dark:hover:!text-blue-400 dark:!text-white"
-                style={{
-                  borderRadius: "8px",
-                  height: "32px",
-                  fontSize: "16px",
-                }}
-              >
-                Add More
-              </Button>
             </div>
           ) : (
-            <div className="flex items-center justify-between p-4 border-2 border-dashed border-slate-200 dark:border-slate-600 rounded-xl">
-              <div className="flex items-center gap-3">
-                <div className="w-[60px] h-[60px] bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
-                  <UserOutlined className="text-slate-400 text-[18px]" />
-                </div>
-                <Text className="text-slate-500 dark:text-slate-400 text-sm">
-                  No lawyers assigned to this case
-                </Text>
+            <div className="flex items-center gap-2">
+              <div className="w-[28px] h-[28px] bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
+                <UserOutlined className="text-slate-400 text-xs" />
               </div>
-
-              <Button
-                type="primary"
-                icon={<UserAddOutlined />}
-                onClick={() => handleAssignLawyer(caseData.id)}
-                style={{
-                  borderRadius: "8px",
-                  height: "36px",
-                  fontSize: "12px",
-                  fontWeight: "600",
-                }}
-              >
-                Assign Lawyer
-              </Button>
+              <Text className="text-slate-500 dark:text-slate-400 text-xs">
+                No lawyers assigned
+              </Text>
             </div>
           )}
         </div>
-
-        {/* Action Buttons */}
-        <div className="flex items-center justify-end gap-2  !mt-2">
+      ),
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      width: 140,
+      fixed: "right",
+      render: (_: unknown, record: Case) => (
+        <Space size="small">
           <Tooltip title="View Details">
             <Button
               type="text"
-              size="large"
+              size="small"
               icon={<EyeOutlined />}
               onClick={() =>
-                router.push(`/pages/firm-admin/get-case-detail/${caseData.id}`)
+                router.push(`/pages/firm-admin/get-case-detail/${record.id}`)
               }
               className="hover:!bg-blue-50 hover:!text-blue-600 dark:hover:!bg-blue-900/30 dark:hover:!text-blue-400"
-              style={{
-                borderRadius: "8px",
-                width: "40px",
-                height: "40px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "14px",
-              }}
+              style={{ borderRadius: "6px" }}
             />
           </Tooltip>
-
           <Tooltip title="Edit Case">
             <Button
               type="text"
-              size="large"
+              size="small"
               icon={<EditOutlined />}
               onClick={() =>
-                router.push(`/pages/firm-admin/edit-case/${caseData.id}`)
+                router.push(`/pages/firm-admin/edit-case/${record.id}`)
               }
               className="hover:!bg-amber-50 hover:!text-amber-600 dark:hover:!bg-amber-900/30 dark:hover:!text-amber-400"
-              style={{
-                borderRadius: "8px",
-                width: "40px",
-                height: "40px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "14px",
-              }}
+              style={{ borderRadius: "6px" }}
             />
           </Tooltip>
-
+          <Tooltip title="Assign Lawyer">
+            <Button
+              type="text"
+              size="small"
+              icon={<UserAddOutlined />}
+              onClick={() => handleAssignLawyer(record.id)}
+              className="hover:!bg-green-50 hover:!text-green-600 dark:hover:!bg-green-900/30 dark:hover:!text-green-400"
+              style={{ borderRadius: "6px" }}
+            />
+          </Tooltip>
           <Tooltip title="Delete Case">
             <Button
               type="text"
-              size="large"
+              size="small"
               icon={<DeleteOutlined />}
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                handleDeleteCase(caseData.firmId, caseData.id);
+                handleDeleteCase(record.firmId, record.id);
               }}
-              loading={deleting && deletingCaseId === caseData.id}
-              className="hover:!bg-red-50 hover:!text-red-600 dark:hover:!bg-red-900/30 dark:hover:!text-red-400"
-              style={{
-                borderRadius: "8px",
-                width: "40px",
-                height: "40px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#dc2626",
-                fontSize: "14px",
-              }}
+              loading={deleting && deletingCaseId === record.id}
               danger
+              className="hover:!bg-red-50 hover:!text-red-600 dark:hover:!bg-red-900/30 dark:hover:!text-red-400"
+              style={{ borderRadius: "6px", color: "#dc2626" }}
             />
           </Tooltip>
-        </div>
-      </div>
-    </Card>
-  );
+        </Space>
+      ),
+    },
+  ];
 
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
@@ -993,62 +823,86 @@ export default function GetCases() {
               </Row>
             </Card>
 
-            {/* Cases List */}
+            {/* Cases Table */}
             {loading ? (
               <div className="flex justify-center items-center min-h-[400px]">
                 <Spin size="large" />
               </div>
-            ) : filteredCases.length === 0 ? (
+            ) : (
               <Card
-                className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm"
-                bodyStyle={{ padding: "60px 24px" }}
+                className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm transition-colors duration-300"
+                bodyStyle={{ padding: 0 }}
               >
-                <Empty
-                  description={
-                    <Text className="text-slate-500 dark:text-slate-400 text-lg">
-                      No cases found. Try adjusting your filters or create a new
-                      case.
-                    </Text>
-                  }
-                  image={Empty.PRESENTED_IMAGE_SIMPLE}
+                <Table
+                  columns={columns}
+                  dataSource={filteredCases}
+                  rowKey="id"
+                  loading={loading}
+                  pagination={{
+                    current: currentPage,
+                    total: filteredCases.length,
+                    pageSize: pageSize,
+                    onChange: (page) => setCurrentPage(page),
+                    onShowSizeChange: (current, size) => {
+                      setPageSize(size);
+                      setCurrentPage(1);
+                    },
+                    showSizeChanger: true,
+                    showQuickJumper: true,
+                    showTotal: (total, range) =>
+                      `${range[0]}-${range[1]} of ${total} cases`,
+                    className: "dark:text-slate-300",
+                    style: { marginRight: "24px", marginBottom: "16px" },
+                  }}
+                  className="dark:[&_.ant-table]:!bg-slate-800 
+                         dark:[&_.ant-table-thead>tr>th]:!bg-slate-900 
+                         dark:[&_.ant-table-thead>tr>th]:!text-slate-200 
+                         dark:[&_.ant-table-tbody>tr>td]:!bg-slate-800 
+                         dark:[&_.ant-table-tbody>tr>td]:!text-slate-300
+                         dark:[&_.ant-table-tbody>tr:hover>td]:!bg-slate-700"
+                  style={{
+                    borderRadius: "16px",
+                    overflow: "hidden",
+                  }}
+                  scroll={{ x: 1200 }}
+                  locale={{
+                    emptyText: (
+                      <div
+                        style={{
+                          textAlign: "center",
+                          padding: "48px",
+                        }}
+                        className="text-slate-500 dark:text-slate-400"
+                      >
+                        <FileTextOutlined
+                          style={{ fontSize: "48px", marginBottom: "16px" }}
+                        />
+                        <Title
+                          level={4}
+                          className="!text-slate-500 dark:!text-slate-300"
+                        >
+                          No cases found
+                        </Title>
+                        <Text className="dark:text-slate-400">
+                          No cases match your current filters or create a new
+                          case.
+                        </Text>
+                        <br />
+                        <Button
+                          type="primary"
+                          icon={<PlusOutlined />}
+                          onClick={() =>
+                            router.push("/pages/firm-admin/add-case")
+                          }
+                          style={{ marginTop: "16px" }}
+                        >
+                          Add First Case
+                        </Button>
+                      </div>
+                    ),
+                  }}
                 />
               </Card>
-            ) : (
-              <div className="space-y-6">
-                {/* Cases Grid - One card per row */}
-                <div className="space-y-4">
-                  {paginatedCases.map((caseData) => (
-                    <div key={caseData.id} className="w-full">
-                      <CaseCard caseData={caseData} />
-                    </div>
-                  ))}
-                </div>
-
-                {/* Pagination */}
-                {filteredCases.length > pageSize && (
-                  <div className="flex justify-center mt-8">
-                    <Pagination
-                      current={currentPage}
-                      total={filteredCases.length}
-                      pageSize={pageSize}
-                      onChange={(page) => setCurrentPage(page)}
-                      onShowSizeChange={(current, size) => {
-                        setPageSize(size);
-                        setCurrentPage(1);
-                      }}
-                      showSizeChanger
-                      showQuickJumper
-                      showTotal={(total, range) =>
-                        `${range[0]}-${range[1]} of ${total} cases`
-                      }
-                      style={{
-                        textAlign: "center",
-                      }}
-                      className="dark:text-white [&_.ant-pagination-item]:dark:bg-slate-700 [&_.ant-pagination-item]:dark:border-slate-600 [&_.ant-pagination-item-active]:dark:bg-blue-600 [&_.ant-pagination-item-active]:dark:border-blue-600"
-                    />
-                  </div>
-                )}
-              </div>
             )}
           </div>
         </div>

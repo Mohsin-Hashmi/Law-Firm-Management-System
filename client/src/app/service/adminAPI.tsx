@@ -4,6 +4,7 @@ import { FirmPayload, LawyerPayload, FirmStats, Lawyer } from "../types/firm";
 import { ClientPayload, Client } from "../types/client";
 import { Case } from "../types/case";
 import { CreateRolePayload } from "../types/role";
+import { AssignRolePayload } from "../types/role";
 /**Create firm API call */
 export const createFirm = async (data: FirmPayload, role?: string) => {
   // Decide API path based on role
@@ -412,6 +413,7 @@ export const updateCaseStatus = async (
  * Role Permission APIs
  * 1=> Get Permissoins
  * 2=> Create Permission
+ * 3=> Assign Role
  */
 
 export const getPermissions = async () => {
@@ -433,13 +435,45 @@ export const getPermissions = async () => {
   }
 };
 
-export const createRole = async(roleData: CreateRolePayload)=>{
-  try{
-    const response = await axios.post(`${BASE_URL}/api/roles/create-role`, roleData, {
-      withCredentials: true
-    })
+export const createRole = async (roleData: CreateRolePayload) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/api/roles/create-role`,
+      roleData,
+      {
+        withCredentials: true,
+      }
+    );
     return response.data;
-  }catch(error){
-     console.error("Error creating role:",error);
+  } catch (error) {
+    console.error("Error creating role:", error);
   }
-}
+};
+
+export const assignRole = async (formData: AssignRolePayload) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/api/roles/assign-role`,
+      formData,
+      {
+        withCredentials: true,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error creating role:", error);
+    throw error; 
+  }
+};
+
+export const fetchRoles = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}/api/roles/get-roles`, {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    console.log("Error Fetching Roles", error);
+    return [];
+  }
+};
