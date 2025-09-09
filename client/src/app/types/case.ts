@@ -38,5 +38,14 @@ export interface Case {
 }
 
 
+export interface CreateCaseFormValues {
+  title: string;
+  caseNumber: string;
+  caseType: string;
+  status?: "Open" | "Closed" | "On Hold" | "Appeal";
+  description?: string;
+  clientId: number;       // ✅ only ID, not full client
+  lawyerIds?: number[];   // ✅ only IDs, not full lawyer objects
+}
 
 

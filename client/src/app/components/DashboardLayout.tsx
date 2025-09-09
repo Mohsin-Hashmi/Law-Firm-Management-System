@@ -92,21 +92,21 @@ export default function DashboardLayout({
     "Super Admin": [
       {
         label: "Dashboard",
-        href: "/pages/super-admin/dashboard",
+        href: "/super-admin/dashboard",
         icon: <DashboardOutlined />,
         category: "Main",
         requiredPermissions: ["view_stats"],
       },
       {
         label: "Firms",
-        href: "/pages/super-admin/firms",
+        href: "/super-admin/firms",
         icon: <BankOutlined />,
         category: "Firm Management",
         requiredPermissions: ["create_firm", "update_firm", "delete_firm"],
       },
       {
         label: "Roles",
-        href: "/pages/super-admin/roles",
+        href: "/super-admin/roles",
         icon: <SettingOutlined />,
         category: "Role Management",
         requiredPermissions: ["create_role"],
@@ -116,7 +116,7 @@ export default function DashboardLayout({
     "Firm Admin": [
       {
         label: "Dashboard",
-        href: "/pages/dashboard",
+        href: "/dashboard",
         icon: <DashboardOutlined />,
         category: "Main",
         requiredPermissions: ["view_stats"],
@@ -137,7 +137,7 @@ export default function DashboardLayout({
       },
       {
         label: "Add New Business",
-        href: "/pages/firm-admin/add-firm",
+        href: "/firm-admin/add-firm",
         icon: <BankOutlined />,
         category: "Main",
         requiredPermissions: ["create_firm"],
@@ -145,42 +145,42 @@ export default function DashboardLayout({
 
       {
         label: "Lawyers",
-        href: "/pages/firm-admin/get-lawyers",
+        href: "/firm-admin/get-lawyers",
         icon: <UserOutlined />,
         category: "Team Management",
         requiredPermissions: ["read_lawyer"],
       },
       {
         label: "Add Lawyer",
-        href: "/pages/firm-admin/add-lawyer",
+        href: "/firm-admin/add-lawyer",
         icon: <PlusOutlined />,
         category: "Team Management",
         requiredPermissions: ["create_lawyer"],
       },
       {
         label: "Clients",
-        href: "/pages/firm-admin/get-clients",
+        href: "/firm-admin/get-clients",
         icon: <TeamOutlined />,
         category: "Client Management",
         requiredPermissions: ["read_client"],
       },
       {
         label: "Add Client",
-        href: "/pages/firm-admin/create-client",
+        href: "/firm-admin/create-client",
         icon: <PlusOutlined />,
         category: "Client Management",
         requiredPermissions: ["create_client"],
       },
       {
         label: "Cases",
-        href: "/pages/firm-admin/get-cases",
+        href: "/firm-admin/get-cases",
         icon: <FileTextOutlined />,
         category: "Case Management",
         requiredPermissions: ["read_case"],
       },
       {
         label: "Add Case",
-        href: "/pages/firm-admin/add-case",
+        href: "/firm-admin/add-case",
         icon: <PlusOutlined />,
         category: "Case Management",
         requiredPermissions: ["create_case"],
@@ -190,35 +190,35 @@ export default function DashboardLayout({
     Lawyer: [
       {
         label: "Dashboard",
-        href: "/pages/lawyer/dashboard",
+        href: "/lawyer/dashboard",
         icon: <DashboardOutlined />,
         category: "Main",
         requiredPermissions: ["view_stats"], // ✅ only if you give lawyers stats access
       },
       {
         label: "Clients",
-        href: "/pages/firm-admin/get-clients",
+        href: "/firm-admin/get-clients",
         icon: <TeamOutlined />,
         category: "Client Management",
         requiredPermissions: ["read_client"],
       },
       {
         label: "Add Client",
-        href: "/pages/firm-admin/create-client",
+        href: "/firm-admin/create-client",
         icon: <PlusOutlined />,
         category: "Client Management",
         requiredPermissions: ["create_client"],
       },
       {
         label: "Cases",
-        href: "/pages/firm-admin/get-cases",
+        href: "/firm-admin/get-cases",
         icon: <FileTextOutlined />,
         category: "Case Management",
         requiredPermissions: ["read_case"],
       },
       {
         label: "Add Case",
-        href: "/pages/firm-admin/add-case",
+        href: "/firm-admin/add-case",
         icon: <PlusOutlined />,
         category: "Case Management",
         requiredPermissions: ["create_case"],
@@ -505,31 +505,31 @@ export default function DashboardLayout({
                     dispatch(setLawyers(lawyers));
                     dispatch(clearFirm()); // if you have this in firmSlice
                     if (
-                      pathname.startsWith("/pages/firm-admin/get-lawyer-detail")
+                      pathname.startsWith("/firm-admin/get-lawyer-detail")
                     ) {
-                      router.push("/pages/dashboard");
+                      router.push("/dashboard");
                     }
-                    if (pathname.startsWith("/pages/firm-admin/edit-lawyer")) {
-                      router.push("/pages/dashboard");
+                    if (pathname.startsWith("/firm-admin/edit-lawyer")) {
+                      router.push("/dashboard");
                     }
                     if (
-                      pathname.startsWith("/pages/firm-admin/get-client-detail")
+                      pathname.startsWith("/firm-admin/get-client-detail")
                     ) {
-                      router.push("/pages/dashboard");
+                      router.push("/dashboard");
                     }
-                    if (pathname.startsWith("/pages/firm-admin/edit-client")) {
-                      router.push("/pages/dashboard");
+                    if (pathname.startsWith("/firm-admin/edit-client")) {
+                      router.push("/dashboard");
                     }
-                    if (pathname.startsWith("/pages/firm-admin/add-lawyer")) {
-                      router.push("/pages/dashboard");
+                    if (pathname.startsWith("/firm-admin/add-lawyer")) {
+                      router.push("/dashboard");
                     }
                     if (
-                      pathname.startsWith("/pages/firm-admin/create-client")
+                      pathname.startsWith("/firm-admin/create-client")
                     ) {
-                      router.push("/pages/dashboard");
+                      router.push("/dashboard");
                     }
-                    if (pathname.startsWith("/pages/firm-admin/add-case")) {
-                      router.push("/pages/dashboard");
+                    if (pathname.startsWith("/firm-admin/add-case")) {
+                      router.push("/dashboard");
                     }
                     toast.success("Switched firm successfully");
                   } catch (err) {

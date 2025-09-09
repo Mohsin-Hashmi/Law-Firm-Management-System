@@ -343,10 +343,10 @@ export const getAllCasesOfLawyer = async (
   }
 };
 
-export const getCaseById = async (firmId: number, id: number) => {
+export const getCaseById = async (id: number) => {
   try {
     const resposne = await axios.get(
-      `${BASE_URL}/api/firm-admin/firm/${firmId}/cases/${id}`,
+      `${BASE_URL}/api/firm-admin/firm/cases/${id}`,
       { withCredentials: true }
     );
     return resposne.data;
@@ -369,6 +369,29 @@ export const deleteCaseByFirm = async (firmId: number, id: number) => {
       { withCredentials: true }
     );
     return response.data.case;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        `Error fetching cases of firm: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    }
+    throw new Error("Unexpected error while fetching clients");
+  }
+};
+
+export const updateCaseByFirm = async (
+  id: number,
+  data: FormData
+) => {
+  try {
+    const resposne = await axios.put(
+      `${BASE_URL}/api/firm-admin/firm/cases/${id}`,
+      data,
+      { withCredentials: true }
+    );
+    return resposne.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(
@@ -462,7 +485,7 @@ export const assignRole = async (formData: AssignRolePayload) => {
     return response.data;
   } catch (error) {
     console.error("Error creating role:", error);
-    throw error; 
+    throw error;
   }
 };
 

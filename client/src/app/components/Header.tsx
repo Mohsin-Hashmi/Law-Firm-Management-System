@@ -24,7 +24,7 @@ export default function Header() {
 
    
 
-  const isLandingPage = pathname === "/pages/landing-page";
+  const isLandingPage = pathname === "/landing-page";
   
    const logoHref = 
     isLandingPage ? "/landing-page" : 
@@ -33,16 +33,16 @@ export default function Header() {
 
    // Landing page navigation links
   const landingPageLinks = [
-    { label: "About Us", href: "/pages/about-us" },
-    { label: "Services", href: "/pages/our-services" },
+    { label: "About Us", href: "/about-us" },
+    { label: "Services", href: "/our-services" },
     { label: "Login", href: "/auth/login" },
     { label: "Register", href: "/auth/signup" },
   ];
   const navLinksMap: Record<string, { label: string; href: string }[]> = {
     "Super Admin": [
       { label: "Home", href: "/" },
-      { label: "Firms", href: "/pages/super-admin/get-firms" },
-      { label: "Add Firm", href: "/pages/super-admin/add-firm" },
+      { label: "Firms", href: "/super-admin/get-firms" },
+      { label: "Add Firm", href: "/super-admin/add-firm" },
     ],
     "Firm Admin": [
       { label: "Home", href: "/" },

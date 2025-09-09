@@ -49,14 +49,14 @@ caseRoute.get(
   getAllCasesOfFirm
 );
 caseRoute.get(
-  "/firm/:firmId/cases/:caseId",
+  "/firm/cases/:caseId",
   userAuth,
   firmAdminAuth,
   checkPermission(permissions.READ_CASE),
   getCaseById
 );
 caseRoute.put(
-  "/firm/:firmId/cases/:caseId",
+  "/firm/cases/:caseId",
   userAuth,
   firmAdminAuth,
   upload.array("documents", 5),

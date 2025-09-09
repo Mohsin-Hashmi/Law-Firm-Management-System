@@ -45,7 +45,7 @@ export default function AuthForm({ type }: AuthFormProps) {
 
   // Get redirect parameter from URL
   const searchParams = new URLSearchParams(window.location.search);
-  const redirectTo = searchParams.get('redirect') || '/pages/dashboard';
+  const redirectTo = searchParams.get('redirect') || '/dashboard';
 
   const validate = () => {
     const newError: typeof error = {
@@ -156,9 +156,9 @@ export default function AuthForm({ type }: AuthFormProps) {
           toast("You need to reset your password before continuing.");
           // go straight to dashboard — the modal will handle reset
           if (currentFirmId) {
-            router.push("/pages/dashboard");
+            router.push("/dashboard");
           } else {
-            router.push("/pages/firm-admin/add-firm");
+            router.push("/firm-admin/add-firm");
           }
           return;
         }
@@ -171,7 +171,7 @@ export default function AuthForm({ type }: AuthFormProps) {
         if (currentFirmId) {
           router.push(redirectTo);
         } else {
-          router.push("/pages/firm-admin/add-firm");
+          router.push("/firm-admin/add-firm");
         }
       }
     } catch (error) {

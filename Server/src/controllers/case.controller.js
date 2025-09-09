@@ -93,6 +93,7 @@ const getCaseById = async (req, res) => {
   try {
     const { caseId } = req.params;
     const firmId = req.user.firmId;
+    console.log(`Looking for Case: ${caseId} Firm (from user): ${firmId}`);
     if (!caseId) {
       return res.status(404).json({
         success: false,
@@ -105,6 +106,7 @@ const getCaseById = async (req, res) => {
         message: "Firm Id is required",
       });
     }
+    
     const caseData = await Case.findOne({
       where: { id: caseId, firmId },
       include: [

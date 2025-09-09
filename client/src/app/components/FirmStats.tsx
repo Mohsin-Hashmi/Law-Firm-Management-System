@@ -123,15 +123,15 @@ export default function FirmStats({ firmId, role }: Props) {
   }, [firmId, role, dispatch]);
 
   const handleAddClient = () => {
-    router.push("/pages/firm-admin/create-client");
+    router.push("/firm-admin/create-client");
   };
 
   const handleAddLawyer = () => {
-    router.push("/pages/firm-admin/add-lawyer");
+    router.push("/firm-admin/add-lawyer");
   };
 
   const handleAddCase = () => {
-    router.push("/pages/firm-admin/add-case");
+    router.push("/firm-admin/add-case");
   };
   // Show loading spinner when loading OR when there's no stats yet (during firm switch)
   if (loading || (!stats && !error)) {

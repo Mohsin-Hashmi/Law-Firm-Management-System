@@ -272,7 +272,7 @@ const AssignRoleModal: React.FC<AssignRoleModalProps> = ({
                       <Text className="text-slate-700 dark:text-slate-300 font-medium text-sm">
                         {formatRoleName(roles.find(r => r.id === formData.roleId)?.name || "")}
                       </Text>
-                      <Text className="text-slate-500 dark:text-slate-400 text-xs">
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs ml-1">
                         Role
                       </Text>
                     </div>
