@@ -292,12 +292,6 @@ export default function EditCase() {
           <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
             <div className="text-center">
               <Spin size="large" />
-              <Title level={4} className="text-slate-800 dark:text-white mt-4">
-                Loading Case Data
-              </Title>
-              <Text className="text-slate-600 dark:text-slate-300">
-                Please wait while we fetch the case information...
-              </Text>
             </div>
           </div>
         </DashboardLayout>
@@ -335,8 +329,8 @@ export default function EditCase() {
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <DashboardLayout>
-        <div className="min-h-screen p-6 bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
-          <div className="max-w-[1400px] mx-auto">
+        <div className="min-h-screen  dark:bg-slate-900 transition-colors duration-300">
+          <div className="max-w-full">
             {/* Header Section */}
             <Card
               className="bg-[#433878] dark:bg-slate-800 border-0 rounded-2xl shadow-lg mb-6"

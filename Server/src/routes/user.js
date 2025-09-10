@@ -4,6 +4,7 @@ const { SignUp, LoginIn, Logout, resetPassword, getCurrentUser } = require("../c
 const { userAuth } = require("../middlewares/authMiddleware");
 
 authRoutes.post("/signup", SignUp);
+authRoutes.post("/signup/firm-admin", SignUp);
 authRoutes.post("/login", LoginIn);
 authRoutes.post("/logout", Logout);
 authRoutes.post("/reset-password", resetPassword);

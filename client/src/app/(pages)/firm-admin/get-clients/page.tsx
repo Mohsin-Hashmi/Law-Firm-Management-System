@@ -34,6 +34,7 @@ import {
   Row,
   Select,
   Space,
+  Spin,
   Statistic,
   Table,
   Tag,
@@ -464,272 +465,298 @@ export default function GetClients() {
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <DashboardLayout>
-        <div className="min-h-screen p-6 bg-slate-50 dark:bg-slate-900 transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
-          <div className="max-w-[1400px] mx-auto">
-            {/* Header Section */}
-            <Card
-              className="bg-emerald-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
-              bodyStyle={{ padding: "32px" }}
-            >
-              <Row align="middle" justify="space-between">
-                <Col>
-                  <Space size="large">
-                    <div
-                      style={{
-                        width: "80px",
-                        height: "80px",
-                        background: "rgba(255,255,255,0.15)",
-                        borderRadius: "16px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        border: "2px solid rgba(255,255,255,0.2)",
-                      }}
-                    >
-                      <UserOutlined
-                        style={{ fontSize: "32px", color: "white" }}
-                      />
-                    </div>
-                    <div>
-                      <Title
-                        level={1}
+        {loading ? (
+          <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-900">
+            <Spin size="large" />
+          </div>
+        ) : (
+          <div className="min-h-screen dark:bg-slate-900 transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
+            <div className="max-w-full">
+              {/* Header Section */}
+              <Card
+                className="bg-emerald-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+                bodyStyle={{ padding: "32px 20px" }}
+              >
+                <Row align="middle" justify="space-between">
+                  <Col>
+                    <Space size="large">
+                      <div
                         style={{
-                          color: "white",
-                          margin: 0,
-                          fontSize: "36px",
+                          width: "80px",
+                          height: "80px",
+                          background: "rgba(255,255,255,0.15)",
+                          borderRadius: "16px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          border: "2px solid rgba(255,255,255,0.2)",
+                        }}
+                      >
+                        <UserOutlined
+                          style={{ fontSize: "32px", color: "white" }}
+                        />
+                      </div>
+                      <div>
+                        <Title
+                          level={1}
+                          style={{
+                            color: "white",
+                            margin: 0,
+                            fontSize: "36px",
+                            fontWeight: "600",
+                            letterSpacing: "-0.025em",
+                          }}
+                        >
+                          Client Management
+                        </Title>
+                        <Text
+                          style={{
+                            color: "rgba(255,255,255,0.8)",
+                            fontSize: "18px",
+                            fontWeight: "400",
+                          }}
+                        >
+                          Manage your firms clients and their legal matters
+                        </Text>
+                      </div>
+                    </Space>
+                  </Col>
+                  <Col >
+                    <Space size="middle">
+                      <Button
+                        type="primary"
+                        size="large"
+                        icon={<UserAddOutlined />}
+                        onClick={() => router.push("/firm-admin/create-client")}
+                        style={{
+                          background: "white",
+                          borderColor: "white",
+                          color: "#059669",
+                          borderRadius: "12px",
                           fontWeight: "600",
-                          letterSpacing: "-0.025em",
+                          padding: "8px 24px",
+                          height: "48px",
+                          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                         }}
                       >
-                        Client Management
-                      </Title>
-                      <Text
+                        Add New Client
+                      </Button>
+                      <Button
+                        size="large"
+                        icon={<ExportOutlined />}
                         style={{
-                          color: "rgba(255,255,255,0.8)",
-                          fontSize: "18px",
-                          fontWeight: "400",
+                          background: "rgba(255,255,255,0.2)",
+                          borderColor: "rgba(255,255,255,0.3)",
+                          color: "white",
+                          borderRadius: "12px",
+                          fontWeight: "600",
+                          padding: "8px 24px",
+                          height: "48px",
+                          backdropFilter: "blur(10px)",
                         }}
+                        ghost
                       >
-                        Manage your firms clients and their legal matters
-                      </Text>
-                    </div>
-                  </Space>
-                </Col>
-                <Col className="pt-7">
-                  <Space size="middle">
-                    <Button
-                      type="primary"
-                      size="large"
-                      icon={<UserAddOutlined />}
-                      onClick={() =>
-                        router.push("/firm-admin/create-client")
+                        Export Data
+                      </Button>
+                    </Space>
+                  </Col>
+                </Row>
+              </Card>
+
+              {/* Statistics Cards */}
+              <Row gutter={[24, 24]} style={{ marginBottom: "32px" }}>
+                <Col xs={24} sm={6}>
+                  <Card
+                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
+                    bodyStyle={{ padding: "30px" }}
+                    hoverable
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-4px)";
+                      e.currentTarget.style.boxShadow =
+                        "0 10px 25px rgba(0,0,0,0.15)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow =
+                        "0 1px 3px rgba(0,0,0,0.1)";
+                    }}
+                  >
+                    <Statistic
+                      title={
+                        <span className="text-slate-500 dark:text-white text-lg font-medium mb-[15px] block">
+                          Total Clients
+                        </span>
                       }
-                      style={{
-                        background: "white",
-                        borderColor: "white",
-                        color: "#059669",
-                        borderRadius: "12px",
-                        fontWeight: "600",
-                        padding: "8px 24px",
-                        height: "48px",
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                      value={clients.length}
+                      valueStyle={{
+                        fontSize: "32px",
+                        fontWeight: "700",
+                        lineHeight: "1",
+                        color: "inherit",
                       }}
-                    >
-                      Add New Client
-                    </Button>
-                    <Button
+                      prefix={
+                        <UserOutlined className="text-emerald-600 dark:text-emerald-400 text-3xl mr-1" />
+                      }
+                      className="text-emerald-600 dark:text-emerald-600 [&_.ant-statistic-content-value]:dark:!text-emerald-600"
+                    />
+                  </Card>
+                </Col>
+                <Col xs={24} sm={6}>
+                  <Card
+                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
+                    bodyStyle={{ padding: "30px" }}
+                    hoverable
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-4px)";
+                      e.currentTarget.style.boxShadow =
+                        "0 10px 25px rgba(0,0,0,0.15)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow =
+                        "0 1px 3px rgba(0,0,0,0.1)";
+                    }}
+                  >
+                    <Statistic
+                      title={
+                        <span className="text-slate-500 dark:text-white text-lg font-medium mb-[15px] block">
+                          Active Clients
+                        </span>
+                      }
+                      value={activeClients.length}
+                      valueStyle={{
+                        fontSize: "32px",
+                        fontWeight: "700",
+                        lineHeight: "1",
+                        color: "inherit",
+                      }}
+                      prefix={
+                        <CheckCircleOutlined className="text-green-600 dark:text-green-400 text-3xl mr-1" />
+                      }
+                      className="text-green-600 dark:text-green-500 [&_.ant-statistic-content-value]:dark:!text-green-500"
+                    />
+                  </Card>
+                </Col>
+                <Col xs={24} sm={6}>
+                  <Card
+                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
+                    bodyStyle={{ padding: "30px" }}
+                    hoverable
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-4px)";
+                      e.currentTarget.style.boxShadow =
+                        "0 10px 25px rgba(0,0,0,0.15)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow =
+                        "0 1px 3px rgba(0,0,0,0.1)";
+                    }}
+                  >
+                    <Statistic
+                      title={
+                        <span className="text-slate-500 dark:text-white text-lg font-medium mb-[15px] block">
+                          Potential Clients
+                        </span>
+                      }
+                      value={potentialClients.length}
+                      valueStyle={{
+                        fontSize: "32px",
+                        fontWeight: "700",
+                        lineHeight: "1",
+                        color: "inherit",
+                      }}
+                      prefix={
+                        <TeamOutlined className="text-amber-600 dark:text-amber-400 text-3xl mr-1" />
+                      }
+                      className="text-amber-600 dark:text-amber-600 [&_.ant-statistic-content-value]:dark:!text-amber-600"
+                    />
+                  </Card>
+                </Col>
+                <Col xs={24} sm={6}>
+                  <Card
+                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
+                    bodyStyle={{ padding: "30px" }}
+                    hoverable
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-4px)";
+                      e.currentTarget.style.boxShadow =
+                        "0 10px 25px rgba(0,0,0,0.15)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow =
+                        "0 1px 3px rgba(0,0,0,0.1)";
+                    }}
+                  >
+                    <Statistic
+                      title={
+                        <span className="text-slate-500 dark:text-white text-lg font-medium mb-[15px] block">
+                          Outstanding
+                        </span>
+                      }
+                      value={formatCurrency(totalOutstanding)}
+                      prefix="$"
+                      valueStyle={{
+                        fontSize: "32px",
+                        fontWeight: "700",
+                        lineHeight: "1",
+                        color: "inherit",
+                      }}
+                      className="text-red-600 dark:text-red-600 [&_.ant-statistic-content-value]:dark:!text-red-600"
+                    />
+                  </Card>
+                </Col>
+              </Row>
+
+              {/* Filters and Search */}
+              <Card
+                className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm transition-colors duration-300 mb-6"
+                bodyStyle={{ padding: "24px" }}
+              >
+                <Row gutter={[16, 16]} align="middle">
+                  <Col xs={24} sm={12} md={8}>
+                    <Input
+                      placeholder="Search clients by name, email, or organization"
+                      prefix={
+                        <SearchOutlined className="text-slate-400 dark:text-slate-500" />
+                      }
+                      value={searchText}
+                      onChange={(e) => setSearchText(e.target.value)}
+                      className="rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white"
                       size="large"
-                      icon={<ExportOutlined />}
-                      style={{
-                        background: "rgba(255,255,255,0.2)",
-                        borderColor: "rgba(255,255,255,0.3)",
-                        color: "white",
-                        borderRadius: "12px",
-                        fontWeight: "600",
-                        padding: "8px 24px",
-                        height: "48px",
-                        backdropFilter: "blur(10px)",
-                      }}
-                      ghost
+                    />
+                  </Col>
+                  <Col xs={12} sm={6} md={4}>
+                    <Select
+                      placeholder="Filter by Status"
+                      value={statusFilter}
+                      onChange={setStatusFilter}
+                      size="large"
+                      className="w-full 
+    [&_.ant-select-selector]:!rounded-xl 
+    [&_.ant-select-selector]:dark:!bg-slate-900 
+    [&_.ant-select-selector]:dark:!border-slate-600 
+    [&_.ant-select-selector]:dark:!text-white
+    [&_.ant-select-selection-item]:dark:!text-white
+    [&_.ant-select-selection-placeholder]:dark:!text-gray-400
+    [&_.ant-select-arrow]:dark:!text-white
+  "
                     >
-                      Export Data
-                    </Button>
-                  </Space>
-                </Col>
-              </Row>
-            </Card>
-
-            {/* Statistics Cards */}
-            <Row gutter={[24, 24]} style={{ marginBottom: "32px" }}>
-              <Col xs={24} sm={6}>
-                <Card
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
-                  bodyStyle={{ padding: "30px" }}
-                  hoverable
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-4px)";
-                    e.currentTarget.style.boxShadow =
-                      "0 10px 25px rgba(0,0,0,0.15)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow =
-                      "0 1px 3px rgba(0,0,0,0.1)";
-                  }}
-                >
-                  <Statistic
-                    title={
-                      <span className="text-slate-500 dark:text-white text-lg font-medium mb-[15px] block">
-                        Total Clients
-                      </span>
-                    }
-                    value={clients.length}
-                    valueStyle={{
-                      fontSize: "32px",
-                      fontWeight: "700",
-                      lineHeight: "1",
-                      color: "inherit",
-                    }}
-                    prefix={
-                      <UserOutlined className="text-emerald-600 dark:text-emerald-400 text-3xl mr-1" />
-                    }
-                    className="text-emerald-600 dark:text-emerald-600 [&_.ant-statistic-content-value]:dark:!text-emerald-600"
-                  />
-                </Card>
-              </Col>
-              <Col xs={24} sm={6}>
-                <Card
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
-                  bodyStyle={{ padding: "30px" }}
-                  hoverable
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-4px)";
-                    e.currentTarget.style.boxShadow =
-                      "0 10px 25px rgba(0,0,0,0.15)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow =
-                      "0 1px 3px rgba(0,0,0,0.1)";
-                  }}
-                >
-                  <Statistic
-                    title={
-                      <span className="text-slate-500 dark:text-white text-lg font-medium mb-[15px] block">
-                        Active Clients
-                      </span>
-                    }
-                    value={activeClients.length}
-                    valueStyle={{
-                      fontSize: "32px",
-                      fontWeight: "700",
-                      lineHeight: "1",
-                      color: "inherit",
-                    }}
-                    prefix={
-                      <CheckCircleOutlined className="text-green-600 dark:text-green-400 text-3xl mr-1" />
-                    }
-                    className="text-green-600 dark:text-green-500 [&_.ant-statistic-content-value]:dark:!text-green-500"
-                  />
-                </Card>
-              </Col>
-              <Col xs={24} sm={6}>
-                <Card
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
-                  bodyStyle={{ padding: "30px" }}
-                  hoverable
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-4px)";
-                    e.currentTarget.style.boxShadow =
-                      "0 10px 25px rgba(0,0,0,0.15)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow =
-                      "0 1px 3px rgba(0,0,0,0.1)";
-                  }}
-                >
-                  <Statistic
-                    title={
-                      <span className="text-slate-500 dark:text-white text-lg font-medium mb-[15px] block">
-                        Potential Clients
-                      </span>
-                    }
-                    value={potentialClients.length}
-                    valueStyle={{
-                      fontSize: "32px",
-                      fontWeight: "700",
-                      lineHeight: "1",
-                      color: "inherit",
-                    }}
-                    prefix={
-                      <TeamOutlined className="text-amber-600 dark:text-amber-400 text-3xl mr-1" />
-                    }
-                    className="text-amber-600 dark:text-amber-600 [&_.ant-statistic-content-value]:dark:!text-amber-600"
-                  />
-                </Card>
-              </Col>
-              <Col xs={24} sm={6}>
-                <Card
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
-                  bodyStyle={{ padding: "30px" }}
-                  hoverable
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-4px)";
-                    e.currentTarget.style.boxShadow =
-                      "0 10px 25px rgba(0,0,0,0.15)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow =
-                      "0 1px 3px rgba(0,0,0,0.1)";
-                  }}
-                >
-                  <Statistic
-                    title={
-                      <span className="text-slate-500 dark:text-white text-lg font-medium mb-[15px] block">
-                        Outstanding
-                      </span>
-                    }
-                    value={formatCurrency(totalOutstanding)}
-                    prefix="$"
-                    valueStyle={{
-                      fontSize: "32px",
-                      fontWeight: "700",
-                      lineHeight: "1",
-                      color: "inherit",
-                    }}
-                    className="text-red-600 dark:text-red-600 [&_.ant-statistic-content-value]:dark:!text-red-600"
-                  />
-                </Card>
-              </Col>
-            </Row>
-
-            {/* Filters and Search */}
-            <Card
-              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm transition-colors duration-300 mb-6"
-              bodyStyle={{ padding: "24px" }}
-            >
-              <Row gutter={[16, 16]} align="middle">
-                <Col xs={24} sm={12} md={8}>
-                  <Input
-                    placeholder="Search clients by name, email, or organization"
-                    prefix={
-                      <SearchOutlined className="text-slate-400 dark:text-slate-500" />
-                    }
-                    value={searchText}
-                    onChange={(e) => setSearchText(e.target.value)}
-                    className="rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white"
-                    size="large"
-                  />
-                </Col>
-                <Col xs={12} sm={6} md={4}>
-                  <Select
-                    placeholder="Filter by Status"
-                    value={statusFilter}
-                    onChange={setStatusFilter}
-                    size="large"
-                    className="w-full 
+                      <Option value="all">All Status</Option>
+                      <Option value="Active">Active</Option>
+                      <Option value="Past">Past</Option>
+                      <Option value="Potential">Potential</Option>
+                      <Option value="Suspended">Suspended</Option>
+                    </Select>
+                  </Col>
+                  <Col xs={12} sm={6} md={4}>
+                    <Select
+                      placeholder="Filter by Type"
+                      value={clientTypeFilter}
+                      onChange={setClientTypeFilter}
+                      size="large"
+                      className="w-full 
     [&_.ant-select-selector]:!rounded-xl 
     [&_.ant-select-selector]:dark:!bg-slate-900 
     [&_.ant-select-selector]:dark:!border-slate-600 
@@ -738,124 +765,102 @@ export default function GetClients() {
     [&_.ant-select-selection-placeholder]:dark:!text-gray-400
     [&_.ant-select-arrow]:dark:!text-white
   "
-                  >
-                    <Option value="all">All Status</Option>
-                    <Option value="Active">Active</Option>
-                    <Option value="Past">Past</Option>
-                    <Option value="Potential">Potential</Option>
-                    <Option value="Suspended">Suspended</Option>
-                  </Select>
-                </Col>
-                <Col xs={12} sm={6} md={4}>
-                  <Select
-                    placeholder="Filter by Type"
-                    value={clientTypeFilter}
-                    onChange={setClientTypeFilter}
-                    size="large"
-                    className="w-full 
-    [&_.ant-select-selector]:!rounded-xl 
-    [&_.ant-select-selector]:dark:!bg-slate-900 
-    [&_.ant-select-selector]:dark:!border-slate-600 
-    [&_.ant-select-selector]:dark:!text-white
-    [&_.ant-select-selection-item]:dark:!text-white
-    [&_.ant-select-selection-placeholder]:dark:!text-gray-400
-    [&_.ant-select-arrow]:dark:!text-white
-  "
-                  >
-                    <Option value="all">All Types</Option>
-                    <Option value="Individual">Individual</Option>
-                    <Option value="Business">Business</Option>
-                    <Option value="Corporate">Corporate</Option>
-                  </Select>
-                </Col>
-                <Col xs={24} sm={12} md={8}>
-                  <Space>
-                    <Button
-                      icon={<ReloadOutlined />}
-                      onClick={() => firmId && fetchClients(firmId)}
-                      loading={loading}
-                      className="rounded-xl border border-slate-300 dark:border-slate-600 dark:text-white 
+                    >
+                      <Option value="all">All Types</Option>
+                      <Option value="Individual">Individual</Option>
+                      <Option value="Business">Business</Option>
+                      <Option value="Corporate">Corporate</Option>
+                    </Select>
+                  </Col>
+                  <Col xs={24} sm={12} md={8}>
+                    <Space>
+                      <Button
+                        icon={<ReloadOutlined />}
+                        onClick={() => firmId && fetchClients(firmId)}
+                        loading={loading}
+                        className="rounded-xl border border-slate-300 dark:border-slate-600 dark:text-white 
                                  !bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent"
-                    >
-                      Refresh
-                    </Button>
-                    <Text className="text-slate-500 dark:text-slate-400 text-sm">
-                      Showing {filteredClients.length} of {clients.length}{" "}
-                      clients
-                    </Text>
-                  </Space>
-                </Col>
-              </Row>
-            </Card>
+                      >
+                        Refresh
+                      </Button>
+                      <Text className="text-slate-500 dark:text-slate-400 text-sm">
+                        Showing {filteredClients.length} of {clients.length}{" "}
+                        clients
+                      </Text>
+                    </Space>
+                  </Col>
+                </Row>
+              </Card>
 
-            {/* Clients Table */}
-            <Card
-              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm transition-colors duration-300"
-              bodyStyle={{ padding: 0 }}
-            >
-              <Table
-                columns={columns}
-                dataSource={filteredClients}
-                rowKey="id"
-                loading={loading}
-                pagination={{
-                  pageSize: 10,
-                  showSizeChanger: true,
-                  showQuickJumper: true,
-                  showTotal: (total, range) =>
-                    `${range[0]}-${range[1]} of ${total} clients`,
-                  className: "dark:text-slate-300",
-                  style: { marginRight: "24px", marginBottom: "16px" },
-                }}
-                className="dark:[&_.ant-table]:!bg-slate-800 
+              {/* Clients Table */}
+              <Card
+                className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm transition-colors duration-300"
+                bodyStyle={{ padding: 0 }}
+              >
+                <Table
+                  columns={columns}
+                  dataSource={filteredClients}
+                  rowKey="id"
+                  loading={loading}
+                  pagination={{
+                    pageSize: 10,
+                    showSizeChanger: true,
+                    showQuickJumper: true,
+                    showTotal: (total, range) =>
+                      `${range[0]}-${range[1]} of ${total} clients`,
+                    className: "dark:text-slate-300",
+                    style: { marginRight: "24px", marginBottom: "16px" },
+                  }}
+                  className="dark:[&_.ant-table]:!bg-slate-800 
                            dark:[&_.ant-table-thead>tr>th]:!bg-slate-900 
                            dark:[&_.ant-table-thead>tr>th]:!text-slate-200 
                            dark:[&_.ant-table-tbody>tr>td]:!bg-slate-800 
                            dark:[&_.ant-table-tbody>tr>td]:!text-slate-300"
-                style={{
-                  borderRadius: "16px",
-                  overflow: "hidden",
-                }}
-                rowClassName={() => "no-hover"}
-                locale={{
-                  emptyText: (
-                    <div
-                      style={{
-                        textAlign: "center",
-                        padding: "48px",
-                      }}
-                      className="text-slate-500 dark:text-slate-400"
-                    >
-                      <UserOutlined
-                        style={{ fontSize: "48px", marginBottom: "16px" }}
-                      />
-                      <Title
-                        level={4}
-                        className="!text-slate-500 dark:!text-slate-300"
+                  style={{
+                    borderRadius: "16px",
+                    overflow: "hidden",
+                  }}
+                  rowClassName={() => "no-hover"}
+                  locale={{
+                    emptyText: (
+                      <div
+                        style={{
+                          textAlign: "center",
+                          padding: "48px",
+                        }}
+                        className="text-slate-500 dark:text-slate-400"
                       >
-                        No clients found
-                      </Title>
-                      <Text className="dark:text-slate-400">
-                        Start by adding your first client to the firm
-                      </Text>
-                      <br />
-                      <Button
-                        type="primary"
-                        icon={<UserAddOutlined />}
-                        onClick={() =>
-                          router.push("/firm-admin/create-client")
-                        }
-                        style={{ marginTop: "16px" }}
-                      >
-                        Add First Client
-                      </Button>
-                    </div>
-                  ),
-                }}
-              />
-            </Card>
+                        <UserOutlined
+                          style={{ fontSize: "48px", marginBottom: "16px" }}
+                        />
+                        <Title
+                          level={4}
+                          className="!text-slate-500 dark:!text-slate-300"
+                        >
+                          No clients found
+                        </Title>
+                        <Text className="dark:text-slate-400">
+                          Start by adding your first client to the firm
+                        </Text>
+                        <br />
+                        <Button
+                          type="primary"
+                          icon={<UserAddOutlined />}
+                          onClick={() =>
+                            router.push("/firm-admin/create-client")
+                          }
+                          style={{ marginTop: "16px" }}
+                        >
+                          Add First Client
+                        </Button>
+                      </div>
+                    ),
+                  }}
+                />
+              </Card>
+            </div>
           </div>
-        </div>
+        )}
       </DashboardLayout>
     </ThemeProvider>
   );

@@ -1,6 +1,5 @@
 "use client";
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import formImage from "../../../public/images/formImage.webp";
 import Image from "next/image";
 import Link from "next/link";
@@ -23,6 +22,8 @@ type AuthFormProps = {
 };
 
 export default function AuthForm({ type }: AuthFormProps) {
+  const router = useRouter();
+  const dispatch = useAppDispatch();
   const firmId = useAppSelector((state) => state.user.user?.firmId);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -31,7 +32,7 @@ export default function AuthForm({ type }: AuthFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [redirectTo, setRedirectTo] = useState("/dashboard");
   const [error, setError] = useState({
     name: "",
     email: "",
@@ -40,12 +41,12 @@ export default function AuthForm({ type }: AuthFormProps) {
   });
   const [firmSubdomain, setFirmSubdomain] = useState("");
 
-  const router = useRouter();
-  const dispatch = useAppDispatch();
-
-  // Get redirect parameter from URL
-  const searchParams = new URLSearchParams(window.location.search);
-  const redirectTo = searchParams.get('redirect') || '/dashboard';
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const searchParams = new URLSearchParams(window.location.search);
+      setRedirectTo(searchParams.get("redirect") || "/dashboard");
+    }
+  }, []);
 
   const validate = () => {
     const newError: typeof error = {
@@ -140,7 +141,8 @@ export default function AuthForm({ type }: AuthFormProps) {
         const user = response.data.user;
         console.log("Login user is :", user);
         const currentFirmId =
-          user.currentFirmId || (user.firms?.[0]?.id ?? null);
+          user.currentFirmId ||
+          (user.firms && user.firms.length > 0 ? user.firms[0].id : null);
         // Save user in Redux no matter what
         dispatch(
           addUser({
@@ -155,11 +157,7 @@ export default function AuthForm({ type }: AuthFormProps) {
         if (response.data.mustChangePassword) {
           toast("You need to reset your password before continuing.");
           // go straight to dashboard — the modal will handle reset
-          if (currentFirmId) {
-            router.push("/dashboard");
-          } else {
-            router.push("/firm-admin/add-firm");
-          }
+          router.push("/dashboard");
           return;
         }
 
@@ -167,11 +165,33 @@ export default function AuthForm({ type }: AuthFormProps) {
         toast.success("Login successfully");
         setEmail("");
         setPassword("");
+        console.log("set password ");
+        console.log("Final login redirect decision:");
+        console.log("currentFirmId:", currentFirmId);
+        console.log(
+          "Redirecting to:",
+          currentFirmId ? "/dashboard" : "/firm-admin/add-firm"
+        );
+
         // Redirect based on firm presence or to the intended page
         if (currentFirmId) {
-          router.push(redirectTo);
+          // redirect role-wise
+          if (user.role === "Super Admin") {
+            router.push("/super-admin/dashboard");
+          } else if (user.role === "Firm Admin") {
+            router.push("/dashboard"); // firm admin's dashboard
+          } else if (user.role === "Lawyer") {
+            router.push("/lawyer/dashboard");
+          } else {
+            router.push("/dashboard"); // fallback for other roles
+          }
         } else {
-          router.push("/firm-admin/add-firm");
+          // only Super Admin and Firm Admin can add firms
+          if (user.role === "Super Admin" || user.role === "Firm Admin") {
+            router.push("/firm-admin/add-firm");
+          } else {
+            router.push("/dashboard"); // fallback
+          }
         }
       }
     } catch (error) {

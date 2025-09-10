@@ -443,13 +443,13 @@ const getAllCasesOfFirm = async (req, res) => {
         {
           model: Client,
           as: "client",
-          attributes: ["id", "fullName", "email", "phone"],
+          attributes: ["id", "fullName", "email", "phone", "profileImage"],
         },
         {
           model: Lawyer,
           as: "lawyers",
           through: { attributes: [] }, // hide CaseLawyer junction
-          attributes: ["id", "name", "email"],
+          attributes: ["id", "name", "email", "profileImage"],
         },
       ],
     });

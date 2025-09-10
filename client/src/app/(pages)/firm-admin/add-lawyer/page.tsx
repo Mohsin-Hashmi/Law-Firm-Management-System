@@ -50,7 +50,6 @@ interface FormValues {
 }
 
 export default function AddLawyer() {
- 
   const router = useRouter();
   const dispatch = useAppDispatch();
   const firmId = useAppSelector((state: RootState) => state.firm.firm?.firmId);
@@ -81,7 +80,7 @@ export default function AddLawyer() {
   const hideCreateModal = () => setIsCreateModalVisible(false);
   const handleConfirmCreate = () => {
     hideCreateModal();
-    form.submit(); // Trigger form submission
+    handleCreateLawyer();
   };
   const handleCreateLawyer = async () => {
     try {
@@ -155,8 +154,8 @@ export default function AddLawyer() {
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <DashboardLayout>
-        <div className="min-h-screen p-6 bg-slate-50 dark:bg-slate-900 transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
-          <div className="max-w-[1200px] mx-auto">
+        <div className="min-h-screen  dark:bg-slate-900 transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
+          <div className="max-w-full">
             {/* Header Section */}
             <Card
               className="bg-[#E43636] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
@@ -259,7 +258,6 @@ export default function AddLawyer() {
             <Form<FormValues>
               form={form}
               layout="vertical"
-              onFinish={handleCreateLawyer}
               initialValues={{ status: "Active" }}
               size="large"
             >
@@ -318,7 +316,10 @@ export default function AddLawyer() {
                     bodyStyle={{ padding: "32px", textAlign: "center" }}
                   >
                     <div
-                      style={{ position: "relative", display: "inline-block" }}
+                      style={{
+                        position: "relative",
+                        display: "inline-block",
+                      }}
                     >
                       {previewUrl ? (
                         <Avatar
@@ -685,10 +686,9 @@ export default function AddLawyer() {
                           try {
                             // validateFields will throw if any required field is empty
                             await form.validateFields();
-                           
+
                             showCreationModal();
                           } catch (err) {
-                            
                             console.log("Validation failed:", err);
                           }
                         }}

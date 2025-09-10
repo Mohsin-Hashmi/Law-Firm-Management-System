@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "adminId",
         as: "adminFirms",
       });
+      User.hasMany(models.Lawyer, { foreignKey: "userId", as: "lawyers" });
     }
   }
 
@@ -22,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
         unique: true,
       },
       password: DataTypes.STRING,
-      
+
       mustChangePassword: {
         type: DataTypes.BOOLEAN,
         allowNull: false,

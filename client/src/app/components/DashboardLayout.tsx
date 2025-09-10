@@ -122,7 +122,7 @@ export default function DashboardLayout({
         requiredPermissions: ["view_stats"],
       },
       {
-        label: "Assign Role", 
+        label: "Assign Role",
         icon: <UserOutlined />,
         category: "Role Management",
         requiredPermissions: ["assign_role"],
@@ -404,7 +404,6 @@ export default function DashboardLayout({
             console.log("Role assigned:", assignedUser);
             // maybe refresh data or show success message here
           }}
-          
         />
 
         {/* Logout Button */}
@@ -456,8 +455,7 @@ export default function DashboardLayout({
             <div className="relative">
               <Select
                 value={user?.currentFirmId}
-                loading={isSwitchingFirm} // Add loading prop to the Select
-                disabled={isSwitchingFirm} // Disable select while loading
+                disabled={isSwitchingFirm}
                 style={{
                   width: 500,
                   height: 44,
@@ -465,25 +463,21 @@ export default function DashboardLayout({
                 className="professional-firm-selector"
                 placeholder="Select Firm"
                 suffixIcon={
-                  isSwitchingFirm ? (
-                    <Spin indicator={antIcon} />
-                  ) : (
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 12 12"
-                      fill="none"
-                      className="text-slate-400 dark:text-slate-500"
-                    >
-                      <path
-                        d="M2.5 4.5L6 8L9.5 4.5"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  )
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    className="text-slate-400 dark:text-slate-500"
+                  >
+                    <path
+                      d="M2.5 4.5L6 8L9.5 4.5"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
                 }
                 dropdownStyle={{
                   borderRadius: "12px",
@@ -494,27 +488,22 @@ export default function DashboardLayout({
                 }}
                 popupClassName="professional-dropdown-popup"
                 onChange={async (value) => {
-                  setIsSwitchingFirm(true); // Start loading
+                  setIsSwitchingFirm(true);
                   try {
-                    // 1) tell backend to update JWT/cookie
                     await switchFirmAPI(value);
-                    // 2) update Redux with new firmId
                     dispatch(switchFirm(value));
-                    // 3) optional: clear old firm data so it reloads
                     const lawyers = await getLawyers(value);
                     dispatch(setLawyers(lawyers));
-                    dispatch(clearFirm()); // if you have this in firmSlice
-                    if (
-                      pathname.startsWith("/firm-admin/get-lawyer-detail")
-                    ) {
+                    dispatch(clearFirm());
+
+                    // Handle route redirections
+                    if (pathname.startsWith("/firm-admin/get-lawyer-detail")) {
                       router.push("/dashboard");
                     }
                     if (pathname.startsWith("/firm-admin/edit-lawyer")) {
                       router.push("/dashboard");
                     }
-                    if (
-                      pathname.startsWith("/firm-admin/get-client-detail")
-                    ) {
+                    if (pathname.startsWith("/firm-admin/get-client-detail")) {
                       router.push("/dashboard");
                     }
                     if (pathname.startsWith("/firm-admin/edit-client")) {
@@ -523,20 +512,19 @@ export default function DashboardLayout({
                     if (pathname.startsWith("/firm-admin/add-lawyer")) {
                       router.push("/dashboard");
                     }
-                    if (
-                      pathname.startsWith("/firm-admin/create-client")
-                    ) {
+                    if (pathname.startsWith("/firm-admin/create-client")) {
                       router.push("/dashboard");
                     }
                     if (pathname.startsWith("/firm-admin/add-case")) {
                       router.push("/dashboard");
                     }
+
                     toast.success("Switched firm successfully");
                   } catch (err) {
                     console.error("Error switching firm:", err);
                     toast.error("Failed to switch firm");
                   } finally {
-                    setIsSwitchingFirm(false); // End loading
+                    setIsSwitchingFirm(false);
                   }
                 }}
               >

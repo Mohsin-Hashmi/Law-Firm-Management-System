@@ -54,7 +54,6 @@ const { Dragger } = Upload;
 export default function AddCase() {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state: RootState) => state.user?.user);
-  const selectedCaseType = Form.useWatch("caseType");
   const clients = useAppSelector(
     (state: RootState) => state.client?.clients || []
   );
@@ -66,6 +65,7 @@ export default function AddCase() {
   const firmId = user?.firmId;
   const router = useRouter();
   const [form] = Form.useForm();
+  const selectedCaseType = Form.useWatch("caseType", form);
 
   // State values
   const [documents, setDocuments] = useState<File[]>([]);
@@ -246,8 +246,8 @@ export default function AddCase() {
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <DashboardLayout>
-        <div className="min-h-screen p-6 bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
-          <div className="max-w-[1400px] mx-auto">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
+          <div className="max-w-full">
             {/* Header Section */}
             <Card
               className="bg-[#433878] dark:bg-slate-800 border-0 rounded-2xl shadow-lg mb-6"
@@ -465,17 +465,14 @@ export default function AddCase() {
                               <div
                                 key={type.value}
                                 onClick={() => handleCaseTypeChange(type.value)}
-                                className={clsx(
-                                  "cursor-pointer transition-all duration-200 rounded-xl p-4",
-                                  "hover:shadow-md border",
-                                  isSelected
-                                    ? "border-2"
-                                    : "border border-slate-200 dark:border-slate-700"
-                                )}
+                                className="cursor-pointer transition-all duration-200 hover:shadow-md border"  
                                 style={{
+                                 
                                   borderColor: isSelected
                                     ? type.color
                                     : undefined,
+                                  borderRadius: "12px",
+                                  padding: "16px",
                                   backgroundColor: isSelected
                                     ? `${type.color}08`
                                     : undefined,

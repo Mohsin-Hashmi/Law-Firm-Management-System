@@ -42,7 +42,7 @@ const ResetPasswordModal = ({
       await resetPassword(userId, values.password);
       toast.success("Password updated successfully!");
       const updatedUser = { ...user, mustChangePassword: false };
-      dispatch(setUser(updatedUser));
+      // dispatch(setUser(updatedUser));
       onSuccess();
       onClose();
     } catch (error) {
@@ -66,8 +66,8 @@ const ResetPasswordModal = ({
     >
       <div className="p-2">
         {/* Header */}
-        <div className="mb-6">
-          <Space size="middle" className="mb-4">
+        <div className="mb-3">
+          <Space size="middle" className="mb-2">
             <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
               <KeyOutlined className="text-blue-600 dark:text-blue-400 text-lg" />
             </div>
@@ -86,7 +86,7 @@ const ResetPasswordModal = ({
         </div>
 
         {/* Content */}
-        <div className="mb-6 p-4 rounded-lg bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
+        <div className="mb-3 p-4 rounded-lg bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
           <Text className="text-slate-700 dark:text-slate-300 text-base leading-relaxed">
             For security reasons, you must <strong>update your password</strong>{" "}
             before continuing.
@@ -99,7 +99,7 @@ const ResetPasswordModal = ({
         </div>
 
         {/* Security Notice */}
-        <div className="mb-6 p-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800">
+        <div className="mb-3 p-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
               <LockOutlined className="text-slate-500 dark:text-slate-400 text-sm" />
@@ -165,7 +165,7 @@ const ResetPasswordModal = ({
                 },
               }),
             ]}
-            className="mb-6"
+            
           >
             <Input.Password
               placeholder="Confirm new password"

@@ -13,15 +13,19 @@ export interface CaseClient {
   fullName: string;
   email: string;
   profileImage?: string | null;
+   clientType: "Individual" | "Business" | "Corporate";
 }
 
 export interface CaseLawyer {
   id: number;
   name: string;
   email: string;
+  profileImage?: string | null; 
+  specialization?: string;
+  phone: string;
 }
 
-export interface Case {
+export interface Case  {
   id: number;
   title: string;
   caseNumber: string;

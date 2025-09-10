@@ -54,7 +54,9 @@ interface FormValues {
 }
 
 export default function AddFirm() {
+  
   const user = useAppSelector((state) => state.user?.user);
+  console.log("Current user in AddFirm:", user);
   const router = useRouter();
   const dispatch = useDispatch();
   const [form] = Form.useForm<FormValues>();
@@ -101,7 +103,7 @@ export default function AddFirm() {
         })
       );
       toast.success("Law firm created successfully!");
-      router.push("s/dashboard");
+      router.push("/dashboard");
 
       // Reset form
       setName("");
@@ -192,8 +194,8 @@ export default function AddFirm() {
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <DashboardLayout>
-        <div className="min-h-screen p-6 bg-slate-50 dark:bg-slate-900 transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
-          <div className="max-w-[1200px] mx-auto">
+        <div className="min-h-screen  dark:bg-slate-900 transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
+          <div className="max-w-full">
             {/* Header Section */}
             <Card
               className="bg-blue-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"

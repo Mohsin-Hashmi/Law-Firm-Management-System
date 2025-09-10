@@ -72,10 +72,19 @@ const LoginIn = async (req, res) => {
     const user = await User.findOne({
       where: { email },
       include: [
-        { model: Role, as: "role", include: [{ model: Permission, as: "permissions" }], },
+        { 
+          model: Role, 
+          as: "role", 
+          include: [{ model: Permission, as: "permissions" }] 
+        },
         {
           model: AdminFirm,
           as: "adminFirms",
+          include: [{ model: Firm, as: "firm" }],
+        },
+        {
+          model: Lawyer,   
+          as: "lawyers",
           include: [{ model: Firm, as: "firm" }],
         },
       ],
@@ -94,7 +103,7 @@ const LoginIn = async (req, res) => {
         .json({ success: false, message: "Invalid credentials" });
     }
 
-    // ✅ HERE: Check mustChangePassword BEFORE generating token
+    // ✅ If must change password → return early
     if (user.mustChangePassword) {
       return res.status(200).json({
         success: true,
@@ -104,19 +113,36 @@ const LoginIn = async (req, res) => {
           id: user.id,
           email: user.email,
           role: user.role?.name,
-          mustChangePassword: true, // 👈 added here
+          mustChangePassword: true,
           permissions: user.role?.permissions.map((p) => p.name) || [],
         },
       });
     }
 
-    // ✅ Normal login flow continues here...
+    // ✅ Build firms dynamically based on role
+    let firms = [];
+    let currentFirmId = null;
+
+    if (user.role?.name === "Firm Admin") {
+      firms = user.adminFirms.map((af) => ({
+        id: af.firm.id,
+        name: af.firm.name,
+      }));
+      currentFirmId = firms.length > 0 ? firms[0].id : null;
+    } else if (user.role?.name === "Lawyer") {
+      firms = user.lawyers.map((lf) => ({
+        id: lf.firm.id,
+        name: lf.firm.name,
+      }));
+      currentFirmId = firms.length > 0 ? firms[0].id : null;
+    }
+
+    // ✅ Generate JWT
     const token = jwt.sign(
       {
         id: user.id,
         role: user.role.name,
-        firmId:
-          user.adminFirms?.length > 0 ? user.adminFirms[0].firm.id : null,
+        firmId: currentFirmId, // now dynamic
       },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
@@ -129,6 +155,7 @@ const LoginIn = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
+    // ✅ Final response
     res.status(200).json({
       success: true,
       message: "Login successful",
@@ -137,14 +164,10 @@ const LoginIn = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role?.name,
-        mustChangePassword: user.mustChangePassword, // 👈 also safe to include here
+        mustChangePassword: user.mustChangePassword,
         permissions: user.role?.permissions.map((p) => p.name) || [],
-        firms: user.adminFirms.map((af) => ({
-          id: af.firm.id,
-          name: af.firm.name,
-        })),
-        currentFirmId:
-          user.adminFirms?.length > 0 ? user.adminFirms[0].firmId : null,
+        firms,
+        currentFirmId,
       },
     });
   } catch (err) {
@@ -156,6 +179,7 @@ const LoginIn = async (req, res) => {
     });
   }
 };
+
 
 const Logout = (req, res) => {
   try {
