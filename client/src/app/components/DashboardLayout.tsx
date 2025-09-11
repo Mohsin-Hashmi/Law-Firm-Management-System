@@ -494,8 +494,7 @@ export default function DashboardLayout({
                     dispatch(switchFirm(value));
                     const lawyers = await getLawyers(value);
                     dispatch(setLawyers(lawyers));
-                    dispatch(clearFirm());
-
+                    
                     // Handle route redirections
                     if (pathname.startsWith("/firm-admin/get-lawyer-detail")) {
                       router.push("/dashboard");

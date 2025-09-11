@@ -5,14 +5,24 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Firm extends Model {
     static associate(models) {
+      // A Firm can have many Lawyers
       Firm.hasMany(models.Lawyer, {
         foreignKey: "firmId",
         as: "lawyers",
         onDelete: "CASCADE",
       });
 
-      // ✅ Many-to-Many: Firms <-> Users (Admins)
+      // Many-to-Many: Firms <-> Users (Admins)
       Firm.hasMany(models.AdminFirm, { foreignKey: "firmId", as: "adminFirms" });
+
+      // ✅ associations for UserFirm
+      Firm.hasMany(models.UserFirm, { foreignKey: "firmId", as: "userFirms" });
+      Firm.belongsToMany(models.User, {
+        through: models.UserFirm,
+        foreignKey: "firmId",
+        otherKey: "userId",
+        as: "users",
+      });
     }
   }
 

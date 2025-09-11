@@ -1,4 +1,4 @@
-const dotenv= require('dotenv');
+const dotenv = require("dotenv");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
@@ -6,7 +6,16 @@ const {
   UserSignUpValidation,
   UserLoginInValidation,
 } = require("../utils/validation.js");
-const { Firm, User, AdminFirm, Lawyer, Role, Permission  } = require("../models/index.js");
+const {
+  Firm,
+  User,
+  AdminFirm,
+  Lawyer,
+  Role,
+  Permission,
+  UserFirm,
+  Client,
+} = require("../models/index.js");
 const { where } = require("sequelize");
 
 // Signup api for normal users like superadmin lawyer and clients
@@ -68,14 +77,13 @@ const SignUp = async (req, res) => {
 const LoginIn = async (req, res) => {
   try {
     const { email, password } = req.body;
-
     const user = await User.findOne({
       where: { email },
       include: [
-        { 
-          model: Role, 
-          as: "role", 
-          include: [{ model: Permission, as: "permissions" }] 
+        {
+          model: Role,
+          as: "role",
+          include: [{ model: Permission, as: "permissions" }],
         },
         {
           model: AdminFirm,
@@ -83,9 +91,22 @@ const LoginIn = async (req, res) => {
           include: [{ model: Firm, as: "firm" }],
         },
         {
-          model: Lawyer,   
+          model: Lawyer,
           as: "lawyers",
           include: [{ model: Firm, as: "firm" }],
+        },
+        {
+          model: Client,
+          as: "client",
+          include: [{ model: Firm, as: "firm" }],
+        },
+        {
+          model: UserFirm,
+          as: "userFirms",
+          include: [
+            { model: Firm, as: "firm" },
+            { model: Role, as: "role" }, // optional, if you want role per firm
+          ],
         },
       ],
     });
@@ -103,23 +124,7 @@ const LoginIn = async (req, res) => {
         .json({ success: false, message: "Invalid credentials" });
     }
 
-    // ✅ If must change password → return early
-    if (user.mustChangePassword) {
-      return res.status(200).json({
-        success: true,
-        mustChangePassword: true,
-        message: "Password reset required before accessing dashboard",
-        user: {
-          id: user.id,
-          email: user.email,
-          role: user.role?.name,
-          mustChangePassword: true,
-          permissions: user.role?.permissions.map((p) => p.name) || [],
-        },
-      });
-    }
-
-    // ✅ Build firms dynamically based on role
+    // Build firms dynamically
     let firms = [];
     let currentFirmId = null;
 
@@ -135,15 +140,42 @@ const LoginIn = async (req, res) => {
         name: lf.firm.name,
       }));
       currentFirmId = firms.length > 0 ? firms[0].id : null;
+    } else if (user.role?.name === "Client") {
+      firms = user.client.map((cl) => ({
+        id: cl.firm.id,
+        name: cl.firm.name,
+      }));
+    } else {
+      // Other roles
+      firms = user.userFirms.map((uf) => ({
+        id: uf.firm.id,
+        name: uf.firm.name,
+        roleId: uf.roleId,
+      }));
+      currentFirmId = firms.length > 0 ? firms[0].id : null;
     }
 
-    // ✅ Generate JWT
+    // Must change password
+    if (user.mustChangePassword) {
+      return res.status(200).json({
+        success: true,
+        mustChangePassword: true,
+        message: "Password reset required before accessing dashboard",
+        user: {
+          id: user.id,
+          email: user.email,
+          role: user.role?.name,
+          mustChangePassword: true,
+          permissions: user.role?.permissions.map((p) => p.name) || [],
+          firms,
+          currentFirmId,
+        },
+      });
+    }
+
+    // Generate JWT
     const token = jwt.sign(
-      {
-        id: user.id,
-        role: user.role.name,
-        firmId: currentFirmId, // now dynamic
-      },
+      { id: user.id, role: user.role?.name, firmId: currentFirmId },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
@@ -155,7 +187,7 @@ const LoginIn = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    // ✅ Final response
+    // Final response
     res.status(200).json({
       success: true,
       message: "Login successful",
@@ -179,7 +211,6 @@ const LoginIn = async (req, res) => {
     });
   }
 };
-
 
 const Logout = (req, res) => {
   try {
@@ -236,7 +267,11 @@ const getCurrentUser = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id, {
       include: [
-        { model: Role, as: "role", include: [{ model: Permission, as: "permissions" }] },
+        {
+          model: Role,
+          as: "role",
+          include: [{ model: Permission, as: "permissions" }],
+        },
         {
           model: AdminFirm,
           as: "adminFirms",
@@ -265,7 +300,8 @@ const getCurrentUser = async (req, res) => {
           id: af.firm.id,
           name: af.firm.name,
         })),
-        currentFirmId: user.adminFirms?.length > 0 ? user.adminFirms[0].firmId : null,
+        currentFirmId:
+          user.adminFirms?.length > 0 ? user.adminFirms[0].firmId : null,
         firmId: user.adminFirms?.length > 0 ? user.adminFirms[0].firmId : null,
       },
     });

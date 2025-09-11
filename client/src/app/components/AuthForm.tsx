@@ -181,7 +181,7 @@ export default function AuthForm({ type }: AuthFormProps) {
           } else if (user.role === "Firm Admin") {
             router.push("/dashboard"); // firm admin's dashboard
           } else if (user.role === "Lawyer") {
-            router.push("/lawyer/dashboard");
+            router.push("/dashboard");
           } else {
             router.push("/dashboard"); // fallback for other roles
           }

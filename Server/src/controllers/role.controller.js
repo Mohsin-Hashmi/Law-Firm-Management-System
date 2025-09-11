@@ -1,7 +1,7 @@
-const dotenv= require("dotenv");
+const dotenv = require("dotenv");
 dotenv.config();
-const bcrypt= require('bcryptjs');
-const { Role, Permission, User } = require("../models");
+const bcrypt = require("bcryptjs");
+const { Role, Permission, User, UserFirm, Firm } = require("../models");
 const { Op } = require("sequelize");
 const createRole = async (req, res) => {
   try {
@@ -44,12 +44,10 @@ const assignPermissionToRole = async (req, res) => {
     const { roleName, permissionName } = req.body;
 
     if (!roleName || !permissionName) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "roleName and permissionName are required",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "roleName and permissionName are required",
+      });
     }
 
     const role = await Role.findOne({ where: { name: roleName } });
@@ -63,12 +61,10 @@ const assignPermissionToRole = async (req, res) => {
         .json({ success: false, message: `Role '${roleName}' not found` });
     }
     if (!permission) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: `Permission '${permissionName}' not found`,
-        });
+      return res.status(404).json({
+        success: false,
+        message: `Permission '${permissionName}' not found`,
+      });
     }
 
     await role.addPermission(permission);
@@ -85,13 +81,11 @@ const assignPermissionToRole = async (req, res) => {
   }
 };
 
-
 // Create User with Role
-
 const createUserWithRole = async (req, res) => {
   try {
     const { name, email, roleId } = req.body;
-
+    const firmId = req.user?.firmId;
     // Validate input
     if (!name || !email || !roleId) {
       return res.status(400).json({
@@ -117,7 +111,20 @@ const createUserWithRole = async (req, res) => {
         message: "Role not found",
       });
     }
-    // Get dummy password from env
+
+    // Check if firm exists (if provided)
+    let firm = null;
+    if (firmId) {
+      firm = await Firm.findByPk(firmId);
+      if (!firm) {
+        return res.status(404).json({
+          success: false,
+          message: "Firm not found",
+        });
+      }
+    }
+
+    // Hash dummy password
     const dummyPassword = process.env.DUMMY_PASSWORD;
     if (!dummyPassword) {
       return res.status(500).json({
@@ -125,23 +132,28 @@ const createUserWithRole = async (req, res) => {
         message: "Dummy password not set in environment variables",
       });
     }
-
-    // 
-
-    // Hash the dummy password
     const hashedPassword = await bcrypt.hash(dummyPassword, 10);
 
-    // Create the user
+    // Create user
     const newUser = await User.create({
       name,
       email,
       password: hashedPassword,
       roleId,
-      mustChangePassword: true, // force user to change password on first login
+      mustChangePassword: true,
     });
 
-    // Optional: fetch assigned permissions
+    // Assign permissions of role (optional)
     const permissions = await role.getPermissions();
+
+    //  Create entry in UserFirm if firmId is provided
+    if (firm) {
+      await UserFirm.create({
+        userId: newUser.id,
+        firmId: firm.id,
+        roleId: role.id,
+      });
+    }
 
     return res.status(201).json({
       success: true,
@@ -150,6 +162,7 @@ const createUserWithRole = async (req, res) => {
         name: newUser.name,
         email: newUser.email,
         roleId: newUser.roleId,
+        firmId: firm ? firm.id : null,
         permissions: permissions.map((p) => p.name),
       },
       message: `User created successfully. Initial password: ${dummyPassword}`,
@@ -190,11 +203,10 @@ const getRoles = async (req, res) => {
   }
 };
 
-
 module.exports = {
   createRole,
   getPermissions,
   assignPermissionToRole,
   createUserWithRole,
-  getRoles
+  getRoles,
 };

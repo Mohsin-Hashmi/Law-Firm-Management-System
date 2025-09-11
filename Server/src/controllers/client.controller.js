@@ -1,8 +1,12 @@
+
+const { sequelize } = require("../models");
 const { where } = require("sequelize");
-const { Client, Lawyer, Case } = require("../models");
+const { Client, Lawyer, Case, User, Role, UserFirm } = require("../models");
 const validate = require("validator");
+const bcrypt = require("bcryptjs");
 /**Create Client API */
 const createClient = async (req, res) => {
+  const t = await sequelize.transaction();
   try {
     const firmId = req.user?.firmId;
     const {
@@ -20,100 +24,109 @@ const createClient = async (req, res) => {
     } = req.body;
 
     if (!firmId) {
-      return res.status(400).json({
-        success: false,
-        message: "Firm Id not found",
-      });
+      await t.rollback();
+      return res.status(400).json({ success: false, message: "Firm Id not found" });
     }
 
     if (!fullName || !email || !phone) {
-      return res.status(400).json({
-        success: false,
-        message: "Full name, email, and phone are required.",
-      });
+      await t.rollback();
+      return res.status(400).json({ success: false, message: "Full name, email, and phone are required." });
     }
-    if (!validate.isEmail(email)) {
+
+    // check duplicate
+    const existingClient = await Client.findOne({ where: { email, firmId }, transaction: t });
+    if (existingClient) {
+      await t.rollback();
       return res.status(400).json({
         success: false,
-        message: "Invalid email format",
-      });
-    }
-    if (!validate.isMobilePhone(phone)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid phone number format.",
+        message: "A client with this email already exists in the firm",
       });
     }
 
-    const validateClientType = ["Individual", "Business", "Corporate"];
-    if (clientType && !validateClientType.includes(clientType)) {
+    // check duplicate user
+    const existingUser = await User.findOne({ where: { email }, transaction: t });
+    if (existingUser) {
+      await t.rollback();
       return res.status(400).json({
         success: false,
-        message: `Invalid client type. Must be one of: ${validClientTypes.join(
-          ", "
-        )}`,
+        message: "A user with this email already exists",
       });
     }
 
-    const validStatuses = ["Active", "Past", "Potential", "Suspended"];
-    if (status && !validStatuses.includes(status)) {
-      return res.status(400).json({
-        success: false,
-        message: `Invalid status. Must be one of: ${validStatuses.join(", ")}`,
-      });
+    // find Client role
+    const clientRole = await Role.findOne({ where: { name: "Client" }, transaction: t });
+    if (!clientRole) {
+      await t.rollback();
+      return res.status(400).json({ success: false, message: "Client role not found" });
     }
 
-    if (outstandingBalance && isNaN(outstandingBalance)) {
-      return res.status(400).json({
-        success: false,
-        message: "Outstanding balance must be a number.",
-      });
-    }
-
-    const existingClient= await Client.findOne({
-      where: {
+    // create user
+    const hashedPassword = await bcrypt.hash(process.env.DUMMY_PASSWORD, 10);
+    const user = await User.create(
+      {
+        name: fullName,
         email,
-        firmId
-      }
-    });
-    if(existingClient){
-      return res.status(400).json({
-        success: false,
-        message: "A client with this email already exists in the firm"
-      })
-    }
+        password: hashedPassword,
+        roleId: clientRole.id,
+        mustChangePassword: true,
+      },
+      { transaction: t }
+    );
 
+    // create user-firm relation
+    await UserFirm.create(
+      {
+        userId: user.id,
+        firmId,
+        roleId: clientRole.id,
+      },
+      { transaction: t }
+    );
+
+    // handle profile image
     let profileImage = null;
-    if(req.file) profileImage= `/uploads/clients/${req.file.filename}`
-    const client = await Client.create({
-      firmId,
-      fullName,
-      dob,
-      gender,
-      email,
-      phone,
-      address,
-      clientType,
-      organization,
-      status,
-      billingAddress,
-      outstandingBalance,
-      profileImage
-    });
-    return res.status(200).json({
+    if (req.file) profileImage = `/uploads/clients/${req.file.filename}`;
+
+    // create client
+    const client = await Client.create(
+      {
+        firmId,
+        userId: user.id,
+        fullName,
+        dob,
+        gender,
+        email,
+        phone,
+        address,
+        clientType,
+        organization,
+        status,
+        billingAddress,
+        outstandingBalance,
+        profileImage,
+      },
+      { transaction: t }
+    );
+
+    await t.commit();
+    return res.status(201).json({
       success: true,
-      message: "Client Created Successfully",
-      client: client,
+      message: "Client created successfully",
+      client,
+      user,
     });
   } catch (error) {
-    console.log("Error is", error);
-    res.status(400).json({
+    await t.rollback();
+    console.log("Error creating client:", error);
+    res.status(500).json({
       success: false,
-      message: "Failed to create client",
+      message: "Error creating client",
       error: error.message,
     });
   }
 };
+
+
 
 /**Get All Clients API */
 const getAllClients = async (req, res) => {
@@ -323,6 +336,7 @@ const deleteClient = async (req, res) => {
       });
     }
     await client.destroy();
+    await User.destroy({ where: { id: client.userId } });
     return res.status(200).json({
       success: true,
       message: "Client deleted successfully",

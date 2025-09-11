@@ -37,6 +37,7 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "clientId",
     });
     Client.hasMany(models.Case, { foreignKey: "clientId", as: "cases" });
+    Client.belongsTo(models.User, { foreignKey: "userId", as: "user" });
   };
 
   return Client;

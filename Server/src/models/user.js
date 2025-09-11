@@ -5,12 +5,28 @@ module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
       User.belongsTo(models.Role, { foreignKey: "roleId", as: "role" });
-      // A User can be connected to many Firms (through AdminFirm)
+
+      // A User can be connected to many Firms through AdminFirm
       User.hasMany(models.AdminFirm, {
         foreignKey: "adminId",
         as: "adminFirms",
       });
+
+      // A User can be connected to many Lawyers
       User.hasMany(models.Lawyer, { foreignKey: "userId", as: "lawyers" });
+      User.hasMany(models.Client, {
+        foreignKey: "userId",
+        as: "client",
+      });
+
+      // New associations for UserFirm
+      User.hasMany(models.UserFirm, { foreignKey: "userId", as: "userFirms" });
+      User.belongsToMany(models.Firm, {
+        through: models.UserFirm,
+        foreignKey: "userId",
+        otherKey: "firmId",
+        as: "firms",
+      });
     }
   }
 
@@ -19,11 +35,10 @@ module.exports = (sequelize, DataTypes) => {
       name: DataTypes.STRING,
       email: {
         type: DataTypes.STRING,
-        allowNull: false, // ensure every user has an email
+        allowNull: false,
         unique: true,
       },
       password: DataTypes.STRING,
-
       mustChangePassword: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
@@ -31,7 +46,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       roleId: {
         type: DataTypes.INTEGER,
-        allowNull: false, // ensure every user has a role
+        allowNull: false,
         references: {
           model: "roles",
           key: "id",
@@ -44,7 +59,7 @@ module.exports = (sequelize, DataTypes) => {
       indexes: [
         {
           unique: true,
-          fields: ["email"], // enforce unique email across system
+          fields: ["email"],
         },
       ],
     }
