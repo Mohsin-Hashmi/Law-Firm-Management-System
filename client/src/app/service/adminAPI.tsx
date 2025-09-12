@@ -321,12 +321,10 @@ export const getAllCasesOfFirm = async (firmId: number): Promise<Case[]> => {
   }
 };
 
-export const getAllCasesOfLawyer = async (
-  lawyerId: number
-): Promise<Case[]> => {
+export const getAllCasesOfLawyer = async (): Promise<Case[]> => {
   try {
     const response = await axios.get<{ cases: Case[] }>(
-      `${BASE_URL}/api/firm-admin/lawyer/${lawyerId}/cases`,
+      `${BASE_URL}/api/firm-admin/lawyer/cases`,
       { withCredentials: true }
     );
 
@@ -381,10 +379,7 @@ export const deleteCaseByFirm = async (firmId: number, id: number) => {
   }
 };
 
-export const updateCaseByFirm = async (
-  id: number,
-  data: FormData
-) => {
+export const updateCaseByFirm = async (id: number, data: FormData) => {
   try {
     const resposne = await axios.put(
       `${BASE_URL}/api/firm-admin/firm/cases/${id}`,

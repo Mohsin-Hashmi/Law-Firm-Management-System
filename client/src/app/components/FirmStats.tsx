@@ -51,6 +51,8 @@ import { setClients } from "../store/clientSlice";
 import { getAllCasesOfFirm } from "../service/adminAPI";
 import { setCases } from "../store/caseSlice";
 const { Title, Text } = Typography;
+import { usePermission } from "../hooks/usePermission";
+import { PermissionWrapper } from "./PermissionWrapper";
 interface Props {
   firmId: number;
   role?: string;
@@ -233,9 +235,10 @@ export default function FirmStats({ firmId, role }: Props) {
   ];
 
   return (
-    <div className="min-h-screen  dark:bg-slate-900 transition-colors duration-300  ">
+    <div className="min-h-screen   transition-colors duration-300  ">
       <div className="max-w-full">
         {/* Professional Header */}
+        
         <Card
           className="bg-blue-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg  mb-[40px] !transition-none"
           bodyStyle={{ padding: "32px 20px" }}

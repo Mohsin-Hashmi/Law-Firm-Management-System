@@ -190,7 +190,7 @@ export default function DashboardLayout({
     Lawyer: [
       {
         label: "Dashboard",
-        href: "/lawyer/dashboard",
+        href: "/dashboard",
         icon: <DashboardOutlined />,
         category: "Main",
         requiredPermissions: ["view_stats"], // ✅ only if you give lawyers stats access

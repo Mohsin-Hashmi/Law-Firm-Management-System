@@ -194,7 +194,7 @@ export default function AddFirm() {
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <DashboardLayout>
-        <div className="min-h-screen  dark:bg-slate-900 transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
+        <div className="min-h-screen  transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
           <div className="max-w-full">
             {/* Header Section */}
             <Card
@@ -392,7 +392,6 @@ export default function AddFirm() {
                         className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:!text-gray-300"
                         style={{
                           padding: "14px 16px",
-                          borderRadius: "12px",
                           border: "1px solid #d1d5db",
                           fontSize: "15px",
                         }}
@@ -414,7 +413,6 @@ export default function AddFirm() {
                         className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:!text-gray-300"
                         style={{
                           padding: "14px 16px",
-                          borderRadius: "12px",
                           border: "1px solid #d1d5db",
                           fontSize: "15px",
                         }}
@@ -452,7 +450,6 @@ export default function AddFirm() {
                         className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:!text-gray-300"
                         style={{
                           padding: "14px 16px",
-                          borderRadius: "12px",
                           border: "1px solid #d1d5db",
                           fontSize: "15px",
                         }}
@@ -481,7 +478,6 @@ export default function AddFirm() {
                         className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:!text-gray-300"
                         style={{
                           padding: "14px 16px",
-                          borderRadius: "12px",
                           border: "1px solid #d1d5db",
                           fontSize: "15px",
                         }}
@@ -506,7 +502,6 @@ export default function AddFirm() {
                         rows={3}
                         className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] dark:placeholder:!text-gray-300"
                         style={{
-                          borderRadius: "12px",
                           border: "1px solid #d1d5db",
                           fontSize: "15px",
                         }}
@@ -631,7 +626,6 @@ export default function AddFirm() {
                           className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] [&_.ant-input-number-input]:dark:!bg-[#2A3441] [&_.ant-input-number-input]:dark:!text-white [&_.ant-input-number-input]:dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af]"
                           style={{
                             width: "100%",
-                            borderRadius: "12px",
                             fontSize: "15px",
                           }}
                           min={1}
@@ -660,7 +654,6 @@ export default function AddFirm() {
                           className="dark:!bg-[#2A3441] dark:!text-white dark:!border-[#4B5563] [&_.ant-input-number-input]:dark:!bg-[#2A3441] [&_.ant-input-number-input]:dark:!text-white [&_.ant-input-number-input]:dark:!border-[#4B5563] dark:placeholder:text-[#9ca3af]"
                           style={{
                             width: "100%",
-                            borderRadius: "12px",
                             fontSize: "15px",
                           }}
                           min={1}

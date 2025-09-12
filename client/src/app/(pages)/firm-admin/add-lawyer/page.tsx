@@ -154,7 +154,7 @@ export default function AddLawyer() {
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <DashboardLayout>
-        <div className="min-h-screen  dark:bg-slate-900 transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
+        <div className="min-h-screen   transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
           <div className="max-w-full">
             {/* Header Section */}
             <Card

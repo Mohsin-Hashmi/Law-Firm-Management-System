@@ -466,11 +466,11 @@ export default function GetClients() {
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <DashboardLayout>
         {loading ? (
-          <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-900">
+          <div className="flex items-center justify-center min-h-screen">
             <Spin size="large" />
           </div>
         ) : (
-          <div className="min-h-screen dark:bg-slate-900 transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
+          <div className="min-h-screen  transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
             <div className="max-w-full">
               {/* Header Section */}
               <Card

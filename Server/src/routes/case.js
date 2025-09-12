@@ -51,7 +51,6 @@ caseRoute.get(
 caseRoute.get(
   "/firm/cases/:caseId",
   userAuth,
-  firmAdminAuth,
   checkPermission(permissions.READ_CASE),
   getCaseById
 );
@@ -87,9 +86,8 @@ caseRoute.get(
   getAllCasesOfClient
 );
 caseRoute.get(
-  "/lawyer/:lawyerId/cases",
+  "/lawyer/cases",
   userAuth,
-  firmAdminAuth,
   checkPermission(permissions.READ_CASE),
   getAllCasesOfLawyer
 );

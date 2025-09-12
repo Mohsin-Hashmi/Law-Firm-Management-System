@@ -106,7 +106,7 @@ const getCaseById = async (req, res) => {
         message: "Firm Id is required",
       });
     }
-    
+
     const caseData = await Case.findOne({
       where: { id: caseId, firmId },
       include: [
@@ -365,7 +365,8 @@ const updateCaseStatus = async (req, res) => {
 const getAllCasesOfClient = async (req, res) => {
   try {
     const { clientId } = req.params;
-    const { firmId } = req.params;
+    const { firmId } = req.user;
+
     if (!clientId) {
       return res.status(400).json({
         success: false,
@@ -375,47 +376,43 @@ const getAllCasesOfClient = async (req, res) => {
     if (!firmId) {
       return res.status(400).json({
         success: false,
-        message: "Frim Id is required",
+        message: "Firm Id missing in token",
       });
     }
+
     const client = await Client.findOne({
-      where: {
-        id: clientId,
-        firmId,
-      },
+      where: { id: clientId, firmId },
     });
+
     if (!client) {
       return res.status(404).json({
         success: false,
         message: "Client not found for this firm",
       });
     }
+
     const cases = await Case.findAll({
-      where: {
-        clientId,
-        firmId,
-      },
+      where: { clientId, firmId },
       include: [
         {
           model: Lawyer,
           as: "lawyers",
-          through: { attributes: [] }, // hide junction table
+          through: { attributes: [] },
           attributes: ["id", "name", "email"],
         },
       ],
     });
+
     if (!cases || cases.length === 0) {
       return res.status(404).json({
         success: false,
         message: "No cases found for this client",
       });
     }
+
     return res.json({
       success: true,
-      client: {
-        id: client.id,
-        name: client.name,
-      },
+      client: { id: client.id, name: client.name },
       cases,
     });
   } catch (err) {
@@ -481,7 +478,21 @@ const getAllCasesOfFirm = async (req, res) => {
 // This API is for lawyer dashboard
 const getAllCasesOfLawyer = async (req, res) => {
   try {
-    const { lawyerId } = req.params;
+    let { lawyerId } = req.params;
+    const { firmId, role, id: userId } = req.user; // decoded from token
+
+    // If the logged-in user is a lawyer, auto-set lawyerId
+    if (role === "Lawyer") {
+      const lawyerRecord = await Lawyer.findOne({ where: { userId, firmId } });
+      if (!lawyerRecord) {
+        return res.status(404).json({
+          success: false,
+          message: "Lawyer profile not found for this user",
+        });
+      }
+      lawyerId = lawyerRecord.id; // ✅ assign automatically
+    }
+
     if (!lawyerId) {
       return res.status(400).json({
         success: false,
@@ -489,20 +500,22 @@ const getAllCasesOfLawyer = async (req, res) => {
       });
     }
 
-    // Fetch all cases assigned to this lawyer
+    // Fetch all cases for this lawyer in the firm
     const cases = await Case.findAll({
+      where: { firmId },
       include: [
         {
           model: Client,
           as: "client",
           attributes: ["id", "fullName", "email", "phone"],
+          where: { firmId },
         },
         {
           model: Lawyer,
           as: "lawyers",
-          through: { attributes: [] }, // hide junction table
+          through: { attributes: [] },
           attributes: ["id", "name", "email"],
-          where: { id: lawyerId }, // filter cases where this lawyer is assigned
+          where: { id: lawyerId, firmId },
         },
         {
           model: CaseDocument,
@@ -522,7 +535,7 @@ const getAllCasesOfLawyer = async (req, res) => {
     return res.json({
       success: true,
       count: cases.length,
-      cases: cases,
+      cases,
     });
   } catch (err) {
     console.error("Error is", err);

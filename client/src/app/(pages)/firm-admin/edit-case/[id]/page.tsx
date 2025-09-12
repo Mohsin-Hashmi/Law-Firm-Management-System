@@ -289,7 +289,7 @@ export default function EditCase() {
     return (
       <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
         <DashboardLayout>
-          <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+          <div className="min-h-screen flex items-center justify-center ">
             <div className="text-center">
               <Spin size="large" />
             </div>
@@ -303,7 +303,7 @@ export default function EditCase() {
     return (
       <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
         <DashboardLayout>
-          <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+          <div className="min-h-screen flex items-center justify-center ">
             <div className="text-center">
               <Title level={4} className="text-slate-800 dark:text-white">
                 Case Not Found
@@ -329,7 +329,7 @@ export default function EditCase() {
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <DashboardLayout>
-        <div className="min-h-screen  dark:bg-slate-900 transition-colors duration-300">
+        <div className="min-h-screen  transition-colors duration-300">
           <div className="max-w-full">
             {/* Header Section */}
             <Card

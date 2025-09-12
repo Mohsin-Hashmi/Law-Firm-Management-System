@@ -42,7 +42,7 @@ import { ColumnsType } from "antd/es/table";
 import { ThemeProvider } from "next-themes";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getAllCasesOfFirm } from "@/app/service/adminAPI";
+import { getAllCasesOfFirm, getAllCasesOfLawyer } from "@/app/service/adminAPI";
 import { useAppDispatch } from "@/app/store/hooks";
 import { setCases } from "@/app/store/caseSlice";
 import { Case } from "@/app/types/case";
@@ -51,15 +51,18 @@ import { deleteCaseByFirm } from "@/app/service/adminAPI";
 import { updateCaseStatus } from "@/app/service/adminAPI";
 import ConfirmationModal from "@/app/components/ConfirmationModal";
 import { Client } from "@/app/types/client";
+import { usePermission } from "@/app/hooks/usePermission";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 
 export default function GetCases() {
+  const { hasPermission } = usePermission();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const user = useAppSelector((state: RootState) => state.user.user);
-  const firmId = user?.firmId;
+  const firmId = user?.firmId ?? user?.currentFirmId;
+  const role = user?.role;
   const [cases, setCasesData] = useState<Case[]>([]);
   const [filteredCases, setFilteredCases] = useState<Case[]>([]);
   const [loading, setLoading] = useState(true);
@@ -85,7 +88,17 @@ export default function GetCases() {
   const fetchCases = async (firmId: number) => {
     try {
       setLoading(true);
-      const response = await getAllCasesOfFirm(firmId);
+      let response: Case[] = [];
+      if (role === "Firm Admin") {
+        if (!firmId) {
+          toast.error("Firm ID missing");
+          return;
+        }
+        response = await getAllCasesOfFirm(firmId);
+      } else if (role === "Lawyer") {
+        response = await getAllCasesOfLawyer();
+      }
+
       setCasesData(response);
       dispatch(setCases(response));
       toast.success("Fetch cases successfully");
@@ -103,7 +116,7 @@ export default function GetCases() {
       setCasesData([]);
       fetchCases(firmId);
     }
-  }, [firmId]);
+  }, [role, firmId]);
 
   const handleAssignLawyer = (case_: Case) => {
     setSelectedCaseForLawyer(case_);
@@ -128,19 +141,27 @@ export default function GetCases() {
     if (searchText) {
       filtered = filtered.filter(
         (case_) =>
-          case_.title.toLowerCase().includes(searchText.toLowerCase()) ||
-          case_.caseNumber.toLowerCase().includes(searchText.toLowerCase()) ||
-          case_.client?.fullName
-            ?.toLowerCase()
+          (case_.title ?? "")
+            .toLowerCase()
             .includes(searchText.toLowerCase()) ||
-          case_.description?.toLowerCase().includes(searchText.toLowerCase())
+          (case_.caseNumber ?? "")
+            .toLowerCase()
+            .includes(searchText.toLowerCase()) ||
+          (case_.client?.fullName ?? "")
+            .toLowerCase()
+            .includes(searchText.toLowerCase()) ||
+          (case_.description ?? "")
+            .toLowerCase()
+            .includes(searchText.toLowerCase())
       );
     }
 
     // Filter by status
     if (statusFilter !== "all") {
       filtered = filtered.filter(
-        (case_) => case_.status.toLowerCase() === statusFilter.toLowerCase()
+        (case_) =>
+          (case_.status ?? "").toLowerCase() ===
+          (statusFilter ?? "").toLowerCase()
       );
     }
 
@@ -148,7 +169,8 @@ export default function GetCases() {
     if (caseTypeFilter !== "all") {
       filtered = filtered.filter(
         (case_) =>
-          case_.caseType?.toLowerCase() === caseTypeFilter.toLowerCase()
+          (case_.caseType ?? "").toLowerCase() ===
+          (caseTypeFilter ?? "").toLowerCase()
       );
     }
 
@@ -185,7 +207,7 @@ export default function GetCases() {
   };
 
   const getCaseTypeIcon = (type: string) => {
-    switch (type.toLowerCase()) {
+    switch ((type ?? "").toLowerCase()) {
       case "civil":
         return <BankOutlined />;
       case "criminal":
@@ -199,8 +221,8 @@ export default function GetCases() {
     }
   };
 
-  const getCaseTypeColor = (type: string) => {
-    switch (type.toLowerCase()) {
+  const getCaseTypeColor = (type?: string) => {
+    switch ((type ?? "").toLowerCase()) {
       case "civil":
         return "#2563eb";
       case "criminal":
@@ -214,8 +236,8 @@ export default function GetCases() {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
+  const getStatusColor = (status?: string) => {
+    switch ((status ?? "").toLowerCase()) {
       case "open":
         return "#059669";
       case "closed":
@@ -238,13 +260,13 @@ export default function GetCases() {
   };
 
   const openCases = cases.filter(
-    (case_) => case_.status.toLowerCase() === "open"
+    (case_) => (case_.status ?? "").toLowerCase() === "open"
   );
   const closedCases = cases.filter(
-    (case_) => case_.status.toLowerCase() === "closed"
+    (case_) => (case_.status ?? "").toLowerCase() === "closed"
   );
   const pendingCases = cases.filter(
-    (case_) => case_.status.toLowerCase() === "pending"
+    (case_) => (case_.status ?? "").toLowerCase() === "pending"
   );
 
   // Get unique case types for filter
@@ -465,50 +487,60 @@ export default function GetCases() {
       fixed: "right",
       render: (_: unknown, record: Case) => (
         <Space size="small">
-          <Tooltip title="View Details">
-            <Button
-              type="text"
-              size="small"
-              icon={<EyeOutlined />}
-              onClick={() =>
-                router.push(`/firm-admin/get-case-detail/${record.id}`)
-              }
-              className="hover:!bg-blue-50 hover:!text-blue-600 dark:hover:!bg-blue-900/30 dark:hover:!text-blue-400"
-              style={{ borderRadius: "6px" }}
-            />
-          </Tooltip>
-          <Tooltip title="Edit Case">
-            <Button
-              type="text"
-              size="small"
-              icon={<EditOutlined />}
-              onClick={() => router.push(`/firm-admin/edit-case/${record.id}`)}
-              className="hover:!bg-amber-50 hover:!text-amber-600 dark:hover:!bg-amber-900/30 dark:hover:!text-amber-400"
-              style={{ borderRadius: "6px" }}
-            />
-          </Tooltip>
-          <Tooltip title="Assign Lawyer">
-            <Button
-              type="text"
-              size="small"
-              icon={<UserAddOutlined />}
-              onClick={() => handleAssignLawyer(record)}
-              className="hover:!bg-green-50 hover:!text-green-600 dark:hover:!bg-green-900/30 dark:hover:!text-green-400"
-              style={{ borderRadius: "6px" }}
-            />
-          </Tooltip>
-          <Tooltip title="Delete Case">
-            <Button
-              type="text"
-              size="small"
-              icon={<DeleteOutlined />}
-              onClick={() => handleOpenDeleteModal(record)}
-              loading={deleting && deletingCaseId === record.id}
-              danger
-              className="hover:!bg-red-50 hover:!text-red-600 dark:hover:!bg-red-900/30 dark:hover:!text-red-400"
-              style={{ borderRadius: "6px", color: "#dc2626" }}
-            />
-          </Tooltip>
+          {hasPermission("read_case") && (
+            <Tooltip title="View Details">
+              <Button
+                type="text"
+                size="small"
+                icon={<EyeOutlined />}
+                onClick={() =>
+                  router.push(`/firm-admin/get-case-detail/${record.id}`)
+                }
+                className="hover:!bg-blue-50 hover:!text-blue-600 dark:hover:!bg-blue-900/30 dark:hover:!text-blue-400"
+                style={{ borderRadius: "6px" }}
+              />
+            </Tooltip>
+          )}
+          {hasPermission("update_case") && (
+            <Tooltip title="Edit Case">
+              <Button
+                type="text"
+                size="small"
+                icon={<EditOutlined />}
+                onClick={() =>
+                  router.push(`/firm-admin/edit-case/${record.id}`)
+                }
+                className="hover:!bg-amber-50 hover:!text-amber-600 dark:hover:!bg-amber-900/30 dark:hover:!text-amber-400"
+                style={{ borderRadius: "6px" }}
+              />
+            </Tooltip>
+          )}
+          {hasPermission("assign_lawyer_to_case") && (
+            <Tooltip title="Assign Lawyer">
+              <Button
+                type="text"
+                size="small"
+                icon={<UserAddOutlined />}
+                onClick={() => handleAssignLawyer(record)}
+                className="hover:!bg-green-50 hover:!text-green-600 dark:hover:!bg-green-900/30 dark:hover:!text-green-400"
+                style={{ borderRadius: "6px" }}
+              />
+            </Tooltip>
+          )}
+          {hasPermission("delete_case") && (
+            <Tooltip title="Delete Case">
+              <Button
+                type="text"
+                size="small"
+                icon={<DeleteOutlined />}
+                onClick={() => handleOpenDeleteModal(record)}
+                loading={deleting && deletingCaseId === record.id}
+                danger
+                className="hover:!bg-red-50 hover:!text-red-600 dark:hover:!bg-red-900/30 dark:hover:!text-red-400"
+                style={{ borderRadius: "6px", color: "#dc2626" }}
+              />
+            </Tooltip>
+          )}
         </Space>
       ),
     },
@@ -518,11 +550,11 @@ export default function GetCases() {
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <DashboardLayout>
         {loading ? (
-          <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-900">
+          <div className="flex items-center justify-center min-h-screen ">
             <Spin size="large" />
           </div>
         ) : (
-          <div className="min-h-screen  dark:bg-slate-900 transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
+          <div className="min-h-screen transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
             <div className="max-w-full">
               {/* Header Section */}
               <Card
@@ -575,24 +607,27 @@ export default function GetCases() {
                   </Col>
                   <Col>
                     <Space size="middle">
-                      <Button
-                        type="primary"
-                        size="large"
-                        icon={<PlusOutlined />}
-                        onClick={() => router.push("/firm-admin/add-case")}
-                        style={{
-                          background: "white",
-                          borderColor: "white",
-                          color: "#2563eb",
-                          borderRadius: "12px",
-                          fontWeight: "600",
-                          padding: "8px 24px",
-                          height: "48px",
-                          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                        }}
-                      >
-                        Add New Case
-                      </Button>
+                      {hasPermission("create_case") && (
+                        <Button
+                          type="primary"
+                          size="large"
+                          icon={<PlusOutlined />}
+                          onClick={() => router.push("/firm-admin/add-case")}
+                          style={{
+                            background: "white",
+                            borderColor: "white",
+                            color: "#2563eb",
+                            borderRadius: "12px",
+                            fontWeight: "600",
+                            padding: "8px 24px",
+                            height: "48px",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                          }}
+                        >
+                          Add New Case
+                        </Button>
+                      )}
+
                       <Button
                         size="large"
                         icon={<ExportOutlined />}

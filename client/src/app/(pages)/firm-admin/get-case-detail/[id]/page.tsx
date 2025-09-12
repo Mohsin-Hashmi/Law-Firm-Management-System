@@ -367,7 +367,7 @@ export default function GetCaseDetail({
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex justify-center items-center transition-colors duration-300">
+        <div className="min-h-screen flex justify-center items-center transition-colors duration-300">
           <div className="text-center">
             <Spin size="large" />
             <div className="mt-4">
@@ -384,7 +384,7 @@ export default function GetCaseDetail({
   if (!caseData) {
     return (
       <DashboardLayout>
-        <div className="min-h-screen dark:bg-slate-900 flex justify-center items-center transition-colors duration-300">
+        <div className="min-h-screen  flex justify-center items-center transition-colors duration-300">
           <div style={{ textAlign: "center" }}>
             <FolderOpenOutlined
               style={{
@@ -419,7 +419,7 @@ export default function GetCaseDetail({
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <DashboardLayout>
-        <div className="min-h-screen p-6 bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
+        <div className="min-h-screen p-6  transition-colors duration-300">
           <div className="max-w-full">
             
             {/* Professional Header */}
