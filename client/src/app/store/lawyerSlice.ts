@@ -1,8 +1,10 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Lawyer } from "../types/firm";
+import { LawyerStats } from "../types/lawyer";
 
 export interface LawyerState {
   lawyers: Lawyer[];
+  stats?: LawyerStats;
   loading: boolean;
   error: string | null;
 }
@@ -31,9 +33,17 @@ const lawyerSlice = createSlice({
       state.error = null;
       state.loading = false;
     },
+    setLawyerStats: (state, action: PayloadAction<LawyerStats>) => {
+      state.stats = action.payload;
+    },
   },
 });
 
-export const { setLawyers, setLoading, setError, clearLawyers } =
-  lawyerSlice.actions;
+export const {
+  setLawyers,
+  setLoading,
+  setError,
+  clearLawyers,
+  setLawyerStats,
+} = lawyerSlice.actions;
 export default lawyerSlice.reducer;

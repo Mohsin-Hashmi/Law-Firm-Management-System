@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import DashboardLayout from "@/app/components/DashboardLayout";
 import FirmStats from "@/app/components/FirmStats";
+import ClientView from "@/app/components/ClientView";
 import LawyerStats from "@/app/components/LawyerStats";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { RootState } from "@/app/store/store";
@@ -32,10 +33,10 @@ export default function DashboardPage() {
         {user.role === "Lawyer" && (
           <LawyerStats firmId={user.firmId} role={user.role} />
         )}
-
-        {user.role !== "Firm Admin" && user.role !== "Lawyer" && (
-          <p>Access Denied</p>
+        {user.role === "Client" && (
+          <ClientView firmId={user.firmId} role={user.role} />
         )}
+        
       </DashboardLayout>
     </ThemeProvider>
   );

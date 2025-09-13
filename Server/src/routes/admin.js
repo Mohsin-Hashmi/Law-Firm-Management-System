@@ -9,9 +9,10 @@ const {
   deleteLawyer,
   switchFirm,
   getLawyerPerformance,
+  lawyerStats
 } = require("../controllers/firm.controller");
 const adminRoute = express();
-const { userAuth, firmAdminAuth } = require("../middlewares/authMiddleware");
+const { userAuth, firmAdminAuth, LawyerAuth } = require("../middlewares/authMiddleware");
 const multer = require("multer");
 const path = require("path");
 const permissions = require("../constants/permissions");
@@ -92,5 +93,13 @@ adminRoute.get(
   firmAdminAuth,
   checkPermission(permissions.READ_LAWYER),
   getLawyerPerformance
+);
+
+adminRoute.get(
+  "/lawyers/stats",
+  userAuth,
+  LawyerAuth,               
+  checkPermission(permissions.VIEW_STATS), 
+  lawyerStats
 );
 module.exports = adminRoute;

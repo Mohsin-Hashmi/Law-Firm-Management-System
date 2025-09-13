@@ -24,3 +24,13 @@ export interface LawyerPerformance {
   lostCases: number;
   successRate: number;
 }
+
+export interface LawyerStats {
+  lawyerName: string;
+  completedCases: number;
+  ongoingCases: number;
+  pendingCases: number;
+  totalClients: number;
+  successRate: number;
+  activeThisWeek: number;
+}

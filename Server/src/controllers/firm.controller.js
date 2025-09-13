@@ -195,8 +195,7 @@ const createLawyer = async (req, res) => {
       },
       { transaction: t }
     );
-    
-    
+
     await t.commit();
     return res.status(201).json({
       success: true,
@@ -557,6 +556,75 @@ const getLawyerPerformance = async (req, res) => {
   }
 };
 
+const lawyerStats = async (req, res) => {
+  try {
+    let lawyer; // declare once
+    let lawyerId;
+
+    if (req.user.role === "Super Admin" || req.user.role === "Firm Admin") {
+      // Admin can fetch any lawyer stats
+      lawyerId = Number(req.params.id);
+      lawyer = await Lawyer.findByPk(lawyerId);
+    } else if (req.user.role === "Lawyer") {
+      // Logged-in lawyer → find by userId
+      lawyer = await Lawyer.findOne({
+        where: { userId: req.user.id },
+        include: [{ model: User, as: "user", attributes: ["name"] }],
+      });
+      if (lawyer) lawyerId = lawyer.id;
+    }
+
+    if (!lawyer || !lawyerId) {
+      return res.status(404).json({ error: "Lawyer not found" });
+    }
+
+    // ✅ Case stats
+    const completedCasesCount = await Case.count({
+      include: [{ model: Lawyer, as: "lawyers", where: { id: lawyerId } }],
+      where: { status: "Closed" },
+    });
+
+    const ongoingCasesCount = await Case.count({
+      include: [{ model: Lawyer, as: "lawyers", where: { id: lawyerId } }],
+      where: { status: "Open" },
+    });
+
+    const pendingCasesCount = await Case.count({
+      include: [{ model: Lawyer, as: "lawyers", where: { id: lawyerId } }],
+      where: { status: "On Hold" },
+    });
+
+    const appealCasesCount = await Case.count({
+      include: [{ model: Lawyer, as: "lawyers", where: { id: lawyerId } }],
+      where: { status: "Appeal" },
+    });
+
+    // ✅ Active clients linked to this lawyer
+    const activeClientsCount = await Client.count({
+      include: [{ model: Lawyer, as: "lawyers", where: { id: lawyerId } }],
+      where: { status: "Active" },
+      distinct: true,
+    });
+
+    res.json({
+      lawyerId,
+      lawyerName: lawyer.user?.name,
+      stats: {
+        completedCases: completedCasesCount,
+        ongoingCases: ongoingCasesCount,
+        pendingCases: pendingCasesCount,
+        appealCases: appealCasesCount,
+        activeClients: activeClientsCount,
+      },
+    });
+  } catch (err) {
+    console.error("Lawyer stats error:", err);
+    res
+      .status(500)
+      .json({ error: "Failed to fetch lawyer stats", details: err.message });
+  }
+};
+
 module.exports = {
   createFirm,
   firmStats,
@@ -567,4 +635,5 @@ module.exports = {
   updateLawyer,
   switchFirm,
   getLawyerPerformance,
+  lawyerStats,
 };

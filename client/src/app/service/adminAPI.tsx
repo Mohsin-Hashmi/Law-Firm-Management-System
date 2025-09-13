@@ -511,3 +511,14 @@ export const fetchRoles = async () => {
     return [];
   }
 };
+
+export const lawyerStatsData = async()=>{
+  try{
+    const response = await axios.get(`${BASE_URL}/api/firm-admin/lawyers/stats`, {
+      withCredentials: true
+    });
+    return response.data;
+  }catch(error){
+    console.log("Error Fetching Lawyers Stats", error);
+  }
+}

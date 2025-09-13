@@ -28,6 +28,7 @@ import {
   BankOutlined,
   FileTextOutlined,
   DashboardOutlined,
+  
 } from "@ant-design/icons";
 import { switchFirmAPI } from "../service/adminAPI";
 import { getLawyers } from "../service/adminAPI";
@@ -187,7 +188,7 @@ export default function DashboardLayout({
       },
     ],
 
-    Lawyer: [
+    "Lawyer": [
       {
         label: "Dashboard",
         href: "/dashboard",
@@ -222,6 +223,37 @@ export default function DashboardLayout({
         icon: <PlusOutlined />,
         category: "Case Management",
         requiredPermissions: ["create_case"],
+      },
+    ],
+
+    "Client": [
+      {
+        label: "Dashboard",
+        href: "/dashboard",
+        icon: <DashboardOutlined />,
+        category: "Main",
+        requiredPermissions: ["view_stats"], 
+      },
+      {
+        label: "View Case Documents",
+        href: "/",
+        icon: <FileTextOutlined />,
+        category: "Document Management",
+        requiredPermissions: ["read_case"],
+      },
+      {
+        label: "Upload Case Documents",
+        href: "/",
+        icon: <PlusOutlined />,
+        category: "Document Management",
+        requiredPermissions: ["upload_case_document"],
+      },
+      {
+        label: "View Case Status",
+        href: "/",
+        icon: <FileTextOutlined />,
+        category: "Case Status",
+        requiredPermissions: ["view_case_status"],
       },
     ],
   };

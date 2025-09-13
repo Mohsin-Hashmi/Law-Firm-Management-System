@@ -62,6 +62,7 @@ module.exports = {
         "view_case_status",
         "view_case_documents",
         "upload_case_document",
+         "view_stats",
       ], // Client
     };
 

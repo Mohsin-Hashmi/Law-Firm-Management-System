@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   Card,
   Row,
@@ -12,21 +12,24 @@ import {
   Divider,
   Avatar,
   Badge,
+  Upload,
+  Progress,
 } from "antd";
 import {
   UserOutlined,
-  TeamOutlined,
+  FileTextOutlined,
   FileOutlined,
+  EyeOutlined,
+  UploadOutlined,
+  ClockCircleOutlined,
   CheckCircleOutlined,
-  CloseCircleOutlined,
-  UserAddOutlined,
-  PlusOutlined,
-  BarChartOutlined,
+  ExclamationCircleOutlined,
+  InboxOutlined,
   RightOutlined,
   DashboardOutlined,
-  TrophyOutlined,
-  ClockCircleOutlined,
-  ExclamationCircleOutlined,
+  FolderOpenOutlined,
+  FilePdfOutlined,
+  CloudUploadOutlined,
 } from "@ant-design/icons";
 import {
   LineChart,
@@ -43,71 +46,62 @@ import {
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { useRouter } from "next/navigation";
 import { RootState } from "../store/store";
-import { lawyerStatsData } from "../service/adminAPI";
-import { setLawyerStats } from "../store/lawyerSlice";
+
 const { Title, Text } = Typography;
-import { LawyerStats } from "../types/lawyer";
+const { Dragger } = Upload;
+
 interface Props {
   firmId: number;
   role?: string;
 }
 
-// Sample chart data - replace with actual data from your API
-const chartData = [
-  { name: "Jan", value: 15 },
-  { name: "Feb", value: 22 },
-  { name: "Mar", value: 18 },
-  { name: "Apr", value: 35 },
-  { name: "May", value: 28 },
-  { name: "Jun", value: 42 },
+// Sample chart data for case progress
+const progressData = [
+  { name: "Week 1", progress: 10 },
+  { name: "Week 2", progress: 25 },
+  { name: "Week 3", progress: 40 },
+  { name: "Week 4", progress: 65 },
+  { name: "Week 5", progress: 75 },
+  { name: "Week 6", progress: 85 },
 ];
 
-export default function LawyerStatsData({ firmId, role }: Props) {
+export default function ClientView({ firmId, role }: Props) {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const user = useAppSelector((state: RootState) => state.user.user);
   const loading = useAppSelector((state: RootState) => state.user.loading);
-  const [lawyer, setLawyers] = useState<LawyerStats | null>(null);
-
 
   const error = null; // Replace with actual error state
 
-  // Sample stats - replace with actual data from your API
-  // const lawyerStats = {
-  //   lawyerName: user?.name || "Lawyer",
-  //   completedCases: 0,
-  //   pendingCases: 0,
-  //   ongoingCases: 0,
-  //   totalClients: 0,
-  //   successRate: 0,
-  //   activeThisWeek: 0,
-  // };
+  // Sample client stats - replace with actual data from your API
+  const clientStats = {
+    clientName: user?.name || "Client",
+    totalCases: 0,
+    activeCases: 0,
+    completedCases: 0,
+    pendingDocuments: 0,
+    uploadedDocuments: 0,
+    caseProgress: 0,
+    nextHearing: "No upcoming hearings",
+  };
 
   useEffect(() => {
     if (!firmId || !role) return;
 
-    const fetchLawyerStats = async () => {
+    const fetchClientStats = async () => {
       try {
-        const data = await lawyerStatsData();
-        const normalizedStats = {
-          lawyerName: data.lawyerName || data.stats?.lawyerName || user?.name || "Lawyer",
-          completedCases: data.stats.completedCases,
-          ongoingCases: data.stats.ongoingCases,
-          pendingCases: data.stats.pendingCases,
-          totalClients: data.stats.activeClients,
-          successRate: 75, // placeholder if not returned by API
-          activeThisWeek: 3, // placeholder if not returned
-        };
-        setLawyers(normalizedStats)
-        dispatch(setLawyerStats(normalizedStats));
-        console.log("Fetching lawyer stats for firmId:", firmId);
+        // TODO: Implement API call to fetch client stats
+        // const data = await getClientStats(firmId, user.id);
+        // Update your Redux store or local state with the fetched data
+        console.log("Fetching client stats for firmId:", firmId);
       } catch (err) {
-        console.error("Error fetching lawyer stats:", err);
+        console.error("Error fetching client stats:", err);
       }
     };
 
-    fetchLawyerStats();
-  }, [dispatch]);
+    fetchClientStats();
+  }, [firmId, role, dispatch]);
+
   if (loading || !user) {
     return (
       <div
@@ -124,20 +118,24 @@ export default function LawyerStatsData({ firmId, role }: Props) {
     );
   }
 
-  const handleAddCase = () => {
-    router.push("/add-case");
-  };
-
-  const handleAddClient = () => {
-    router.push("/create-client");
-  };
-
   const handleViewCases = () => {
-    router.push("/get-cases");
+    // Navigate to client's cases view
+    router.push("/client-cases");
   };
 
-  const handleViewClients = () => {
-    router.push("/get-clients");
+  const handleViewDocuments = () => {
+    // Navigate to client's documents view
+    router.push("/client-documents");
+  };
+
+  const handleUploadDocument = () => {
+    // Navigate to document upload page
+    router.push("/upload-document");
+  };
+
+  const handleViewCaseStatus = () => {
+    // Navigate to case status view
+    router.push("/case-status");
   };
 
   if (loading) {
@@ -154,7 +152,7 @@ export default function LawyerStatsData({ firmId, role }: Props) {
           <Spin size="large" />
           <div style={{ marginTop: "16px" }}>
             <Text className="text-slate-600 dark:text-slate-400">
-              Loading lawyer statistics...
+              Loading client dashboard...
             </Text>
           </div>
         </div>
@@ -180,48 +178,52 @@ export default function LawyerStatsData({ firmId, role }: Props) {
 
   const statCards = [
     {
+      title: "Active Cases",
+      value: clientStats.activeCases,
+      icon: <FileTextOutlined />,
+      color: "#3b82f6",
+      background: "#eff6ff",
+      darkBackground: "#1e3a8a",
+      borderColor: "#bfdbfe",
+      growth: "+2%",
+      period: "this month",
+      permission: "read_case",
+    },
+    {
       title: "Completed Cases",
-      value: lawyer?.completedCases,
+      value: clientStats.completedCases,
       icon: <CheckCircleOutlined />,
       color: "#059669",
       background: "#ecfdf5",
       darkBackground: "#065f46",
       borderColor: "#d1fae5",
-      growth: "+8%",
-      period: "this month",
+      growth: "+1%",
+      period: "this quarter",
+      permission: "read_case",
     },
     {
-      title: "Ongoing Cases",
-      value: lawyer?.ongoingCases,
-      icon: <ClockCircleOutlined />,
-      color: "#dc2626",
-      background: "#fef2f2",
-      darkBackground: "#991b1b",
-      borderColor: "#fecaca",
-      growth: "+3%",
-      period: "this week",
-    },
-    {
-      title: "Pending Cases",
-      value: lawyer?.pendingCases,
-      icon: <ExclamationCircleOutlined />,
-      color: "#f59e0b",
-      background: "#fffbeb",
-      darkBackground: "#92400e",
-      borderColor: "#fed7aa",
-      growth: "-2%",
-      period: "this month",
-    },
-    {
-      title: "Active Clients",
-      value: lawyer?.totalClients,
-      icon: <TeamOutlined />,
+      title: "Uploaded Documents",
+      value: clientStats.uploadedDocuments,
+      icon: <CloudUploadOutlined />,
       color: "#7c3aed",
       background: "#f3f4f6",
       darkBackground: "#5b21b6",
       borderColor: "#e5e7eb",
-      growth: "+12%",
-      period: "this quarter",
+      growth: "+5%",
+      period: "this week",
+      permission: "upload_case_document",
+    },
+    {
+      title: "Pending Reviews",
+      value: clientStats.pendingDocuments,
+      icon: <ClockCircleOutlined />,
+      color: "#f59e0b",
+      background: "#fffbeb",
+      darkBackground: "#92400e",
+      borderColor: "#fed7aa",
+      growth: "-1%",
+      period: "this week",
+      permission: "view_case_status",
     },
   ];
 
@@ -230,7 +232,7 @@ export default function LawyerStatsData({ firmId, role }: Props) {
       <div className="max-w-full">
         {/* Professional Header */}
         <Card
-          className="bg-blue-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg mb-[40px] !transition-none"
+          className="bg-emerald-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg mb-[40px] !transition-none"
           bodyStyle={{ padding: "32px 20px" }}
         >
           <Row align="middle" justify="space-between">
@@ -244,35 +246,12 @@ export default function LawyerStatsData({ firmId, role }: Props) {
                     level={1}
                     className="!text-white dark:!text-white !mb-1 text-4xl font-semibold tracking-tight"
                   >
-                    Welcome {lawyer?.lawyerName}
+                    Welcome {clientStats.clientName}
                   </Title>
                   <Text className="text-white/100 dark:text-white text-lg font-normal">
-                    Legal Professional Dashboard
+                    Client Dashboard
                   </Text>
                 </div>
-              </Space>
-            </Col>
-            <Col>
-              <Space size="middle">
-                {/* Action buttons can be uncommented if needed */}
-                {/* <Button
-                  type="primary"
-                  size="large"
-                  icon={<PlusOutlined />}
-                  onClick={handleAddCase}
-                  style={{
-                    background: "white",
-                    borderColor: "white",
-                    color: "#1e40af",
-                    borderRadius: "12px",
-                    fontWeight: "600",
-                    padding: "8px 24px",
-                    height: "48px",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                  }}
-                >
-                  New Case
-                </Button> */}
               </Space>
             </Col>
           </Row>
@@ -314,11 +293,11 @@ export default function LawyerStatsData({ firmId, role }: Props) {
                         justifyContent: "center",
                         marginBottom: "16px",
                       }}
-                      className="bg-blue-50 dark:bg-blue-900/30"
+                      className="bg-emerald-50 dark:bg-emerald-900/30"
                     >
                       <span
                         style={{ fontSize: "20px" }}
-                        className="text-blue-600 dark:text-blue-400"
+                        className="text-emerald-600 dark:text-emerald-400"
                       >
                         {stat.icon}
                       </span>
@@ -332,13 +311,13 @@ export default function LawyerStatsData({ firmId, role }: Props) {
                         lineHeight: "1",
                         color: "inherit",
                       }}
-                      className="text-blue-600 dark:text-green-500 [&_.ant-statistic-content-value]:dark:!text-green-500 mb-[10px]"
+                      className="text-emerald-600 dark:text-green-500 [&_.ant-statistic-content-value]:dark:!text-green-500 mb-[10px]"
                     />
 
                     {/* Mini Graph */}
                     <div style={{ width: "100%", height: 50 }}>
                       <ResponsiveContainer>
-                        <AreaChart data={chartData}>
+                        <AreaChart data={progressData}>
                           <defs>
                             <linearGradient
                               id="colorValue"
@@ -364,7 +343,7 @@ export default function LawyerStatsData({ firmId, role }: Props) {
                           <Tooltip />
                           <Area
                             type="monotone"
-                            dataKey="value"
+                            dataKey="progress"
                             stroke={stat.color}
                             fillOpacity={1}
                             fill="url(#colorValue)"
@@ -400,14 +379,14 @@ export default function LawyerStatsData({ firmId, role }: Props) {
 
         {/* Action Cards & Analytics */}
         <Row gutter={[24, 24]}>
-          {/* Quick Actions */}
+          {/* Quick Actions - Based on Client Permissions */}
           <Col xs={24} lg={8}>
             <Card
               title={
                 <Space>
-                  <DashboardOutlined className="text-blue-600 dark:text-blue-400" />
+                  <DashboardOutlined className="text-emerald-600 dark:text-emerald-400" />
                   <span className="text-slate-900 dark:!text-white font-semibold">
-                    Quick Actions
+                    Available Actions
                   </span>
                 </Space>
               }
@@ -419,44 +398,7 @@ export default function LawyerStatsData({ firmId, role }: Props) {
                 style={{ width: "100%" }}
                 size="middle"
               >
-                <Button
-                  type="text"
-                  block
-                  onClick={handleAddCase}
-                  className="text-left h-12 rounded-xl border border-slate-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600"
-                >
-                  <Space
-                    style={{ width: "100%", justifyContent: "space-between" }}
-                  >
-                    <Space>
-                      <PlusOutlined className="text-blue-600 dark:text-blue-400" />
-                      <span className="text-slate-700 dark:text-white font-medium">
-                        Create New Case
-                      </span>
-                    </Space>
-                    <RightOutlined className="text-slate-400 dark:text-white" />
-                  </Space>
-                </Button>
-
-                <Button
-                  type="text"
-                  block
-                  onClick={handleAddClient}
-                  className="text-left h-12 rounded-xl border border-slate-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600"
-                >
-                  <Space
-                    style={{ width: "100%", justifyContent: "space-between" }}
-                  >
-                    <Space>
-                      <UserAddOutlined className="text-emerald-600 dark:text-emerald-400" />
-                      <span className="text-slate-700 dark:text-white font-medium">
-                        Add New Client
-                      </span>
-                    </Space>
-                    <RightOutlined className="text-slate-400 dark:text-white" />
-                  </Space>
-                </Button>
-
+                {/* Read Cases Permission */}
                 <Button
                   type="text"
                   block
@@ -467,28 +409,69 @@ export default function LawyerStatsData({ firmId, role }: Props) {
                     style={{ width: "100%", justifyContent: "space-between" }}
                   >
                     <Space>
-                      <FileOutlined className="text-red-600 dark:text-red-400" />
+                      <FileTextOutlined className="text-blue-600 dark:text-blue-400" />
                       <span className="text-slate-700 dark:text-white font-medium">
-                        View All Cases
+                        View My Cases
                       </span>
                     </Space>
                     <RightOutlined className="text-slate-400 dark:text-white" />
                   </Space>
                 </Button>
 
+                {/* Upload Case Document Permission */}
                 <Button
                   type="text"
                   block
-                  onClick={handleViewClients}
+                  onClick={handleUploadDocument}
                   className="text-left h-12 rounded-xl border border-slate-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600"
                 >
                   <Space
                     style={{ width: "100%", justifyContent: "space-between" }}
                   >
                     <Space>
-                      <TeamOutlined className="text-purple-600 dark:text-purple-400" />
+                      <UploadOutlined className="text-emerald-600 dark:text-emerald-400" />
                       <span className="text-slate-700 dark:text-white font-medium">
-                        View All Clients
+                        Upload Documents
+                      </span>
+                    </Space>
+                    <RightOutlined className="text-slate-400 dark:text-white" />
+                  </Space>
+                </Button>
+
+                {/* View Case Documents Permission */}
+                <Button
+                  type="text"
+                  block
+                  onClick={handleViewDocuments}
+                  className="text-left h-12 rounded-xl border border-slate-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600"
+                >
+                  <Space
+                    style={{ width: "100%", justifyContent: "space-between" }}
+                  >
+                    <Space>
+                      <FolderOpenOutlined className="text-purple-600 dark:text-purple-400" />
+                      <span className="text-slate-700 dark:text-white font-medium">
+                        View Documents
+                      </span>
+                    </Space>
+                    <RightOutlined className="text-slate-400 dark:text-white" />
+                  </Space>
+                </Button>
+
+                {/* View Case Status Permission */}
+                <Button
+                  type="text"
+                  block
+                  onClick={handleViewCaseStatus}
+                  className="text-left h-12 rounded-xl border border-slate-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600"
+                >
+                  <Space
+                    style={{ width: "100%", justifyContent: "space-between" }}
+                  >
+                    <Space>
+                      <EyeOutlined className="text-amber-600 dark:text-amber-400" />
+                      <span className="text-slate-700 dark:text-white font-medium">
+                        Case Status
                       </span>
                     </Space>
                     <RightOutlined className="text-slate-400 dark:text-white" />
@@ -498,14 +481,14 @@ export default function LawyerStatsData({ firmId, role }: Props) {
             </Card>
           </Col>
 
-          {/* Recent Activity */}
+          {/* Case Progress & Updates */}
           <Col xs={24} lg={8}>
             <Card
               title={
                 <Space>
-                  <BarChartOutlined className="text-purple-600 dark:text-purple-400" />
+                  <ClockCircleOutlined className="text-blue-600 dark:text-blue-400" />
                   <span className="text-slate-900 dark:!text-white font-semibold">
-                    Recent Activity
+                    Case Updates
                   </span>
                 </Space>
               }
@@ -519,7 +502,7 @@ export default function LawyerStatsData({ firmId, role }: Props) {
               >
                 <div className="py-3 border-b border-slate-100 dark:border-slate-600">
                   <Text className="text-slate-900 dark:text-white font-medium block">
-                    Case hearing scheduled for tomorrow
+                    Document review completed
                   </Text>
                   <Text className="text-slate-400 dark:text-white text-xs">
                     2 hours ago
@@ -528,7 +511,7 @@ export default function LawyerStatsData({ firmId, role }: Props) {
 
                 <div className="py-3 border-b border-slate-100 dark:border-slate-600">
                   <Text className="text-slate-900 dark:text-white font-medium block">
-                    Document submitted for Review Case
+                    Next hearing scheduled
                   </Text>
                   <Text className="text-slate-400 dark:text-white text-xs">
                     5 hours ago
@@ -537,7 +520,7 @@ export default function LawyerStatsData({ firmId, role }: Props) {
 
                 <div className="py-3 border-b border-slate-100 dark:border-slate-600">
                   <Text className="text-slate-900 dark:text-white font-medium block">
-                    New client consultation completed
+                    {`Case status updated to "In Progress"`}
                   </Text>
                   <Text className="text-slate-400 dark:text-white text-xs">
                     1 day ago
@@ -546,67 +529,84 @@ export default function LawyerStatsData({ firmId, role }: Props) {
 
                 <Button
                   type="link"
-                  className="p-0 text-blue-600 dark:text-blue-400 font-medium hover:text-blue-700 dark:hover:text-blue-300"
+                  className="p-0 text-emerald-600 dark:text-emerald-400 font-medium hover:text-emerald-700 dark:hover:text-emerald-300"
                 >
-                  View all activities →
+                  View all updates →
                 </Button>
               </Space>
             </Card>
           </Col>
 
-          {/* Performance Metrics */}
+          {/* Case Progress Chart */}
           <Col xs={24} lg={8}>
             <Card
               title={
                 <Space>
-                  <TrophyOutlined className="text-amber-600 dark:text-amber-400" />
+                  <FileOutlined className="text-emerald-600 dark:text-emerald-400" />
                   <span className="text-slate-900 dark:!text-white font-semibold">
-                    Performance
+                    Case Progress
                   </span>
                 </Space>
               }
               className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800"
               bodyStyle={{ padding: "20px" }}
             >
-              <Row gutter={[0, 16]}>
-                <Col span={24}>
-                  <div className="text-center p-4 bg-slate-50 dark:bg-slate-700">
-                    <Statistic
-                      title={
-                        <span className="text-slate-600 dark:!text-white text-sm">
-                          Case Success Rate
-                        </span>
-                      }
-                      value={lawyer?.successRate}
-                      suffix="%"
-                      valueStyle={{
-                        fontSize: "28px",
-                        fontWeight: "700",
-                        color: "inherit",
-                      }}
-                      className="text-emerald-600 dark:text-emerald-400 [&_.ant-statistic-content-value]:dark:!text-emerald-400"
-                    />
-                  </div>
-                </Col>
-                <Col span={24}>
-                  <div className="text-center p-4 bg-slate-50 dark:bg-slate-700">
-                    <Statistic
-                      title={
-                        <span className="text-slate-600 dark:!text-white text-sm">
-                          Cases This Week
-                        </span>
-                      }
-                      value={lawyer?.activeThisWeek}
-                      valueStyle={{
-                        fontSize: "28px",
-                        fontWeight: "700",
-                        color: "inherit",
-                      }}
-                      className="text-blue-600 dark:text-blue-400 [&_.ant-statistic-content-value]:dark:!text-blue-400"
-                    />
-                  </div>
-                </Col>
-              </Row>
+              <div className="text-center mb-4">
+                <Progress
+                  type="circle"
+                  percent={clientStats.caseProgress}
+                  strokeColor="#10b981"
+                  trailColor="#e5e7eb"
+                  size={120}
+                />
+              </div>
+              
+              <div className="text-center">
+                <Text className="text-slate-600 dark:text-white text-sm block mb-2">
+                  Overall Case Progress
+                </Text>
+                <Text className="text-slate-900 dark:text-white font-semibold text-lg block mb-2">
+                  Next Hearing
+                </Text>
+                <Text className="text-emerald-600 dark:text-emerald-400 font-medium">
+                  {clientStats.nextHearing}
+                </Text>
+              </div>
+            </Card>
+          </Col>
+        </Row>
+
+        {/* Document Upload Section */}
+        <Row gutter={[24, 24]} style={{ marginTop: "32px" }}>
+          <Col span={24}>
+            <Card
+              title={
+                <Space>
+                  <CloudUploadOutlined className="text-blue-600 dark:text-blue-400" />
+                  <span className="text-slate-900 dark:!text-white font-semibold">
+                    Quick Document Upload
+                  </span>
+                </Space>
+              }
+              className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800"
+              bodyStyle={{ padding: "20px" }}
+            >
+              <Dragger
+                name="files"
+                multiple
+                className="bg-slate-50 dark:bg-slate-700 border-2 border-dashed border-slate-200 dark:border-slate-600 rounded-xl"
+                style={{ padding: "40px 20px" }}
+              >
+                <p className="ant-upload-drag-icon">
+                  <InboxOutlined className="text-4xl text-blue-600 dark:text-blue-400" />
+                </p>
+                <p className="ant-upload-text text-slate-900 dark:text-white">
+                  Click or drag files to this area to upload
+                </p>
+                <p className="ant-upload-hint text-slate-500 dark:text-slate-400">
+                  Support for PDF, DOC, DOCX, and image files. Maximum file size: 10MB
+                </p>
+              </Dragger>
             </Card>
           </Col>
         </Row>
