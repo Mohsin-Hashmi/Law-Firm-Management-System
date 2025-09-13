@@ -24,7 +24,7 @@ export default function Home() {
 
   const roleHrefMap: Record<string, string> = {
     "Super Admin": "/super-admin/add-firm",
-    "Firm Admin": "/firm-admin/add-firm",
+    "Firm Admin": "/add-firm",
     Lawyer: "/clients/add",
   };
 

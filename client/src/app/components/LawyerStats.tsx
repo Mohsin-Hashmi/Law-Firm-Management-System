@@ -21,11 +21,12 @@ import {
   CloseCircleOutlined,
   UserAddOutlined,
   PlusOutlined,
-  BankOutlined,
   BarChartOutlined,
   RightOutlined,
   DashboardOutlined,
   TrophyOutlined,
+  ClockCircleOutlined,
+  ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import {
   LineChart,
@@ -39,103 +40,95 @@ import {
   YAxis,
   Tooltip,
 } from "recharts";
-import { getStats } from "../service/adminAPI";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { setFirm, setError, setLoading, clearFirm } from "../store/firmSlice";
 import { useRouter } from "next/navigation";
 import { RootState } from "../store/store";
-import { setLawyers } from "../store/lawyerSlice";
-import { getLawyers } from "../service/adminAPI";
-import { getAllClients } from "../service/adminAPI";
-import { setClients } from "../store/clientSlice";
-import { getAllCasesOfFirm } from "../service/adminAPI";
-import { setCases } from "../store/caseSlice";
+
 const { Title, Text } = Typography;
-import { usePermission } from "../hooks/usePermission";
-import { PermissionWrapper } from "./PermissionWrapper";
+
 interface Props {
   firmId: number;
   role?: string;
 }
+
+// Sample chart data - replace with actual data from your API
 const chartData = [
-  { name: "Jan", value: 20 },
-  { name: "Feb", value: 35 },
-  { name: "Mar", value: 25 },
-  { name: "Apr", value: 50 },
-  { name: "May", value: 40 },
-  { name: "Jun", value: 60 },
+  { name: "Jan", value: 15 },
+  { name: "Feb", value: 22 },
+  { name: "Mar", value: 18 },
+  { name: "Apr", value: 35 },
+  { name: "May", value: 28 },
+  { name: "Jun", value: 42 },
 ];
 
-export default function FirmStats({ firmId, role }: Props) {
+export default function LawyerStats({ firmId, role }: Props) {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const {
-    firm: stats,
-    loading,
-    error,
-  } = useAppSelector((state: RootState) => state.firm);
-  const { cases } = useAppSelector((state: RootState) => state.case);
-  const openCasesCount = cases?.filter((c) => c.status === "Open").length || 0;
-  const totalCasesCount = cases?.length || 0;
+  const user = useAppSelector((state: RootState) => state.user.user);
+  const loading = useAppSelector((state: RootState) => state.user.loading);
+
+  const error = null; // Replace with actual error state
+
+  // Sample stats - replace with actual data from your API
+  const lawyerStats = {
+    lawyerName: user?.name || "Lawyer",
+    completedCases: 0,
+    pendingCases: 0,
+    ongoingCases: 0,
+    totalClients: 0,
+    successRate: 0,
+    activeThisWeek: 0,
+  };
+
   useEffect(() => {
     if (!firmId || !role) return;
 
-    const fetchStats = async () => {
+    const fetchLawyerStats = async () => {
       try {
-        // Set loading BEFORE clearing firm data
-        dispatch(setLoading(true));
-        dispatch(clearFirm());
-
-        const data = await getStats(firmId, role);
-        dispatch(setFirm(data));
-        dispatch(setError(null));
-        const lawyer = await getLawyers(firmId);
-        dispatch(setLawyers(lawyer));
-        try {
-          const clients = await getAllClients(firmId);
-          if (clients) {
-            dispatch(setClients(clients));
-          } else {
-            dispatch(setClients([])); // fallback empty list
-            console.warn("No clients found or firmId missing:", clients);
-          }
-        } catch (err) {
-          console.warn("Error fetching clients:", err);
-          dispatch(setClients([]));
-        }
-
-        // ✅ Fetch cases safely
-        try {
-          const cases = await getAllCasesOfFirm(firmId);
-          dispatch(setCases(cases || []));
-        } catch (err) {
-          console.warn("Error fetching cases:", err);
-          dispatch(setCases([]));
-        }
+        // TODO: Implement API call to fetch lawyer stats
+        // const data = await getLawyerStats(firmId, user.id);
+        // Update your Redux store or local state with the fetched data
+        console.log("Fetching lawyer stats for firmId:", firmId);
       } catch (err) {
-        console.error("Error fetching stats:", err);
-        dispatch(setError("Failed to fetch stats"));
-      } finally {
-        dispatch(setLoading(false));
+        console.error("Error fetching lawyer stats:", err);
       }
     };
 
-    fetchStats();
+    fetchLawyerStats();
   }, [firmId, role, dispatch]);
+  if (loading || !user) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "400px",
+        }}
+      >
+        <Spin size="large" />
+        <Text className="ml-2">Loading user data...</Text>
+      </div>
+    );
+  }
+
+  const handleAddCase = () => {
+    router.push("/add-case");
+  };
 
   const handleAddClient = () => {
     router.push("/create-client");
   };
 
-  const handleAddLawyer = () => {
-    router.push("/add-lawyer");
+  const handleViewCases = () => {
+    router.push("/get-cases");
   };
 
-  const handleAddCase = () => {
-    router.push("/add-case");
+  const handleViewClients = () => {
+    router.push("/get-clients");
   };
-  // Show loading spinner when loading OR when there's no stats yet (during firm switch)
-  if (loading || (!stats && !error)) {
+
+  if (loading) {
     return (
       <div
         style={{
@@ -149,7 +142,7 @@ export default function FirmStats({ firmId, role }: Props) {
           <Spin size="large" />
           <div style={{ marginTop: "16px" }}>
             <Text className="text-slate-600 dark:text-slate-400">
-              Loading firm statistics...
+              Loading lawyer statistics...
             </Text>
           </div>
         </div>
@@ -157,7 +150,7 @@ export default function FirmStats({ firmId, role }: Props) {
     );
   }
 
-  if (error)
+  if (error) {
     return (
       <Card
         style={{
@@ -171,38 +164,13 @@ export default function FirmStats({ firmId, role }: Props) {
         </Text>
       </Card>
     );
-
-  if (!stats)
-    return (
-      <Card
-        style={{ margin: "24px", textAlign: "center" }}
-        className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700"
-      >
-        <Text
-          style={{ fontSize: "16px" }}
-          className="text-slate-600 dark:text-white"
-        >
-          No statistics available.
-        </Text>
-      </Card>
-    );
+  }
 
   const statCards = [
     {
-      title: "Legal Professionals",
-      value: stats.lawyersCount,
-      icon: <UserOutlined />,
-      color: "#1e40af",
-      background: "#eff6ff",
-      darkBackground: "#1e3a8a",
-      borderColor: "#dbeafe",
-      growth: "+12%",
-      period: "this month",
-    },
-    {
-      title: "Active Clients",
-      value: stats.clientsCount,
-      icon: <TeamOutlined />,
+      title: "Completed Cases",
+      value: lawyerStats.completedCases,
+      icon: <CheckCircleOutlined />,
       color: "#059669",
       background: "#ecfdf5",
       darkBackground: "#065f46",
@@ -211,64 +179,75 @@ export default function FirmStats({ firmId, role }: Props) {
       period: "this month",
     },
     {
-      title: "Open Cases",
-      value: openCasesCount || 0,
-      icon: <FileOutlined />,
+      title: "Ongoing Cases",
+      value: lawyerStats.ongoingCases,
+      icon: <ClockCircleOutlined />,
       color: "#dc2626",
       background: "#fef2f2",
       darkBackground: "#991b1b",
       borderColor: "#fecaca",
-      growth: "+15%",
-      period: "this quarter",
+      growth: "+3%",
+      period: "this week",
     },
     {
-      title: "Active Users",
-      value: (stats.activeLawyersCount || 0) + (stats.clientsCount || 0),
-      icon: <CheckCircleOutlined />,
+      title: "Pending Cases",
+      value: lawyerStats.pendingCases,
+      icon: <ExclamationCircleOutlined />,
+      color: "#f59e0b",
+      background: "#fffbeb",
+      darkBackground: "#92400e",
+      borderColor: "#fed7aa",
+      growth: "-2%",
+      period: "this month",
+    },
+    {
+      title: "Active Clients",
+      value: lawyerStats.totalClients,
+      icon: <TeamOutlined />,
       color: "#7c3aed",
       background: "#f3f4f6",
       darkBackground: "#5b21b6",
       borderColor: "#e5e7eb",
-      growth: "+5%",
-      period: "this week",
+      growth: "+12%",
+      period: "this quarter",
     },
   ];
 
   return (
-    <div className="min-h-screen   transition-colors duration-300  ">
+    <div className="min-h-screen transition-colors duration-300">
       <div className="max-w-full">
         {/* Professional Header */}
-        
         <Card
-          className="bg-blue-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg  mb-[40px] !transition-none"
+          className="bg-blue-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg mb-[40px] !transition-none"
           bodyStyle={{ padding: "32px 20px" }}
         >
           <Row align="middle" justify="space-between">
             <Col>
               <Space size="large">
                 <div className="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 dark:bg-white/10 border-white/20 dark:border-white/30">
-                  <BankOutlined className="text-[32px] text-white" />
+                  <UserOutlined className="text-[32px] text-white" />
                 </div>
                 <div>
                   <Title
                     level={1}
                     className="!text-white dark:!text-white !mb-1 text-4xl font-semibold tracking-tight"
                   >
-                    {stats.firmName}
+                    Welcome {lawyerStats.lawyerName}
                   </Title>
                   <Text className="text-white/100 dark:text-white text-lg font-normal">
-                    Law Firm Management Dashboard
+                    Legal Professional Dashboard
                   </Text>
                 </div>
               </Space>
             </Col>
             <Col>
               <Space size="middle">
+                {/* Action buttons can be uncommented if needed */}
                 {/* <Button
                   type="primary"
                   size="large"
-                  icon={<UserAddOutlined />}
-                  onClick={handleAddLawyer}
+                  icon={<PlusOutlined />}
+                  onClick={handleAddCase}
                   style={{
                     background: "white",
                     borderColor: "white",
@@ -280,26 +259,7 @@ export default function FirmStats({ firmId, role }: Props) {
                     boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                   }}
                 >
-                  Add Lawyer
-                </Button>
-                <Button
-                  type="primary"
-                  size="large"
-                  icon={<PlusOutlined />}
-                  onClick={handleAddClient}
-                  style={{
-                    background: "rgba(255,255,255,0.2)",
-                    borderColor: "rgba(255,255,255,0.3)",
-                    color: "white",
-                    borderRadius: "12px",
-                    fontWeight: "600",
-                    padding: "8px 24px",
-                    height: "48px",
-                    backdropFilter: "blur(10px)",
-                  }}
-                  ghost
-                >
-                  New Client
+                  New Case
                 </Button> */}
               </Space>
             </Col>
@@ -450,16 +410,16 @@ export default function FirmStats({ firmId, role }: Props) {
                 <Button
                   type="text"
                   block
-                  onClick={handleAddLawyer}
+                  onClick={handleAddCase}
                   className="text-left h-12 rounded-xl border border-slate-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600"
                 >
                   <Space
                     style={{ width: "100%", justifyContent: "space-between" }}
                   >
                     <Space>
-                      <UserAddOutlined className="text-blue-600 dark:text-blue-400" />
+                      <PlusOutlined className="text-blue-600 dark:text-blue-400" />
                       <span className="text-slate-700 dark:text-white font-medium">
-                        Add New Lawyer
+                        Create New Case
                       </span>
                     </Space>
                     <RightOutlined className="text-slate-400 dark:text-white" />
@@ -476,9 +436,9 @@ export default function FirmStats({ firmId, role }: Props) {
                     style={{ width: "100%", justifyContent: "space-between" }}
                   >
                     <Space>
-                      <TeamOutlined className="text-emerald-600 dark:text-emerald-400" />
+                      <UserAddOutlined className="text-emerald-600 dark:text-emerald-400" />
                       <span className="text-slate-700 dark:text-white font-medium">
-                        Register New Client
+                        Add New Client
                       </span>
                     </Space>
                     <RightOutlined className="text-slate-400 dark:text-white" />
@@ -488,7 +448,7 @@ export default function FirmStats({ firmId, role }: Props) {
                 <Button
                   type="text"
                   block
-                  onClick={handleAddCase}
+                  onClick={handleViewCases}
                   className="text-left h-12 rounded-xl border border-slate-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600"
                 >
                   <Space
@@ -497,7 +457,26 @@ export default function FirmStats({ firmId, role }: Props) {
                     <Space>
                       <FileOutlined className="text-red-600 dark:text-red-400" />
                       <span className="text-slate-700 dark:text-white font-medium">
-                        Create New Case
+                        View All Cases
+                      </span>
+                    </Space>
+                    <RightOutlined className="text-slate-400 dark:text-white" />
+                  </Space>
+                </Button>
+
+                <Button
+                  type="text"
+                  block
+                  onClick={handleViewClients}
+                  className="text-left h-12 rounded-xl border border-slate-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600"
+                >
+                  <Space
+                    style={{ width: "100%", justifyContent: "space-between" }}
+                  >
+                    <Space>
+                      <TeamOutlined className="text-purple-600 dark:text-purple-400" />
+                      <span className="text-slate-700 dark:text-white font-medium">
+                        View All Clients
                       </span>
                     </Space>
                     <RightOutlined className="text-slate-400 dark:text-white" />
@@ -528,7 +507,7 @@ export default function FirmStats({ firmId, role }: Props) {
               >
                 <div className="py-3 border-b border-slate-100 dark:border-slate-600">
                   <Text className="text-slate-900 dark:text-white font-medium block">
-                    New attorney onboarding completed
+                    Case hearing scheduled for tomorrow
                   </Text>
                   <Text className="text-slate-400 dark:text-white text-xs">
                     2 hours ago
@@ -537,19 +516,19 @@ export default function FirmStats({ firmId, role }: Props) {
 
                 <div className="py-3 border-b border-slate-100 dark:border-slate-600">
                   <Text className="text-slate-900 dark:text-white font-medium block">
-                    5 new cases assigned this week
+                    Document submitted for Review Case
                   </Text>
                   <Text className="text-slate-400 dark:text-white text-xs">
-                    1 day ago
+                    5 hours ago
                   </Text>
                 </div>
 
                 <div className="py-3 border-b border-slate-100 dark:border-slate-600">
                   <Text className="text-slate-900 dark:text-white font-medium block">
-                    Client consultation scheduled
+                    New client consultation completed
                   </Text>
                   <Text className="text-slate-400 dark:text-white text-xs">
-                    2 days ago
+                    1 day ago
                   </Text>
                 </div>
 
@@ -586,7 +565,7 @@ export default function FirmStats({ firmId, role }: Props) {
                           Case Success Rate
                         </span>
                       }
-                      value={94.2}
+                      value={lawyerStats.successRate}
                       suffix="%"
                       valueStyle={{
                         fontSize: "28px",
@@ -602,11 +581,10 @@ export default function FirmStats({ firmId, role }: Props) {
                     <Statistic
                       title={
                         <span className="text-slate-600 dark:!text-white text-sm">
-                          Client Satisfaction
+                          Cases This Week
                         </span>
                       }
-                      value={96.8}
-                      suffix="%"
+                      value={lawyerStats.activeThisWeek}
                       valueStyle={{
                         fontSize: "28px",
                         fontWeight: "700",

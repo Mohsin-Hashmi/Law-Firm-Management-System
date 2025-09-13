@@ -341,6 +341,22 @@ export const getAllCasesOfLawyer = async (): Promise<Case[]> => {
   }
 };
 
+export const getAllClientsOfLawyer = async(): Promise<Client[]>=>{
+  try{
+    const response = await axios.get(`${BASE_URL}/api/firm-admin/lawyer/clients`, {withCredentials:true});
+    return response.data.clients;
+  }catch(error){
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        `Error fetching cases of lawyer: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    }
+    throw new Error("Unexpected error while fetching cases of lawyer");
+  }
+}
+
 export const getCaseById = async (id: number) => {
   try {
     const resposne = await axios.get(

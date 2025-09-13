@@ -1,6 +1,6 @@
 const express = require("express");
 const caseRoute = express.Router();
-const { userAuth, firmAdminAuth } = require("../middlewares/authMiddleware");
+const { userAuth, firmAdminAuth, LawyerAuth, allowRoles } = require("../middlewares/authMiddleware");
 const {
   createCase,
   getCaseById,
@@ -36,7 +36,7 @@ const upload = multer({ storage });
 caseRoute.post(
   "/:firmId/addCase",
   userAuth,
-  firmAdminAuth,
+  allowRoles(["Firm Admin", "Lawyer"]),
   upload.array("documents", 5),
   checkPermission(permissions.CREATE_CASE),
   createCase
@@ -51,6 +51,7 @@ caseRoute.get(
 caseRoute.get(
   "/firm/cases/:caseId",
   userAuth,
+  allowRoles(["Firm Admin", "Lawyer"]),
   checkPermission(permissions.READ_CASE),
   getCaseById
 );
@@ -88,6 +89,7 @@ caseRoute.get(
 caseRoute.get(
   "/lawyer/cases",
   userAuth,
+  LawyerAuth,
   checkPermission(permissions.READ_CASE),
   getAllCasesOfLawyer
 );

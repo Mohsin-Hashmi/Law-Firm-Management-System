@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
     Case.belongsTo(models.Firm, { foreignKey: "firmId", as: "firm" });
     Case.belongsTo(models.Client, { foreignKey: "clientId", as: "client" });
     Case.belongsToMany(models.Lawyer, {
-      through: "CaseLawyers",
+      through: models.CaseLawyer,
       as: "lawyers",
       foreignKey: "caseId",
     });

@@ -43,6 +43,25 @@ const firmAdminAuth = (req, res, next) => {
   next();
 };
 
+const allowRoles = (roles) => (req, res, next) => {
+  if (!roles.includes(req.user.role)) {
+    return res.status(403).json({
+      success: false,
+      error: `Access denied! Only ${roles.join(", ")} allowed`,
+    });
+  }
+  next();
+}
+const LawyerAuth = (req, res, next) => {
+  if (req.user.role !== "Lawyer") {
+    return res.status(403).json({
+      success: false,
+      error: "Access denied! Lawyer only",
+    });
+  }
+  next();
+};
+
 const superAdminAuth = (req, res, next) => {
   if (req.user.role !== "Super Admin") {
     return res.status(403).json({
@@ -53,4 +72,4 @@ const superAdminAuth = (req, res, next) => {
   next();
 };
 
-module.exports = { userAuth, firmAdminAuth, superAdminAuth };
+module.exports = { userAuth, firmAdminAuth, superAdminAuth, LawyerAuth, allowRoles };

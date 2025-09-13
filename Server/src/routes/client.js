@@ -1,13 +1,19 @@
 const express = require("express");
 
 const clientRoute = express.Router();
-const { userAuth, firmAdminAuth } = require("../middlewares/authMiddleware");
+const {
+  userAuth,
+  firmAdminAuth,
+  allowRoles,
+  LawyerAuth,
+} = require("../middlewares/authMiddleware");
 const {
   createClient,
   getAllClients,
   getClientById,
   updateClient,
   deleteClient,
+  getAllClientsOfLawyer,
 } = require("../controllers/client.controller");
 const multer = require("multer");
 const path = require("path");
@@ -29,7 +35,7 @@ const upload = multer({ storage });
 clientRoute.post(
   "/:firmId/addClient",
   userAuth,
-  firmAdminAuth,
+  allowRoles(["Firm Admin", "Lawyer"]),
   upload.single("profileImage"),
   checkPermission(permissions.CREATE_CLIENT),
   createClient
@@ -44,7 +50,7 @@ clientRoute.get(
 clientRoute.get(
   "/firm/client/:id",
   userAuth,
-  firmAdminAuth,
+  allowRoles(["Firm Admin", "Lawyer"]),
   checkPermission(permissions.READ_CLIENT),
   getClientById
 );
@@ -61,6 +67,13 @@ clientRoute.delete(
   firmAdminAuth,
   checkPermission(permissions.DELETE_CLIENT),
   deleteClient
+);
+clientRoute.get(
+  "/lawyer/clients",
+  userAuth,
+  LawyerAuth,
+  checkPermission(permissions.READ_CLIENT),
+  getAllClientsOfLawyer
 );
 
 module.exports = clientRoute;

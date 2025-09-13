@@ -10,7 +10,7 @@ import {
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { resetPassword } from "../service/authAPI"; // your backend API
-import { setUser } from "../store/userSlice";
+import { updateUser } from "../store/userSlice";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 const { Title, Text } = Typography;
 
@@ -42,7 +42,7 @@ const ResetPasswordModal = ({
       await resetPassword(userId, values.password);
       toast.success("Password updated successfully!");
       const updatedUser = { ...user, mustChangePassword: false };
-      // dispatch(setUser(updatedUser));
+      dispatch(updateUser(updatedUser));
       onSuccess();
       onClose();
     } catch (error) {

@@ -20,6 +20,12 @@ module.exports = (sequelize, DataTypes) => {
         as: "user",
         onDelete: "CASCADE",
       });
+      Lawyer.belongsToMany(models.Client, {
+        through: models.ClientLawyer,
+        foreignKey: "lawyerId",
+        otherKey: "clientId",
+        as: "clients",
+      });
     }
   }
 

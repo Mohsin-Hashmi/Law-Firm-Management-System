@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import formImage from "../../../public/images/formImage.webp";
 import Image from "next/image";
+import formImage from "../../../public/images/formImage.webp";
+import formImage03 from "../../../public/images/getFirmImg.webp";
 import Link from "next/link";
 import {
   FaEye,
@@ -16,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { addUser } from "../store/userSlice";
+import { FaGoogle } from "react-icons/fa";
 
 type AuthFormProps = {
   type: "login" | "signup";
@@ -170,7 +172,7 @@ export default function AuthForm({ type }: AuthFormProps) {
         console.log("currentFirmId:", currentFirmId);
         console.log(
           "Redirecting to:",
-          currentFirmId ? "/dashboard" : "/firm-admin/add-firm"
+          currentFirmId ? "/dashboard" : "/add-firm"
         );
 
         // Redirect based on firm presence or to the intended page
@@ -188,7 +190,7 @@ export default function AuthForm({ type }: AuthFormProps) {
         } else {
           // only Super Admin and Firm Admin can add firms
           if (user.role === "Super Admin" || user.role === "Firm Admin") {
-            router.push("/firm-admin/add-firm");
+            router.push("/add-firm");
           } else {
             router.push("/dashboard"); // fallback
           }
@@ -436,23 +438,6 @@ export default function AuthForm({ type }: AuthFormProps) {
               className="w-full h-full object-cover"
               priority
             />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center text-white p-6">
-                <h2 className="text-3xl font-bold mb-3">
-                  {type === "login" ? "Welcome Back" : "Join Our Platform"}
-                </h2>
-                <p className="text-lg text-slate-200 max-w-sm">
-                  {type === "login"
-                    ? "Continue managing your law firm efficiently."
-                    : "Start managing your legal practice today."}
-                </p>
-                <div className="mt-6 flex items-center justify-center space-x-2">
-                  <div className="w-2 h-2 bg-white/60 rounded-full"></div>
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
-                  <div className="w-2 h-2 bg-white/60 rounded-full"></div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>

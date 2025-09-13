@@ -37,26 +37,30 @@ const createCase = async (req, res) => {
       clientId,
     });
 
-    if (lawyerIds && lawyerIds.length > 0) {
-      let lawyerIdArray = lawyerIds;
-      if (!Array.isArray(lawyerIds)) {
-        lawyerIdArray = [Number(lawyerIds)];
-      } else {
-        lawyerIdArray = lawyerIds.map((id) => Number(id));
+    if (req.user.role === "Lawyer") {
+      const lawyer = await Lawyer.findOne({
+        where: {
+          userId: req.user.id,
+          firmId,
+        },
+      });
+      if (lawyer) {
+        await newCase.addLawyer(lawyer);
       }
+    }
+
+    if (lawyerIds && lawyerIds.length > 0) {
+      let lawyerIdArray = Array.isArray(lawyerIds)
+        ? lawyerIds.map((id) => Number(id))
+        : [Number(lawyerIds)];
 
       const lawyers = await Lawyer.findAll({
         where: { id: { [Op.in]: lawyerIdArray }, firmId },
       });
 
-      if (lawyers.length === 0) {
-        return res.status(404).json({
-          success: false,
-          error: "No valid lawyers found for provided IDs",
-        });
+      if (lawyers.length > 0) {
+        await newCase.addLawyers(lawyers);
       }
-
-      await newCase.addLawyers(lawyers);
     }
 
     if (req.files && req.files.length > 0) {
