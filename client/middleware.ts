@@ -5,6 +5,10 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
   const { pathname } = request.nextUrl;
 
+   if (!token && request.nextUrl.pathname.startsWith("/dashboard")) {
+    return NextResponse.redirect(new URL("/auth/login", request.url));
+  }
+
   // Protected routes (actual URLs, not file paths)
   const protectedRoutes = ["/dashboard", "/firm-admin", "/super-admin", "/firm-lawyer"];
 

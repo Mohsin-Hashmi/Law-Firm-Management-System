@@ -8,7 +8,8 @@ import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { RootState } from "@/app/store/store";
 import { useRouter } from "next/navigation";
 import { ThemeProvider } from "next-themes";
-
+import { Spin } from "antd";
+import { toast } from "react-hot-toast";
 export default function DashboardPage() {
   const user = useAppSelector((state: RootState) => state.user.user);
   const router = useRouter();
@@ -20,8 +21,16 @@ export default function DashboardPage() {
     }
   }, [user, router]);
 
-  if (!user) return <p>Redirecting to login...</p>;
-  if (!user.firmId) return <p>No firm assigned to this user.</p>;
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Spin size="large" />
+      </div>
+    );
+  }
+  if (!user.firmId) {
+    return <>{toast.error("User Firm ID not Exist")}</>;
+  }
 
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
@@ -36,7 +45,6 @@ export default function DashboardPage() {
         {user.role === "Client" && (
           <ClientView firmId={user.firmId} role={user.role} />
         )}
-        
       </DashboardLayout>
     </ThemeProvider>
   );

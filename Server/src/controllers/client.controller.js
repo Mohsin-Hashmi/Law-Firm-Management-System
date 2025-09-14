@@ -470,6 +470,71 @@ const getAllClientsOfLawyer = async (req, res) => {
   }
 };
 
+const getClientPerformance = async (req, res) => {
+  try {
+    const { id: clientId } = req.params;
+
+    const client = await Client.findByPk(clientId, {
+      include: [
+        {
+          model: Case,
+          as: "cases",
+          include: [
+            {
+              model: Lawyer,
+              as: "lawyers",
+              attributes: ["id", "name", "email", "phone", "specialization"],
+              through: { attributes: [] }, // remove join table details
+            },
+          ],
+        },
+        {
+          model: Lawyer,
+          as: "lawyers", // direct ClientLawyer relation
+          attributes: ["id", "name", "email", "phone", "specialization"],
+          through: { attributes: [] },
+        },
+      ],
+    });
+
+    if (!client) {
+      return res.status(404).json({ message: "Client not found" });
+    }
+
+    // --- Statistics ---
+    const totalCases = client.cases.length;
+
+    const caseStats = {
+      open: client.cases.filter((c) => c.status === "Open").length,
+      closed: client.cases.filter((c) => c.status === "Closed").length,
+      onHold: client.cases.filter((c) => c.status === "On Hold").length,
+      appeal: client.cases.filter((c) => c.status === "Appeal").length,
+    };
+
+    // Lawyers assigned across all cases (flatten lawyers array)
+    const allLawyers = client.cases.flatMap((c) => c.lawyers);
+    const uniqueLawyersMap = new Map();
+    allLawyers.forEach((lawyer) => {
+      uniqueLawyersMap.set(lawyer.id, lawyer);
+    });
+    const uniqueLawyers = Array.from(uniqueLawyersMap.values());
+
+    return res.json({
+      clientId: client.id,
+      clientName: client.fullName,
+      clientEmail: client.email,
+      totalCases,
+      caseStats,
+      totalLawyersAssigned: uniqueLawyers.length,
+      lawyers: uniqueLawyers, // list with id, name, email, etc.
+    });
+  } catch (error) {
+    console.error("Error in client performance:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
 module.exports = {
   createClient,
   getAllClients,
@@ -477,4 +542,5 @@ module.exports = {
   updateClient,
   deleteClient,
   getAllClientsOfLawyer,
+  getClientPerformance
 };

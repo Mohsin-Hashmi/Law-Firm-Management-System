@@ -33,12 +33,21 @@ import {
   TeamOutlined,
   IdcardOutlined,
 } from "@ant-design/icons";
-import { getClientById } from "@/app/service/adminAPI";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip as RechartsTooltip,
+  Cell,
+} from "recharts";
+import { getClientById, clientStatsData } from "@/app/service/adminAPI";
 import { Client } from "@/app/types/client";
 import { toast } from "react-hot-toast";
 import { ThemeProvider } from "next-themes";
 import { use } from "react";
-
+import { ClientStats } from "@/app/types/client";
 const { Title, Text } = Typography;
 
 export default function GetClientDetail({
@@ -51,10 +60,16 @@ export default function GetClientDetail({
   const clientId = Number(id);
 
   const [client, setClient] = useState<Client | null>(null);
+  const [clientStats, setClientStats] = useState<ClientStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadingStats, setLoadingStats] = useState(true);
 
   useEffect(() => {
     if (clientId) fetchClientDetail();
+  }, [clientId]);
+
+  useEffect(() => {
+    if (clientId) fetchClientStats();
   }, [clientId]);
 
   const fetchClientDetail = async () => {
@@ -70,6 +85,51 @@ export default function GetClientDetail({
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchClientStats = async () => {
+    try {
+      setLoadingStats(true);
+      const data = await clientStatsData(clientId);
+      setClientStats(data);
+    } catch (error) {
+      console.error("Error fetching client stats:", error);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
+
+  // Prepare chart data from client stats
+  const prepareChartData = () => {
+    if (!clientStats) return [];
+
+    return [
+      {
+        name: "Total Cases",
+        value: clientStats.totalCases || 0,
+        fill: "#059669",
+      },
+      {
+        name: "Total Lawyers",
+        value: clientStats.totalLawyersAssigned || 0,
+        fill: "#6366f1",
+      },
+      {
+        name: "Active Cases",
+        value: clientStats.openCases || 0,
+        fill: "#1e40af",
+      },
+      {
+        name: "Completed Cases",
+        value: clientStats.closedCases || 0,
+        fill: "#d97706",
+      },
+      {
+        name: "Won Cases",
+        value: clientStats.wonCases || 0,
+        fill: "#7c3aed",
+      },
+    ];
   };
 
   if (loading) {
@@ -162,9 +222,7 @@ export default function GetClientDetail({
                       type="primary"
                       size="large"
                       icon={<EditOutlined />}
-                      onClick={() =>
-                        router.push(`/edit-client/${client.id}`)
-                      }
+                      onClick={() => router.push(`/edit-client/${client.id}`)}
                       className="rounded-xl font-semibold px-6 h-12 
                      bg-white text-emerald-600 shadow-md 
                      "
@@ -411,6 +469,95 @@ export default function GetClientDetail({
                         </Space>
                       </Card>
                     </Col>
+
+                    {/* Client Performance Chart */}
+                    <Col span={24}>
+                      <Card
+                        bordered={false}
+                        className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 w-full"
+                        bodyStyle={{ padding: "20px" }}
+                      >
+                        <Title
+                          level={4}
+                          className="text-[#111827] dark:text-[#FFFFFF] mb-[16px]"
+                        >
+                          Case Performance Overview
+                        </Title>
+
+                        {loadingStats ? (
+                          <div
+                            style={{ textAlign: "center", padding: "40px 0" }}
+                          >
+                            <Spin size="large" />
+                            <p className="text-gray-500 dark:text-gray-400 mt-4">
+                              Loading performance data...
+                            </p>
+                          </div>
+                        ) : clientStats && prepareChartData().length > 0 ? (
+                          <div style={{ width: "100%", height: 300 }}>
+                            <ResponsiveContainer width={600} height={270}>
+                              <BarChart
+                                data={prepareChartData()}
+                                margin={{
+                                  top: 20,
+                                  right: 30,
+                                  left: 20,
+                                  bottom: 5,
+                                }}
+                              >
+                                <XAxis
+                                  dataKey="name"
+                                  axisLine={false}
+                                  tickLine={false}
+                                  tick={{ fontSize: 12, fill: "#6b7280" }}
+                                />
+                                <YAxis
+                                  axisLine={false}
+                                  tickLine={false}
+                                  tick={{ fontSize: 12, fill: "#6b7280" }}
+                                />
+                                <RechartsTooltip
+                                  contentStyle={{
+                                    backgroundColor: "#f9fafb",
+                                    border: "1px solid #e5e7eb",
+                                    borderRadius: "8px",
+                                    boxShadow:
+                                      "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                                  }}
+                                />
+                                <Bar
+                                  dataKey="value"
+                                  radius={[10, 10, 0, 0]}
+                                  maxBarSize={50}
+                                >
+                                  {prepareChartData().map((entry, index) => (
+                                    <Cell
+                                      key={`cell-${index}`}
+                                      fill={entry.fill}
+                                    />
+                                  ))}
+                                </Bar>
+                              </BarChart>
+                            </ResponsiveContainer>
+                          </div>
+                        ) : (
+                          <div
+                            style={{ textAlign: "center", padding: "40px 0" }}
+                          >
+                            <FileTextOutlined
+                              style={{
+                                fontSize: "48px",
+                                color: "#9ca3af",
+                                marginBottom: "16px",
+                              }}
+                            />
+                            <p className="text-gray-500 dark:text-gray-400">
+                              No performance data available for this client.
+                            </p>
+                          </div>
+                        )}
+                      </Card>
+                    </Col>
                   </Row>
                 </Col>
               </Row>
@@ -441,7 +588,7 @@ export default function GetClientDetail({
                         Total Cases
                       </span>
                     }
-                    value={client.casesCount ?? 0}
+                    value={clientStats?.totalCases || client.casesCount || 0}
                     valueStyle={{
                       color: "#059669",
                       fontSize: "36px",
@@ -472,16 +619,16 @@ export default function GetClientDetail({
                           fontWeight: "600",
                         }}
                       >
-                        Outstanding Balance
+                        Open Cases
                       </span>
                     }
-                    value={client.outstandingBalance ?? 0}
-                    prefix="$"
+                    value={clientStats?.caseStats?.open || 0}
                     valueStyle={{
                       color: "#1e40af",
                       fontSize: "36px",
                       fontWeight: "700",
                     }}
+                    prefix={<FileTextOutlined style={{ color: "#1e40af" }} />}
                   />
                 </Card>
               </Col>
@@ -506,11 +653,10 @@ export default function GetClientDetail({
                           fontWeight: "600",
                         }}
                       >
-                        Satisfaction Rate
+                        Closed Cases
                       </span>
                     }
-                    value={92}
-                    suffix="%"
+                    value={clientStats?.caseStats?.closed || 0}
                     valueStyle={{
                       color: "#d97706",
                       fontSize: "36px",
@@ -527,10 +673,10 @@ export default function GetClientDetail({
                 <Card
                   style={{
                     borderRadius: "16px",
-                    border: "1px solid #e9d5ff",
+                    border: "1px solid #fecaca",
                     boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
                     background:
-                      "linear-gradient(135deg, #faf5ff 0%, #e9d5ff 100%)",
+                      "linear-gradient(135deg, #fef2f2 0%, #fecaca 100%)",
                   }}
                   bodyStyle={{ padding: "28px" }}
                 >
@@ -538,21 +684,21 @@ export default function GetClientDetail({
                     title={
                       <span
                         style={{
-                          color: "#7c3aed",
+                          color: "#dc2626",
                           fontSize: "14px",
                           fontWeight: "600",
                         }}
                       >
-                        Client Since
+                        Lawyers Assigned
                       </span>
                     }
-                    value={new Date(client.createdAt).getFullYear()}
+                    value={clientStats?.totalLawyersAssigned || 0}
                     valueStyle={{
-                      color: "#7c3aed",
+                      color: "#dc2626",
                       fontSize: "36px",
                       fontWeight: "700",
                     }}
-                    prefix={<CalendarOutlined style={{ color: "#7c3aed" }} />}
+                    prefix={<TeamOutlined style={{ color: "#dc2626" }} />}
                   />
                 </Card>
               </Col>
@@ -1030,9 +1176,7 @@ export default function GetClientDetail({
                       type="primary"
                       size="large"
                       icon={<EditOutlined />}
-                      onClick={() =>
-                        router.push(`/edit-client/${clientId}`)
-                      }
+                      onClick={() => router.push(`/edit-client/${clientId}`)}
                       style={{
                         background: "#059669",
                         borderColor: "#059669",
@@ -1065,9 +1209,7 @@ export default function GetClientDetail({
                     <Button
                       size="large"
                       icon={<FileTextOutlined />}
-                      onClick={() =>
-                        router.push(`/client-cases/${clientId}`)
-                      }
+                      onClick={() => router.push(`/client-cases/${clientId}`)}
                       style={{
                         borderRadius: "12px",
                         border: "1px solid #059669",

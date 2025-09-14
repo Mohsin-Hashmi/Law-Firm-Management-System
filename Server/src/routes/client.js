@@ -14,6 +14,7 @@ const {
   updateClient,
   deleteClient,
   getAllClientsOfLawyer,
+  getClientPerformance,
 } = require("../controllers/client.controller");
 const multer = require("multer");
 const path = require("path");
@@ -74,6 +75,13 @@ clientRoute.get(
   LawyerAuth,
   checkPermission(permissions.READ_CLIENT),
   getAllClientsOfLawyer
+);
+
+clientRoute.get(
+  "/:id/client/performance",
+  userAuth,
+  allowRoles(["Firm Admin", "Lawyer"]),
+  getClientPerformance
 );
 
 module.exports = clientRoute;

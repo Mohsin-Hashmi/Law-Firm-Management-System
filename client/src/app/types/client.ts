@@ -1,3 +1,4 @@
+import { Lawyer } from "../types/lawyer";
 export interface ClientPayload {
   fullName: string;
   dob?: string; // YYYY-MM-DD
@@ -17,7 +18,28 @@ export interface ClientPayload {
 export interface Client extends ClientPayload {
   id: number;
   client: Client;
-  profileImage?: string | null,
+  profileImage?: string | null;
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
+}
+
+export interface CaseStats {
+  open: number;
+  closed: number;
+  onHold: number;
+  appeal: number;
+}
+
+export interface ClientStats {
+  openCases: number;
+  closedCases: number;
+  totalCases: number;
+  totalClients: number;
+  totalLawyers: number;
+  totalLawyersAssigned?: number;
+  activeCases?: number;
+  caseStats: CaseStats;
+  completedCases?: number;
+  wonCases?: number;
+  lawyers?: Lawyer[];
 }

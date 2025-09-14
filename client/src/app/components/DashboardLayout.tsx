@@ -28,7 +28,6 @@ import {
   BankOutlined,
   FileTextOutlined,
   DashboardOutlined,
-  
 } from "@ant-design/icons";
 import { switchFirmAPI } from "../service/adminAPI";
 import { getLawyers } from "../service/adminAPI";
@@ -70,12 +69,18 @@ export default function DashboardLayout({
   const handleCloseAssignRoleModal = () => setIsAssignRoleModalVisible(false);
 
   const handleLogout = async () => {
-    const response = await logoutUser();
-    dispatch(removeUser(response.data));
-    dispatch(clearFirm(response.data));
-    dispatch(clearLawyers(response.data));
-    router.push("/auth/login");
-    toast.success("Logged out successfully");
+    try {
+      const response = await logoutUser();
+      dispatch(removeUser(response.data));
+      dispatch(clearFirm(response.data));
+      dispatch(clearLawyers(response.data));
+      router.push("/auth/login");
+
+      toast.success("Logged out successfully");
+    } catch (err) {
+      toast.error("Failed to logout");
+      console.error(err);
+    }
   };
 
   // Custom loading icon for the spinner
@@ -154,7 +159,7 @@ export default function DashboardLayout({
       {
         label: "Add Lawyer",
         href: "/add-lawyer",
-        icon: <PlusOutlined />,
+        icon: <PlusOutlined />, 
         category: "Team Management",
         requiredPermissions: ["create_lawyer"],
       },
@@ -188,7 +193,7 @@ export default function DashboardLayout({
       },
     ],
 
-    "Lawyer": [
+    Lawyer: [
       {
         label: "Dashboard",
         href: "/dashboard",
@@ -226,13 +231,13 @@ export default function DashboardLayout({
       },
     ],
 
-    "Client": [
+    Client: [
       {
         label: "Dashboard",
         href: "/dashboard",
         icon: <DashboardOutlined />,
         category: "Main",
-        requiredPermissions: ["view_stats"], 
+        requiredPermissions: ["view_stats"],
       },
       {
         label: "View Case Documents",
@@ -294,6 +299,9 @@ export default function DashboardLayout({
           </div>
         </div>
       )}
+
+      
+
       <ResetPasswordModal
         visible={showReset}
         userId={user?.id}
@@ -526,7 +534,7 @@ export default function DashboardLayout({
                     dispatch(switchFirm(value));
                     const lawyers = await getLawyers(value);
                     dispatch(setLawyers(lawyers));
-                    
+
                     // Handle route redirections
                     if (pathname.startsWith("/get-lawyer-detail")) {
                       router.push("/dashboard");

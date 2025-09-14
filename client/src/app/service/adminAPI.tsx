@@ -5,6 +5,7 @@ import { ClientPayload, Client } from "../types/client";
 import { Case } from "../types/case";
 import { CreateRolePayload } from "../types/role";
 import { AssignRolePayload } from "../types/role";
+import { ClientStats } from "../types/client";
 /**Create firm API call */
 export const createFirm = async (data: FirmPayload, role?: string) => {
   // Decide API path based on role
@@ -341,11 +342,14 @@ export const getAllCasesOfLawyer = async (): Promise<Case[]> => {
   }
 };
 
-export const getAllClientsOfLawyer = async(): Promise<Client[]>=>{
-  try{
-    const response = await axios.get(`${BASE_URL}/api/firm-admin/lawyer/clients`, {withCredentials:true});
+export const getAllClientsOfLawyer = async (): Promise<Client[]> => {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/api/firm-admin/lawyer/clients`,
+      { withCredentials: true }
+    );
     return response.data.clients;
-  }catch(error){
+  } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(
         `Error fetching cases of lawyer: ${
@@ -355,7 +359,7 @@ export const getAllClientsOfLawyer = async(): Promise<Client[]>=>{
     }
     throw new Error("Unexpected error while fetching cases of lawyer");
   }
-}
+};
 
 export const getCaseById = async (id: number) => {
   try {
@@ -512,13 +516,31 @@ export const fetchRoles = async () => {
   }
 };
 
-export const lawyerStatsData = async()=>{
-  try{
-    const response = await axios.get(`${BASE_URL}/api/firm-admin/lawyers/stats`, {
-      withCredentials: true
-    });
+export const lawyerStatsData = async () => {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/api/firm-admin/lawyers/stats`,
+      {
+        withCredentials: true,
+      }
+    );
     return response.data;
-  }catch(error){
+  } catch (error) {
     console.log("Error Fetching Lawyers Stats", error);
   }
-}
+};
+
+export const clientStatsData = async (id: number): Promise<ClientStats | null> => {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/api/firm-admin/${id}/client/performance`,
+      {
+        withCredentials: true,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error Fetching Lawyers Stats", error);
+    return null;
+  }
+};
