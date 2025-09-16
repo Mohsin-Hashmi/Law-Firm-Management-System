@@ -13,7 +13,10 @@ module.exports = (sequelize, DataTypes) => {
       });
 
       // Many-to-Many: Firms <-> Users (Admins)
-      Firm.hasMany(models.AdminFirm, { foreignKey: "firmId", as: "adminFirms" });
+      Firm.hasMany(models.AdminFirm, {
+        foreignKey: "firmId",
+        as: "adminFirms",
+      });
 
       // ✅ associations for UserFirm
       Firm.hasMany(models.UserFirm, { foreignKey: "firmId", as: "userFirms" });
@@ -36,6 +39,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM("Free", "Basic", "Premium"),
         allowNull: false,
       },
+      status: {
+        type: DataTypes.ENUM("active", "suspended", "terminated"),
+        allowNull: true,
+      },
+
       max_users: { type: DataTypes.INTEGER, allowNull: false },
       max_cases: { type: DataTypes.INTEGER, allowNull: false },
       subdomain: { type: DataTypes.STRING, allowNull: false, unique: true },

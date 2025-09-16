@@ -83,7 +83,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/auth", authRoutes);
-app.use("/api/superadmin", superAdminRoutes);
+app.use("/api/super-admin", superAdminRoutes);
 app.use("/api/firm-admin", adminRoute);
 app.use("/api/firm-admin", clientRoute);
 app.use("/api/firm-admin", caseRoute);

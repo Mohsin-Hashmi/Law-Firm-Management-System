@@ -83,3 +83,17 @@ body {
   border: none !important;
   opacity: 1;
 }
+.ant-input::placeholder {
+  color: #9ca3af !important; /* your desired color */
+  opacity: 1; /* ensure it’s fully visible */
+}
+
+.ant-select-selection-placeholder {
+  color: #9ca3af !important;
+  font-size: medium !important;
+  align-items: center !important;
+    display: flex !important;
+  align-items: center !important;   
+ 
+}
+

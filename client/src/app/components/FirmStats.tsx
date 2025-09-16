@@ -137,21 +137,9 @@ export default function FirmStats({ firmId, role }: Props) {
   // Show loading spinner when loading OR when there's no stats yet (during firm switch)
   if (loading || (!stats && !error)) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "400px",
-        }}
-      >
-        <div style={{ textAlign: "center" }}>
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
           <Spin size="large" />
-          <div style={{ marginTop: "16px" }}>
-            <Text className="text-slate-600 dark:text-slate-400">
-              Loading firm statistics...
-            </Text>
-          </div>
         </div>
       </div>
     );
@@ -238,7 +226,7 @@ export default function FirmStats({ firmId, role }: Props) {
     <div className="min-h-screen   transition-colors duration-300  ">
       <div className="max-w-full">
         {/* Professional Header */}
-        
+
         <Card
           className="bg-blue-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg  mb-[40px] !transition-none"
           bodyStyle={{ padding: "32px 20px" }}

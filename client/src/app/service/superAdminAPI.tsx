@@ -5,7 +5,7 @@ import BASE_URL from "../utils/constant";
 
 /**Get all firm API call */
 export const getAllFirms = async () => {
-  const response = await axios.get(`${BASE_URL}/api/superadmin/firms`, {
+  const response = await axios.get(`${BASE_URL}/api/super-admin/firms`, {
     withCredentials: true,
   });
   return response;

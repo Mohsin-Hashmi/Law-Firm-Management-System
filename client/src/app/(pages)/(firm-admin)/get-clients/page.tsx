@@ -164,7 +164,9 @@ export default function GetClients() {
         setClientsData((prev) =>
           prev.filter((c) => c.id !== selectedClient.id)
         );
-        toast.success("Lawyer deleted successfully");
+        toast.success("Client deleted successfully");
+         setModalVisible(false);
+         setSelectedClient(null);
       } else {
         throw new Error(response || "Delete failed");
       }

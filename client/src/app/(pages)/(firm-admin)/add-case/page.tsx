@@ -733,6 +733,8 @@ export default function AddCase() {
     [&_.ant-select-arrow]:dark:!text-white 
     [&_.ant-select-selector]:!min-h-[50px] 
     [&_.ant-select-selection-placeholder]:dark:!text-[#9ca3af] 
+    [&_.ant-select-arrow]:!top-8
+    [&_.ant-select-arrow]:!-translate-y-1/2
   "
                           dropdownClassName="
     dark:!bg-[#2A3441] dark:!border-[#4B5563] 
@@ -749,7 +751,7 @@ export default function AddCase() {
                               value={lawyer.id}
                               label={`${lawyer.name} ${lawyer.email}`}
                             >
-                              <div className="flex items-center gap-3">
+                              <div className="flex items-center  gap-3">
                                 <TeamOutlined className="text-slate-400" />
                                 <div>
                                   <div className="font-medium">
@@ -870,146 +872,145 @@ export default function AddCase() {
                     </Form.Item>
                   </Card>
                   {/* Case Summary Column */}
-            
-                    <div className=" !mt-6 bg-gradient-to-br from-emerald-50 via-emerald-50/80 to-green-50/60 dark:from-slate-800/60 dark:via-slate-700/40 dark:to-slate-800/80 border border-emerald-200/80 dark:border-slate-600/70 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="flex items-center justify-center w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl">
-                          <CheckCircleOutlined className="text-emerald-600 dark:text-emerald-400 text-lg" />
-                        </div>
-                        <div>
-                          <Title
-                            level={4}
-                            className="text-slate-800 dark:text-slate-100 !mb-0"
-                            style={{
-                              fontSize: "18px",
-                              fontWeight: 600,
-                              letterSpacing: "-0.025em",
-                            }}
-                          >
-                            Case Summary
-                          </Title>
-                          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-0">
-                            Overview & Key Details
-                          </p>
-                        </div>
+
+                  <div className=" !mt-6 bg-gradient-to-br from-emerald-50 via-emerald-50/80 to-green-50/60 dark:from-slate-800/60 dark:via-slate-700/40 dark:to-slate-800/80 border border-emerald-200/80 dark:border-slate-600/70 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center justify-center w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl">
+                        <CheckCircleOutlined className="text-emerald-600 dark:text-emerald-400 text-lg" />
                       </div>
-
-                      <Form.Item shouldUpdate noStyle>
-                        {() => {
-                          const values = form.getFieldsValue();
-                          const selectedClient = clients.find(
-                            (c) => c.id === values.clientId
-                          );
-                          const selectedLawyers: CaseLawyer[] = (
-                            values.lawyerIds || []
-                          )
-                            .map((id: number) =>
-                              lawyers.find((l: CaseLawyer) => l.id === id)
-                            )
-                            .filter((l: CaseLawyer): l is CaseLawyer =>
-                              Boolean(l)
-                            );
-
-                          return (
-                            <div className="space-y-3">
-                              <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
-                                <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
-                                  Status:
-                                </Text>
-                                <span
-                                  className="font-semibold text-sm px-2 py-1 rounded-md"
-                                  style={{
-                                    color:
-                                      statusOptions.find(
-                                        (s) => s.value === values.status
-                                      )?.color || "#374151",
-                                    backgroundColor: `${
-                                      statusOptions.find(
-                                        (s) => s.value === values.status
-                                      )?.color || "#374151"
-                                    }20`,
-                                  }}
-                                >
-                                  {statusOptions.find(
-                                    (s) => s.value === values.status
-                                  )?.label ||
-                                    values.status ||
-                                    "Open"}
-                                </span>
-                              </div>
-
-                              <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
-                                <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
-                                  Client:
-                                </Text>
-                                <span className="text-slate-800 dark:text-white font-semibold text-sm bg-slate-100 dark:bg-slate-600/30 px-2 py-1 rounded-md">
-                                  {selectedClient?.fullName || "Not selected"}
-                                </span>
-                              </div>
-
-                              <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
-                                <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
-                                  Lawyers:
-                                </Text>
-                                <span className="text-slate-800 dark:text-white font-semibold text-sm bg-slate-100 dark:bg-slate-600/30 px-2 py-1 rounded-md">
-                                  {selectedLawyers.length > 0
-                                    ? `${selectedLawyers.length} assigned`
-                                    : "None assigned"}
-                                </span>
-                              </div>
-
-                              {documents.length > 0 && (
-                                <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
-                                  <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
-                                    Documents:
-                                  </Text>
-                                  <span className="text-emerald-600 dark:text-emerald-400 font-semibold text-sm bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-md">
-                                    {documents.length} files
-                                  </span>
-                                </div>
-                              )}
-
-                              {selectedLawyers.length > 0 && (
-                                <div className="mt-4 pt-4 border-t border-emerald-200/50 dark:border-slate-600/50">
-                                  <Text className="text-slate-700 dark:text-slate-200 font-medium text-sm block mb-2">
-                                    Assigned Team:
-                                  </Text>
-                                  <div className="flex flex-wrap gap-2">
-                                    {selectedLawyers.map((lawyer) => (
-                                      <Tag
-                                        key={lawyer.id}
-                                        color="blue"
-                                        className="rounded-lg px-3 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-none font-medium text-sm"
-                                      >
-                                        {lawyer.name}
-                                      </Tag>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          );
-                        }}
-                      </Form.Item>
-
-                      <div className="mt-5 pt-4 border-t border-emerald-200/50 dark:border-slate-600/50">
-                        <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                          <svg
-                            className="w-3 h-3"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                          Case information ready for review
+                      <div>
+                        <Title
+                          level={4}
+                          className="text-slate-800 dark:text-slate-100 !mb-0"
+                          style={{
+                            fontSize: "18px",
+                            fontWeight: 600,
+                            letterSpacing: "-0.025em",
+                          }}
+                        >
+                          Case Summary
+                        </Title>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-0">
+                          Overview & Key Details
                         </p>
                       </div>
                     </div>
-            
+
+                    <Form.Item shouldUpdate noStyle>
+                      {() => {
+                        const values = form.getFieldsValue();
+                        const selectedClient = clients.find(
+                          (c) => c.id === values.clientId
+                        );
+                        const selectedLawyers: CaseLawyer[] = (
+                          values.lawyerIds || []
+                        )
+                          .map((id: number) =>
+                            lawyers.find((l: CaseLawyer) => l.id === id)
+                          )
+                          .filter((l: CaseLawyer): l is CaseLawyer =>
+                            Boolean(l)
+                          );
+
+                        return (
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
+                              <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
+                                Status:
+                              </Text>
+                              <span
+                                className="font-semibold text-sm px-2 py-1 rounded-md"
+                                style={{
+                                  color:
+                                    statusOptions.find(
+                                      (s) => s.value === values.status
+                                    )?.color || "#374151",
+                                  backgroundColor: `${
+                                    statusOptions.find(
+                                      (s) => s.value === values.status
+                                    )?.color || "#374151"
+                                  }20`,
+                                }}
+                              >
+                                {statusOptions.find(
+                                  (s) => s.value === values.status
+                                )?.label ||
+                                  values.status ||
+                                  "Open"}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
+                              <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
+                                Client:
+                              </Text>
+                              <span className="text-slate-800 dark:text-white font-semibold text-sm bg-slate-100 dark:bg-slate-600/30 px-2 py-1 rounded-md">
+                                {selectedClient?.fullName || "Not selected"}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
+                              <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
+                                Lawyers:
+                              </Text>
+                              <span className="text-slate-800 dark:text-white font-semibold text-sm bg-slate-100 dark:bg-slate-600/30 px-2 py-1 rounded-md">
+                                {selectedLawyers.length > 0
+                                  ? `${selectedLawyers.length} assigned`
+                                  : "None assigned"}
+                              </span>
+                            </div>
+
+                            {documents.length > 0 && (
+                              <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
+                                <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
+                                  Documents:
+                                </Text>
+                                <span className="text-emerald-600 dark:text-emerald-400 font-semibold text-sm bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-md">
+                                  {documents.length} files
+                                </span>
+                              </div>
+                            )}
+
+                            {selectedLawyers.length > 0 && (
+                              <div className="mt-4 pt-4 border-t border-emerald-200/50 dark:border-slate-600/50">
+                                <Text className="text-slate-700 dark:text-slate-200 font-medium text-sm block mb-2">
+                                  Assigned Team:
+                                </Text>
+                                <div className="flex flex-wrap gap-2">
+                                  {selectedLawyers.map((lawyer) => (
+                                    <Tag
+                                      key={lawyer.id}
+                                      color="blue"
+                                      className="rounded-lg px-3 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-none font-medium text-sm"
+                                    >
+                                      {lawyer.name}
+                                    </Tag>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      }}
+                    </Form.Item>
+
+                    <div className="mt-5 pt-4 border-t border-emerald-200/50 dark:border-slate-600/50">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                        <svg
+                          className="w-3 h-3"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        Case information ready for review
+                      </p>
+                    </div>
+                  </div>
                 </Col>
               </Row>
 
