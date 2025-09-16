@@ -152,7 +152,7 @@ export default function EditLawyer({ params }: { params: { id: number } }) {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex justify-center items-center transition-colors duration-300">
+        <div className="min-h-screen flex justify-center items-center transition-colors duration-300">
           <Spin size="large" />
         </div>
       </DashboardLayout>

@@ -911,12 +911,18 @@ export default function EditClient({ params }: { params: { id: number } }) {
                         </Space>
                       )}
                     </Space>
-
                     {(form.getFieldValue("outstandingBalance") ||
                       client.outstandingBalance) && (
-                      <Space>
-                        <DollarOutlined style={{ color: "#9ca3af" }} />
-                        <Text style={{ color: "#64748b" }}>
+                      <Space size="small" className="items-center">
+                        <DollarOutlined
+                          style={{
+                            color: "var(--text-secondary, #9ca3af)", // adapts in dark/light via CSS variables
+                          }}
+                        />
+                        <Text
+                          className="text-slate-700 dark:text-slate-300 font-medium"
+                          style={{ fontSize: 14 }}
+                        >
                           Outstanding: $
                           {(
                             form.getFieldValue("outstandingBalance") ||

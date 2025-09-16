@@ -511,7 +511,7 @@ useEffect(() => {
                 onClick={() =>
                   router.push(`/get-case-detail/${record.id}`)
                 }
-                className="hover:!bg-blue-50 hover:!text-blue-600 dark:hover:!bg-blue-900/30 dark:hover:!text-blue-400"
+                className="hover:!bg-blue-50 dark:text-gray-200 hover:!text-blue-600 dark:hover:!bg-blue-900/30 dark:hover:!text-blue-400"
                 style={{ borderRadius: "6px" }}
               />
             </Tooltip>
@@ -525,7 +525,7 @@ useEffect(() => {
                 onClick={() =>
                   router.push(`/edit-case/${record.id}`)
                 }
-                className="hover:!bg-amber-50 hover:!text-amber-600 dark:hover:!bg-amber-900/30 dark:hover:!text-amber-400"
+                className="hover:!bg-amber-50 dark:text-gray-200 hover:!text-amber-600 dark:hover:!bg-amber-900/30 dark:hover:!text-amber-400"
                 style={{ borderRadius: "6px" }}
               />
             </Tooltip>
@@ -537,7 +537,7 @@ useEffect(() => {
                 size="small"
                 icon={<UserAddOutlined />}
                 onClick={() => handleAssignLawyer(record)}
-                className="hover:!bg-green-50 hover:!text-green-600 dark:hover:!bg-green-900/30 dark:hover:!text-green-400"
+                className="hover:!bg-green-50 dark:text-gray-200 hover:!text-green-600 dark:hover:!bg-green-900/30 dark:hover:!text-green-400"
                 style={{ borderRadius: "6px" }}
               />
             </Tooltip>

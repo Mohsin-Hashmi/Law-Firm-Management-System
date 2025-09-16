@@ -1,239 +1,228 @@
 "use client";
+import { getAllClients } from "@/app/service/superAdminAPI";
+import { deleteClient } from "@/app/service/superAdminAPI";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import DashboardLayout from "@/app/components/DashboardLayout";
-import { ThemeProvider } from "next-themes";
-import ConfirmationModal from "@/app/components/ConfirmationModal";
-import { usePermission } from "@/app/hooks/usePermission";
-
 import {
+  Table,
+  Spin,
+  Typography,
+  Button,
+  Space,
+  Tag,
   Card,
   Row,
   Col,
-  Button,
   Input,
   Select,
-  Table,
-  Typography,
-  Space,
   Avatar,
-  Badge,
-  Spin,
-  Divider,
   Statistic,
-  Tag,
-  Dropdown,
-  Modal,
-  message,
   Tooltip,
+  message,
 } from "antd";
 import {
   SearchOutlined,
-  FilterOutlined,
-  UserAddOutlined,
-  TeamOutlined,
+  UserOutlined,
   EyeOutlined,
   EditOutlined,
   DeleteOutlined,
-  MoreOutlined,
-  MailOutlined,
-  PhoneOutlined,
+  ReloadOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
-  UserOutlined,
+  PlusOutlined,
+  PhoneOutlined,
+  MailOutlined,
   BankOutlined,
-  ExportOutlined,
-  ReloadOutlined,
-  ExclamationCircleOutlined,
+  TeamOutlined,
+  HomeOutlined,
+  DollarOutlined,
 } from "@ant-design/icons";
-import { getLawyers, deleteLawyer } from "@/app/service/adminAPI";
-import { Lawyer } from "@/app/types/firm";
 import { toast } from "react-hot-toast";
+import DashboardLayout from "@/app/components/DashboardLayout";
+import { ThemeProvider } from "next-themes";
+import ConfirmationModal from "@/app/components/ConfirmationModal";
+import type { ColumnsType } from "antd/es/table";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
-const { confirm } = Modal;
-import { useAppSelector } from "@/app/store/hooks";
-import { RootState } from "@/app/store/store";
-import { setLawyers } from "@/app/store/lawyerSlice";
-import { useAppDispatch } from "@/app/store/hooks";
 
-export default function GetLawyers() {
-  const { hasPermission } = usePermission();
-  const router = useRouter();
-  const dispatch = useAppDispatch();
-  const user = useAppSelector((state: RootState) => state.user.user);
-  const firmId = user?.firmId;
-  const [lawyers, setLawyersData] = useState<Lawyer[]>([]);
-  const [filteredLawyers, setFilteredLawyers] = useState<Lawyer[]>([]);
-  const [loading, setLoading] = useState(true);
+interface Firm {
+  id: number;
+  name: string;
+  subscription_plan: "Free" | "Basic" | "Premium";
+}
+
+interface Client {
+  id: number;
+  fullName: string;
+  dob: string;
+  gender: "Male" | "Female" | "Other";
+  email: string;
+  phone?: string | null;
+  address?: string | null;
+  clientType: "Individual" | "Organization";
+  organization?: string | null;
+  status: "Active" | "Inactive";
+  billingAddress?: string | null;
+  outstandingBalance: string;
+  profileImage?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  firmId: number;
+  userId?: number | null;
+  firm: Firm;
+}
+
+export default function GetClients() {
+  const [clients, setClients] = useState<Client[]>([]);
+  const [filteredClients, setFilteredClients] = useState<Client[]>([]);
+  const [loading, setLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [deletingLawyerId, setDeletingLawyerId] = useState<number | null>(null);
+  const [deletingClientId, setDeletingClientId] = useState<number | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [specializationFilter, setSpecializationFilter] =
-    useState<string>("all");
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedLawyer, setSelectedLawyer] = useState<Lawyer | null>(null);
+  const [clientTypeFilter, setClientTypeFilter] = useState<string>("all");
 
+  // Filter clients based on search and filters
   useEffect(() => {
-    filterLawyers();
-  }, [lawyers, searchText, statusFilter, specializationFilter]);
+    filterClients();
+  }, [clients, searchText, statusFilter, clientTypeFilter]);
 
-  /**Get All Lawyers API */
-  const fetchLawyers = async (firmId: number) => {
-    try {
-      setLoading(true);
-      const response = await getLawyers(firmId);
-      setLawyersData(response);
-      dispatch(setLawyers(response));
-      console.log("Successfully fetched lawyers data:", response);
-    } catch (error) {
-      console.error("Error fetching lawyers:", error);
-      message.error("Failed to fetch lawyers data");
-      // Set empty array on error to prevent infinite loading
-      setLawyersData([]);
-    } finally {
-      // Ensure loading is always set to false
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (firmId) {
-      // Clear previous data before fetching new data
-      setLawyersData([]);
-      setFilteredLawyers([]);
-      fetchLawyers(firmId);
-    } else {
-      // If no firmId, stop loading
-      setLoading(false);
-    }
-  }, [firmId]);
-
-  const filterLawyers = () => {
-    let filtered = lawyers;
+  const filterClients = () => {
+    let filtered = clients;
 
     // Filter by search text
     if (searchText) {
       filtered = filtered.filter(
-        (lawyer) =>
-          lawyer.name.toLowerCase().includes(searchText.toLowerCase()) ||
-          lawyer.email.toLowerCase().includes(searchText.toLowerCase()) ||
-          lawyer.specialization
-            ?.toLowerCase()
-            .includes(searchText.toLowerCase())
+        (client) =>
+          (client.fullName || "").toLowerCase().includes(searchText.toLowerCase()) ||
+          (client.email || "").toLowerCase().includes(searchText.toLowerCase()) ||
+          (client.firm?.name || "").toLowerCase().includes(searchText.toLowerCase()) ||
+          (client.address || "").toLowerCase().includes(searchText.toLowerCase()) ||
+          (client.organization || "").toLowerCase().includes(searchText.toLowerCase())
       );
     }
 
     // Filter by status
     if (statusFilter !== "all") {
       filtered = filtered.filter(
-        (lawyer) => lawyer.status.toLowerCase() === statusFilter.toLowerCase()
+        (client) =>
+          (client.status || "").toLowerCase() === statusFilter.toLowerCase()
       );
     }
 
-    // Filter by specialization
-    if (specializationFilter !== "all") {
+    // Filter by client type
+    if (clientTypeFilter !== "all") {
       filtered = filtered.filter(
-        (lawyer) =>
-          lawyer.specialization?.toLowerCase() ===
-          specializationFilter.toLowerCase()
+        (client) =>
+          (client.clientType || "").toLowerCase() === clientTypeFilter.toLowerCase()
       );
     }
 
-    setFilteredLawyers(filtered);
+    setFilteredClients(filtered);
   };
 
-  const handleOpenDeleteModal = (lawyer: Lawyer) => {
-    setSelectedLawyer(lawyer);
-    setModalVisible(true);
-  };
-
-  /**Handle delete function */
-  const handleConfirmDelete = async () => {
-    if (!selectedLawyer) return;
+  // Fetch all clients from API
+  const fetchClients = async () => {
     try {
-      setDeleting(true);
-      setDeletingLawyerId(selectedLawyer.id);
-      const response = await deleteLawyer(selectedLawyer.id);
+      setLoading(true);
+      const response = await getAllClients();
+      console.log("Response of API is", response);
+
       if (response.success) {
-        setLawyersData((prev) =>
-          prev.filter((l) => l.id !== selectedLawyer.id)
-        );
-        toast.success("Lawyer deleted successfully");
+        setClients(response.clients);
       } else {
-        throw new Error(response.message || "Delete failed");
+        message.error("Failed to load clients");
       }
     } catch (error) {
+      message.error("Something went wrong while loading clients");
       console.error(error);
-      toast.error("Failed to delete lawyer");
+      setClients([]);
     } finally {
-      setDeleting(false);
-      setDeletingLawyerId(null);
-      setModalVisible(false);
-      setSelectedLawyer(null);
+      setLoading(false);
     }
   };
 
-  const getUniqueSpecializations = () => {
-    const specializations = lawyers
-      .map((lawyer) => lawyer.specialization)
-      .filter((spec) => spec && spec.trim() !== "")
-      .filter((value, index, self) => self.indexOf(value) === index);
-    return specializations;
+  useEffect(() => {
+    fetchClients();
+  }, []);
+
+  // Handle update clients from API
+  const handleUpdate = (client: Client) => {
+    console.log("Update clicked for:", client);
+    // Add your update logic here or navigate to update page
   };
 
-  const getActionMenuItems = (lawyer: Lawyer) => [
-    {
-      key: "view",
-      icon: <EyeOutlined />,
-      label: "View Details",
-      onClick: () => {
-        console.log("View details clicked for:", lawyer.id);
-        router.push(`/get-lawyer-detail/${lawyer.id}`);
-      },
-    },
-    {
-      key: "edit",
-      icon: <EditOutlined />,
-      label: "Edit Lawyer",
-      onClick: () => {
-        console.log("Edit clicked for:", lawyer.id);
-        router.push(`/edit-lawyer/${lawyer.id}`);
-      },
-    },
-    {
-      key: "delete",
-      icon: <DeleteOutlined />,
-      label: "Delete Lawyer",
-      onClick: () => handleOpenDeleteModal(lawyer),
-      danger: true,
-    },
-  ];
+  // Handle opening delete modal
+  const handleOpenDeleteModal = (client: Client) => {
+    setSelectedClient(client);
+    setIsModalOpen(true);
+  };
 
-  const columns = [
+  // Handle delete clients from API
+  const handleConfirmDelete = async () => {
+    if (!selectedClient) return;
+
+    try {
+      setDeleting(true);
+      setDeletingClientId(selectedClient.id);
+
+      // Optimistically update UI
+      setClients((prev) => prev.filter((c) => c.id !== selectedClient.id));
+
+      // Uncomment when deleteClient API is available
+      // await deleteClient(selectedClient.id);
+      toast.success("Client deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete client");
+      console.error(error);
+      // Revert optimistic update on error
+      fetchClients();
+    } finally {
+      setDeleting(false);
+      setDeletingClientId(null);
+      setIsModalOpen(false);
+      setSelectedClient(null);
+    }
+  };
+
+  // Get statistics
+  const activeClients = clients.filter(
+    (client) => (client.status || "").toLowerCase() === "active"
+  );
+  const inactiveClients = clients.filter(
+    (client) => (client.status || "").toLowerCase() === "inactive"
+  );
+  const individualClients = clients.filter(
+    (client) => (client.clientType || "").toLowerCase() === "individual"
+  );
+  const organizationClients = clients.filter(
+    (client) => (client.clientType || "").toLowerCase() === "organization"
+  );
+
+  // Calculate total outstanding balance
+  const totalOutstandingBalance = clients.reduce(
+    (sum, client) => sum + parseFloat(client.outstandingBalance || "0"),
+    0
+  );
+
+  const columns: ColumnsType<Client> = [
     {
-      title: "Lawyer",
-      dataIndex: "name",
-      key: "name",
-      render: (name: string, record: Lawyer) => (
+      title: "Client",
+      dataIndex: "fullName",
+      key: "fullName",
+      render: (fullName: string, record: Client) => (
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <Avatar
             size={48}
-            src={
-              record.profileImage
-                ? `http://localhost:5000${record.profileImage}`
-                : undefined
-            }
+            src={record.profileImage ? `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5000'}${record.profileImage}` : undefined}
             style={{
-              background: record.profileImage ? "transparent" : "#f1f5f9",
+              background: record.profileImage ? undefined : "#f1f5f9",
               border: "2px solid #e5e7eb",
             }}
           >
-            {!record.profileImage && (
-              <UserOutlined style={{ color: "#94a3b8" }} />
-            )}
+            {!record.profileImage && <UserOutlined style={{ color: "#94a3b8" }} />}
           </Avatar>
           <div>
             <Text
@@ -244,7 +233,7 @@ export default function GetLawyers() {
                 display: "block",
               }}
             >
-              {name}
+              {fullName}
             </Text>
             <Space size="small">
               <MailOutlined style={{ color: "#9ca3af", fontSize: "12px" }} />
@@ -257,146 +246,202 @@ export default function GetLawyers() {
       ),
     },
     {
+      title: "Firm",
+      key: "firm",
+      render: (_: unknown, record: Client) => (
+        <div>
+          <Space size="small">
+            <BankOutlined style={{ color: "#9ca3af", fontSize: "12px" }} />
+            <Text style={{ fontSize: "13px", color: "#374151", fontWeight: "500" }}>
+              {record.firm?.name || "N/A"}
+            </Text>
+          </Space>
+          <div style={{ marginTop: "4px" }}>
+            <Tag
+              style={{
+                fontSize: "11px",
+                padding: "2px 8px",
+                borderRadius: "6px",
+                color: record.firm?.subscription_plan === "Premium" ? "#fbbf24" 
+                      : record.firm?.subscription_plan === "Basic" ? "#3b82f6" : "#10b981",
+                backgroundColor: record.firm?.subscription_plan === "Premium" ? "#fef3c7" 
+                              : record.firm?.subscription_plan === "Basic" ? "#dbeafe" : "#d1fae5",
+                border: "none",
+              }}
+            >
+              {record.firm?.subscription_plan || "Free"}
+            </Tag>
+          </div>
+        </div>
+      ),
+    },
+    {
       title: "Contact",
-      dataIndex: "phone",
-      key: "phone",
-      render: (phone: string) => (
+      key: "contact",
+      render: (_: unknown, record: Client) => (
         <Space direction="vertical" size="small">
           <Space size="small">
             <PhoneOutlined style={{ color: "#9ca3af", fontSize: "12px" }} />
-            <Text style={{ fontSize: "13px", color: "#374151" }}>{phone}</Text>
+            <Text style={{ fontSize: "13px", color: "#374151" }}>
+              {record.phone || "N/A"}
+            </Text>
+          </Space>
+          <Space size="small">
+            <HomeOutlined style={{ color: "#9ca3af", fontSize: "12px" }} />
+            <Text style={{ fontSize: "13px", color: "#374151" }} ellipsis>
+              {record.address || "N/A"}
+            </Text>
           </Space>
         </Space>
       ),
     },
     {
-      title: "Specialization",
-      dataIndex: "specialization",
-      key: "specialization",
-      render: (specialization: string) => (
-        <Tag
-          color="#f0f9ff"
-          style={{
-            color: "#1e40af",
-            border: "1px solid #dbeafe",
-            borderRadius: "8px",
-            padding: "4px 12px",
-            fontSize: "12px",
-            fontWeight: "500",
-          }}
-        >
-          {specialization || "General Practice"}
-        </Tag>
+      title: "Client Type",
+      dataIndex: "clientType",
+      key: "clientType",
+      align: "center",
+      render: (clientType: string, record: Client) => (
+        <div>
+          <Tag
+            style={{
+              color: clientType === "Organization" ? "#f59e0b" : "#6366f1",
+              backgroundColor: clientType === "Organization" ? "#fef3c7" : "#e0e7ff",
+              border: `1px solid ${clientType === "Organization" ? "#f59e0b" : "#6366f1"}20`,
+              borderRadius: "8px",
+              padding: "4px 12px",
+              fontSize: "12px",
+              fontWeight: "600",
+            }}
+          >
+            {clientType}
+          </Tag>
+          {record.organization && (
+            <div style={{ marginTop: "4px" }}>
+              <Text style={{ fontSize: "11px", color: "#64748b" }}>
+                {record.organization}
+              </Text>
+            </div>
+          )}
+        </div>
       ),
+    },
+    {
+      title: "Balance",
+      dataIndex: "outstandingBalance",
+      key: "outstandingBalance",
+      align: "center",
+      render: (balance: string) => {
+        const amount = parseFloat(balance || "0");
+        const hasBalance = amount > 0;
+        
+        return (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}>
+            <DollarOutlined 
+              style={{ 
+                color: hasBalance ? "#ef4444" : "#10b981", 
+                fontSize: "12px" 
+              }} 
+            />
+            <Text
+              style={{
+                fontSize: "13px",
+                fontWeight: "600",
+                color: hasBalance ? "#ef4444" : "#10b981",
+              }}
+            >
+              ${amount.toFixed(2)}
+            </Text>
+          </div>
+        );
+      },
     },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (status: string) => (
-        <Badge
-          status={status.toLowerCase() === "active" ? "success" : "error"}
-          text={
-            <span
-              style={{
-                fontSize: "13px",
-                fontWeight: "500",
-                color:
-                  status.toLowerCase() === "active" ? "#059669" : "#dc2626",
-              }}
-            >
-              {status}
-            </span>
-          }
-        />
-      ),
-    },
-    {
-      title: "Performance",
-      key: "performance",
-      render: (_: unknown, record: Lawyer) => (
-        <Space direction="vertical" size="small">
-          <Text style={{ fontSize: "12px", color: "#64748b" }}>
-            Cases: {record.casesCount || 0}
-          </Text>
-          <Text style={{ fontSize: "12px", color: "#64748b" }}>
-            Clients: {record.clientsCount || 0}
-          </Text>
-        </Space>
-      ),
+      align: "center",
+      render: (status: Client["status"]) => {
+        const color = status === "Active" ? "#10b981" : "#ef4444";
+        const bgColor = status === "Active" ? "#d1fae5" : "#fee2e2";
+
+        return (
+          <Tag
+            style={{
+              color: color,
+              backgroundColor: bgColor,
+              border: `1px solid ${color}20`,
+              borderRadius: "8px",
+              padding: "4px 12px",
+              fontSize: "12px",
+              fontWeight: "600",
+            }}
+          >
+            {status}
+          </Tag>
+        );
+      },
     },
     {
       title: "Actions",
       key: "actions",
-      render: (_: unknown, record: Lawyer) => (
+      fixed: "right",
+      width: 120,
+      render: (_: unknown, record: Client) => (
         <Space size="small">
           <Tooltip title="View Details">
             <Button
               type="text"
               size="small"
               icon={<EyeOutlined />}
-              onClick={() =>
-                router.push(`/get-lawyer-detail/${record.id}`)
-              }
+              onClick={() => console.log("View client details:", record.id)}
               className="hover:!bg-blue-50 dark:text-gray-200 hover:!text-blue-600 dark:hover:!bg-blue-900/30 dark:hover:!text-blue-400"
               style={{ borderRadius: "6px" }}
             />
           </Tooltip>
-          <Tooltip title="Edit Lawyer">
+          <Tooltip title="Edit Client">
             <Button
               type="text"
               size="small"
               icon={<EditOutlined />}
-              onClick={() =>
-                router.push(`/edit-lawyer/${record.id}`)
-              }
+              onClick={() => handleUpdate(record)}
               className="hover:!bg-amber-50 dark:text-gray-200 hover:!text-amber-600 dark:hover:!bg-amber-900/30 dark:hover:!text-amber-400"
               style={{ borderRadius: "6px" }}
             />
           </Tooltip>
-          {hasPermission("delete_lawyer") && (
-            <Tooltip title="Delete Lawyer">
-              <Button
-                type="text"
-                size="small"
-                icon={<DeleteOutlined />}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  handleOpenDeleteModal(record);
-                }}
-                loading={deleting && deletingLawyerId === record.id}
-                danger
-                className="hover:!bg-red-50 hover:!text-red-600 dark:hover:!bg-red-900/30 dark:hover:!text-red-400"
-                style={{ borderRadius: "6px", color: "#dc2626" }}
-              />
-            </Tooltip>
-          )}
+          <Tooltip title="Delete Client">
+            <Button
+              type="text"
+              size="small"
+              icon={<DeleteOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                handleOpenDeleteModal(record);
+              }}
+              loading={deleting && deletingClientId === record.id}
+              danger
+              className="hover:!bg-red-50 hover:!text-red-600 dark:hover:!bg-red-900/30 dark:hover:!text-red-400"
+              style={{ borderRadius: "6px", color: "#dc2626" }}
+            />
+          </Tooltip>
         </Space>
       ),
     },
   ];
 
-  const activeLawyers = lawyers.filter(
-    (lawyer) => lawyer.status.toLowerCase() === "active"
-  );
-  const inactiveLawyers = lawyers.filter(
-    (lawyer) => lawyer.status.toLowerCase() === "inactive"
-  );
-
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <DashboardLayout>
         {loading ? (
-          <div className="flex items-center justify-center min-h-screen ">
-            <Spin size="large" />
+          <div className="flex items-center justify-center min-h-screen">
+            <Spin size="large" tip="Loading clients..." />
           </div>
         ) : (
           <div className="min-h-screen transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
             <div className="max-w-full">
               {/* Header Section */}
               <Card
-                className="bg-[#E43636]  dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+                className="bg-[#E43636] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
                 bodyStyle={{ padding: "32px 20px" }}
               >
                 <Row align="middle" justify="space-between">
@@ -429,7 +474,7 @@ export default function GetLawyers() {
                             letterSpacing: "-0.025em",
                           }}
                         >
-                           Legal Team
+                          Clients
                         </Title>
                         <Text
                           style={{
@@ -438,48 +483,9 @@ export default function GetLawyers() {
                             fontWeight: "400",
                           }}
                         >
-                          Manage your firms attorneys and legal professionals
+                          Manage and oversee all registered clients
                         </Text>
                       </div>
-                    </Space>
-                  </Col>
-                  <Col >
-                    <Space size="middle">
-                      <Button
-                        type="primary"
-                        size="large"
-                        icon={<UserAddOutlined />}
-                        onClick={() => router.push("/add-lawyer")}
-                        style={{
-                          background: "white",
-                          borderColor: "white",
-                          color: "#2563eb",
-                          borderRadius: "12px",
-                          fontWeight: "600",
-                          padding: "8px 24px",
-                          height: "48px",
-                          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                        }}
-                      >
-                        Add New Case
-                      </Button>
-                      <Button
-                        size="large"
-                        icon={<ExportOutlined />}
-                        style={{
-                          background: "rgba(255,255,255,0.2)",
-                          borderColor: "rgba(255,255,255,0.3)",
-                          color: "white",
-                          borderRadius: "12px",
-                          fontWeight: "600",
-                          padding: "8px 24px",
-                          height: "48px",
-                          backdropFilter: "blur(10px)",
-                        }}
-                        ghost
-                      >
-                        Export Data
-                      </Button>
                     </Space>
                   </Col>
                 </Row>
@@ -487,43 +493,7 @@ export default function GetLawyers() {
 
               {/* Statistics Cards */}
               <Row gutter={[24, 24]} style={{ marginBottom: "32px" }}>
-                <Col xs={24} sm={8} lg={6}>
-                  <Card
-                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
-                    bodyStyle={{ padding: "30px" }}
-                    hoverable
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = "translateY(-4px)";
-                      e.currentTarget.style.boxShadow =
-                        "0 10px 25px rgba(0,0,0,0.15)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "translateY(0)";
-                      e.currentTarget.style.boxShadow =
-                        "0 1px 3px rgba(0,0,0,0.1)";
-                    }}
-                  >
-                    <Statistic
-                      title={
-                        <span className="text-slate-500 dark:text-white text-lg font-medium  mb-[15px] block">
-                          Total Lawyers
-                        </span>
-                      }
-                      value={lawyers.length}
-                      valueStyle={{
-                        fontSize: "32px",
-                        fontWeight: "700",
-                        lineHeight: "1",
-                        color: "inherit",
-                      }}
-                      prefix={
-                        <TeamOutlined className="text-blue-600 dark:text-blue-400 text-3xl g mr-1" />
-                      }
-                      className="text-blue-600 dark:text-blue-600 [&_.ant-statistic-content-value]:dark:!text-blue-60"
-                    />
-                  </Card>
-                </Col>
-                <Col xs={24} sm={8} lg={6}>
+                <Col xs={24} sm={12} lg={6}>
                   <Card
                     className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
                     bodyStyle={{ padding: "30px" }}
@@ -542,10 +512,46 @@ export default function GetLawyers() {
                     <Statistic
                       title={
                         <span className="text-slate-500 dark:text-white text-lg font-medium mb-[15px] block">
-                          Active Lawyers
+                          Total Clients
                         </span>
                       }
-                      value={activeLawyers.length}
+                      value={clients.length}
+                      valueStyle={{
+                        fontSize: "32px",
+                        fontWeight: "700",
+                        lineHeight: "1",
+                        color: "inherit",
+                      }}
+                      prefix={
+                        <TeamOutlined className="text-blue-600 dark:text-blue-400 text-3xl mr-1" />
+                      }
+                      className="text-blue-600 dark:text-blue-600"
+                    />
+                  </Card>
+                </Col>
+                <Col xs={24} sm={12} lg={6}>
+                  <Card
+                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
+                    bodyStyle={{ padding: "30px" }}
+                    hoverable
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-4px)";
+                      e.currentTarget.style.boxShadow =
+                        "0 10px 25px rgba(0,0,0,0.15)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow =
+                        "0 1px 3px rgba(0,0,0,0.1)";
+                    }}
+                  >
+                    <Statistic
+                      title={
+                        <span className="text-slate-500 dark:text-white text-lg font-medium mb-[15px] block">
+                          Active Clients
+                        </span>
+                      }
+                      value={activeClients.length}
                       valueStyle={{
                         fontSize: "32px",
                         fontWeight: "700",
@@ -555,11 +561,11 @@ export default function GetLawyers() {
                       prefix={
                         <CheckCircleOutlined className="text-green-600 dark:text-green-400 text-3xl mr-1" />
                       }
-                      className="text-green-600 dark:text-green-500 [&_.ant-statistic-content-value]:dark:!text-green-500"
+                      className="text-green-600 dark:text-green-500"
                     />
                   </Card>
                 </Col>
-                <Col xs={24} sm={8} lg={6}>
+                <Col xs={24} sm={12} lg={6}>
                   <Card
                     className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
                     bodyStyle={{ padding: "30px" }}
@@ -578,10 +584,10 @@ export default function GetLawyers() {
                     <Statistic
                       title={
                         <span className="text-slate-500 dark:text-white text-lg font-medium mb-[15px] block">
-                          Inactive Lawyers
+                          Individual
                         </span>
                       }
-                      value={inactiveLawyers.length}
+                      value={individualClients.length}
                       valueStyle={{
                         fontSize: "32px",
                         fontWeight: "700",
@@ -589,13 +595,13 @@ export default function GetLawyers() {
                         color: "inherit",
                       }}
                       prefix={
-                        <CloseCircleOutlined className="text-red-600 dark:text-red-400 text-3xl mr-1" />
+                        <UserOutlined className="text-purple-600 dark:text-purple-400 text-3xl mr-1" />
                       }
-                      className="text-red-600 dark:text-red-600 [&_.ant-statistic-content-value]:dark:!text-red-600"
+                      className="text-purple-600 dark:text-purple-500"
                     />
                   </Card>
                 </Col>
-                <Col xs={24} sm={8} lg={6}>
+                <Col xs={24} sm={12} lg={6}>
                   <Card
                     className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
                     bodyStyle={{ padding: "30px" }}
@@ -614,10 +620,11 @@ export default function GetLawyers() {
                     <Statistic
                       title={
                         <span className="text-slate-500 dark:text-white text-lg font-medium mb-[15px] block">
-                          Specializations
+                          Outstanding
                         </span>
                       }
-                      value={getUniqueSpecializations().length}
+                      value={totalOutstandingBalance}
+                      precision={2}
                       valueStyle={{
                         fontSize: "32px",
                         fontWeight: "700",
@@ -625,9 +632,9 @@ export default function GetLawyers() {
                         color: "inherit",
                       }}
                       prefix={
-                        <BankOutlined className="text-purple-600 dark:text-purple-400 text-3xl mr-1" />
+                        <DollarOutlined className="text-red-600 dark:text-red-400 text-3xl mr-1" />
                       }
-                      className="text-purple-600 dark:text-purple-500 [&_.ant-statistic-content-value]:dark:!text-purple-400"
+                      className="text-red-600 dark:text-red-500"
                     />
                   </Card>
                 </Col>
@@ -641,7 +648,7 @@ export default function GetLawyers() {
                 <Row gutter={[16, 16]} align="middle">
                   <Col xs={24} sm={12} md={8}>
                     <Input
-                      placeholder="Search lawyers by name, email, or specialization"
+                      placeholder="Search clients by name, email, firm, or address"
                       prefix={
                         <SearchOutlined className="text-slate-400 dark:text-slate-500" />
                       }
@@ -658,14 +665,14 @@ export default function GetLawyers() {
                       onChange={setStatusFilter}
                       size="large"
                       className="w-full 
-    [&_.ant-select-selector]:!rounded-xl 
-    [&_.ant-select-selector]:dark:!bg-slate-900 
-    [&_.ant-select-selector]:dark:!border-slate-600 
-    [&_.ant-select-selector]:dark:!text-white
-    [&_.ant-select-selection-item]:dark:!text-white
-    [&_.ant-select-selection-placeholder]:dark:!text-gray-400
-    [&_.ant-select-arrow]:dark:!text-white
-  "
+                        [&_.ant-select-selector]:!rounded-xl 
+                        [&_.ant-select-selector]:dark:!bg-slate-900 
+                        [&_.ant-select-selector]:dark:!border-slate-600 
+                        [&_.ant-select-selector]:dark:!text-white
+                        [&_.ant-select-selection-item]:dark:!text-white
+                        [&_.ant-select-selection-placeholder]:dark:!text-gray-400
+                        [&_.ant-select-arrow]:dark:!text-white
+                      "
                     >
                       <Option value="all">All Status</Option>
                       <Option value="active">Active</Option>
@@ -674,57 +681,52 @@ export default function GetLawyers() {
                   </Col>
                   <Col xs={12} sm={6} md={4}>
                     <Select
-                      placeholder="Filter by Specialization"
-                      value={specializationFilter}
-                      onChange={setSpecializationFilter}
+                      placeholder="Filter by Type"
+                      value={clientTypeFilter}
+                      onChange={setClientTypeFilter}
                       size="large"
                       className="w-full 
-    [&_.ant-select-selector]:!rounded-xl 
-    [&_.ant-select-selector]:dark:!bg-slate-900 
-    [&_.ant-select-selector]:dark:!border-slate-600 
-    [&_.ant-select-selector]:dark:!text-white
-    [&_.ant-select-selection-item]:dark:!text-white
-    [&_.ant-select-selection-placeholder]:dark:!text-gray-400
-    [&_.ant-select-arrow]:dark:!text-white
-  "
+                        [&_.ant-select-selector]:!rounded-xl 
+                        [&_.ant-select-selector]:dark:!bg-slate-900 
+                        [&_.ant-select-selector]:dark:!border-slate-600 
+                        [&_.ant-select-selector]:dark:!text-white
+                        [&_.ant-select-selection-item]:dark:!text-white
+                        [&_.ant-select-selection-placeholder]:dark:!text-gray-400
+                        [&_.ant-select-arrow]:dark:!text-white
+                      "
                     >
-                      <Option value="all">All Specializations</Option>
-                      {getUniqueSpecializations().map((spec) => (
-                        <Option key={spec} value={spec}>
-                          {spec}
-                        </Option>
-                      ))}
+                      <Option value="all">All Types</Option>
+                      <Option value="individual">Individual</Option>
+                      <Option value="organization">Organization</Option>
                     </Select>
                   </Col>
                   <Col xs={24} sm={12} md={8}>
                     <Space>
                       <Button
                         icon={<ReloadOutlined />}
-                        onClick={() => firmId && fetchLawyers(firmId)}
+                        onClick={fetchClients}
                         loading={loading}
                         className="rounded-xl border border-slate-300 dark:border-slate-600 dark:text-white 
-             !bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent"
+                          !bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent"
                       >
                         Refresh
                       </Button>
-
                       <Text className="text-slate-500 dark:text-slate-400 text-sm">
-                        Showing {filteredLawyers.length} of {lawyers.length}{" "}
-                        lawyers
+                        Showing {filteredClients.length} of {clients.length} clients
                       </Text>
                     </Space>
                   </Col>
                 </Row>
               </Card>
 
-              {/* Lawyers Table */}
+              {/* Clients Table */}
               <Card
                 className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm transition-colors duration-300"
                 bodyStyle={{ padding: 0 }}
               >
-                <Table
+                <Table<Client>
+                  dataSource={filteredClients}
                   columns={columns}
-                  dataSource={filteredLawyers}
                   rowKey="id"
                   loading={loading}
                   pagination={{
@@ -732,20 +734,20 @@ export default function GetLawyers() {
                     showSizeChanger: true,
                     showQuickJumper: true,
                     showTotal: (total, range) =>
-                      `${range[0]}-${range[1]} of ${total} lawyers`,
+                      `${range[0]}-${range[1]} of ${total} clients`,
                     className: "dark:text-slate-300",
                     style: { marginRight: "24px", marginBottom: "16px" },
                   }}
                   className="dark:[&_.ant-table]:!bg-slate-800 
-               dark:[&_.ant-table-thead>tr>th]:!bg-slate-900 
-               dark:[&_.ant-table-thead>tr>th]:!text-slate-200 
-               dark:[&_.ant-table-tbody>tr>td]:!bg-slate-800 
-               dark:[&_.ant-table-tbody>tr>td]:!text-slate-300"
+                    dark:[&_.ant-table-thead>tr>th]:!bg-slate-900 
+                    dark:[&_.ant-table-thead>tr>th]:!text-slate-200 
+                    dark:[&_.ant-table-tbody>tr>td]:!bg-slate-800 
+                    dark:[&_.ant-table-tbody>tr>td]:!text-slate-300"
                   style={{
                     borderRadius: "16px",
                     overflow: "hidden",
                   }}
-                  rowClassName={() => "no-hover"}
+                  scroll={{ x: "max-content" }}
                   locale={{
                     emptyText: (
                       <div
@@ -762,19 +764,19 @@ export default function GetLawyers() {
                           level={4}
                           className="!text-slate-500 dark:!text-slate-300"
                         >
-                          No lawyers found
+                          No clients found
                         </Title>
                         <Text className="dark:text-slate-400">
-                          Start by adding your first lawyer to the firm
+                          Start by adding your first client
                         </Text>
                         <br />
                         <Button
                           type="primary"
-                          icon={<UserAddOutlined />}
-                          onClick={() => router.push("/add-lawyer")}
+                          icon={<PlusOutlined />}
+                          onClick={() => console.log("Add first client")}
                           style={{ marginTop: "16px" }}
                         >
-                          Add First Lawyer
+                          Add First Client
                         </Button>
                       </div>
                     ),
@@ -784,11 +786,11 @@ export default function GetLawyers() {
 
               {/* Confirmation Modal */}
               <ConfirmationModal
-                visible={modalVisible}
-                entityName={selectedLawyer?.name || ""}
+                visible={isModalOpen}
+                entityName={selectedClient?.fullName || ""}
                 action="delete"
                 onConfirm={handleConfirmDelete}
-                onCancel={() => setModalVisible(false)}
+                onCancel={() => setIsModalOpen(false)}
               />
             </div>
           </div>

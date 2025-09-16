@@ -424,7 +424,7 @@ export default function GetClients() {
                 size="small"
                 icon={<EyeOutlined />}
                 onClick={() => router.push(`/get-client-detail/${record.id}`)}
-                className="hover:!bg-blue-50 hover:!text-blue-600 dark:hover:!bg-blue-900/30 dark:hover:!text-blue-400"
+                className="hover:!bg-blue-50 dark:text-gray-200 hover:!text-blue-600 dark:hover:!bg-blue-900/30 dark:hover:!text-blue-400"
                 style={{ borderRadius: "6px" }}
               />
             </Tooltip>
@@ -436,7 +436,7 @@ export default function GetClients() {
                 size="small"
                 icon={<EditOutlined />}
                 onClick={() => router.push(`/edit-client/${record.id}`)}
-                className="hover:!bg-amber-50 hover:!text-amber-600 dark:hover:!bg-amber-900/30 dark:hover:!text-amber-400"
+                className="hover:!bg-amber-50 dark:text-gray-200 hover:!text-amber-600 dark:hover:!bg-amber-900/30 dark:hover:!text-amber-400"
                 style={{ borderRadius: "6px" }}
               />
             </Tooltip>
