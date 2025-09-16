@@ -53,6 +53,7 @@ import { setCases } from "../store/caseSlice";
 const { Title, Text } = Typography;
 import { usePermission } from "../hooks/usePermission";
 import { PermissionWrapper } from "./PermissionWrapper";
+import DashboardLayout from "./DashboardLayout";
 interface Props {
   firmId: number;
   role?: string;
@@ -144,7 +145,85 @@ export default function FirmStats({ firmId, role }: Props) {
       </div>
     );
   }
+  // Add this new condition after the loading check and before the existing error check
+  if (role === "Firm Admin" && !firmId) {
+    return (
+      <DashboardLayout>
+        <div className="min-h-screen transition-colors duration-300">
+          <div className="max-w-full">
+            <Card
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm transition-colors duration-300"
+              bodyStyle={{ padding: "48px 32px" }}
+            >
+              <div className="text-center">
+                <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 flex items-center justify-center border-4 border-blue-200 dark:border-blue-700">
+                  <BankOutlined className="text-5xl text-blue-600 dark:text-blue-400" />
+                </div>
 
+                <Title
+                  level={2}
+                  className="!text-slate-900 dark:!text-white !mb-4 !font-semibold"
+                >
+                  No Law Firm Created Yet
+                </Title>
+
+                <Text className="text-slate-600 dark:text-slate-300 text-lg mb-8 block max-w-md mx-auto">
+                  {`You haven't created your law firm yet. Create your firm first to access the dashboard and manage your legal practice.`}
+                </Text>
+
+                <Space
+                  direction="vertical"
+                  size="large"
+                  className="w-full max-w-sm mx-auto"
+                >
+                  <Button
+                    type="primary"
+                    size="large"
+                    icon={<PlusOutlined />}
+                    onClick={() => router.push("/add-firm")}
+                    className="w-full h-12 rounded-xl font-semibold text-base"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
+                      border: "none",
+                      boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
+                    }}
+                  >
+                    Create Your Law Firm
+                  </Button>
+
+                  <Button
+                    size="large"
+                    icon={<UserOutlined />}
+                    onClick={() => router.push("/profile")}
+                    className="w-full h-12 rounded-xl font-medium text-base border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300"
+                  >
+                    Setup Profile First
+                  </Button>
+                </Space>
+
+                <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                  <Space
+                    direction="vertical"
+                    size="small"
+                    className="text-center"
+                  >
+                    <Text className="text-blue-800 dark:text-blue-300 font-medium">
+                      Need help getting started?
+                    </Text>
+                    <Text className="text-blue-700 dark:text-blue-400 text-sm">
+                      Creating a firm will give you access to client management,
+                      case tracking, and team collaboration tools.
+                    </Text>
+                  </Space>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
   if (error)
     return (
       <Card

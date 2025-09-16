@@ -103,10 +103,25 @@ export default function GetClients() {
     } catch (error) {
       console.error("Error fetching clients:", error);
       toast.error("Failed to fetch clients data");
+      // Set empty array on error to prevent infinite loading
+      setClientsData([]);
     } finally {
+      // Ensure loading is always set to false
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (firmId) {
+      // Clear previous data before fetching new data
+      setClientsData([]);
+      setFilteredClients([]);
+      fetchClients(firmId);
+    } else {
+      // If no firmId, stop loading
+      setLoading(false);
+    }
+  }, [firmId]);
 
   useEffect(() => {
     if (firmId) {
@@ -165,8 +180,8 @@ export default function GetClients() {
           prev.filter((c) => c.id !== selectedClient.id)
         );
         toast.success("Client deleted successfully");
-         setModalVisible(false);
-         setSelectedClient(null);
+        setModalVisible(false);
+        setSelectedClient(null);
       } else {
         throw new Error(response || "Delete failed");
       }

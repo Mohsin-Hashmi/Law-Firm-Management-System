@@ -38,10 +38,12 @@ module.exports = (sequelize, DataTypes) => {
       subscription_plan: {
         type: DataTypes.ENUM("Free", "Basic", "Premium"),
         allowNull: false,
+         defaultValue: "Free",
       },
       status: {
         type: DataTypes.ENUM("active", "suspended", "terminated"),
         allowNull: true,
+        defaultValue: "Active",
       },
 
       max_users: { type: DataTypes.INTEGER, allowNull: false },

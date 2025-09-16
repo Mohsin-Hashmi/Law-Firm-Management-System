@@ -10,12 +10,9 @@ export const loginUser = async (data: LoginPayload) => {
   return response;
 };
 
-export const signupUser = async (data: SignupPayload, role?: string) => {
+export const signupUser = async (data: SignupPayload) => {
   // Determine path
-  let url = `${BASE_URL}/auth/signup`;
-  if (role === "Firm Admin") url = `${BASE_URL}/auth/signup/firm-admin`;
-  if (role === "Lawyer") url = `${BASE_URL}/auth/signup/lawyer`;
-
+  const url = `${BASE_URL}/auth/signup`;
   return await axios.post(url, data, { withCredentials: true });
 };
 

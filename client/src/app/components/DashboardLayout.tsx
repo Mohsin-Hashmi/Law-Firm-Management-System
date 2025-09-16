@@ -28,6 +28,8 @@ import {
   BankOutlined,
   FileTextOutlined,
   DashboardOutlined,
+  CreditCardOutlined,
+  DollarOutlined
 } from "@ant-design/icons";
 import { switchFirmAPI } from "../service/adminAPI";
 import { getLawyers } from "../service/adminAPI";
@@ -105,17 +107,45 @@ export default function DashboardLayout({
       },
       {
         label: "Firms",
-        href: "/super-admin/firms",
+        href: "/super-admin/get-firms",
         icon: <BankOutlined />,
-        category: "Firm Management",
+        category: "Main",
         requiredPermissions: ["create_firm", "update_firm", "delete_firm"],
       },
       {
-        label: "Roles",
-        href: "/super-admin/roles",
-        icon: <SettingOutlined />,
-        category: "Role Management",
-        requiredPermissions: ["create_role"],
+        label: "Lawyers",
+        href: "",
+        icon: <UserOutlined />,
+        category: "Main",
+        requiredPermissions: ["view_lawyers"],
+      },
+      {
+        label: "Clients",
+        href: "",
+        icon: <UserOutlined />,
+        category: "Main",
+        requiredPermissions: ["view_clients"],
+      },
+      {
+        label: "Cases",
+        href: "",
+        icon: <FileTextOutlined />,
+        category: "Main",
+        requiredPermissions: ["view_cases"],
+      },
+      {
+        label: "Subscriptions and Plans",
+        href: "",
+        icon: <DollarOutlined />,
+        category: "Main",
+        
+      },
+      {
+        label: "Billing and Invoices",
+        href: "",
+        icon: <CreditCardOutlined />,
+        category: "Main",
+        
       },
     ],
 
@@ -159,7 +189,7 @@ export default function DashboardLayout({
       {
         label: "Add Lawyer",
         href: "/add-lawyer",
-        icon: <PlusOutlined />, 
+        icon: <PlusOutlined />,
         category: "Team Management",
         requiredPermissions: ["create_lawyer"],
       },
@@ -299,8 +329,6 @@ export default function DashboardLayout({
           </div>
         </div>
       )}
-
-      
 
       <ResetPasswordModal
         visible={showReset}

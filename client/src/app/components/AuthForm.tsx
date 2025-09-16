@@ -118,10 +118,7 @@ export default function AuthForm({ type }: AuthFormProps) {
           return;
         }
         const payload = { name, email, password, confirmPassword };
-        let role = "Firm Admin";
-        if (window.location.pathname.includes("lawyer")) role = "Lawyer";
-
-        const response = await signupUser(payload, role);
+        const response = await signupUser(payload);
         dispatch(addUser(response.data.safeUser));
         toast.success("Signup Successfully");
 
@@ -178,9 +175,7 @@ export default function AuthForm({ type }: AuthFormProps) {
         // Redirect based on firm presence or to the intended page
         if (currentFirmId) {
           // redirect role-wise
-          if (user.role === "Super Admin") {
-            router.push("/super-admin/dashboard");
-          } else if (user.role === "Firm Admin") {
+           if (user.role === "Firm Admin") {
             router.push("/dashboard"); // firm admin's dashboard
           } else if (user.role === "Lawyer") {
             router.push("/dashboard");
@@ -188,10 +183,13 @@ export default function AuthForm({ type }: AuthFormProps) {
             router.push("/dashboard"); // fallback for other roles
           }
         } else {
-          // only Super Admin and Firm Admin can add firms
-          if (user.role === "Super Admin" || user.role === "Firm Admin") {
+          // Firm Admin can add firms
+          if (user.role === "Firm Admin") {
             router.push("/add-firm");
-          } else {
+          }else if (user.role === "Super Admin" ){
+            router.push("/super-admin/dashboard")
+          }
+           else {
             router.push("/dashboard"); // fallback
           }
         }

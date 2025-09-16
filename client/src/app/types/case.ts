@@ -52,4 +52,10 @@ export interface CreateCaseFormValues {
   lawyerIds?: number[];   // ✅ only IDs, not full lawyer objects
 }
 
+export interface CaseMetadata {
+  totalCases: number;
+  openCases: number;
+  closedCases: number;
+}
+
 

@@ -34,6 +34,15 @@ const SignUp = async (req, res) => {
       });
     }
 
+    // ✅ Check if email already exists
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        error: "Email already exists. Please use a different email.",
+      });
+    }
+
     const HASHED_PASSWORD = await bcrypt.hash(password, 10);
 
     // By default assigning Firm Admin role

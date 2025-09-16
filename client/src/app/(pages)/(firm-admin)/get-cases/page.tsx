@@ -85,31 +85,46 @@ export default function GetCases() {
   }, [cases, searchText, statusFilter, caseTypeFilter]);
 
   /**Get All Cases API */
-  const fetchCases = async (firmId: number) => {
-    try {
-      setLoading(true);
-      let response: Case[] = [];
-      if (role === "Firm Admin") {
-        if (!firmId) {
-          toast.error("Firm ID missing");
-          return;
-        }
-        response = await getAllCasesOfFirm(firmId);
-      } else if (role === "Lawyer") {
-        response = await getAllCasesOfLawyer();
+const fetchCases = async (firmId: number) => {
+  try {
+    setLoading(true);
+    let response: Case[] = [];
+    if (role === "Firm Admin") {
+      if (!firmId) {
+        toast.error("Firm ID missing");
+        return;
       }
-
-      setCasesData(response);
-      dispatch(setCases(response));
-      toast.success("Fetch cases successfully");
-      console.log("Successfully fetched cases data:", response);
-    } catch (error) {
-      console.error("Error fetching cases:", error);
-      toast.error("Failed to fetch cases data");
-    } finally {
-      setLoading(false);
+      response = await getAllCasesOfFirm(firmId);
+    } else if (role === "Lawyer") {
+      response = await getAllCasesOfLawyer();
     }
-  };
+
+    setCasesData(response);
+    dispatch(setCases(response));
+    toast.success("Fetch cases successfully");
+    console.log("Successfully fetched cases data:", response);
+  } catch (error) {
+    console.error("Error fetching cases:", error);
+    toast.error("Failed to fetch cases data");
+    // Set empty array on error to prevent infinite loading
+    setCasesData([]);
+  } finally {
+    // Ensure loading is always set to false
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  if (firmId) {
+    // Clear previous data before fetching new data
+    setCasesData([]);
+    setFilteredCases([]);
+    fetchCases(firmId);
+  } else {
+    // If no firmId, stop loading
+    setLoading(false);
+  }
+}, [role, firmId]);
 
   useEffect(() => {
     if (firmId) {

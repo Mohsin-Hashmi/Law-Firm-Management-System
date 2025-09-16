@@ -26,6 +26,7 @@ export interface FirmStats {
   casesCount?: number;
   totalUsersCount: number;
   activeLawyersCount: number;
+  status: string;
   stats: {
     totalUsers: number;
     activeUsers: number;
@@ -46,4 +47,15 @@ export interface Lawyer {
   updatedAt: string;
   casesCount?: number;
   clientsCount?:number;
+}
+
+export interface SubscriptionPayload {
+  plan: string;       
+  duration: number;    
+  limits?: {
+    maxLawyers?: number;
+    maxClients?: number;
+    maxCases?: number;
+  };
+  status?: "Active" | "Cancelled" | "Expired";
 }
