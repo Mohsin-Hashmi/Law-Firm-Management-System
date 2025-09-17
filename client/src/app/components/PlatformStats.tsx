@@ -339,11 +339,6 @@ export default function PlatformStats() {
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
           <Spin size="large" />
-          <div className="mt-4">
-            <Text className="text-slate-600 dark:text-slate-300">
-              Loading platform statistics...
-            </Text>
-          </div>
         </div>
       </div>
     );

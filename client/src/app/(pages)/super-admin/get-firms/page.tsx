@@ -42,7 +42,7 @@ import DashboardLayout from "@/app/components/DashboardLayout";
 import { ThemeProvider } from "next-themes";
 import ConfirmationModal from "@/app/components/ConfirmationModal";
 import type { ColumnsType } from "antd/es/table";
-
+import { useRouter } from "next/navigation";
 const { Title, Text } = Typography;
 const { Option } = Select;
 
@@ -63,6 +63,7 @@ interface Firm {
 
 export default function GetFirms() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const [firms, setFirms] = useState<Firm[]>([]);
   const [filteredFirms, setFilteredFirms] = useState<Firm[]>([]);
   const [loading, setLoading] = useState(false);
@@ -348,7 +349,9 @@ export default function GetFirms() {
               type="text"
               size="small"
               icon={<EyeOutlined />}
-              onClick={() => console.log("View firm details:", record.id)}
+              onClick={() =>
+                router.push(`/super-admin/get-firm-detail/${record.id}`)
+              }
               className="hover:!bg-blue-50 dark:text-gray-200 hover:!text-blue-600 dark:hover:!bg-blue-900/30 dark:hover:!text-blue-400"
               style={{ borderRadius: "6px" }}
             />
@@ -396,7 +399,7 @@ export default function GetFirms() {
             <div className="max-w-full">
               {/* Header Section */}
               <Card
-                className="bg-[#E43636] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+                className="bg-green-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
                 bodyStyle={{ padding: "32px 20px" }}
               >
                 <Row align="middle" justify="space-between">
