@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "sequelize": "sequelize --config config/config.js",
-    "start": "node src/app.js",
-    "dev": "nodemon src/app.js"
-  },
+  "start": "node src/app.js",
+  "dev": "nodemon src/app.js",
+  "sequelize": "sequelize --config config/config.js",
+  "postinstall": "sequelize db:migrate"
+},
   "author": "Mohsin Hashmi",
   "license": "ISC",
   "description": "",
