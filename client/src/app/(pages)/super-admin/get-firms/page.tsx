@@ -45,7 +45,7 @@ import type { ColumnsType } from "antd/es/table";
 import { useRouter } from "next/navigation";
 const { Title, Text } = Typography;
 const { Option } = Select;
-
+import FirmStatusModal from "@/app/components/FirmStatusModal";
 interface Firm {
   id: number;
   name: string;
@@ -74,7 +74,7 @@ export default function GetFirms() {
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [planFilter, setPlanFilter] = useState<string>("all");
-
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   // Filter firms based on search and filters
   useEffect(() => {
     filterFirms();
@@ -141,8 +141,8 @@ export default function GetFirms() {
 
   // Handle update firms from API
   const handleUpdate = (firm: Firm) => {
-    console.log("Update clicked for:", firm);
-    // Add your update logic here or navigate to update page
+    setSelectedFirm(firm);
+    setIsStatusModalOpen(true);
   };
 
   // Handle opening delete modal
@@ -356,7 +356,7 @@ export default function GetFirms() {
               style={{ borderRadius: "6px" }}
             />
           </Tooltip>
-          <Tooltip title="Edit Firm">
+          <Tooltip title="Edit Firm Status">
             <Button
               type="text"
               size="small"
@@ -398,6 +398,25 @@ export default function GetFirms() {
           <div className="min-h-screen transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
             <div className="max-w-full">
               {/* Header Section */}
+              {selectedFirm && (
+                <FirmStatusModal
+                  open={isStatusModalOpen}
+                  onClose={() => setIsStatusModalOpen(false)}
+                  firmId={selectedFirm.id}
+                  currentStatus={selectedFirm.status.toLowerCase()} // normalize
+                  onStatusUpdated={(newStatus) => {
+                    setFirms((prev) =>
+                      prev.map((firm) =>
+                        firm.id === selectedFirm.id
+                          ? { ...firm, status: newStatus as Firm["status"] }
+                          : firm
+                      )
+                    );
+                    setIsStatusModalOpen(false);
+                  }}
+                />
+              )}
+
               <Card
                 className="bg-green-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
                 bodyStyle={{ padding: "32px 20px" }}
