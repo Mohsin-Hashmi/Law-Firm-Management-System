@@ -16,7 +16,7 @@ module.exports = {
     dialect: "mysql",
   },
   production: {
-    use_env_variable: process.env.DB_URL, // Railway injects this
+    use_env_variable: "DB_URL", // Railway injects this
     dialect: "mysql",
     dialectOptions: {
       ssl: {
