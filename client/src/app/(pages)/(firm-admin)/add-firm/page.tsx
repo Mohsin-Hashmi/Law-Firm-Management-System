@@ -198,7 +198,7 @@ export default function AddFirm() {
           <div className="max-w-full">
             {/* Header Section */}
             <Card
-              className="bg-blue-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+              className="bg-[#D92C54] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
               bodyStyle={{ padding: "32px" }}
             >
               <Row align="middle" justify="space-between">
@@ -276,7 +276,7 @@ export default function AddFirm() {
             >
               <div style={{ textAlign: "center" }}>
                 <Text
-                  className="text-[14px] text-[#64748b] dark:text-[#9ca3af] font-[500]"
+                  className="text-[14px] text-[#232323] dark:text-[#9ca3af] font-[500]"
                   style={{
                     marginBottom: "8px",
                     display: "block",
@@ -286,7 +286,7 @@ export default function AddFirm() {
                 </Text>
                 <Progress
                   percent={getFormProgress()}
-                  strokeColor="#1e40af"
+                  strokeColor="#D92C54"
                   trailColor="#f1f5f9"
                   strokeWidth={8}
                   showInfo={false}

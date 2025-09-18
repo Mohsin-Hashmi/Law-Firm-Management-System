@@ -185,16 +185,7 @@ export default function GetFirmDetail({ params }: { params: { id: number } }) {
                     >
                       Back
                     </Button>
-                    <Button
-                      type="primary"
-                      size="large"
-                      icon={<EditOutlined />}
-                      onClick={() => router.push(`/edit-firm/${firm.id}`)}
-                      className="rounded-xl font-semibold px-6 h-12 
-                     bg-white text-blue-900 shadow-md"
-                    >
-                      Edit Firm
-                    </Button>
+                   
                   </Space>
                 </Col>
               </Row>
@@ -930,23 +921,7 @@ export default function GetFirmDetail({ params }: { params: { id: number } }) {
               <Row justify="center">
                 <Col>
                   <Space size="large">
-                    <Button
-                      type="primary"
-                      size="large"
-                      icon={<EditOutlined />}
-                      onClick={() => router.push(`/edit-firm/${firmId}`)}
-                      style={{
-                        background: "#1e40af",
-                        borderColor: "#1e40af",
-                        borderRadius: "12px",
-                        fontWeight: "600",
-                        padding: "12px 32px",
-                        height: "48px",
-                        boxShadow: "0 4px 12px rgba(30, 64, 175, 0.3)",
-                      }}
-                    >
-                      Edit Firm Profile
-                    </Button>
+                   
 
                     <Button
                       size="large"

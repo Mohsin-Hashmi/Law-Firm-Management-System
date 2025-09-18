@@ -17,8 +17,10 @@ import {
 } from "@ant-design/icons";
 import { updateFirmStatus } from "@/app/service/superAdminAPI";
 import toast from "react-hot-toast";
+import { DownOutlined } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
+const { Option } = Select;
 
 interface Props {
   open: boolean;
@@ -26,6 +28,12 @@ interface Props {
   firmId: number;
   currentStatus: string;
   onStatusUpdated: (newStatus: string) => void;
+}
+
+interface CustomSelectProps {
+  isDarkMode: boolean;
+  children: React.ReactNode;
+  [key: string]: unknown;
 }
 
 const FirmStatusModal: React.FC<Props> = ({
@@ -37,6 +45,30 @@ const FirmStatusModal: React.FC<Props> = ({
 }) => {
   const [status, setStatus] = useState(currentStatus);
   const [loading, setLoading] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Check for dark mode
+  useEffect(() => {
+    const checkDarkMode = () => {
+      const htmlHasDark = document.documentElement.classList.contains("dark");
+      const bodyHasDark = document.body.classList.contains("dark");
+      setIsDarkMode(htmlHasDark || bodyHasDark);
+    };
+
+    checkDarkMode();
+
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (open) {
@@ -95,6 +127,57 @@ const FirmStatusModal: React.FC<Props> = ({
     }
   };
 
+  const getStatusDotColor = (statusValue: string) => {
+    switch (statusValue) {
+      case "active":
+        return "bg-green-500";
+      case "suspended":
+        return "bg-yellow-500";
+      case "terminated":
+        return "bg-red-500";
+      default:
+        return "bg-slate-500";
+    }
+  };
+
+  // Dynamic styles for Select dropdown based on theme
+  const getDropdownStyle = () => {
+    if (isDarkMode) {
+      return {
+        borderRadius: "8px",
+        backgroundColor: "rgb(30 41 59)", // slate-800
+        border: "1px solid rgb(71 85 105)", // slate-600
+      };
+    } else {
+      return {
+        borderRadius: "8px",
+        backgroundColor: "white",
+        border: "1px solid rgb(226 232 240)", // slate-200
+      };
+    }
+  };
+
+  // Custom Select component with proper theming
+  const CustomSelect = ({
+    children,
+    isDarkMode,
+    ...props
+  }: CustomSelectProps) => {
+    return (
+      <Select
+        {...props}
+        className={`w-full ${
+          isDarkMode ? "dark-mode-select" : "light-mode-select"
+        }`}
+        style={{ height: "40px" }}
+        dropdownStyle={getDropdownStyle()}
+        dropdownClassName={isDarkMode ? "dark-dropdown" : "light-dropdown"}
+      >
+        {children}
+      </Select>
+    );
+  };
+
   return (
     <Modal
       title={null}
@@ -110,6 +193,57 @@ const FirmStatusModal: React.FC<Props> = ({
       }}
     >
       <div className="">
+        {/* Custom CSS Styles */}
+        <style>
+          {`
+            /* Light mode select */
+            .light-mode-select .ant-select-selector {
+              background-color: white !important;
+              border-color: rgb(203 213 225) !important;
+              color: rgb(15 23 42) !important;
+            }
+            .light-mode-select .ant-select-selection-placeholder {
+              color: rgb(100 116 139) !important;
+            }
+            .light-mode-select .ant-select-selection-item {
+              color: rgb(15 23 42) !important;
+            }
+            .light-dropdown .ant-select-item {
+              color: #1e293b !important;
+              background-color: white !important;
+            }
+            .light-dropdown .ant-select-item:hover {
+              background-color: #f1f5f9 !important;
+            }
+            .light-dropdown .ant-select-item-option-selected {
+              background-color: #e2e8f0 !important;
+            }
+            
+            /* Dark mode select */
+            .dark-mode-select .ant-select-selector {
+              background-color: rgb(51 65 85) !important;
+              border-color: rgb(71 85 105) !important;
+              color: white !important;
+            }
+            .dark-mode-select .ant-select-selection-placeholder {
+              color: rgb(148 163 184) !important;
+            }
+            .dark-mode-select .ant-select-selection-item {
+              color: white !important;
+            }
+            .dark-dropdown .ant-select-item {
+              color: #e2e8f0 !important;
+              background-color: rgb(30 41 59) !important;
+            }
+            .dark-dropdown .ant-select-item:hover {
+              background-color: rgb(51 65 85) !important;
+            }
+            .dark-dropdown .ant-select-item-option-selected {
+              background-color: rgb(71 85 105) !important;
+            }
+          `}
+        </style>
+
         {/* Header */}
         <div className="mb-3">
           <Space size="middle" className="mb-1">
@@ -135,9 +269,12 @@ const FirmStatusModal: React.FC<Props> = ({
             Current Status
           </Text>
           <div className="p-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700">
-            <Text className={`font-medium capitalize ${getStatusColor(currentStatus)}`}>
-              {currentStatus}
-            </Text>
+            <div className="flex items-center space-x-2">
+              <div className={`w-2 h-2 rounded-full ${getStatusDotColor(currentStatus)}`}></div>
+              <Text className={`font-medium capitalize ${getStatusColor(currentStatus)}`}>
+                {currentStatus}
+              </Text>
+            </div>
             <Text className="text-slate-500 dark:text-slate-400 text-xs block mt-1">
               {getStatusDescription(currentStatus)}
             </Text>
@@ -149,41 +286,38 @@ const FirmStatusModal: React.FC<Props> = ({
           <Text className="text-slate-700 dark:text-slate-300 font-medium mb-2 block">
             New Status
           </Text>
-          <Select
-            style={{ width: "100%", height: "40px" }}
+          <CustomSelect
+            isDarkMode={isDarkMode}
             value={status}
-            onChange={(value) => setStatus(value)}
-            className="rounded-lg"
-            options={[
-              {
-                value: "active",
-                label: (
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                    <span>Active</span>
-                  </div>
-                ),
-              },
-              {
-                value: "suspended",
-                label: (
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
-                    <span>Suspended</span>
-                  </div>
-                ),
-              },
-              {
-                value: "terminated",
-                label: (
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                    <span>Terminated</span>
-                  </div>
-                ),
-              },
-            ]}
-          />
+            onChange={(value: string) => setStatus(value)}
+            placeholder="Select new status"
+            suffixIcon={<DownOutlined className="text-slate-300" />}
+          >
+            <Option value="active">
+              <div className="flex items-center space-x-2 py-1">
+                <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                <span className={isDarkMode ? "text-slate-200" : "text-slate-800"}>
+                  Active
+                </span>
+              </div>
+            </Option>
+            <Option value="suspended">
+              <div className="flex items-center space-x-2 py-1">
+                <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                <span className={isDarkMode ? "text-slate-200" : "text-slate-800"}>
+                  Suspended
+                </span>
+              </div>
+            </Option>
+            <Option value="terminated">
+              <div className="flex items-center space-x-2 py-1">
+                <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                <span className={isDarkMode ? "text-slate-200" : "text-slate-800"}>
+                  Terminated
+                </span>
+              </div>
+            </Option>
+          </CustomSelect>
           
           {/* Status Description */}
           {status && (

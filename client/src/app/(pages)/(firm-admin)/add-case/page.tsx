@@ -330,7 +330,7 @@ export default function AddCase() {
             >
               <div style={{ textAlign: "center" }}>
                 <Text
-                  className="text-slate-600 dark:text-slate-300"
+                  className="text-[#232323] dark:text-slate-300 italic"
                   style={{
                     marginBottom: "12px",
                     display: "block",
@@ -338,11 +338,12 @@ export default function AddCase() {
                     fontWeight: "500",
                   }}
                 >
-                  Case Creation Progress
+                  {`"Case Creation Progress"`}
+                  
                 </Text>
                 <Progress
                   percent={getFormProgress()}
-                  strokeColor="#2563eb"
+                  strokeColor="#433878"
                   trailColor="#f1f5f9"
                   strokeWidth={8}
                   showInfo={false}

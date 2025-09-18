@@ -30,7 +30,7 @@ import {
   DashboardOutlined,
   CreditCardOutlined,
   DollarOutlined,
-  EyeOutlined
+  EyeOutlined,
 } from "@ant-design/icons";
 import { switchFirmAPI } from "../service/adminAPI";
 import { getLawyers } from "../service/adminAPI";
@@ -139,14 +139,12 @@ export default function DashboardLayout({
         href: "",
         icon: <DollarOutlined />,
         category: "Main",
-        
       },
       {
         label: "Billing and Invoices",
         href: "",
         icon: <CreditCardOutlined />,
         category: "Main",
-        
       },
     ],
 
@@ -165,7 +163,7 @@ export default function DashboardLayout({
         requiredPermissions: ["assign_role"],
         onClick: () => handleOpenAssignRoleModal(),
       },
-       
+
       {
         label: "Add New Role",
         icon: <PlusOutlined />,
@@ -178,7 +176,7 @@ export default function DashboardLayout({
         icon: <EyeOutlined />,
         category: "Role Management",
         requiredPermissions: ["view_role"],
-        href: ""
+        href: "/get-user-roles",
       },
       {
         label: "Add New Business",
@@ -592,6 +590,12 @@ export default function DashboardLayout({
                       router.push("/dashboard");
                     }
                     if (pathname.startsWith("/add-case")) {
+                      router.push("/dashboard");
+                    }
+                    if (pathname.startsWith("/get-user-roles")) {
+                      router.push("/dashboard");
+                    }
+                    if (pathname.startsWith("/add-firm")) {
                       router.push("/dashboard");
                     }
 

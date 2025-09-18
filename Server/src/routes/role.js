@@ -5,7 +5,9 @@ const {
   getPermissions,
   assignPermissionToRole,
   createUserWithRole,
-  getRoles
+  getRoles,
+  getUsersByFirm,
+  deleteUserByFirm
 } = require("../controllers/role.controller");
 const {
   userAuth,
@@ -37,11 +39,16 @@ roleRouter.post(
   createUserWithRole
 );
 
+roleRouter.get("/get-roles", userAuth, firmAdminAuth, getRoles);
+
 roleRouter.get(
-  "/get-roles",
-  userAuth, 
+  "/get-users-with-role-and-permissions",
+  userAuth,
   firmAdminAuth,
-  getRoles
+  checkPermission(permissions.VIEW_ROLE),
+  getUsersByFirm
 );
+
+roleRouter.delete("/delete-user/:id", userAuth, firmAdminAuth, deleteUserByFirm)
 
 module.exports = roleRouter;

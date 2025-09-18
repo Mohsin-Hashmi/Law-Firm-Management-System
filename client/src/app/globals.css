@@ -66,8 +66,10 @@ body {
 
 /* Dark mode overrides */
 .dark .confirmation-modal .ant-modal-content,
-.dark .role-management-modal .ant-modal-content {
-  background-color: #0f172a !important;
+.dark .role-management-modal .ant-modal-content, 
+.dark .assign-role-modal .ant-modal-content,
+.dark .firm-status-modal .ant-modal-content {
+  background-color: #1E293B !important;
   border: none !important;
   opacity: 1;
 }

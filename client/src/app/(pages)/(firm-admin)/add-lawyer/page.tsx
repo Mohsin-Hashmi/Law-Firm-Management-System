@@ -236,17 +236,18 @@ export default function AddLawyer() {
             >
               <div style={{ textAlign: "center" }}>
                 <Text
-                  className="text-[14px] text-[#64748b] dark:text-[#9ca3af] font-[500]"
+                  className="text-[14px] text-[#232323] dark:text-[#9ca3af] font-[500] italic"
                   style={{
                     marginBottom: "8px",
                     display: "block",
                   }}
                 >
-                  Form Progress
+                  {`"Lawyer Registration Progress"`}
+                  
                 </Text>
                 <Progress
                   percent={getFormProgress()}
-                  strokeColor="#1e40af"
+                  strokeColor="#E43636"
                   trailColor="#f1f5f9"
                   strokeWidth={8}
                   showInfo={false}

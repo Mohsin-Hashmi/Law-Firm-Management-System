@@ -283,7 +283,7 @@ export default function AddClient() {
             >
               <div style={{ textAlign: "center" }}>
                 <Text
-                  className="text-slate-600 dark:text-slate-300"
+                  className="text-[#232323] dark:text-slate-300 italic"
                   style={{
                     marginBottom: "12px",
                     display: "block",
@@ -291,7 +291,7 @@ export default function AddClient() {
                     fontWeight: "500",
                   }}
                 >
-                  Registration Progress
+                  {`"Client Registration Progress"`}
                 </Text>
                 <Progress
                   percent={getFormProgress()}

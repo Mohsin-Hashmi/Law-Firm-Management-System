@@ -160,7 +160,7 @@ const RoleModal: React.FC<RoleModalProps> = ({
               <Title level={4} className="!text-slate-900 dark:!text-white !mb-1">
                 Create New Role
               </Title>
-              <Text className="text-slate-500 dark:text-slate-400 text-sm">
+              <Text className="text-slate-500 dark:text-slate-300 text-sm">
                 Define role name and permissions
               </Text>
             </div>
@@ -182,15 +182,15 @@ const RoleModal: React.FC<RoleModalProps> = ({
           <div>
             {/* Role Name Input */}
             <div className="mb-3">
-              <Text className="text-slate-700 dark:text-slate-300 font-medium mb-1 block">
+              <Text className="text-slate-700 dark:!text-slate-300 font-medium mb-2 block">
                 Role Name
               </Text>
               <Input
                 placeholder="Enter role name"
                 value={roleName}
                 onChange={(e) => setRoleName(e.target.value)}
-                className="h-10 rounded-lg"
-                prefix={<UserOutlined className="text-slate-400" />}
+                className=" rounded-lg p-3 dark:bg-slate-700 dark:text-white"
+                prefix={<UserOutlined className="text-slate-400 dark:text-slate-300" />}
               />
              
             </div>
@@ -217,7 +217,7 @@ const RoleModal: React.FC<RoleModalProps> = ({
                         <Text className="text-slate-900 dark:text-white font-medium">
                           {formatPermissionName(permission.name)}
                         </Text>
-                        <Text className="text-slate-500 dark:text-slate-400 text-xs block">
+                        <Text className="text-slate-500 dark:text-slate-300 text-xs block">
                           {getPermissionDescription(permission.name)}
                         </Text>
                       </div>

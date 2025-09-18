@@ -516,6 +516,35 @@ export const fetchRoles = async () => {
   }
 };
 
+export const fetchUsersWithRolesAndPermissions = async () => {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/api/roles/get-users-with-role-and-permissions`,
+      {
+        withCredentials: true, 
+      }
+    );
+    return response.data; 
+  } catch (error) {
+    console.error("Error Fetching Users with Roles and Permissions:", error);
+    return { success: false, firm: null, users: [] };
+  }
+};
+
+export const deleteUserById = async (id: number) => {
+  try {
+    const response = await axios.delete(
+      `${BASE_URL}/api/roles/delete-user/${id}`,
+      { withCredentials: true }
+    );
+
+    return response.data; 
+  } catch (error) {
+    console.error("Error deleting user:", error);
+  }
+};
+
+
 export const lawyerStatsData = async () => {
   try {
     const response = await axios.get(
