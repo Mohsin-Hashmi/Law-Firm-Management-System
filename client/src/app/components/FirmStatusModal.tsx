@@ -16,6 +16,7 @@ import {
   CloseOutlined,
 } from "@ant-design/icons";
 import { updateFirmStatus } from "@/app/service/superAdminAPI";
+import toast from "react-hot-toast";
 
 const { Title, Text } = Typography;
 
@@ -56,8 +57,8 @@ const FirmStatusModal: React.FC<Props> = ({
       message.success(res.message || "Status updated successfully");
       onStatusUpdated(status);
       onClose();
-    } catch (error: any) {
-      message.error(error.response?.data?.message || "Failed to update status");
+    } catch (error) {
+      toast.error("Failed to update status");
     } finally {
       setLoading(false);
     }

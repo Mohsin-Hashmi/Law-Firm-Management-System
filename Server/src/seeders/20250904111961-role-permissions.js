@@ -45,7 +45,8 @@ module.exports = {
         "delete_case_document",
         "view_stats",
         "assign_role",
-        "create_role"
+        "create_role",
+        "view_role",
       ],
       3: [
         "read_client",

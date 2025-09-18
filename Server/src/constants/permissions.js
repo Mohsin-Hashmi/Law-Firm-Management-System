@@ -21,7 +21,8 @@ module.exports = {
 
   // Roles
   CREATE_ROLE: "create_role",
-   ASSIGN_ROLE: "assign_role",
+  ASSIGN_ROLE: "assign_role",
+  VIEW_ROLE: "view_role",
 
   // Cases (CRUD + Law Firm specific actions)
   CREATE_CASE: "create_case",

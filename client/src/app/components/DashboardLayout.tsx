@@ -29,7 +29,8 @@ import {
   FileTextOutlined,
   DashboardOutlined,
   CreditCardOutlined,
-  DollarOutlined
+  DollarOutlined,
+  EyeOutlined
 } from "@ant-design/icons";
 import { switchFirmAPI } from "../service/adminAPI";
 import { getLawyers } from "../service/adminAPI";
@@ -164,12 +165,20 @@ export default function DashboardLayout({
         requiredPermissions: ["assign_role"],
         onClick: () => handleOpenAssignRoleModal(),
       },
+       
       {
         label: "Add New Role",
         icon: <PlusOutlined />,
         category: "Role Management",
         requiredPermissions: ["create_role"],
         onClick: () => handleOpenRoleModal(),
+      },
+      {
+        label: "View All Users",
+        icon: <EyeOutlined />,
+        category: "Role Management",
+        requiredPermissions: ["view_role"],
+        href: ""
       },
       {
         label: "Add New Business",
