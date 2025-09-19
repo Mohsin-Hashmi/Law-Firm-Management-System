@@ -51,7 +51,7 @@ import DashboardLayout from "@/app/components/DashboardLayout";
 import { ThemeProvider } from "next-themes";
 import type { ColumnsType } from "antd/es/table";
 import ConfirmationModal from "@/app/components/ConfirmationModal";
-
+import { useRouter } from "next/navigation";
 const { Title, Text } = Typography;
 const { Option } = Select;
 
@@ -71,6 +71,7 @@ interface User {
   email: string;
   role: Role;
   permissions: string[];
+  status: "active" | "inactive";
 }
 
 interface ApiResponse {
@@ -80,6 +81,7 @@ interface ApiResponse {
 }
 
 export default function GetUserRoles() {
+  const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [firm, setFirm] = useState<Firm | null>(null);
@@ -172,9 +174,8 @@ export default function GetUserRoles() {
   }, []);
 
   // Handle update user
-  const handleUpdate = (user: User) => {
-    console.log("Update clicked for:", user);
-    // Add your update logic here or navigate to update page
+  const handleUpdate = (id: number) => {
+    router.push(`/edit-user/${id}`);
   };
 
   const handleOpenDeleteModal = (user: User) => {
@@ -395,14 +396,24 @@ export default function GetUserRoles() {
       title: "Status",
       key: "status",
       align: "center",
-      width: "15%", // Equal width
-      render: (_: unknown, record: User) => (
-        <div style={{ textAlign: "center" }}>
-          <Tag className="px-3 py-1 rounded-full text-xs font-medium border-0 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-            Active
-          </Tag>
-        </div>
-      ),
+      width: "15%",
+      render: (_: unknown, record: User) => {
+        const isActive = record.status?.toLowerCase() === "active";
+
+        return (
+          <div style={{ textAlign: "center" }}>
+            <Tag
+              className={`px-3 py-1 rounded-full text-xs font-medium border-0 ${
+                isActive
+                  ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                  : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+              }`}
+            >
+              {isActive ? "Active" : "Inactive"}
+            </Tag>
+          </div>
+        );
+      },
     },
     {
       title: "Actions",
@@ -416,7 +427,7 @@ export default function GetUserRoles() {
               type="text"
               size="small"
               icon={<EditOutlined />}
-              onClick={() => handleUpdate(record)}
+              onClick={() => handleUpdate(record.id)}
               className="hover:!bg-amber-50 dark:text-gray-200 hover:!text-amber-600 dark:hover:!bg-amber-900/30 dark:hover:!text-amber-400"
               style={{ borderRadius: "6px" }}
             />
@@ -434,7 +445,7 @@ export default function GetUserRoles() {
               className="hover:!bg-red-50 dark:text-gray-200 hover:!text-red-600 dark:hover:!bg-red-900/30 dark:hover:!text-red-400"
               style={{ borderRadius: "6px" }}
             />
-            <ConfirmationModal  
+            <ConfirmationModal
               visible={isDeleteModalOpen}
               entityName={userToDelete?.name || ""}
               action="delete"
@@ -462,7 +473,7 @@ export default function GetUserRoles() {
             <div className="max-w-full">
               {/* Header Section */}
               <Card
-                className="bg-[#232323] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+                className="bg-[#3A3A3A] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
                 bodyStyle={{ padding: "32px 20px" }}
               >
                 <Row align="middle" justify="space-between">

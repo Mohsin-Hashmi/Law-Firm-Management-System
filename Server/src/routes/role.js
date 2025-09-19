@@ -7,7 +7,9 @@ const {
   createUserWithRole,
   getRoles,
   getUsersByFirm,
-  deleteUserByFirm
+  deleteUserByFirm,
+  updateUserByFirm,
+  getUserById,
 } = require("../controllers/role.controller");
 const {
   userAuth,
@@ -49,6 +51,12 @@ roleRouter.get(
   getUsersByFirm
 );
 
-roleRouter.delete("/delete-user/:id", userAuth, firmAdminAuth, deleteUserByFirm)
-
+roleRouter.delete(
+  "/delete-user/:id",
+  userAuth,
+  firmAdminAuth,
+  deleteUserByFirm
+);
+roleRouter.put("/update-user/:id", userAuth, firmAdminAuth, updateUserByFirm);
+roleRouter.get("/get-user/:id", userAuth, firmAdminAuth, getUserById);
 module.exports = roleRouter;

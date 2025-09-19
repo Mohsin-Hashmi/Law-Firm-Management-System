@@ -6,6 +6,7 @@ import { Case } from "../types/case";
 import { CreateRolePayload } from "../types/role";
 import { AssignRolePayload } from "../types/role";
 import { ClientStats } from "../types/client";
+import { UpdateUserPayload, UpdateUserResponse, GetUserByIdResponse } from "../types/user";
 /**Create firm API call */
 export const createFirm = async (data: FirmPayload, role?: string) => {
   // Decide API path based on role
@@ -541,6 +542,43 @@ export const deleteUserById = async (id: number) => {
     return response.data; 
   } catch (error) {
     console.error("Error deleting user:", error);
+  }
+};
+
+export const fetchUserById = async (
+  id: number
+): Promise<GetUserByIdResponse> => {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/api/roles/get-user/${id}`,
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user by ID:", error);
+    return { success: false, user: null };
+  }
+};
+
+export const updateUser = async (
+  id: number,
+  updateData: UpdateUserPayload
+): Promise<UpdateUserResponse> => {
+  try {
+    const response = await axios.put<UpdateUserResponse>(
+      `${BASE_URL}/api/roles/update-user/${id}`,
+      updateData,
+      {
+        withCredentials: true,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating user:", error);
+    return {
+      success: false,
+      message: "Failed to update user",
+    };
   }
 };
 
