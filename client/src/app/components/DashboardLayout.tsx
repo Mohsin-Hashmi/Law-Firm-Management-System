@@ -12,6 +12,7 @@ import { switchFirm } from "../store/userSlice";
 import { usePathname } from "next/navigation";
 import { usePermission } from "../hooks/usePermission";
 import AssignRoleModal from "./AssignRoleModal";
+import { NavLinks } from "./sidebar/NavLinks";
 import {
   HomeOutlined,
   InfoCircleOutlined,
@@ -88,227 +89,15 @@ export default function DashboardLayout({
 
   // Custom loading icon for the spinner
   const antIcon = <LoadingOutlined style={{ fontSize: 16 }} spin />;
-  type NavLink = {
-    label: string;
-    href?: string; // optional because some items are buttons
-    icon: React.ReactNode;
-    category?: string;
-    onClick?: () => void; // optional click handler
-    requiredPermissions?: string[];
-  };
 
-  const navLinksMap: Record<string, NavLink[]> = {
-    "Super Admin": [
-      {
-        label: "Dashboard",
-        href: "/super-admin/dashboard",
-        icon: <DashboardOutlined />,
-        category: "Main",
-        requiredPermissions: ["view_stats"],
-      },
-      {
-        label: "Firms",
-        href: "/super-admin/get-firms",
-        icon: <BankOutlined />,
-        category: "Main",
-        requiredPermissions: ["create_firm", "update_firm", "delete_firm"],
-      },
-      {
-        label: "Lawyers",
-        href: "/super-admin/get-lawyers",
-        icon: <UserOutlined />,
-        category: "Main",
-        requiredPermissions: ["view_lawyers"],
-      },
-      {
-        label: "Clients",
-        href: "/super-admin/get-clients",
-        icon: <UserOutlined />,
-        category: "Main",
-        requiredPermissions: ["view_clients"],
-      },
-      {
-        label: "Cases",
-        href: "/super-admin/get-cases",
-        icon: <FileTextOutlined />,
-        category: "Main",
-        requiredPermissions: ["view_cases"],
-      },
-      {
-        label: "Subscriptions and Plans",
-        href: "",
-        icon: <DollarOutlined />,
-        category: "Main",
-      },
-      {
-        label: "Billing and Invoices",
-        href: "",
-        icon: <CreditCardOutlined />,
-        category: "Main",
-      },
-    ],
-
-    "Firm Admin": [
-      {
-        label: "Dashboard",
-        href: "/dashboard",
-        icon: <DashboardOutlined />,
-        category: "Main",
-        requiredPermissions: ["view_stats"],
-      },
-      {
-        label: "Assign Role",
-        icon: <UserOutlined />,
-        category: "Role Management",
-        requiredPermissions: ["assign_role"],
-        onClick: () => handleOpenAssignRoleModal(),
-      },
-
-      {
-        label: "Add New Role",
-        icon: <PlusOutlined />,
-        category: "Role Management",
-        requiredPermissions: ["create_role"],
-        onClick: () => handleOpenRoleModal(),
-      },
-      {
-        label: "View All Users",
-        icon: <EyeOutlined />,
-        category: "Role Management",
-        requiredPermissions: ["view_role"],
-        href: "/get-user-roles",
-      },
-      {
-        label: "Add New Business",
-        href: "/add-firm",
-        icon: <BankOutlined />,
-        category: "Main",
-        requiredPermissions: ["create_firm"],
-      },
-
-      {
-        label: "Lawyers",
-        href: "/get-lawyers",
-        icon: <UserOutlined />,
-        category: "Team Management",
-        requiredPermissions: ["read_lawyer"],
-      },
-      {
-        label: "Add Lawyer",
-        href: "/add-lawyer",
-        icon: <PlusOutlined />,
-        category: "Team Management",
-        requiredPermissions: ["create_lawyer"],
-      },
-      {
-        label: "Clients",
-        href: "/get-clients",
-        icon: <TeamOutlined />,
-        category: "Client Management",
-        requiredPermissions: ["read_client"],
-      },
-      {
-        label: "Add Client",
-        href: "/create-client",
-        icon: <PlusOutlined />,
-        category: "Client Management",
-        requiredPermissions: ["create_client"],
-      },
-      {
-        label: "Cases",
-        href: "/get-cases",
-        icon: <FileTextOutlined />,
-        category: "Case Management",
-        requiredPermissions: ["read_case"],
-      },
-      {
-        label: "Add Case",
-        href: "/add-case",
-        icon: <PlusOutlined />,
-        category: "Case Management",
-        requiredPermissions: ["create_case"],
-      },
-    ],
-
-    Lawyer: [
-      {
-        label: "Dashboard",
-        href: "/dashboard",
-        icon: <DashboardOutlined />,
-        category: "Main",
-        requiredPermissions: ["view_stats"], // ✅ only if you give lawyers stats access
-      },
-      {
-        label: "Clients",
-        href: "/get-clients",
-        icon: <TeamOutlined />,
-        category: "Client Management",
-        requiredPermissions: ["read_client"],
-      },
-      {
-        label: "Add Client",
-        href: "/create-client",
-        icon: <PlusOutlined />,
-        category: "Client Management",
-        requiredPermissions: ["create_client"],
-      },
-      {
-        label: "Cases",
-        href: "/get-cases",
-        icon: <FileTextOutlined />,
-        category: "Case Management",
-        requiredPermissions: ["read_case"],
-      },
-      {
-        label: "Add Case",
-        href: "/add-case",
-        icon: <PlusOutlined />,
-        category: "Case Management",
-        requiredPermissions: ["create_case"],
-      },
-    ],
-
-    Client: [
-      {
-        label: "Dashboard",
-        href: "/dashboard",
-        icon: <DashboardOutlined />,
-        category: "Main",
-        requiredPermissions: ["view_stats"],
-      },
-      {
-        label: "View Case Documents",
-        href: "/",
-        icon: <FileTextOutlined />,
-        category: "Document Management",
-        requiredPermissions: ["read_case"],
-      },
-      {
-        label: "Upload Case Documents",
-        href: "/",
-        icon: <PlusOutlined />,
-        category: "Document Management",
-        requiredPermissions: ["upload_case_document"],
-      },
-      {
-        label: "View Case Status",
-        href: "/",
-        icon: <FileTextOutlined />,
-        category: "Case Status",
-        requiredPermissions: ["view_case_status"],
-      },
-    ],
-  };
-
-  const groupedNavLinks =
-    navLinksMap[role || "Lawyer"]?.reduce((acc, link) => {
-      const category = link.category || "Other";
-      if (!acc[category]) {
-        acc[category] = [];
-      }
-      acc[category].push(link);
-      return acc;
-    }, {} as Record<string, (typeof navLinksMap)[string]>) || {};
+  // const groupedNavLinks = navLinksMap[role || "Lawyer"]?.reduce((acc, link) => {
+  //     const category = link.category || "Other";
+  //     if (!acc[category]) {
+  //       acc[category] = [];
+  //     }
+  //     acc[category].push(link);
+  //     return acc;
+  //   }, {} as Record<string, (typeof navLinksMap)[string]>) || {};
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -354,7 +143,7 @@ export default function DashboardLayout({
         } bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 flex flex-col shadow-xl dark:shadow-2xl transition-all duration-300 ease-in-out`}
       >
         {/* Logo Section */}
-        <div className="h-20 flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700">
+        <div className="h-25 flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700">
           <div className="flex items-center flex-1">
             {!collapsed && (
               <Image
@@ -401,68 +190,12 @@ export default function DashboardLayout({
 
         {/* Navigation */}
         <nav className="flex-1 px-4 py-4 overflow-y-auto">
-          <div className="space-y-6">
-            {Object.entries(groupedNavLinks).map(([category, links]) => (
-              <div key={category}>
-                {!collapsed && (
-                  <h3 className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3 px-2">
-                    {category}
-                  </h3>
-                )}
-                <div className="space-y-1">
-                  {links.map((navItem) => {
-                    if (
-                      navItem.requiredPermissions &&
-                      !hasPermission(navItem.requiredPermissions)
-                    ) {
-                      return null; // hide if user doesn’t have permission
-                    }
-
-                    return navItem.onClick ? (
-                      <button
-                        key={navItem.label}
-                        onClick={navItem.onClick}
-                        className={`w-full flex items-center ${
-                          collapsed ? "justify-center px-3" : "px-3"
-                        } py-3 text-slate-700 dark:text-slate-300 rounded-xl 
-  hover:bg-slate-50 dark:hover:bg-slate-800 
-  hover:text-slate-900 dark:hover:text-white 
-  transition-all duration-200 group relative`}
-                        title={collapsed ? navItem.label : ""}
-                      >
-                        <span className="text-lg group-hover:scale-110 transition-transform duration-200">
-                          {navItem.icon}
-                        </span>
-                        {!collapsed && (
-                          <span className="ml-3 text-sm font-medium">
-                            {navItem.label}
-                          </span>
-                        )}
-                      </button>
-                    ) : (
-                      <Link
-                        key={navItem.label}
-                        href={navItem.href!}
-                        className={`flex items-center ${
-                          collapsed ? "justify-center px-3" : "px-3"
-                        } py-3 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all duration-200 group relative`}
-                        title={collapsed ? navItem.label : ""}
-                      >
-                        <span className="text-lg group-hover:scale-110 transition-transform duration-200">
-                          {navItem.icon}
-                        </span>
-                        {!collapsed && (
-                          <span className="ml-3 text-sm font-medium">
-                            {navItem.label}
-                          </span>
-                        )}
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
+          <NavLinks
+            collapsed={collapsed}
+            isSuperAdmin={role === "Super Admin"}
+            onOpenRoleModal={handleOpenRoleModal}
+            onOpenAssignRoleModal={handleOpenAssignRoleModal}
+          />
         </nav>
         <RoleModal
           visible={isRoleModalVisible}
@@ -506,274 +239,247 @@ export default function DashboardLayout({
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Top Header */}
-        <header className="h-20 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-6 shadow-sm dark:shadow-2xl">
-          <div className="flex items-center justify-between ">
+        <header className=" h-25 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-2 py-5 shadow-sm dark:shadow-2xl">
+          <div className="flex items-center space-x-4">
             <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
               {role === "Super Admin" && "Super Admin Panel"}
               {role === "Firm Admin" && ""}
               {role === "Lawyer" && "Legal Dashboard"}
             </h1>
-            <div className="hidden md:block">
-              {role === "Firm Admin" &&
-                user?.firms &&
-                user.firms.length > 1 && (
-                  <div
-                    className={`px-3 py-1 rounded-full text-base font-medium text-white bg-blue-500`}
-                  >
-                    <p>Switch Firm</p>
-                  </div>
-                )}
-            </div>
-          </div>
 
-          {role === "Firm Admin" && user?.firms && user.firms.length > 1 && (
-            <div className="relative">
-              <Select
-                value={user?.currentFirmId}
-                disabled={isSwitchingFirm}
-                style={{
-                  width: 500,
-                  height: 44,
-                }}
-                className="professional-firm-selector"
-                placeholder="Select Firm"
-                suffixIcon={
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                    className="text-slate-400 dark:text-slate-500"
-                  >
-                    <path
-                      d="M2.5 4.5L6 8L9.5 4.5"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                }
-                dropdownStyle={{
-                  borderRadius: "12px",
-                  border: "1px solid #e2e8f0",
-                  boxShadow:
-                    "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-                  padding: "2px 0",
-                }}
-                popupClassName="professional-dropdown-popup"
-                onChange={async (value) => {
-                  setIsSwitchingFirm(true);
-                  try {
-                    await switchFirmAPI(value);
-                    dispatch(switchFirm(value));
-                    const lawyers = await getLawyers(value);
-                    dispatch(setLawyers(lawyers));
-
-                    // Handle route redirections
-                    if (pathname.startsWith("/get-lawyer-detail")) {
-                      router.push("/dashboard");
-                    }
-                    if (pathname.startsWith("/edit-lawyer")) {
-                      router.push("/dashboard");
-                    }
-                    if (pathname.startsWith("/get-client-detail")) {
-                      router.push("/dashboard");
-                    }
-                    if (pathname.startsWith("/edit-client")) {
-                      router.push("/dashboard");
-                    }
-                    if (pathname.startsWith("/add-lawyer")) {
-                      router.push("/dashboard");
-                    }
-                    if (pathname.startsWith("/create-client")) {
-                      router.push("/dashboard");
-                    }
-                    if (pathname.startsWith("/add-case")) {
-                      router.push("/dashboard");
-                    }
-                    if (pathname.startsWith("/get-user-roles")) {
-                      router.push("/dashboard");
-                    }
-                    if (pathname.startsWith("/add-firm")) {
-                      router.push("/dashboard");
-                    }
-
-                    toast.success("Switched firm successfully");
-                  } catch (err) {
-                    console.error("Error switching firm:", err);
-                    toast.error("Failed to switch firm");
-                  } finally {
-                    setIsSwitchingFirm(false);
-                  }
-                }}
-              >
-                {user.firms.map((firm) => (
-                  <Select.Option key={firm.id} value={firm.id}>
-                    <div className="flex items-center space-x-3 py-1">
-                      <div className="w-5 h-5 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center text-white font-semibold text-sm shadow-sm">
-                        {firm.name.charAt(0).toUpperCase()}
+            {/* Switch Firm section - positioned next to title */}
+            {role === "Firm Admin" && user?.firms && user.firms.length > 1 && (
+              <div className="flex items-center ">
+                <div className="hidden md:block">
+                  {role === "Firm Admin" &&
+                    user?.firms &&
+                    user.firms.length > 1 && (
+                      <div
+                        className={`px-3 py-1 rounded-full text-base font-medium text-white bg-blue-500`}
+                      >
+                        <p>Switch Firm</p>
                       </div>
-                      <div className="flex flex-col">
-                        <span className="text-slate-800 dark:text-white font-medium text-sm">
+                    )}
+                </div>
+                <Select
+                  value={user?.currentFirmId}
+                  disabled={isSwitchingFirm}
+                  style={{
+                    width: 40,
+                    height: 32,
+                  }}
+                  className="vercel-firm-selector"
+                  placeholder=""
+                  size="small"
+                  suffixIcon={
+                    <div className="flex items-center justify-center h-full">
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 12 12"
+                        fill="none"
+                        className="text-slate-400 dark:text-slate-500"
+                      >
+                        <path
+                          d="M2.5 4.5L6 8L9.5 4.5"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                  }
+                  dropdownStyle={{
+                    borderRadius: "12px",
+                    border: "1px solid #e5e7eb",
+                    boxShadow:
+                      "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+                    padding: "8px 8px",
+                    minWidth: "500px",
+                  }}
+                  popupClassName="vercel-dropdown-popup"
+                  onChange={async (value) => {
+                    setIsSwitchingFirm(true);
+                    try {
+                      await switchFirmAPI(value);
+                      dispatch(switchFirm(value));
+                      const lawyers = await getLawyers(value);
+                      dispatch(setLawyers(lawyers));
+
+                      // Handle route redirections
+                      if (pathname.startsWith("/get-lawyer-detail")) {
+                        router.push("/dashboard");
+                      }
+                      if (pathname.startsWith("/edit-lawyer")) {
+                        router.push("/dashboard");
+                      }
+                      if (pathname.startsWith("/get-client-detail")) {
+                        router.push("/dashboard");
+                      }
+                      if (pathname.startsWith("/edit-client")) {
+                        router.push("/dashboard");
+                      }
+                      if (pathname.startsWith("/add-lawyer")) {
+                        router.push("/dashboard");
+                      }
+                      if (pathname.startsWith("/create-client")) {
+                        router.push("/dashboard");
+                      }
+                      if (pathname.startsWith("/add-case")) {
+                        router.push("/dashboard");
+                      }
+                      if (pathname.startsWith("/get-user-roles")) {
+                        router.push("/dashboard");
+                      }
+                      if (pathname.startsWith("/add-firm")) {
+                        router.push("/dashboard");
+                      }
+
+                      toast.success("Switched firm successfully");
+                    } catch (err) {
+                      console.error("Error switching firm:", err);
+                      toast.error("Failed to switch firm");
+                    } finally {
+                      setIsSwitchingFirm(false);
+                    }
+                  }}
+                >
+                  {user.firms.map((firm) => (
+                    <Select.Option key={firm.id} value={firm.id}>
+                      <div className="flex items-center space-x-2 py-1">
+                        <div className="w-6 h-6 rounded bg-blue-400 dark:bg-slate-700 flex items-center justify-center text-xs font-medium text-white dark:text-white">
+                          {firm.name.charAt(0).toUpperCase()}
+                        </div>
+                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
                           {firm.name}
                         </span>
                       </div>
-                    </div>
-                  </Select.Option>
-                ))}
-              </Select>
+                    </Select.Option>
+                  ))}
+                </Select>
 
-              {/* Add custom styles with dark mode support */}
-              <style jsx global>{`
-                .professional-firm-selector .ant-select-selector {
-                  background: linear-gradient(
-                    135deg,
-                    #ffffff 0%,
-                    #f8fafc 100%
-                  ) !important;
-                  border: 2px solid #e2e8f0 !important;
-                  border-radius: 12px !important;
-                  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02) !important;
-                  transition: all 0.2s ease !important;
-                  padding: 4px 12px !important;
-                  height: 44px !important;
-                  display: flex !important;
-                  align-items: center !important;
-                }
+                {/* Custom styles */}
+                <style jsx global>{`
+                  .vercel-firm-selector .ant-select-selector {
+                    background: transparent !important;
+                    border: none !important;
+                    border-radius: 6px !important;
+                    box-shadow: none !important;
+                    transition: all 0.15s ease !important;
+                    padding: 0 !important;
+                    height: 32px !important;
+                    width: 32px !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    cursor: pointer !important;
+                  }
 
-                .dark .professional-firm-selector .ant-select-selector {
-                  background: linear-gradient(
-                    135deg,
-                    #1e293b 0%,
-                    #334155 100%
-                  ) !important;
-                  border: 2px solid #475569 !important;
-                  color: #ffffff !important;
-                }
+                  .vercel-firm-selector .ant-select-selector:hover {
+                    background: #f5f5f5 !important;
+                    border-radius: 6px !important;
+                  }
 
-                .professional-firm-selector .ant-select-selector:hover {
-                  border-color: #3b82f6 !important;
-                  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15) !important;
-                }
+                  .dark .vercel-firm-selector .ant-select-selector:hover {
+                    background: #333333 !important;
+                  }
 
-                .dark .professional-firm-selector .ant-select-selector:hover {
-                  border-color: #60a5fa !important;
-                  box-shadow: 0 4px 12px rgba(96, 165, 250, 0.25) !important;
-                }
+                  .vercel-firm-selector.ant-select-focused
+                    .ant-select-selector {
+                    background: #f0f0f0 !important;
+                    box-shadow: none !important;
+                  }
 
-                .professional-firm-selector.ant-select-focused
-                  .ant-select-selector {
-                  border-color: #3b82f6 !important;
-                  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
-                }
+                  .dark
+                    .vercel-firm-selector.ant-select-focused
+                    .ant-select-selector {
+                    background: #404040 !important;
+                  }
 
-                .dark
-                  .professional-firm-selector.ant-select-focused
-                  .ant-select-selector {
-                  border-color: #60a5fa !important;
-                  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2) !important;
-                }
+                  .vercel-firm-selector .ant-select-selection-item {
+                    display: none !important;
+                  }
 
-                .professional-firm-selector .ant-select-selection-item {
-                  display: flex !important;
-                  align-items: center !important;
-                  font-weight: 500 !important;
-                  color: #1e293b !important;
-                  font-size: 14px !important;
-                }
+                  /* Loading state */
+                  .vercel-firm-selector.ant-select-disabled
+                    .ant-select-selector::after {
+                    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23cccccc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 12a9 9 0 11-6.219-8.56'/%3E%3C/svg%3E") !important;
+                    animation: spin 1s linear infinite !important;
+                  }
 
-                .dark .professional-firm-selector .ant-select-selection-item {
-                  color: #ffffff !important;
-                }
+                  @keyframes spin {
+                    from {
+                      transform: rotate(0deg);
+                    }
+                    to {
+                      transform: rotate(360deg);
+                    }
+                  }
 
-                /* Loading state styles */
-                .professional-firm-selector.ant-select-disabled
-                  .ant-select-selector {
-                  opacity: 0.6 !important;
-                }
+                  /* Dropdown styles */
+                  .vercel-dropdown-popup {
+                    background: #ffffff !important;
+                    border: 1px solid #e5e7eb !important;
+                    border-radius: 8px !important;
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                      0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+                  }
 
-                .professional-dropdown-popup {
-                  background: #ffffff !important;
-                }
+                  .dark .vercel-dropdown-popup {
+                    background: #1e293b !important;
+                    border: 1px solid #333333 !important;
+                  }
 
-                .dark .professional-dropdown-popup {
-                  background: #1e293b !important;
-                  border: 1px solid #475569 !important;
-                }
+                  .vercel-dropdown-popup .ant-select-item {
+                    border-radius: 4px !important;
+                    margin: 2px 4px !important;
+                    padding: 8px !important;
+                    transition: all 0.15s ease !important;
+                    color: #171717 !important;
+                    font-size: 13px !important;
+                    min-height: auto !important;
+                  }
 
-                .professional-dropdown-popup .ant-select-item {
-                  border-radius: 8px !important;
-                  margin: 2px 8px !important;
-                  padding: 12px !important;
-                  transition: all 0.15s ease !important;
-                  color: #1e293b !important;
-                }
+                  .dark .vercel-dropdown-popup .ant-select-item {
+                    color: #ededed !important;
+                  }
 
-                .dark .professional-dropdown-popup .ant-select-item {
-                  color: #ffffff !important;
-                }
+                  .vercel-dropdown-popup .ant-select-item:hover {
+                    background: #ffffff !important;
+                  }
 
-                .professional-dropdown-popup .ant-select-item:hover {
-                  background: linear-gradient(
-                    135deg,
-                    #f1f5f9 0%,
-                    #e2e8f0 100%
-                  ) !important;
-                  transform: translateX(2px) !important;
-                }
+                  .dark .vercel-dropdown-popup .ant-select-item:hover {
+                    background: #262626 !important;
+                  }
 
-                .dark .professional-dropdown-popup .ant-select-item:hover {
-                  background: linear-gradient(
-                    135deg,
-                    #334155 0%,
-                    #475569 100%
-                  ) !important;
-                }
+                  .vercel-dropdown-popup .ant-select-item-option-selected {
+                    background: #f0f0f0 !important;
+                    font-weight: 500 !important;
+                    color: #000000 !important;
+                  }
 
-                .professional-dropdown-popup .ant-select-item-option-selected {
-                  background: linear-gradient(
-                    135deg,
-                    #dbeafe 0%,
-                    #bfdbfe 100%
-                  ) !important;
-                  border: 1px solid #3b82f6 !important;
-                  font-weight: 600 !important;
-                }
+                  .dark
+                    .vercel-dropdown-popup
+                    .ant-select-item-option-selected {
+                    background: #333333 !important;
+                    color: #ffffff !important;
+                  }
 
-                .dark
-                  .professional-dropdown-popup
-                  .ant-select-item-option-selected {
-                  background: linear-gradient(
-                    135deg,
-                    #1e3a8a 0%,
-                    #3b82f6 100%
-                  ) !important;
-                  border: 1px solid #60a5fa !important;
-                  color: #ffffff !important;
-                }
+                  .vercel-dropdown-popup
+                    .ant-select-item-option-selected:hover {
+                    background: #e5e5e5 !important;
+                  }
 
-                .professional-dropdown-popup
-                  .ant-select-item-option-selected:hover {
-                  background: linear-gradient(
-                    135deg,
-                    #bfdbfe 0%,
-                    #93c5fd 100%
-                  ) !important;
-                }
-
-                .dark
-                  .professional-dropdown-popup
-                  .ant-select-item-option-selected:hover {
-                  background: linear-gradient(
-                    135deg,
-                    #3b82f6 0%,
-                    #60a5fa 100%
-                  ) !important;
-                }
-              `}</style>
-            </div>
-          )}
+                  .dark
+                    .vercel-dropdown-popup
+                    .ant-select-item-option-selected:hover {
+                    background: #404040 !important;
+                  }
+                `}</style>
+              </div>
+            )}
+          </div>
 
           <div className="flex items-center space-x-4">
             {/* Notifications */}

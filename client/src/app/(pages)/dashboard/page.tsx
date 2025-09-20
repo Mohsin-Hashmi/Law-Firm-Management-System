@@ -10,9 +10,12 @@ import { useRouter } from "next/navigation";
 import { ThemeProvider } from "next-themes";
 import { Spin } from "antd";
 import { toast } from "react-hot-toast";
+import OtherRoleHomePage from "../../components/OtherRoleHomePage";
 export default function DashboardPage() {
   const user = useAppSelector((state: RootState) => state.user.user);
   const router = useRouter();
+  const firmId = user?.firmId;
+  const role = user?.role;
 
   // redirect to login if no user
   useEffect(() => {
@@ -28,23 +31,27 @@ export default function DashboardPage() {
       </div>
     );
   }
-  if (!user.firmId) {
-    return <>{toast.error("User Firm ID not Exist")}</>;
+  if (!firmId) {
+    toast.error("User firm id not exist");
+  } else {
+    toast.success("Welcome to dashboard");
   }
-
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <DashboardLayout>
         {user.role === "Firm Admin" && (
-          <FirmStats firmId={user.firmId} role={user.role} />
+          <FirmStats firmId={firmId!} role={role!} />
         )}
 
         {user.role === "Lawyer" && (
-          <LawyerStats firmId={user.firmId} role={user.role} />
+          <LawyerStats firmId={firmId!} role={role!} />
         )}
-        {user.role === "Client" && (
-          <ClientView firmId={user.firmId} role={user.role} />
-        )}
+        {user.role === "Client" && <ClientView firmId={firmId!} role={role!} />}
+        {user.role !== "Firm Admin" &&
+          user.role !== "Lawyer" &&
+          user.role !== "Client" && (
+            <OtherRoleHomePage role={role!} name={user.name} />
+          )}
       </DashboardLayout>
     </ThemeProvider>
   );

@@ -323,10 +323,10 @@ export default function EditClient({ params }: { params: { id: number } }) {
                     <div style={{ marginBottom: "24px" }}>
                       <Avatar
                         size={160}
-                        src={previewImage}
-                        icon={!previewImage && <UserOutlined />}
+                        src={previewImage || undefined}
+                        icon={!previewImage ? <UserOutlined /> : undefined }
                         style={{
-                          background: previewImage ? "transparent" : "#f1f5f9",
+                          background: previewImage ? "transparent" : "#F1F5F9 dark:#1E293B",
                           border: "4px solid #e5e7eb",
                           boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
                           marginBottom: "16px",

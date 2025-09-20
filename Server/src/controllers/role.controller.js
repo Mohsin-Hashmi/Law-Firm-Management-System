@@ -329,7 +329,7 @@ const updateUserByFirm = async (req, res) => {
 
     // Find UserFirm entry
     const userFirm = await UserFirm.findOne({
-      where: { id, firmId },
+      where: { userId: id, firmId },
       include: [
         { model: User, as: "user", attributes: ["id", "name", "email"] },
       ],

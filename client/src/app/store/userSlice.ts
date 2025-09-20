@@ -70,7 +70,11 @@ const userSlice = createSlice({
       if (state.user) {
         state.user.firmId = action.payload;
         state.user.currentFirmId = action.payload;
-        
+      }
+    },
+    addFirm: (state, action) => {
+      if (state.user) {
+        state.user.firms = [...(state.user.firms || []), action.payload];
       }
     },
 
@@ -135,6 +139,7 @@ export const {
   updateUserRole,
   clearUserPermissions,
   setPermissionsLoaded,
+  addFirm
 } = userSlice.actions;
 
 export default userSlice.reducer;

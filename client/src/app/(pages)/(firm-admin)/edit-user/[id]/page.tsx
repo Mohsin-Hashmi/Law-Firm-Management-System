@@ -164,7 +164,7 @@ export default function EditUser({
 
       if (response.success) {
         toast.success("User updated successfully!");
-        router.push(`/get-user-detail/${userId}`);
+        router.push(`/get-user-roles`);
       } else {
         toast.error(response.message || "Failed to update user");
       }
@@ -364,10 +364,6 @@ export default function EditUser({
                         <Avatar
                           size={80}
                           icon={<UserOutlined />}
-                          style={{
-                            background: "#f1f5f9",
-                            border: "2px solid #e5e7eb",
-                          }}
                         />
                       </Col>
                       <Col flex={1}>

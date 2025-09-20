@@ -36,7 +36,7 @@ import { FirmPayload } from "@/app/types/firm";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { setFirm } from "@/app/store/firmSlice";
-import { addUser } from "@/app/store/userSlice";
+import { addUser, addFirm } from "@/app/store/userSlice";
 import { useAppSelector } from "@/app/store/hooks";
 import { ThemeProvider } from "next-themes";
 
@@ -102,6 +102,7 @@ export default function AddFirm() {
           firmId: newFirm.id, // attach new firmId
         })
       );
+      dispatch(addFirm(newFirm));
       toast.success("Law firm created successfully!");
       router.push("/dashboard");
 

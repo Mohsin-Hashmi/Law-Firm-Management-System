@@ -235,7 +235,7 @@ export default function GetLawyerDetail({
                       style={{
                         background: lawyer.profileImage
                           ? "transparent"
-                          : "#f1f5f9",
+                          : "#F1F5F9 dark:#1E293B",
                         border: "4px solid #e5e7eb",
                         boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
                         marginBottom: "24px",

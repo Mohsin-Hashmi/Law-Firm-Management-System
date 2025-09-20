@@ -92,7 +92,7 @@ export default function EditLawyer({ params }: { params: { id: number } }) {
     hideUpdateModal();
     form.submit(); // Trigger form submission
   };
-   
+
   const handleSubmit = async (values: Lawyer) => {
     try {
       setSubmitting(true);
@@ -306,10 +306,10 @@ export default function EditLawyer({ params }: { params: { id: number } }) {
                     <div style={{ marginBottom: "24px" }}>
                       <Avatar
                         size={160}
-                        src={previewImage}
-                        icon={!previewImage && <UserOutlined />}
+                        src={previewImage || undefined} // show image if exists
+                        icon={!previewImage ? <UserOutlined /> : undefined} // fallback icon
                         style={{
-                          background: previewImage ? "transparent" : "#f1f5f9",
+                          background: previewImage ? "transparent" : " #F1F5F9 dark:#1E293B",
                           border: "4px solid #e5e7eb",
                           boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
                           marginBottom: "16px",
