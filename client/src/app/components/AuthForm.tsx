@@ -119,7 +119,7 @@ export default function AuthForm({ type }: AuthFormProps) {
         }
         const payload = { name, email, password, confirmPassword };
         const response = await signupUser(payload);
-        dispatch(addUser(response.data.safeUser));
+        dispatch(addUser(response.data.user));
         toast.success("Signup Successfully");
 
         setName("");
@@ -164,13 +164,6 @@ export default function AuthForm({ type }: AuthFormProps) {
         toast.success("Login successfully");
         setEmail("");
         setPassword("");
-        console.log("set password ");
-        console.log("Final login redirect decision:");
-        console.log("currentFirmId:", currentFirmId);
-        console.log(
-          "Redirecting to:",
-          currentFirmId ? "/dashboard" : "/add-firm"
-        );
 
         // Redirect based on firm presence or to the intended page
         if (currentFirmId) {

@@ -248,118 +248,133 @@ export default function DashboardLayout({
             </h1>
 
             {/* Switch Firm section - positioned next to title */}
-            {role === "Firm Admin" && user?.firms && user.firms.length > 1 && (
-              <div className="flex items-center ">
-                <div className="hidden md:block">
-                  {role === "Firm Admin" &&
-                    user?.firms &&
-                    user.firms.length > 1 && (
-                      <div
-                        className={`px-3 py-1 rounded-md text-base font-medium text-white bg-blue-500`}
-                      >
+            {/* Switch Firm section - positioned next to title */}
+            {role === "Firm Admin" && (
+              <>
+                {!user?.firms || user.firms.length === 0 ? (
+                  // No firms created yet
+                  <div className="flex items-center space-x-3">
+                    <div className="px-4 py-2 rounded-lg text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center space-x-2">
+                      <BankOutlined className="text-amber-600 dark:text-amber-400" />
+                      <span>Create Your First Business To Get Started</span>
+                    </div>
+                   
+                  </div>
+                ) : user.firms.length === 1 ? (
+                  // Only one firm created
+                  <div className="flex items-center space-x-3">
+                    <div className="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 flex items-center space-x-2">
+                      <BankOutlined className="text-slate-500 dark:text-slate-400" />
+                      <span>You Have Only One Business Now</span>
+                    </div>
+                   
+                  </div>
+                ) : (
+                  // Multiple firms - show dropdown
+                  <div className="flex items-center space-x-3">
+                    <div className="hidden md:block">
+                      <div className="px-3 py-1 rounded-md text-sm font-medium text-white bg-blue-500">
                         <p>Switch Your Business</p>
                       </div>
-                    )}
-                </div>
-                <Select
-                  value={user?.currentFirmId}
-                  disabled={isSwitchingFirm}
-                  style={{
-                    width: 40,
-                    height: 32,
-                  }}
-                  className="vercel-firm-selector"
-                  placeholder=""
-                  size="small"
-                  suffixIcon={
-                    <div className="flex items-center justify-center h-full">
-                      <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 12 12"
-                        fill="none"
-                        className="text-slate-400 dark:text-slate-500"
-                      >
-                        <path
-                          d="M2.5 4.5L6 8L9.5 4.5"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
                     </div>
-                  }
-                  dropdownStyle={{
-                    borderRadius: "12px",
-                    border: "1px solid #e5e7eb",
-                    boxShadow:
-                      "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-                    padding: "8px 8px",
-                    minWidth: "500px",
-                  }}
-                  popupClassName="vercel-dropdown-popup"
-                  onChange={async (value) => {
-                    setIsSwitchingFirm(true);
-                    try {
-                      await switchFirmAPI(value);
-                      dispatch(switchFirm(value));
-                      const lawyers = await getLawyers(value);
-                      dispatch(setLawyers(lawyers));
+                    <Select
+                      value={user?.currentFirmId}
+                      disabled={isSwitchingFirm}
+                      style={{
+                        width: 40,
+                        height: 32,
+                      }}
+                      className="vercel-firm-selector"
+                      placeholder=""
+                      size="small"
+                      suffixIcon={
+                        isSwitchingFirm ? (
+                          <LoadingOutlined spin />
+                        ) : (
+                          <div className="flex items-center justify-center h-full">
+                            <svg
+                              width="18"
+                              height="18"
+                              viewBox="0 0 12 12"
+                              fill="none"
+                              className="text-slate-400 dark:text-slate-500"
+                            >
+                              <path
+                                d="M2.5 4.5L6 8L9.5 4.5"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </div>
+                        )
+                      }
+                      dropdownStyle={{
+                        borderRadius: "12px",
+                        border: "1px solid #e5e7eb",
+                        boxShadow:
+                          "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+                        padding: "8px 8px",
+                        minWidth: "500px",
+                      }}
+                      popupClassName="vercel-dropdown-popup"
+                      onChange={async (value) => {
+                        setIsSwitchingFirm(true);
+                        try {
+                          await switchFirmAPI(value);
+                          dispatch(switchFirm(value));
+                          const lawyers = await getLawyers(value);
+                          dispatch(setLawyers(lawyers));
 
-                      // Handle route redirections
-                      if (pathname.startsWith("/get-lawyer-detail")) {
-                        router.push("/dashboard");
-                      }
-                      if (pathname.startsWith("/edit-lawyer")) {
-                        router.push("/dashboard");
-                      }
-                      if (pathname.startsWith("/get-client-detail")) {
-                        router.push("/dashboard");
-                      }
-                      if (pathname.startsWith("/edit-client")) {
-                        router.push("/dashboard");
-                      }
-                      if (pathname.startsWith("/add-lawyer")) {
-                        router.push("/dashboard");
-                      }
-                      if (pathname.startsWith("/create-client")) {
-                        router.push("/dashboard");
-                      }
-                      if (pathname.startsWith("/add-case")) {
-                        router.push("/dashboard");
-                      }
-                      if (pathname.startsWith("/get-user-roles")) {
-                        router.push("/dashboard");
-                      }
-                      if (pathname.startsWith("/add-firm")) {
-                        router.push("/dashboard");
-                      }
+                          // Consolidated route handling
+                          const routesToRedirect = [
+                            "/get-lawyer-detail",
+                            "/edit-lawyer",
+                            "/get-client-detail",
+                            "/edit-client",
+                            "/add-lawyer",
+                            "/create-client",
+                            "/add-case",
+                            "/get-user-roles",
+                            "/add-firm",
+                          ];
 
-                      toast.success("Switched firm successfully");
-                    } catch (err) {
-                      console.error("Error switching firm:", err);
-                      toast.error("Failed to switch firm");
-                    } finally {
-                      setIsSwitchingFirm(false);
-                    }
-                  }}
-                >
-                  {user.firms.map((firm) => (
-                    <Select.Option key={firm.id} value={firm.id}>
-                      <div className="flex items-center space-x-2 py-1">
-                        <div className="w-6 h-6 rounded bg-blue-400 dark:bg-slate-700 flex items-center justify-center text-xs font-medium text-white dark:text-white">
-                          {firm.name.charAt(0).toUpperCase()}
-                        </div>
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
-                          {firm.name}
-                        </span>
-                      </div>
-                    </Select.Option>
-                  ))}
-                </Select>
+                          if (
+                            routesToRedirect.some((route) =>
+                              pathname.startsWith(route)
+                            )
+                          ) {
+                            router.push("/dashboard");
+                          }
 
-                {/* Custom styles */}
+                          toast.success("Switched firm successfully");
+                        } catch (err) {
+                          console.error("Error switching firm:", err);
+                          toast.error("Failed to switch firm");
+                        } finally {
+                          setIsSwitchingFirm(false);
+                        }
+                      }}
+                      aria-label="Switch firm"
+                    >
+                      {user.firms.map((firm) => (
+                        <Select.Option key={`firm-${firm.id}`} value={firm.id}>
+                          <div className="flex items-center space-x-2 py-1">
+                            <div className="w-6 h-6 rounded bg-blue-400 dark:bg-slate-700 flex items-center justify-center text-xs font-medium text-white">
+                              {firm.name.charAt(0).toUpperCase()}
+                            </div>
+                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
+                              {firm.name}
+                            </span>
+                          </div>
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </div>
+                )}
+
+                {/* Custom styles - only render once */}
                 <style jsx global>{`
                   .vercel-firm-selector .ant-select-selector {
                     background: transparent !important;
@@ -399,22 +414,6 @@ export default function DashboardLayout({
 
                   .vercel-firm-selector .ant-select-selection-item {
                     display: none !important;
-                  }
-
-                  /* Loading state */
-                  .vercel-firm-selector.ant-select-disabled
-                    .ant-select-selector::after {
-                    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23cccccc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 12a9 9 0 11-6.219-8.56'/%3E%3C/svg%3E") !important;
-                    animation: spin 1s linear infinite !important;
-                  }
-
-                  @keyframes spin {
-                    from {
-                      transform: rotate(0deg);
-                    }
-                    to {
-                      transform: rotate(360deg);
-                    }
                   }
 
                   /* Dropdown styles */
@@ -477,7 +476,7 @@ export default function DashboardLayout({
                     background: #404040 !important;
                   }
                 `}</style>
-              </div>
+              </>
             )}
           </div>
 
