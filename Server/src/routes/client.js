@@ -59,6 +59,7 @@ clientRoute.put(
   "/firm/client/:id",
   userAuth,
   firmAdminAuth,
+  upload.single('profileImage'),
   checkPermission(permissions.UPDATE_CLIENT),
   updateClient
 );

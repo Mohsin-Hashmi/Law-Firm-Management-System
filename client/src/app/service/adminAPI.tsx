@@ -252,22 +252,50 @@ export const getClientById = async (id: number) => {
   }
 };
 
-export const updateClient = async (id: number, data: ClientPayload) => {
+export const updateClient = async (
+  id: number,
+  clientData: Partial<ClientPayload>, // we only update some fields
+  file?: File // optional new profile image
+): Promise<Client> => {
   try {
-    const response = await axios.put<{ message: string }>(
+    const formData = new FormData();
+
+    // Append text fields if provided
+    if (clientData.fullName) formData.append("fullName", clientData.fullName);
+    if (clientData.email) formData.append("email", clientData.email);
+    if (clientData.phone) formData.append("phone", clientData.phone);
+    if (clientData.address) formData.append("address", clientData.address);
+    if (clientData.clientType) formData.append("clientType", clientData.clientType);
+    if (clientData.organization) formData.append("organization", clientData.organization);
+    if (clientData.status) formData.append("status", clientData.status);
+    if (clientData.billingAddress) formData.append("billingAddress", clientData.billingAddress);
+    if (clientData.outstandingBalance !== undefined) formData.append("outstandingBalance", clientData.outstandingBalance.toString());
+    if (clientData.gender) formData.append("gender", clientData.gender);
+    if (clientData.dob) formData.append("dob", clientData.dob);
+    if (clientData.firmId !== undefined) formData.append("firmId", clientData.firmId.toString());
+
+    // Append file if provided
+    if (file) {
+      formData.append("profileImage", file);
+    }
+
+    const response = await axios.put(
       `${BASE_URL}/api/firm-admin/firm/client/${id}`,
-      data,
+      formData,
       {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
         withCredentials: true,
       }
     );
-    console.log("update client api response is ", response);
-    return response.data; // { message: string }
+
+    return response.data;
   } catch (error) {
-    throw new Error("Error updating client: " + error);
+    console.error("Error updating client:", error);
+    throw error;
   }
 };
-
 export const deleteClient = async (id: number) => {
   try {
     const response = await axios.delete<{ message: string }>(

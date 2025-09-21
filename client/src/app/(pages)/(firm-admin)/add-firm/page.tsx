@@ -39,6 +39,7 @@ import { setFirm } from "@/app/store/firmSlice";
 import { addUser, addFirm } from "@/app/store/userSlice";
 import { useAppSelector } from "@/app/store/hooks";
 import { ThemeProvider } from "next-themes";
+import ConfirmationModal from "@/app/components/ConfirmationModal"; // adjust path
 
 const { Option } = Select;
 const { Title, Text } = Typography;
@@ -54,7 +55,6 @@ interface FormValues {
 }
 
 export default function AddFirm() {
-  
   const user = useAppSelector((state) => state.user?.user);
   console.log("Current user in AddFirm:", user);
   const router = useRouter();
@@ -71,6 +71,7 @@ export default function AddFirm() {
   const [subdomain, setSubdomain] = useState("");
   const [loading, setLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const handleCreateFirm = async () => {
     try {
@@ -766,7 +767,6 @@ export default function AddFirm() {
 
                     <Button
                       type="primary"
-                      htmlType="submit"
                       size="large"
                       icon={<SaveOutlined />}
                       loading={loading}
@@ -786,9 +786,24 @@ export default function AddFirm() {
                       }}
                       onMouseEnter={() => setIsHovered(true)}
                       onMouseLeave={() => setIsHovered(false)}
+                      onClick={() => setIsConfirmOpen(true)}
                     >
                       Create Law Firm
                     </Button>
+                    <ConfirmationModal
+                      visible={isConfirmOpen}
+                      entityName="Law Firm"
+                      action="create"
+                      onCancel={() => setIsConfirmOpen(false)}
+                      onConfirm={() => {
+                        setIsConfirmOpen(false);
+                        handleCreateFirm();
+                      }}
+                      title="Create Law Firm?"
+                      description="Are you sure you want to create this new law firm with the details you entered? This action cannot be undone."
+                      confirmText="Yes, Create"
+                      cancelText="No, Cancel"
+                    />
                   </Space>
 
                   <div style={{ marginTop: "24px" }}>

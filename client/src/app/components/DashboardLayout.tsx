@@ -255,9 +255,9 @@ export default function DashboardLayout({
                     user?.firms &&
                     user.firms.length > 1 && (
                       <div
-                        className={`px-3 py-1 rounded-full text-base font-medium text-white bg-blue-500`}
+                        className={`px-3 py-1 rounded-md text-base font-medium text-white bg-blue-500`}
                       >
-                        <p>Switch Firm</p>
+                        <p>Switch Your Business</p>
                       </div>
                     )}
                 </div>

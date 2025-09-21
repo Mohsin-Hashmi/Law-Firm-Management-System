@@ -458,7 +458,7 @@ export default function GetClients() {
                   borderRadius: "6px",
                   color: "#dc2626",
                 }}
-                danger
+                
               />
               <ConfirmationModal
                 visible={modalVisible}

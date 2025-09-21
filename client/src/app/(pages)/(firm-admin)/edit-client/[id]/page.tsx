@@ -110,37 +110,43 @@ export default function EditClient({ params }: { params: { id: number } }) {
   };
 
   const handleSubmit = async (values: ClientPayload) => {
-    try {
-      setSubmitting(true);
+  try {
+    setSubmitting(true);
 
-      // Prepare the client data object
-      const clientData: ClientPayload = {
-        fullName: values.fullName,
-        email: values.email,
-        phone: values.phone,
-        address: values.address,
-        clientType: values.clientType,
-        organization: values.organization,
-        status: values.status,
-        billingAddress: values.billingAddress,
-        outstandingBalance: values.outstandingBalance,
-        gender: values.gender,
-        dob: values.dob ? dayjs(values.dob).format("YYYY-MM-DD") : undefined,
-        firmId: client?.firmId || 1, // Use existing firmId or default
-      };
+    // Prepare the client data object
+    const clientData: ClientPayload = {
+      fullName: values.fullName,
+      email: values.email,
+      phone: values.phone,
+      address: values.address,
+      clientType: values.clientType,
+      organization: values.organization,
+      status: values.status,
+      billingAddress: values.billingAddress,
+      outstandingBalance: values.outstandingBalance,
+      gender: values.gender,
+      dob: values.dob ? dayjs(values.dob).format("YYYY-MM-DD") : undefined,
+      firmId: client?.firmId || 1, // Use existing firmId or default
+    };
 
-      // Call the API with the correct parameters
-      const response = await updateClient(clientId, clientData);
+    // Get the file if one was selected (THIS WAS MISSING)
+    const file =
+      fileList.length > 0 && fileList[0].originFileObj
+        ? (fileList[0].originFileObj as File)
+        : undefined;
 
-      toast.success("Client profile updated successfully!");
-      router.push(`/get-client-detail/${clientId}`);
-    } catch (error) {
-      console.error("Error updating client:", error);
-      toast.error("Failed to update client profile");
-    } finally {
-      setSubmitting(false);
-    }
-  };
+    // Call the API with the correct parameters (ADD FILE PARAMETER)
+    const response = await updateClient(clientId, clientData, file);
+
+    toast.success("Client profile updated successfully!");
+    router.push(`/get-client-detail/${clientId}`);
+  } catch (error) {
+    console.error("Error updating client:", error);
+    toast.error("Failed to update client profile");
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   const handleImageChange: UploadProps["onChange"] = ({
     fileList: newFileList,
@@ -802,7 +808,6 @@ export default function EditClient({ params }: { params: { id: number } }) {
                       <Button
                         type="primary"
                         size="large"
-                        htmlType="submit"
                         loading={submitting}
                         icon={<SaveOutlined />}
                         onClick={showUpdateModal}
@@ -816,7 +821,7 @@ export default function EditClient({ params }: { params: { id: number } }) {
                           boxShadow: "0 4px 12px rgba(5, 150, 105, 0.3)",
                         }}
                       >
-                        {submitting ? "Updating..." : "Update Client Profile"}
+                       Update Client Profile
                       </Button>
                       <ConfirmationModal
                         visible={isUpdatedModalVisible}

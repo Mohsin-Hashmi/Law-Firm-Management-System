@@ -14,9 +14,14 @@ const { Title, Text } = Typography;
 interface ConfirmationModalProps {
   visible: boolean;
   entityName: string; // e.g., "Lawyer", "Client", "Case"
-  action: "delete" | "update" | string; // any action
+  action: "delete" | "update" | "create" | string; // any action
   onConfirm: () => void;
   onCancel: () => void;
+  /** New props */
+  title?: string;
+  description?: string;
+  confirmText?: string;
+  cancelText?: string;
 }
 
 const ConfirmationModal = ({
@@ -25,11 +30,15 @@ const ConfirmationModal = ({
   action,
   onConfirm,
   onCancel,
+  title,
+  description,
+  confirmText,
+  cancelText,
 }: ConfirmationModalProps) => {
   const actionText =
     action === "delete" ? "delete" : action === "update" ? "update" : action;
 
-  // Get appropriate icon and color based on action
+  // Icon and button color config
   const getActionConfig = () => {
     switch (action) {
       case "delete":
@@ -64,7 +73,8 @@ const ConfirmationModal = ({
 
   const config = getActionConfig();
 
-  const getActionMessage = () => {
+  // Default fallback messages
+  const getDefaultMessage = () => {
     switch (action) {
       case "delete":
         return "This action cannot be undone. All associated data will be permanently removed.";
@@ -105,9 +115,10 @@ const ConfirmationModal = ({
                 level={4}
                 className="!text-slate-900 dark:!text-white !mb-1"
               >
-                {`${
-                  actionText.charAt(0).toUpperCase() + actionText.slice(1)
-                } ${entityName}?`}
+                {title ||
+                  `${actionText.charAt(0).toUpperCase() + actionText.slice(1)} ${
+                    entityName
+                  }?`}
               </Title>
               <Text className="text-slate-500 dark:text-slate-400 text-sm">
                 Please confirm your action
@@ -119,30 +130,14 @@ const ConfirmationModal = ({
         {/* Content */}
         <div className="mb-6 p-4 rounded-lg bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
           <Text className="text-slate-700 dark:text-slate-300 text-base leading-relaxed">
-            Are you sure you want to <strong>{actionText}</strong> this{" "}
-            {entityName.toLowerCase()}?
+            {description
+              ? description
+              : `Are you sure you want to ${actionText} this ${entityName.toLowerCase()}?`}
           </Text>
           <br />
           <Text className="text-slate-500 dark:text-slate-400 text-sm mt-2 block">
-            {getActionMessage()}
+            {description ? "" : getDefaultMessage()}
           </Text>
-        </div>
-
-        {/* Entity Info (Optional visual enhancement) */}
-        <div className="mb-6 p-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
-              <ExclamationCircleOutlined className="text-slate-500 dark:text-slate-400 text-sm" />
-            </div>
-            <div>
-              <Text className="text-slate-900 dark:text-white font-medium">
-                {entityName}
-              </Text>
-              <Text className="text-slate-500 dark:text-slate-400 text-xs block">
-                Selected item for {actionText}
-              </Text>
-            </div>
-          </div>
         </div>
 
         {/* Footer Buttons */}
@@ -152,7 +147,7 @@ const ConfirmationModal = ({
             className="h-10 px-5 rounded-lg"
             size="middle"
           >
-            Cancel
+            {cancelText || "Cancel"}
           </Button>
           <Button
             type="primary"
@@ -166,7 +161,8 @@ const ConfirmationModal = ({
             }`}
             size="middle"
           >
-            {actionText.charAt(0).toUpperCase() + actionText.slice(1)}
+            {confirmText ||
+              actionText.charAt(0).toUpperCase() + actionText.slice(1)}
           </Button>
         </div>
       </div>

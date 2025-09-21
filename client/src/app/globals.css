@@ -86,3 +86,10 @@ body {
   display: flex !important;
   align-items: center !important;   
 }
+
+.ant-modal-content {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+.ant-modal-mask {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}

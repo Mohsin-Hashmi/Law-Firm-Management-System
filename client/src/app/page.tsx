@@ -22,11 +22,7 @@ export default function Home() {
   const role = useAppSelector((state) => state.user?.user?.role);
   console.log(role);
 
-  const roleHrefMap: Record<string, string> = {
-    "Super Admin": "/super-admin/add-firm",
-    "Firm Admin": "/add-firm",
-    Lawyer: "/clients/add",
-  };
+
 
   return (
     <>

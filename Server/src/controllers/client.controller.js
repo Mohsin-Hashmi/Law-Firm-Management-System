@@ -288,6 +288,10 @@ const updateClient = async (req, res) => {
       billingAddress,
       outstandingBalance,
     } = req.body;
+    
+    // Handle uploaded file
+    const profileImage = req.file ? `/uploads/clients/${req.file.filename}` : undefined;
+
     if (!id) {
       return res.status(400).json({
         success: false,
@@ -312,7 +316,9 @@ const updateClient = async (req, res) => {
         message: "Client not found or not part of your firm",
       });
     }
-    await client.update({
+
+    // Build update object
+    const updateData = {
       fullName: fullName ?? client.fullName,
       dob: dob ?? client.dob,
       gender: gender ?? client.gender,
@@ -327,12 +333,19 @@ const updateClient = async (req, res) => {
         outstandingBalance !== undefined
           ? outstandingBalance
           : client.outstandingBalance,
-    });
+    };
+
+    // Only update profileImage if a new one was uploaded
+    if (profileImage) {
+      updateData.profileImage = profileImage;
+    }
+
+    await client.update(updateData);
 
     return res.status(200).json({
       success: true,
       message: "Client updated successfully",
-      updatedClient: client,
+      client,
     });
   } catch (error) {
     console.error("Update Client Error:", error);
