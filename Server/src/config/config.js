@@ -16,11 +16,12 @@ module.exports = {
     dialect: process.env.DB_DIALECT || "mysql",
   },
   production: {
-    use_env_variable: "DB_URL",   
+    use_env_variable: "DB_URL",
     dialect: "mysql",
     dialectOptions: {
       ssl: {
-        require: false, // Railway MySQL doesn’t usually need SSL
+        require: true,       // ✅ enable SSL
+        rejectUnauthorized: false, // ✅ allow self-signed certs
       },
     },
   },
