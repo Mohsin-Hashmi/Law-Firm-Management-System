@@ -23,6 +23,7 @@ module.exports = {
       1: permissions.map((p) => p.name), // Super Admin → all
       2: [
         "create_firm",
+        "view-all-firms",
         "update_firm",
         "delete_firm",
         "create_lawyer",
@@ -47,6 +48,7 @@ module.exports = {
         "assign_role",
         "create_role",
         "view_role",
+        
       ],
       3: [
         "read_client",

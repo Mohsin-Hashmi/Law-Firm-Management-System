@@ -9,10 +9,15 @@ const {
   deleteLawyer,
   switchFirm,
   getLawyerPerformance,
-  lawyerStats
+  lawyerStats,
+  getAllMyFirmsDetails,
 } = require("../controllers/firm.controller");
 const adminRoute = express();
-const { userAuth, firmAdminAuth, LawyerAuth } = require("../middlewares/authMiddleware");
+const {
+  userAuth,
+  firmAdminAuth,
+  LawyerAuth,
+} = require("../middlewares/authMiddleware");
 const multer = require("multer");
 const path = require("path");
 const permissions = require("../constants/permissions");
@@ -37,6 +42,14 @@ adminRoute.post(
   firmAdminAuth,
   checkPermission(permissions.CREATE_FIRM),
   createFirm
+);
+
+adminRoute.get(
+  "/my-firms",
+  userAuth,
+  firmAdminAuth,
+  checkPermission(permissions.VIEW_ALL_FIRMS),
+  getAllMyFirmsDetails
 );
 
 // Add lawyer with profile image
@@ -98,8 +111,8 @@ adminRoute.get(
 adminRoute.get(
   "/lawyers/stats",
   userAuth,
-  LawyerAuth,               
-  checkPermission(permissions.VIEW_STATS), 
+  LawyerAuth,
+  checkPermission(permissions.VIEW_STATS),
   lawyerStats
 );
 module.exports = adminRoute;

@@ -91,6 +91,48 @@ const createFirm = async (req, res) => {
   }
 };
 
+// Get Firm Detail API
+
+const getAllMyFirmsDetails = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const firms = await Firm.findAll({
+      include: [
+        {
+          model: AdminFirm,
+          as: "adminFirms",
+          where: { adminId: userId },
+          attributes: [],
+        },
+      ],
+      attributes: ["id", "name", "subscription_plan", "phone"],
+    });
+
+    if (!firms.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No firms found for this admin",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      firms,
+    });
+  } catch (error) {
+    console.error("Error fetching all firm details:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch firm details",
+      error: error.message,
+    });
+  }
+};
+
+
+
+
 /** Create Lawyer API */
 const createLawyer = async (req, res) => {
   const t = await sequelize.transaction();
@@ -627,6 +669,7 @@ const lawyerStats = async (req, res) => {
 
 module.exports = {
   createFirm,
+  getAllMyFirmsDetails,
   firmStats,
   createLawyer,
   getAllLawyer,

@@ -12,6 +12,7 @@ import { switchFirm } from "../store/userSlice";
 import { usePathname } from "next/navigation";
 import { usePermission } from "../hooks/usePermission";
 import AssignRoleModal from "./AssignRoleModal";
+import ViewFirmsModal from "./ViewFirmsModal";
 import { NavLinks } from "./sidebar/NavLinks";
 import {
   HomeOutlined,
@@ -59,6 +60,7 @@ export default function DashboardLayout({
   const [isRoleModalVisible, setIsRoleModalVisible] = useState(false);
   const [isAssignRoleModalVisible, setIsAssignRoleModalVisible] =
     useState(false);
+  const [isViewFirmsModalOpen, setIsViewFirmsModalOpen] = useState(false);
   const [showReset, setShowReset] = useState(false);
   useEffect(() => {
     console.log("User in DashboardLayout:", user);
@@ -71,6 +73,8 @@ export default function DashboardLayout({
   const handleCloseRoleModal = () => setIsRoleModalVisible(false);
   const handleOpenAssignRoleModal = () => setIsAssignRoleModalVisible(true);
   const handleCloseAssignRoleModal = () => setIsAssignRoleModalVisible(false);
+  const handleOpenViewFirmModal= ()=> setIsViewFirmsModalOpen(true);
+  const handleCloseViewFirmModal= ()=> setIsViewFirmsModalOpen(false);
 
   const handleLogout = async () => {
     try {
@@ -85,6 +89,11 @@ export default function DashboardLayout({
       toast.error("Failed to logout");
       console.error(err);
     }
+  };
+
+    const handleFirmDeleted = (firmId: number) => {
+    console.log(`Firm ${firmId} deleted successfully`);
+    // You can add any additional logic here, like refreshing other data
   };
 
   // Custom loading icon for the spinner
@@ -195,6 +204,7 @@ export default function DashboardLayout({
             isSuperAdmin={role === "Super Admin"}
             onOpenRoleModal={handleOpenRoleModal}
             onOpenAssignRoleModal={handleOpenAssignRoleModal}
+            onOpenViewFirmsModal= {handleOpenViewFirmModal}
           />
         </nav>
         <RoleModal
@@ -212,6 +222,12 @@ export default function DashboardLayout({
             console.log("Role assigned:", assignedUser);
             // maybe refresh data or show success message here
           }}
+        />
+
+        <ViewFirmsModal 
+        visible= {isViewFirmsModalOpen}
+        onClose={handleCloseViewFirmModal}
+        onFirmDeleted={handleFirmDeleted}
         />
 
         {/* Logout Button */}
@@ -258,7 +274,6 @@ export default function DashboardLayout({
                       <BankOutlined className="text-amber-600 dark:text-amber-400" />
                       <span>Create Your First Business To Get Started</span>
                     </div>
-                   
                   </div>
                 ) : user.firms.length === 1 ? (
                   // Only one firm created
@@ -267,13 +282,12 @@ export default function DashboardLayout({
                       <BankOutlined className="text-slate-500 dark:text-slate-400" />
                       <span>You Have Only One Business Now</span>
                     </div>
-                   
                   </div>
                 ) : (
                   // Multiple firms - show dropdown
                   <div className="flex items-center space-x-3">
                     <div className="hidden md:block">
-                      <div className="px-3 py-1 rounded-md text-sm font-medium text-white bg-blue-500">
+                      <div className="px-3 py-1 rounded-md text-base font-medium text-white bg-blue-500">
                         <p>Switch Your Business</p>
                       </div>
                     </div>

@@ -3,6 +3,7 @@ module.exports = {
   CREATE_FIRM: "create_firm",
   UPDATE_FIRM: "update_firm",
   DELETE_FIRM: "delete_firm",
+  VIEW_ALL_FIRMS: "view-all-firms",
 
   // Stats
   VIEW_STATS: "view_stats",

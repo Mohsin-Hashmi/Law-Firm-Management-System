@@ -33,8 +33,14 @@ export const navLinks: NavLink[] = [
     label: "Add New Business",
     href: "/add-firm",
     icon: <BankOutlined />,
-    category: "Main",
+    category: "Business Management",
     requiredPermissions: ["create_firm"],
+  },
+  {
+    label: "View All Business",
+    icon: <EyeOutlined />,
+    category: "Business Management",
+    requiredPermissions: ["view-all-firms"],
   },
   // ---------- Role Management ----------
   {

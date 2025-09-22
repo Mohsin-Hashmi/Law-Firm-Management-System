@@ -19,6 +19,24 @@ export const createFirm = async (data: FirmPayload, role?: string) => {
   return response;
 };
 
+export const getMyFirms = async (): Promise<FirmPayload[]> => {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/api/firm-admin/my-firms`,
+      { withCredentials: true }
+    );
+
+    console.log("firms response:", response.data);
+
+    return response.data.firms; 
+  } catch (error) {
+    console.error("Error fetching firms:", error);
+    return [];
+  }
+};
+
+
+
 /**Add Lawyer API */
 export const addLawyer = async (firmId: number, data: FormData) => {
   if (!firmId) throw new Error("firmId is required");

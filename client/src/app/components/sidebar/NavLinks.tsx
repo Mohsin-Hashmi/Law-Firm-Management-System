@@ -8,12 +8,14 @@ interface NavLinksProps {
   onOpenRoleModal?: () => void;
   isSuperAdmin?: boolean;
   onOpenAssignRoleModal?: () => void;
+  onOpenViewFirmsModal?: () => void; // New prop for ViewFirmsModal
 }
 
 export const NavLinks = ({
   collapsed,
   onOpenRoleModal,
   onOpenAssignRoleModal,
+  onOpenViewFirmsModal,
   isSuperAdmin,
 }: NavLinksProps) => {
   const { hasPermission } = usePermission();
@@ -42,6 +44,8 @@ export const NavLinks = ({
       onOpenAssignRoleModal?.();
     } else if (link.label === "Add New Role") {
       onOpenRoleModal?.();
+    } else if (link.label === "View All Business") {
+      onOpenViewFirmsModal?.();
     } else if (link.onClick) {
       link.onClick();
     }

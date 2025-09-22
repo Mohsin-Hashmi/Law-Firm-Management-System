@@ -1,13 +1,15 @@
 export interface FirmPayload {
+  id: number; 
   name: string;
-  email: string;
+  email?: string; 
   phone?: string;
   address?: string;
   subscription_plan: "Free" | "Basic" | "Premium";
-  max_users: number;
-  max_cases: number;
+  max_users?: number;
+  max_cases?: number;
   status?: "Active" | "Suspended" | "Cancelled";
 }
+
 
 
 export interface LawyerPayload {
