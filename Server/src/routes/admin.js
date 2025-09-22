@@ -11,6 +11,7 @@ const {
   getLawyerPerformance,
   lawyerStats,
   getAllMyFirmsDetails,
+  deleteFirm,
 } = require("../controllers/firm.controller");
 const adminRoute = express();
 const {
@@ -52,6 +53,13 @@ adminRoute.get(
   getAllMyFirmsDetails
 );
 
+adminRoute.delete(
+  "/delete-firm",
+  userAuth,
+  firmAdminAuth,
+  checkPermission(permissions.DELETE_FIRM),
+  deleteFirm
+);
 // Add lawyer with profile image
 adminRoute.post(
   "/:firmId/addlawyers",

@@ -335,9 +335,7 @@ export default function GetLawyers() {
               type="text"
               size="small"
               icon={<EyeOutlined />}
-              onClick={() =>
-                router.push(`/get-lawyer-detail/${record.id}`)
-              }
+              onClick={() => router.push(`/get-lawyer-detail/${record.id}`)}
               className="hover:!bg-blue-50 dark:text-gray-200 hover:!text-blue-600 dark:hover:!bg-blue-900/30 dark:hover:!text-blue-400"
               style={{ borderRadius: "6px" }}
             />
@@ -347,9 +345,7 @@ export default function GetLawyers() {
               type="text"
               size="small"
               icon={<EditOutlined />}
-              onClick={() =>
-                router.push(`/edit-lawyer/${record.id}`)
-              }
+              onClick={() => router.push(`/edit-lawyer/${record.id}`)}
               className="hover:!bg-amber-50 dark:text-gray-200 hover:!text-amber-600 dark:hover:!bg-amber-900/30 dark:hover:!text-amber-400"
               style={{ borderRadius: "6px" }}
             />
@@ -429,7 +425,7 @@ export default function GetLawyers() {
                             letterSpacing: "-0.025em",
                           }}
                         >
-                           Legal Team
+                          Legal Team
                         </Title>
                         <Text
                           style={{
@@ -443,7 +439,7 @@ export default function GetLawyers() {
                       </div>
                     </Space>
                   </Col>
-                  <Col >
+                  <Col>
                     <Space size="middle">
                       <Button
                         type="primary"
@@ -462,23 +458,6 @@ export default function GetLawyers() {
                         }}
                       >
                         Add New Case
-                      </Button>
-                      <Button
-                        size="large"
-                        icon={<ExportOutlined />}
-                        style={{
-                          background: "rgba(255,255,255,0.2)",
-                          borderColor: "rgba(255,255,255,0.3)",
-                          color: "white",
-                          borderRadius: "12px",
-                          fontWeight: "600",
-                          padding: "8px 24px",
-                          height: "48px",
-                          backdropFilter: "blur(10px)",
-                        }}
-                        ghost
-                      >
-                        Export Data
                       </Button>
                     </Space>
                   </Col>

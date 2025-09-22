@@ -48,6 +48,7 @@ import { toast } from "react-hot-toast";
 import { ThemeProvider } from "next-themes";
 import { use } from "react";
 import { ClientStats } from "@/app/types/client";
+import { usePermission } from "@/app/hooks/usePermission";
 const { Title, Text } = Typography;
 
 export default function GetClientDetail({
@@ -55,6 +56,7 @@ export default function GetClientDetail({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const { hasPermission } = usePermission();
   const router = useRouter();
   const { id } = use(params);
   const clientId = Number(id);
@@ -218,17 +220,19 @@ export default function GetClientDetail({
                     >
                       Back
                     </Button>
-                    <Button
-                      type="primary"
-                      size="large"
-                      icon={<EditOutlined />}
-                      onClick={() => router.push(`/edit-client/${client.id}`)}
-                      className="rounded-xl font-semibold px-6 h-12 
+                    {hasPermission("update_client") && (
+                      <Button
+                        type="primary"
+                        size="large"
+                        icon={<EditOutlined />}
+                        onClick={() => router.push(`/edit-client/${client.id}`)}
+                        className="rounded-xl font-semibold px-6 h-12 
                      bg-white text-emerald-600 shadow-md 
                      "
-                    >
-                      Edit Profile
-                    </Button>
+                      >
+                        Edit Profile
+                      </Button>
+                    )}
                   </Space>
                 </Col>
               </Row>
@@ -569,10 +573,8 @@ export default function GetClientDetail({
                 <Card
                   style={{
                     borderRadius: "16px",
-                    border: "1px solid #bbf7d0",
                     boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                    background:
-                      "linear-gradient(135deg, #f0fdf4 0%, #bbf7d0 100%)",
+                    background: "#1A2A80",
                   }}
                   bodyStyle={{ padding: "28px" }}
                 >
@@ -580,7 +582,7 @@ export default function GetClientDetail({
                     title={
                       <span
                         style={{
-                          color: "#059669",
+                          color: "#E0E7FF",
                           fontSize: "14px",
                           fontWeight: "600",
                         }}
@@ -590,11 +592,11 @@ export default function GetClientDetail({
                     }
                     value={clientStats?.totalCases || client.casesCount || 0}
                     valueStyle={{
-                      color: "#059669",
+                      color: "#E0E7FF",
                       fontSize: "36px",
                       fontWeight: "700",
                     }}
-                    prefix={<FileTextOutlined style={{ color: "#059669" }} />}
+                    prefix={<FileTextOutlined style={{ color: "#E0E7FF" }} />}
                   />
                 </Card>
               </Col>
@@ -603,10 +605,8 @@ export default function GetClientDetail({
                 <Card
                   style={{
                     borderRadius: "16px",
-                    border: "1px solid #dbeafe",
                     boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                    background:
-                      "linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)",
+                    background: "#3B38A0",
                   }}
                   bodyStyle={{ padding: "28px" }}
                 >
@@ -614,7 +614,7 @@ export default function GetClientDetail({
                     title={
                       <span
                         style={{
-                          color: "#1e40af",
+                          color: "#E0E7FF",
                           fontSize: "14px",
                           fontWeight: "600",
                         }}
@@ -624,11 +624,11 @@ export default function GetClientDetail({
                     }
                     value={clientStats?.caseStats?.open || 0}
                     valueStyle={{
-                      color: "#1e40af",
+                      color: "#E0E7FF",
                       fontSize: "36px",
                       fontWeight: "700",
                     }}
-                    prefix={<FileTextOutlined style={{ color: "#1e40af" }} />}
+                    prefix={<FileTextOutlined style={{ color: "#E0E7FF" }} />}
                   />
                 </Card>
               </Col>
@@ -637,10 +637,9 @@ export default function GetClientDetail({
                 <Card
                   style={{
                     borderRadius: "16px",
-                    border: "1px solid #fde68a",
+
                     boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                    background:
-                      "linear-gradient(135deg, #fffbeb 0%, #fde68a 100%)",
+                    background: "#7A85C1",
                   }}
                   bodyStyle={{ padding: "28px" }}
                 >
@@ -648,7 +647,7 @@ export default function GetClientDetail({
                     title={
                       <span
                         style={{
-                          color: "#d97706",
+                          color: "#F1F5F9",
                           fontSize: "14px",
                           fontWeight: "600",
                         }}
@@ -658,12 +657,12 @@ export default function GetClientDetail({
                     }
                     value={clientStats?.caseStats?.closed || 0}
                     valueStyle={{
-                      color: "#d97706",
+                      color: "#F1F5F9",
                       fontSize: "36px",
                       fontWeight: "700",
                     }}
                     prefix={
-                      <CheckCircleOutlined style={{ color: "#d97706" }} />
+                      <CheckCircleOutlined style={{ color: "#F1F5F9" }} />
                     }
                   />
                 </Card>
@@ -673,10 +672,9 @@ export default function GetClientDetail({
                 <Card
                   style={{
                     borderRadius: "16px",
-                    border: "1px solid #fecaca",
+
                     boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                    background:
-                      "linear-gradient(135deg, #fef2f2 0%, #fecaca 100%)",
+                    background: "#B2B0E8",
                   }}
                   bodyStyle={{ padding: "28px" }}
                 >
@@ -684,7 +682,7 @@ export default function GetClientDetail({
                     title={
                       <span
                         style={{
-                          color: "#dc2626",
+                          color: "#FFFFFF",
                           fontSize: "14px",
                           fontWeight: "600",
                         }}
@@ -694,11 +692,11 @@ export default function GetClientDetail({
                     }
                     value={clientStats?.totalLawyersAssigned || 0}
                     valueStyle={{
-                      color: "#dc2626",
+                      color: "#FFFFFF",
                       fontSize: "36px",
                       fontWeight: "700",
                     }}
-                    prefix={<TeamOutlined style={{ color: "#dc2626" }} />}
+                    prefix={<TeamOutlined style={{ color: "#FFFFFF" }} />}
                   />
                 </Card>
               </Col>
@@ -1172,55 +1170,59 @@ export default function GetClientDetail({
               <Row justify="center">
                 <Col>
                   <Space size="large">
-                    <Button
-                      type="primary"
-                      size="large"
-                      icon={<EditOutlined />}
-                      onClick={() => router.push(`/edit-client/${clientId}`)}
-                      style={{
-                        background: "#059669",
-                        borderColor: "#059669",
-                        borderRadius: "12px",
-                        fontWeight: "600",
-                        padding: "12px 32px",
-                        height: "48px",
-                        boxShadow: "0 4px 12px rgba(5, 150, 105, 0.3)",
-                      }}
-                    >
-                      Edit Client Profile
-                    </Button>
-
-                    <Button
-                      size="large"
-                      icon={<TeamOutlined />}
-                      onClick={() => router.push("/get-clients")}
-                      style={{
-                        borderRadius: "12px",
-                        border: "1px solid #d1d5db",
-                        fontWeight: "600",
-                        padding: "12px 32px",
-                        height: "48px",
-                        color: "#374151",
-                      }}
-                    >
-                      View All Clients
-                    </Button>
-
-                    <Button
-                      size="large"
-                      icon={<FileTextOutlined />}
-                      onClick={() => router.push(`/client-cases/${clientId}`)}
-                      style={{
-                        borderRadius: "12px",
-                        border: "1px solid #059669",
-                        fontWeight: "600",
-                        padding: "12px 32px",
-                        height: "48px",
-                        color: "#059669",
-                      }}
-                    >
-                      View Cases
-                    </Button>
+                    {hasPermission("update_client") && (
+                      <Button
+                        type="primary"
+                        size="large"
+                        icon={<EditOutlined />}
+                        onClick={() => router.push(`/edit-client/${clientId}`)}
+                        style={{
+                          background: "#059669",
+                          borderColor: "#059669",
+                          borderRadius: "12px",
+                          fontWeight: "600",
+                          padding: "12px 32px",
+                          height: "48px",
+                          boxShadow: "0 4px 12px rgba(5, 150, 105, 0.3)",
+                        }}
+                      >
+                        Edit Client Profile
+                      </Button>
+                    )}
+                    {hasPermission("read_client") && (
+                      <Button
+                        size="large"
+                        icon={<TeamOutlined />}
+                        onClick={() => router.push("/get-clients")}
+                        style={{
+                          borderRadius: "12px",
+                          border: "1px solid #d1d5db",
+                          fontWeight: "600",
+                          padding: "12px 32px",
+                          height: "48px",
+                          color: "#374151",
+                        }}
+                      >
+                        View All Clients
+                      </Button>
+                    )}
+                    {hasPermission("read_case") && (
+                      <Button
+                        size="large"
+                        icon={<FileTextOutlined />}
+                        onClick={() => router.push(`/get-cases`)}
+                        style={{
+                          borderRadius: "12px",
+                          border: "1px solid #059669",
+                          fontWeight: "600",
+                          padding: "12px 32px",
+                          height: "48px",
+                          color: "#059669",
+                        }}
+                      >
+                        View All Cases
+                      </Button>
+                    )}
                   </Space>
                 </Col>
               </Row>

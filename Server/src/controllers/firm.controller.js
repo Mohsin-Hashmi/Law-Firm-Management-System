@@ -130,8 +130,48 @@ const getAllMyFirmsDetails = async (req, res) => {
   }
 };
 
+// Delete Firm API
+const deleteFirm = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { firmId } = req.body; // get firmId from body
 
+    if (!firmId) {
+      return res.status(400).json({
+        success: false,
+        message: "firmId is required",
+      });
+    }
 
+    // Check if this admin owns the firm
+    const adminFirm = await AdminFirm.findOne({
+      where: { adminId: userId, firmId },
+    });
+
+    if (!adminFirm) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to delete this firm",
+      });
+    }
+
+    // Delete relation + firm
+    await AdminFirm.destroy({ where: { firmId } });
+    await Firm.destroy({ where: { id: firmId } });
+
+    return res.status(200).json({
+      success: true,
+      message: "Firm deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting firm:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete firm",
+      error: error.message,
+    });
+  }
+};
 
 /** Create Lawyer API */
 const createLawyer = async (req, res) => {
@@ -670,6 +710,7 @@ const lawyerStats = async (req, res) => {
 module.exports = {
   createFirm,
   getAllMyFirmsDetails,
+  deleteFirm,
   firmStats,
   createLawyer,
   getAllLawyer,

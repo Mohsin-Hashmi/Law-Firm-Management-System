@@ -35,6 +35,24 @@ export const getMyFirms = async (): Promise<FirmPayload[]> => {
   }
 };
 
+export const deleteFirm = async (firmId: number): Promise<boolean> => {
+  try {
+    const response = await axios.delete(
+      `${BASE_URL}/api/firm-admin/delete-firm`,
+      {
+        data: { firmId },
+        withCredentials: true,
+      }
+    );
+
+    return response.data.success; // true/false from backend
+  } catch (error) {
+    console.error("Error deleting firm:", error);
+    return false;
+  }
+};
+
+
 
 
 /**Add Lawyer API */

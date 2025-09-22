@@ -47,10 +47,10 @@ const { Title, Text } = Typography;
 export default function GetLawyerDetail({
   params,
 }: {
-  params: { id: number };
+  params: { id: string };
 }) {
   const router = useRouter();
-  const lawyerId = params.id;
+  const lawyerId = Number(params.id);
 
   const [lawyer, setLawyer] = useState<Lawyer | null>(null);
   const [performanceData, setPerformaceData] =
@@ -58,7 +58,6 @@ export default function GetLawyerDetail({
   const [loadingLawyer, setLoadingLawyer] = useState(true);
   const [loadingPerformance, setLoadingPerformance] = useState(true);
   const [lawyerCases, setLawyerCases] = useState<Case[]>([]);
- 
 
   useEffect(() => {
     if (lawyerId) fetchLawyerDetail();
@@ -95,19 +94,19 @@ export default function GetLawyerDetail({
   }, [lawyerId]);
 
   // Lawyers Cases
- useEffect(() => {
-  const fetchCases = async () => {
-    try {
-      const cases = await getAllCasesOfLawyer(lawyerId);
-      setLawyerCases(cases);
-      console.log("Lawyer cases:", cases);
-    } catch (err) {
-      console.error("Error fetching lawyer cases:", err);
-    }
-  };
+  useEffect(() => {
+    const fetchCases = async () => {
+      try {
+        const cases = await getAllCasesOfLawyer();
+        setLawyerCases(cases);
+        console.log("Lawyer cases:", cases);
+      } catch (err) {
+        console.error("Error fetching lawyer cases:", err);
+      }
+    };
 
-  if (lawyerId) fetchCases();
-}, [lawyerId]);
+    if (lawyerId) fetchCases();
+  }, [lawyerId]);
   if (loadingLawyer) {
     return (
       <DashboardLayout>
@@ -199,11 +198,7 @@ export default function GetLawyerDetail({
                       type="primary"
                       size="large"
                       icon={<EditOutlined />}
-                      onClick={() =>
-                        router.push(
-                          `/edit-lawyer/${lawyer.id}`
-                        )
-                      }
+                      onClick={() => router.push(`/edit-lawyer/${lawyer.id}`)}
                       className="rounded-xl font-semibold px-6 h-12 
                      bg-white text-blue-900 shadow-md 
                      "
@@ -503,10 +498,9 @@ export default function GetLawyerDetail({
                 <Card
                   style={{
                     borderRadius: "16px",
-                    border: "1px solid #dbeafe",
+
                     boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                    background:
-                      "linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)",
+                    background: "#1A2A80",
                   }}
                   bodyStyle={{ padding: "28px" }}
                 >
@@ -514,7 +508,7 @@ export default function GetLawyerDetail({
                     title={
                       <span
                         style={{
-                          color: "#1e40af",
+                          color: "#E0E7FF",
                           fontSize: "14px",
                           fontWeight: "600",
                         }}
@@ -524,11 +518,11 @@ export default function GetLawyerDetail({
                     }
                     value={lawyerCases.length}
                     valueStyle={{
-                      color: "#1e40af",
+                      color: "#E0E7FF",
                       fontSize: "36px",
                       fontWeight: "700",
                     }}
-                    prefix={<FileTextOutlined style={{ color: "#1e40af" }} />}
+                    prefix={<FileTextOutlined style={{ color: "#E0E7FF" }} />}
                   />
                 </Card>
               </Col>
@@ -537,10 +531,8 @@ export default function GetLawyerDetail({
                 <Card
                   style={{
                     borderRadius: "16px",
-                    border: "1px solid #d1fae5",
                     boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                    background:
-                      "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)",
+                    background: "#3B38A0",
                   }}
                   bodyStyle={{ padding: "28px" }}
                 >
@@ -548,7 +540,7 @@ export default function GetLawyerDetail({
                     title={
                       <span
                         style={{
-                          color: "#059669",
+                          color: "#E0E7FF",
                           fontSize: "14px",
                           fontWeight: "600",
                         }}
@@ -558,11 +550,11 @@ export default function GetLawyerDetail({
                     }
                     value={lawyer.clientsCount ?? 0}
                     valueStyle={{
-                      color: "#059669",
+                      color: "#E0E7FF",
                       fontSize: "36px",
                       fontWeight: "700",
                     }}
-                    prefix={<TeamOutlined style={{ color: "#059669" }} />}
+                    prefix={<TeamOutlined style={{ color: "#E0E7FF" }} />}
                   />
                 </Card>
               </Col>
@@ -571,10 +563,8 @@ export default function GetLawyerDetail({
                 <Card
                   style={{
                     borderRadius: "16px",
-                    border: "1px solid #fde68a",
                     boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                    background:
-                      "linear-gradient(135deg, #fffbeb 0%, #fde68a 100%)",
+                    background: "#7A85C1",
                   }}
                   bodyStyle={{ padding: "28px" }}
                 >
@@ -582,7 +572,7 @@ export default function GetLawyerDetail({
                     title={
                       <span
                         style={{
-                          color: "#d97706",
+                          color: "#F1F5F9",
                           fontSize: "14px",
                           fontWeight: "600",
                         }}
@@ -593,12 +583,12 @@ export default function GetLawyerDetail({
                     value={85}
                     suffix="%"
                     valueStyle={{
-                      color: "#d97706",
+                      color: "#F1F5F9",
                       fontSize: "36px",
                       fontWeight: "700",
                     }}
                     prefix={
-                      <CheckCircleOutlined style={{ color: "#d97706" }} />
+                      <CheckCircleOutlined style={{ color: "#F1F5F9" }} />
                     }
                   />
                 </Card>
@@ -608,10 +598,8 @@ export default function GetLawyerDetail({
                 <Card
                   style={{
                     borderRadius: "16px",
-                    border: "1px solid #e9d5ff",
                     boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                    background:
-                      "linear-gradient(135deg, #faf5ff 0%, #e9d5ff 100%)",
+                    background: "#B2B0E8",
                   }}
                   bodyStyle={{ padding: "28px" }}
                 >
@@ -619,7 +607,7 @@ export default function GetLawyerDetail({
                     title={
                       <span
                         style={{
-                          color: "#7c3aed",
+                          color: "#FFFFFF",
                           fontSize: "14px",
                           fontWeight: "600",
                         }}
@@ -629,11 +617,11 @@ export default function GetLawyerDetail({
                     }
                     value={5}
                     valueStyle={{
-                      color: "#7c3aed",
+                      color: "#FFFFFF",
                       fontSize: "36px",
                       fontWeight: "700",
                     }}
-                    prefix={<CalendarOutlined style={{ color: "#7c3aed" }} />}
+                    prefix={<CalendarOutlined style={{ color: "#FFFFFF" }} />}
                   />
                 </Card>
               </Col>
@@ -900,9 +888,7 @@ export default function GetLawyerDetail({
                       type="primary"
                       size="large"
                       icon={<EditOutlined />}
-                      onClick={() =>
-                        router.push(`/edit-lawyer/${lawyerId}`)
-                      }
+                      onClick={() => router.push(`/edit-lawyer/${lawyerId}`)}
                       style={{
                         background: "#1e40af",
                         borderColor: "#1e40af",
@@ -919,9 +905,7 @@ export default function GetLawyerDetail({
                     <Button
                       size="large"
                       icon={<TeamOutlined />}
-                      onClick={() =>
-                        router.push("/get-lawyers")
-                      }
+                      onClick={() => router.push("/get-lawyers")}
                       style={{
                         borderRadius: "12px",
                         border: "1px solid #d1d5db",

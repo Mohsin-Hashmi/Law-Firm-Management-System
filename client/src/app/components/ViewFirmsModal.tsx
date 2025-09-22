@@ -21,7 +21,8 @@ import {
 } from "@ant-design/icons";
 import { getMyFirms } from "../service/adminAPI"; // Adjust the import path
 import { toast } from "react-hot-toast";
-
+import { deleteFirm } from "../service/adminAPI";
+import ConfirmationModal from "./ConfirmationModal";
 const { Title, Text } = Typography;
 
 interface Firm {
@@ -45,6 +46,8 @@ const ViewFirmsModal: React.FC<ViewFirmsModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [firms, setFirms] = useState<Firm[]>([]);
   const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
+  const [confirmVisible, setConfirmVisible] = useState(false);
+  const [selectedFirm, setSelectedFirm] = useState<Firm | null>(null);
 
   // Check if dark mode is active
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -90,18 +93,22 @@ const ViewFirmsModal: React.FC<ViewFirmsModalProps> = ({
       setLoading(false);
     }
   };
+  const showDeleteConfirm = (firm: Firm) => {
+    setSelectedFirm(firm);
+    setConfirmVisible(true);
+  };
 
   const handleDeleteFirm = async (firmId: number) => {
-    setDeletingIds(prev => new Set([...prev, firmId]));
-    
+    setDeletingIds((prev) => new Set([...prev, firmId]));
+
     try {
       // Add your delete API call here
-      // await deleteFirm(firmId);
-      
+      await deleteFirm(firmId);
+
       // For now, just simulate the delete
       setTimeout(() => {
-        setFirms(prev => prev.filter(firm => firm.id !== firmId));
-        setDeletingIds(prev => {
+        setFirms((prev) => prev.filter((firm) => firm.id !== firmId));
+        setDeletingIds((prev) => {
           const newSet = new Set(prev);
           newSet.delete(firmId);
           return newSet;
@@ -109,11 +116,10 @@ const ViewFirmsModal: React.FC<ViewFirmsModalProps> = ({
         toast.success("Firm deleted successfully");
         onFirmDeleted?.(firmId);
       }, 1000);
-      
     } catch (err) {
       console.error("Error deleting firm:", err);
       message.error("Failed to delete firm");
-      setDeletingIds(prev => {
+      setDeletingIds((prev) => {
         const newSet = new Set(prev);
         newSet.delete(firmId);
         return newSet;
@@ -123,16 +129,16 @@ const ViewFirmsModal: React.FC<ViewFirmsModalProps> = ({
 
   const getSubscriptionColor = (plan: string) => {
     switch (plan.toLowerCase()) {
-      case 'free':
-        return 'default';
-      case 'basic':
-        return 'blue';
-      case 'premium':
-        return 'gold';
-      case 'enterprise':
-        return 'purple';
+      case "free":
+        return "default";
+      case "basic":
+        return "blue";
+      case "premium":
+        return "gold";
+      case "enterprise":
+        return "purple";
       default:
-        return 'default';
+        return "default";
     }
   };
 
@@ -156,7 +162,7 @@ const ViewFirmsModal: React.FC<ViewFirmsModalProps> = ({
         padding: "5px 10px",
       }}
     >
-      <div >
+      <div>
         {/* Header */}
         <div className="mb-5">
           <Space size="small" className="mb-1">
@@ -209,7 +215,7 @@ const ViewFirmsModal: React.FC<ViewFirmsModalProps> = ({
               <Card
                 key={firm.id}
                 className="border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:shadow-sm transition-shadow"
-                bodyStyle={{ padding: '12px' }}
+                bodyStyle={{ padding: "12px" }}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3 flex-1">
@@ -224,18 +230,28 @@ const ViewFirmsModal: React.FC<ViewFirmsModalProps> = ({
                         <Text className="text-slate-900 dark:text-white font-medium text-sm truncate">
                           {firm.name}
                         </Text>
-                        <Tag 
+                        <Tag
                           color={getSubscriptionColor(firm.subscription_plan)}
                           className="ml-2 text-xs"
-                          style={{ fontSize: '10px', padding: '1px 6px', lineHeight: '16px' }}
+                          style={{
+                            fontSize: "10px",
+                            padding: "1px 6px",
+                            lineHeight: "16px",
+                          }}
                         >
-                          <CrownOutlined className="mr-1" style={{ fontSize: '10px' }} />
+                          <CrownOutlined
+                            className="mr-1"
+                            style={{ fontSize: "10px" }}
+                          />
                           {firm.subscription_plan}
                         </Tag>
                       </div>
                       {firm.phone && (
                         <div className="flex items-center space-x-1">
-                          <PhoneOutlined className="text-slate-400" style={{ fontSize: '10px' }} />
+                          <PhoneOutlined
+                            className="text-slate-400"
+                            style={{ fontSize: "10px" }}
+                          />
                           <Text className="text-slate-500 dark:text-slate-300 text-xs">
                             {firm.phone}
                           </Text>
@@ -246,29 +262,32 @@ const ViewFirmsModal: React.FC<ViewFirmsModalProps> = ({
 
                   {/* Actions */}
                   <div className="flex items-center space-x-1 ml-3">
-                    <Popconfirm
-                      title="Delete Firm"
-                      description="Are you sure you want to delete this firm? This action cannot be undone."
-                      onConfirm={() => handleDeleteFirm(firm.id)}
-                      okText="Delete"
-                      cancelText="Cancel"
-                      okButtonProps={{
-                        danger: true,
-                        loading: deletingIds.has(firm.id),
-                        size: 'small',
-                      }}
-                      placement="topRight"
-                    >
-                      <Button
-                        type="text"
-                        danger
-                        icon={<DeleteOutlined style={{ fontSize: '12px' }} />}
-                        loading={deletingIds.has(firm.id)}
-                        className="hover:bg-red-50 dark:hover:bg-red-900/20 w-7 h-7"
-                        size="small"
-                      />
-                    </Popconfirm>
+                    <Button
+                      type="text"
+                      danger
+                      icon={<DeleteOutlined style={{ fontSize: "12px" }} />}
+                      loading={deletingIds.has(firm.id)}
+                      className="hover:bg-red-50 dark:hover:bg-red-900/20 w-7 h-7"
+                      size="small"
+                      onClick={() => showDeleteConfirm(firm)}
+                    />
                   </div>
+                  <ConfirmationModal
+                    visible={confirmVisible}
+                    entityName="Firm"
+                    action="delete"
+                    title={`Delete ${selectedFirm?.name}?`}
+                    description={`Are you sure you want to delete ${selectedFirm?.name}? This action cannot be undone.`}
+                    onConfirm={() => {
+                      if (selectedFirm) {
+                        handleDeleteFirm(selectedFirm.id);
+                      }
+                      setConfirmVisible(false);
+                    }}
+                    onCancel={() => setConfirmVisible(false)}
+                    confirmText="Delete"
+                    cancelText="Cancel"
+                  />
                 </div>
               </Card>
             ))}
@@ -279,7 +298,8 @@ const ViewFirmsModal: React.FC<ViewFirmsModalProps> = ({
         <div className="flex justify-between items-center mt-5 pt-3 border-t border-slate-200 dark:border-slate-600">
           <div>
             <Text className="text-slate-500 dark:text-slate-400 text-xs">
-              {firms.length > 0 && `${firms.length} firm${firms.length !== 1 ? 's' : ''} found`}
+              {firms.length > 0 &&
+                `${firms.length} firm${firms.length !== 1 ? "s" : ""} found`}
             </Text>
           </div>
           <div className="flex gap-2">

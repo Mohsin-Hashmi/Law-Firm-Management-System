@@ -573,23 +573,7 @@ export default function GetClients() {
                       >
                         Add New Client
                       </Button>
-                      <Button
-                        size="large"
-                        icon={<ExportOutlined />}
-                        style={{
-                          background: "rgba(255,255,255,0.2)",
-                          borderColor: "rgba(255,255,255,0.3)",
-                          color: "white",
-                          borderRadius: "12px",
-                          fontWeight: "600",
-                          padding: "8px 24px",
-                          height: "48px",
-                          backdropFilter: "blur(10px)",
-                        }}
-                        ghost
-                      >
-                        Export Data
-                      </Button>
+                     
                     </Space>
                   </Col>
                 </Row>
