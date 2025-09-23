@@ -68,38 +68,48 @@ jobs:
 
       - name: Deploy on EC2
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+            "EC2_APP_DIR='${{ secrets.EC2_APP_DIR }}' SERVER_DIR='${{ env.SERVER_DIR }}' bash -s" << 'EOF'
           set -e
-          SERVER_DIR='${{ env.SERVER_DIR }}'
 
-          echo "Listing remote target directory: ${{ secrets.EC2_APP_DIR }}"
-          ls -la "${{ secrets.EC2_APP_DIR }}" || true
-          echo "Checking tarball at: ${{ secrets.EC2_APP_DIR }}/deploy_artifacts.tar.gz"
-          ls -la "${{ secrets.EC2_APP_DIR }}/deploy_artifacts.tar.gz" || true
+          echo "Listing remote target directory: ${EC2_APP_DIR}"
+          ls -la "${EC2_APP_DIR}" || true
+          echo "Checking tarball at: ${EC2_APP_DIR}/deploy_artifacts.tar.gz"
+          ls -la "${EC2_APP_DIR}/deploy_artifacts.tar.gz" || true
 
-          cd "${{ secrets.EC2_APP_DIR }}"
+          cd "${EC2_APP_DIR}"
           echo "Extracting deploy_artifacts.tar.gz in $(pwd)"
           tar -xzf deploy_artifacts.tar.gz
 
-          # Server env expected in a .env file on EC2
-          cd "${{ secrets.EC2_APP_DIR }}/${SERVER_DIR}"
-          # Install prod deps without running postinstall migrations during install
-          npm ci --omit=dev --ignore-scripts
+          # Ensure Node.js is installed (Amazon Linux 2023)
+          if ! command -v node >/dev/null 2>&1; then
+            echo "Installing Node.js 20..."
+            if command -v dnf >/dev/null 2>&1; then
+              curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo -E bash -
+              sudo dnf install -y nodejs
+            else
+              curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo -E bash -
+              sudo yum install -y nodejs
+            fi
+          fi
 
-          # Restart server using PM2 (install if missing)
+          # Ensure PM2 installed
           if ! command -v pm2 >/dev/null 2>&1; then
             sudo npm i -g pm2
           fi
 
-          # Create or reload PM2 process
+          # Install server deps and restart
+          cd "${EC2_APP_DIR}/${SERVER_DIR}"
+          npm ci --omit=dev --ignore-scripts
+
           APP_NAME=law-firm-server
-          pm2 startOrReload <<PM2CONF
+          pm2 startOrReload <<'PM2CONF'
           {
             "apps": [
               {
-                "name": "${APP_NAME}",
+                "name": "law-firm-server",
                 "script": "src/app.js",
-                "cwd": "${{ secrets.EC2_APP_DIR }}/${SERVER_DIR}",
+                "cwd": "${EC2_APP_DIR}/${SERVER_DIR}",
                 "env": { "NODE_ENV": "production", "PORT": "4000" }
               }
             ]
