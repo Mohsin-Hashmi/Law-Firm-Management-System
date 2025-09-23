@@ -45,6 +45,7 @@ import {
   UserAddOutlined,
   SettingOutlined,
   IeOutlined,
+  CloseOutlined
 } from "@ant-design/icons";
 import { toast } from "react-hot-toast";
 import DashboardLayout from "@/app/components/DashboardLayout";
@@ -458,6 +459,27 @@ export default function GetUserRoles() {
     },
   ];
 
+  const getPermissionDescription = (permission: string) => {
+  const descriptions: Record<string, string> = {
+    'create_case': 'Allows user to create new legal cases',
+    'create_client': 'Allows user to create new client profiles',
+    'read_case': 'Allows user to view legal case information',
+    'read_client': 'Allows user to view client information',
+    'update_case': 'Allows user to modify existing legal cases',
+    'update_client': 'Allows user to update client information',
+    'delete_case': 'Allows user to delete legal cases',
+    'delete_client': 'Allows user to remove client profiles',
+    'upload_case_document': 'Allows user to upload case-related documents',
+    'view_case_documents': 'Allows user to access and view case documents',
+    'view_case_status': 'Allows user to check the status of legal cases',
+    'view_stats': 'Allows user to view system statistics and reports',
+    'manage_settings': 'Allows user to configure system settings',
+    'admin_access': 'Provides full administrative access to the system',
+  };
+  
+  return descriptions[permission] || `Allows access to ${formatPermissionName(permission).toLowerCase()}`;
+};
+
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <DashboardLayout>
@@ -804,207 +826,179 @@ export default function GetUserRoles() {
 
               {/* Permissions Modal */}
               <Modal
-                title={
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "12px",
-                      fontSize: "18px",
-                      fontWeight: "600",
-                    }}
-                  >
-                    <Avatar
-                      style={{
-                        background:
-                          "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
-                      }}
-                    >
-                      <KeyOutlined />
-                    </Avatar>
-                    Permissions for {selectedUser?.name}
-                  </div>
-                }
+                title={null}
                 open={isPermissionModalOpen}
                 onCancel={handleClosePermissionModal}
-                footer={[
-                  <Button
-                    key="close"
-                    type="primary"
-                    onClick={handleClosePermissionModal}
-                  >
-                    Close
-                  </Button>,
-                ]}
+                footer={null}
                 width={600}
                 centered
-                className="[&_.ant-modal-header]:!bg-gradient-to-r [&_.ant-modal-header]:!from-slate-50 [&_.ant-modal-header]:!to-blue-50 
-                  [&_.ant-modal-header]:dark:!from-slate-800 [&_.ant-modal-header]:dark:!to-slate-700
-                  [&_.ant-modal-title]:!text-slate-800 [&_.ant-modal-title]:dark:!text-white
-                  [&_.ant-modal-content]:dark:!bg-slate-800 [&_.ant-modal-body]:dark:!bg-slate-800"
+                closeIcon={
+                  <CloseOutlined className="text-slate-400 hover:text-slate-600" />
+                }
+                className="view-permissions-modal"
+                style={{
+                  padding: "5px 10px",
+                }}
               >
-                {selectedUser && (
-                  <div style={{ padding: "16px 0" }}>
-                    {selectedUser.permissions.length > 0 ? (
-                      <div>
-                        <div
-                          style={{
-                            marginBottom: "20px",
-                            padding: "12px",
-                            background: isDarkMode
-                              ? "linear-gradient(135deg, #1e293b 0%, #334155 100%)"
-                              : "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)",
-                            borderRadius: "8px",
-                            border: isDarkMode
-                              ? "1px solid #475569"
-                              : "1px solid #0ea5e9",
-                          }}
-                        >
-                          <Text
-                            style={{
-                              fontSize: "14px",
-                              color: isDarkMode ? "#e2e8f0" : "#0369a1",
-                              fontWeight: "500",
-                            }}
-                          >
-                            <CheckCircleOutlined
-                              style={{ marginRight: "8px" }}
-                            />
-                            This user has {selectedUser.permissions.length}{" "}
-                            permission
-                            {selectedUser.permissions.length !== 1 ? "s" : ""}
-                            with <strong>{selectedUser.role.name}</strong> role
-                          </Text>
-                        </div>
-
-                        <List
-                          dataSource={selectedUser.permissions}
-                          renderItem={(permission, index) => (
-                            <List.Item
-                              style={{
-                                padding: "12px 16px",
-                                margin: "8px 0",
-                                background: isDarkMode ? "#334155" : "#ffffff",
-                                borderRadius: "8px",
-                                border: isDarkMode
-                                  ? "1px solid #475569"
-                                  : "1px solid #e2e8f0",
-                                boxShadow: isDarkMode
-                                  ? "0 1px 3px rgba(0,0,0,0.3)"
-                                  : "0 1px 3px rgba(0,0,0,0.1)",
-                              }}
-                            >
-                              <div
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: "12px",
-                                  width: "100%",
-                                }}
-                              >
-                                <div
-                                  style={{
-                                    width: "36px",
-                                    height: "36px",
-                                    borderRadius: "8px",
-                                    background: isDarkMode
-                                      ? "linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)"
-                                      : "linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    color: isDarkMode ? "white" : "#4f46e5",
-                                    fontSize: "16px",
-                                  }}
-                                >
-                                  {getPermissionIcon(permission)}
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                  <Text
-                                    style={{
-                                      fontSize: "15px",
-                                      fontWeight: "600",
-                                      color: isDarkMode ? "#f1f5f9" : "#1f2937",
-                                      display: "block",
-                                    }}
-                                  >
-                                    {formatPermissionName(permission)}
-                                  </Text>
-                                  <Text
-                                    style={{
-                                      fontSize: "12px",
-                                      color: isDarkMode ? "#94a3b8" : "#6b7280",
-                                    }}
-                                  >
-                                    {permission}
-                                  </Text>
-                                </div>
-                                <Tag
-                                  color={isDarkMode ? "blue" : "blue"}
-                                  style={{
-                                    borderRadius: "12px",
-                                    fontSize: "11px",
-                                    fontWeight: "500",
-                                  }}
-                                >
-                                  Active
-                                </Tag>
-                              </div>
-                            </List.Item>
-                          )}
-                          style={{
-                            maxHeight: "400px",
-                            overflowY: "auto",
-                          }}
-                        />
+                <div>
+                  {/* Header */}
+                  <div className="mb-5">
+                    <Space size="small" className="mb-1">
+                      <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                        <KeyOutlined className="text-blue-600 dark:text-blue-400 text-sm" />
                       </div>
-                    ) : (
-                      <div
-                        style={{
-                          textAlign: "center",
-                          padding: "40px 20px",
-                        }}
-                      >
-                        <div
-                          style={{
-                            width: "80px",
-                            height: "80px",
-                            borderRadius: "40px",
-                            background: isDarkMode
-                              ? "linear-gradient(135deg, #dc2626 0%, #ef4444 100%)"
-                              : "linear-gradient(135deg, #fef2f2 0%, #fecaca 100%)",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            margin: "0 auto 20px",
-                            color: isDarkMode ? "white" : "#dc2626",
-                            fontSize: "32px",
-                          }}
-                        >
-                          <ExclamationCircleOutlined />
-                        </div>
+                      <div>
                         <Title
-                          level={4}
-                          style={{
-                            color: isDarkMode ? "#f1f5f9" : "#1f2937",
-                            marginBottom: "8px",
-                          }}
+                          level={5}
+                          className="!text-slate-900 dark:!text-white !mb-0 !text-lg"
                         >
-                          No Permissions Assigned
+                          Permissions for {selectedUser?.name}
                         </Title>
-                        <Text
-                          style={{
-                            color: isDarkMode ? "#94a3b8" : "#6b7280",
-                            fontSize: "14px",
-                          }}
-                        >
-                          This user currently has limited access with no
-                          specific permissions assigned.
+                        <Text className="text-slate-500 dark:text-slate-300 text-xs">
+                          View all permissions assigned to this user
                         </Text>
                       </div>
-                    )}
+                    </Space>
                   </div>
-                )}
+
+                  {selectedUser && (
+                    <div>
+                      {selectedUser.permissions.length > 0 ? (
+                        <div>
+                          {/* Status Banner */}
+                          <div
+                            className="mb-4 p-3 rounded-lg border"
+                            style={{
+                              background: isDarkMode
+                                ? "linear-gradient(135deg, #1e293b 0%, #334155 100%)"
+                                : "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)",
+                              borderColor: isDarkMode ? "#475569" : "#0ea5e9",
+                            }}
+                          >
+                            <Text
+                              className="text-xs"
+                              style={{
+                                color: isDarkMode ? "#e2e8f0" : "#0369a1",
+                                fontWeight: "500",
+                              }}
+                            >
+                              <CheckCircleOutlined className="mr-2" />
+                              This user has {
+                                selectedUser.permissions.length
+                              }{" "}
+                              permission
+                              {selectedUser.permissions.length !== 1
+                                ? "s"
+                                : ""}{" "}
+                              with <strong>{selectedUser.role.name}</strong>{" "}
+                              role
+                            </Text>
+                          </div>
+
+                          {/* Permissions List */}
+                          <div className="max-h-80 overflow-y-auto space-y-2">
+                            {selectedUser.permissions.map(
+                              (permission, index) => (
+                                <Card
+                                  key={index}
+                                  className="border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:shadow-sm transition-shadow"
+                                  bodyStyle={{ padding: "12px" }}
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-3 flex-1">
+                                      {/* Permission Icon */}
+                                      <div className="w-9 h-9 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                                        <span className="text-blue-600 dark:text-blue-400 text-sm">
+                                          {getPermissionIcon(permission)}
+                                        </span>
+                                      </div>
+
+                                      {/* Permission Details */}
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex items-center space-x-2 mb-1">
+                                          <Text className="text-slate-900 dark:text-white font-medium text-sm truncate">
+                                            {formatPermissionName(permission)}
+                                          </Text>
+                                        </div>
+                                        { <Text className="text-slate-500 dark:text-slate-300 text-xs">
+                                          {getPermissionDescription(permission)}
+                                        </Text> }
+                                      </div>
+                                    </div>
+
+                                    {/* Status Tag */}
+                                    <div className="flex items-center space-x-1 ml-3">
+                                      <Tag
+                                        color="blue"
+                                        className="text-xs"
+                                        style={{
+                                          fontSize: "10px",
+                                          padding: "1px 6px",
+                                          lineHeight: "16px",
+                                        }}
+                                      >
+                                        Active
+                                      </Tag>
+                                    </div>
+                                  </div>
+                                </Card>
+                              )
+                            )}
+                          </div>
+                        </div>
+                      ) : (
+                        // No Permissions State
+                        <div className="py-8">
+                          <div className="text-center">
+                            <div
+                              className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center"
+                              style={{
+                                background: isDarkMode
+                                  ? "linear-gradient(135deg, #dc2626 0%, #ef4444 100%)"
+                                  : "linear-gradient(135deg, #fef2f2 0%, #fecaca 100%)",
+                                color: isDarkMode ? "white" : "#dc2626",
+                              }}
+                            >
+                              <ExclamationCircleOutlined className="text-2xl" />
+                            </div>
+                            <Title
+                              level={5}
+                              className="!text-slate-900 dark:!text-white !mb-2"
+                            >
+                              No Permissions Assigned
+                            </Title>
+                            <Text className="text-slate-500 dark:text-slate-400 text-sm">
+                              This user currently has limited access with no
+                              specific permissions assigned.
+                            </Text>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Footer */}
+                  <div className="flex justify-between items-center mt-5 pt-3 border-t border-slate-200 dark:border-slate-600">
+                    <div>
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs">
+                        {selectedUser &&
+                          selectedUser.permissions.length > 0 &&
+                          `${selectedUser.permissions.length} permission${
+                            selectedUser.permissions.length !== 1 ? "s" : ""
+                          } found`}
+                      </Text>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={handleClosePermissionModal}
+                        className="h-8 px-3 rounded-md text-xs"
+                        size="small"
+                      >
+                        Close
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </Modal>
             </div>
           </div>

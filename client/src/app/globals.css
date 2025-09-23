@@ -70,7 +70,8 @@ body {
 .dark .assign-role-modal .ant-modal-content,
 .dark .firm-status-modal .ant-modal-content, 
 .dark .view-firms-modal .ant-modal-content,
-.dark .assign-lawyer-modal .ant-modal-content{
+.dark .assign-lawyer-modal .ant-modal-content,
+.dark .view-permissions-modal .ant-modal-content{
   background-color: #1E293B !important;
   border: none !important;
   opacity: 1;

@@ -7,7 +7,7 @@ import { removeUser } from "../store/userSlice";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
-import { Select, Spin } from "antd"; // Import Spin from antd
+import { Select, Spin } from "antd";
 import { switchFirm } from "../store/userSlice";
 import { usePathname } from "next/navigation";
 import { usePermission } from "../hooks/usePermission";
@@ -55,13 +55,31 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const role = useAppSelector((state) => state.user.user?.role);
   const user = useAppSelector((state) => state.user.user);
-  const [collapsed, setCollapsed] = useState(false);
-  const [isSwitchingFirm, setIsSwitchingFirm] = useState(false); // Add loading state
+  
+  // Initialize collapsed state from localStorage
+  const [collapsed, setCollapsed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const savedState = localStorage.getItem('sidebar-collapsed');
+      return savedState ? JSON.parse(savedState) : false;
+    }
+    return false;
+  });
+  
+  const [isSwitchingFirm, setIsSwitchingFirm] = useState(false);
   const [isRoleModalVisible, setIsRoleModalVisible] = useState(false);
-  const [isAssignRoleModalVisible, setIsAssignRoleModalVisible] =
-    useState(false);
+  const [isAssignRoleModalVisible, setIsAssignRoleModalVisible] = useState(false);
   const [isViewFirmsModalOpen, setIsViewFirmsModalOpen] = useState(false);
   const [showReset, setShowReset] = useState(false);
+
+  // Save collapsed state to localStorage whenever it changes
+  const handleToggleCollapse = () => {
+    const newCollapsedState = !collapsed;
+    setCollapsed(newCollapsedState);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sidebar-collapsed', JSON.stringify(newCollapsedState));
+    }
+  };
+
   useEffect(() => {
     console.log("User in DashboardLayout:", user);
     if (user?.mustChangePassword) {
@@ -73,8 +91,8 @@ export default function DashboardLayout({
   const handleCloseRoleModal = () => setIsRoleModalVisible(false);
   const handleOpenAssignRoleModal = () => setIsAssignRoleModalVisible(true);
   const handleCloseAssignRoleModal = () => setIsAssignRoleModalVisible(false);
-  const handleOpenViewFirmModal= ()=> setIsViewFirmsModalOpen(true);
-  const handleCloseViewFirmModal= ()=> setIsViewFirmsModalOpen(false);
+  const handleOpenViewFirmModal = () => setIsViewFirmsModalOpen(true);
+  const handleCloseViewFirmModal = () => setIsViewFirmsModalOpen(false);
 
   const handleLogout = async () => {
     try {
@@ -82,8 +100,11 @@ export default function DashboardLayout({
       dispatch(removeUser(response.data));
       dispatch(clearFirm(response.data));
       dispatch(clearLawyers(response.data));
+      // Clear the saved sidebar state on logout
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('sidebar-collapsed');
+      }
       router.push("/auth/login");
-
       toast.success("Logged out successfully");
     } catch (err) {
       toast.error("Failed to logout");
@@ -91,22 +112,11 @@ export default function DashboardLayout({
     }
   };
 
-    const handleFirmDeleted = (firmId: number) => {
+  const handleFirmDeleted = (firmId: number) => {
     console.log(`Firm ${firmId} deleted successfully`);
-    // You can add any additional logic here, like refreshing other data
   };
 
-  // Custom loading icon for the spinner
   const antIcon = <LoadingOutlined style={{ fontSize: 16 }} spin />;
-
-  // const groupedNavLinks = navLinksMap[role || "Lawyer"]?.reduce((acc, link) => {
-  //     const category = link.category || "Other";
-  //     if (!acc[category]) {
-  //       acc[category] = [];
-  //     }
-  //     acc[category].push(link);
-  //     return acc;
-  //   }, {} as Record<string, (typeof navLinksMap)[string]>) || {};
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -140,7 +150,6 @@ export default function DashboardLayout({
         userId={user?.id}
         onClose={() => setShowReset(false)}
         onSuccess={() => {
-          // Optional: Update Redux state to clear mustChangePassword
           console.log("Password reset successful!");
         }}
       />
@@ -152,7 +161,7 @@ export default function DashboardLayout({
         } bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 flex flex-col shadow-xl dark:shadow-2xl transition-all duration-300 ease-in-out`}
       >
         {/* Logo Section */}
-        <div className="h-25 flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700">
+        <div className="h-25 flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-slate-700">
           <div className="flex items-center flex-1">
             {!collapsed && (
               <Image
@@ -162,7 +171,7 @@ export default function DashboardLayout({
               />
             )}
             <button
-              onClick={() => setCollapsed(!collapsed)}
+              onClick={handleToggleCollapse}
               className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-200 ml-auto"
             >
               {collapsed ? (
@@ -204,30 +213,30 @@ export default function DashboardLayout({
             isSuperAdmin={role === "Super Admin"}
             onOpenRoleModal={handleOpenRoleModal}
             onOpenAssignRoleModal={handleOpenAssignRoleModal}
-            onOpenViewFirmsModal= {handleOpenViewFirmModal}
+            onOpenViewFirmsModal={handleOpenViewFirmModal}
           />
         </nav>
+        
         <RoleModal
           visible={isRoleModalVisible}
           onClose={handleCloseRoleModal}
           onRoleCreated={(newRole) => {
             console.log("New role created:", newRole);
-            // Optionally, refresh your nav links or update state
           }}
         />
+        
         <AssignRoleModal
           visible={isAssignRoleModalVisible}
           onClose={handleCloseAssignRoleModal}
           onRoleAssigned={(assignedUser) => {
             console.log("Role assigned:", assignedUser);
-            // maybe refresh data or show success message here
           }}
         />
 
         <ViewFirmsModal 
-        visible= {isViewFirmsModalOpen}
-        onClose={handleCloseViewFirmModal}
-        onFirmDeleted={handleFirmDeleted}
+          visible={isViewFirmsModalOpen}
+          onClose={handleCloseViewFirmModal}
+          onFirmDeleted={handleFirmDeleted}
         />
 
         {/* Logout Button */}
@@ -255,7 +264,7 @@ export default function DashboardLayout({
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Top Header */}
-        <header className=" h-25 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-2 py-5 shadow-sm dark:shadow-2xl">
+        <header className="h-25 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-2 py-5 shadow-sm dark:shadow-2xl">
           <div className="flex items-center space-x-4">
             <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
               {role === "Super Admin" && "Super Admin Panel"}
@@ -263,7 +272,6 @@ export default function DashboardLayout({
               {role === "Lawyer" && "Legal Dashboard"}
             </h1>
 
-            {/* Switch Firm section - positioned next to title */}
             {/* Switch Firm section - positioned next to title */}
             {role === "Firm Admin" && (
               <>
@@ -530,7 +538,7 @@ export default function DashboardLayout({
         </header>
 
         {/* Content Area */}
-        <section className="flex-1 overflow-y-auto bg-gradie  nt-to-br from-slate-50 to-white dark:from-slate-800 dark:to-slate-900 transition-colors duration-300">
+        <section className="flex-1 overflow-y-auto bg-gradient-to-br from-slate-50 to-white dark:from-slate-800 dark:to-slate-900 transition-colors duration-300">
           <div className="p-8 max-w-full">{children}</div>
         </section>
       </main>

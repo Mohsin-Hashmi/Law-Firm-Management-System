@@ -10,7 +10,10 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    // Remove the unique constraint safely
-    await queryInterface.removeConstraint("Users", "unique_firm_email");
+    try {
+      await queryInterface.removeConstraint("Users", "unique_firm_email");
+    } catch (error) {
+      console.warn("⚠️ Skipping removal of unique_firm_email:", error.message);
+    }
   },
 };

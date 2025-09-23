@@ -85,46 +85,46 @@ export default function GetCases() {
   }, [cases, searchText, statusFilter, caseTypeFilter]);
 
   /**Get All Cases API */
-const fetchCases = async (firmId: number) => {
-  try {
-    setLoading(true);
-    let response: Case[] = [];
-    if (role === "Firm Admin") {
-      if (!firmId) {
-        toast.error("Firm ID missing");
-        return;
+  const fetchCases = async (firmId: number) => {
+    try {
+      setLoading(true);
+      let response: Case[] = [];
+      if (role === "Firm Admin") {
+        if (!firmId) {
+          toast.error("Firm ID missing");
+          return;
+        }
+        response = await getAllCasesOfFirm(firmId);
+      } else if (role === "Lawyer") {
+        response = await getAllCasesOfLawyer();
       }
-      response = await getAllCasesOfFirm(firmId);
-    } else if (role === "Lawyer") {
-      response = await getAllCasesOfLawyer();
+
+      setCasesData(response);
+      dispatch(setCases(response));
+      toast.success("Fetch cases successfully");
+      console.log("Successfully fetched cases data:", response);
+    } catch (error) {
+      console.error("Error fetching cases:", error);
+      // toast.error("Failed to fetch cases data");
+      // Set empty array on error to prevent infinite loading
+      setCasesData([]);
+    } finally {
+      // Ensure loading is always set to false
+      setLoading(false);
     }
+  };
 
-    setCasesData(response);
-    dispatch(setCases(response));
-    toast.success("Fetch cases successfully");
-    console.log("Successfully fetched cases data:", response);
-  } catch (error) {
-    console.error("Error fetching cases:", error);
-    toast.error("Failed to fetch cases data");
-    // Set empty array on error to prevent infinite loading
-    setCasesData([]);
-  } finally {
-    // Ensure loading is always set to false
-    setLoading(false);
-  }
-};
-
-useEffect(() => {
-  if (firmId) {
-    // Clear previous data before fetching new data
-    setCasesData([]);
-    setFilteredCases([]);
-    fetchCases(firmId);
-  } else {
-    // If no firmId, stop loading
-    setLoading(false);
-  }
-}, [role, firmId]);
+  useEffect(() => {
+    if (firmId) {
+      // Clear previous data before fetching new data
+      setCasesData([]);
+      setFilteredCases([]);
+      fetchCases(firmId);
+    } else {
+      // If no firmId, stop loading
+      setLoading(false);
+    }
+  }, [role, firmId]);
 
   useEffect(() => {
     if (firmId) {
@@ -449,51 +449,187 @@ useEffect(() => {
       sorter: (a: Case, b: Case) =>
         new Date(a.openedAt).getTime() - new Date(b.openedAt).getTime(),
     },
+
+    // Replace your existing "Assigned Lawyers" column with this improved version
     {
       title: "Assigned Lawyers",
       key: "lawyers",
       width: 200,
-      render: (_: unknown, record: Case) => (
-        <div className="flex items-center gap-2">
-          {record.lawyers.map((lawyer) => (
-            <Avatar
-              key={lawyer.id}
-              size={28}
-              src={
-                lawyer.profileImage
-                  ? `http://localhost:5000${lawyer.profileImage}`
-                  : undefined
-              }
-              style={{
-                backgroundColor: lawyer.profileImage
-                  ? "transparent"
-                  : "#f1f5f9",
-                color: lawyer.profileImage ? "transparent" : "#059669",
-                fontSize: "12px",
-                fontWeight: "600",
-                border: "1px solid white",
-              }}
-            >
-              {!lawyer.profileImage && lawyer.name.charAt(0)}
-            </Avatar>
-          ))}
+      render: (_: unknown, record: Case) => {
+        const lawyers = record.lawyers || [];
 
-          <div>
-            <Text className="block text-slate-800 dark:text-slate-200 text-sm font-medium">
-              {record.lawyers.length} Lawyer
-              {record.lawyers.length > 1 ? "s" : ""}
-            </Text>
-            <Text
-              className="block text-slate-500 dark:text-slate-400 text-xs"
-              ellipsis={{
-                tooltip: record.lawyers.map((lawyer) => lawyer.name).join(", "),
-              }}
-            >
-              {record.lawyers.map((lawyer) => lawyer.name).join(", ")}
-            </Text>
+        if (lawyers.length === 0) {
+          return (
+            <div className="flex items-center justify-center">
+              <Tag className="px-3 py-1 rounded-full text-xs font-medium border-0 bg-gray-100 text-gray-600 dark:bg-gray-900/30 dark:text-gray-400">
+                No Lawyers
+              </Tag>
+            </div>
+          );
+        }
+
+        // Determine avatar size based on number of lawyers
+        const getAvatarSize = (count: number) => {
+          if (count === 1) return 40;
+          if (count === 2) return 32;
+          return 28;
+        };
+
+        const avatarSize = getAvatarSize(lawyers.length);
+        const maxDisplay = 2; // Maximum avatars to show before showing +X
+        const displayLawyers = lawyers.slice(0, maxDisplay);
+        const remainingCount = lawyers.length - maxDisplay;
+
+        return (
+          <div className="flex items-center gap-3">
+            {/* Avatar Group */}
+            <div className="flex items-center">
+              <div className="flex items-center -space-x-1">
+                {displayLawyers.map((lawyer, index) => (
+                  <Tooltip
+                    key={lawyer.id}
+                    title={
+                      <div>
+                        <div className="font-medium text-sm">{lawyer.name}</div>
+                        <div className="text-xs opacity-75">
+                          {lawyer.email || "Lawyer"}
+                        </div>
+                      </div>
+                    }
+                    placement="top"
+                  >
+                    <Avatar
+                      size={avatarSize}
+                      src={
+                        lawyer.profileImage
+                          ? `http://localhost:5000${lawyer.profileImage}`
+                          : undefined
+                      }
+                      className="border-2 border-white dark:border-slate-700 cursor-pointer hover:scale-110 transition-transform duration-200"
+                      style={{
+                        backgroundColor: lawyer.profileImage
+                          ? "transparent"
+                          : "#f1f5f9",
+                        color: lawyer.profileImage ? "transparent" : "#059669",
+                        fontSize: avatarSize > 30 ? "14px" : "12px",
+                        fontWeight: "600",
+                        zIndex: displayLawyers.length - index,
+                      }}
+                    >
+                      {!lawyer.profileImage &&
+                        lawyer.name.charAt(0).toUpperCase()}
+                    </Avatar>
+                  </Tooltip>
+                ))}
+
+                {/* Show remaining count if there are more lawyers */}
+                {remainingCount > 0 && (
+                  <Tooltip
+                    title={
+                      <div className="space-y-1">
+                        <div className="font-medium text-sm mb-2">
+                          Additional Lawyers:
+                        </div>
+                        {lawyers.slice(maxDisplay).map((lawyer, index) => (
+                          <div
+                            key={lawyer.id || index}
+                            className="flex items-center space-x-2"
+                          >
+                            <Avatar
+                              size={20}
+                              src={
+                                lawyer.profileImage
+                                  ? `http://localhost:5000${lawyer.profileImage}`
+                                  : undefined
+                              }
+                            >
+                              {!lawyer.profileImage &&
+                                lawyer.name.charAt(0).toUpperCase()}
+                            </Avatar>
+                            <span className="text-xs">{lawyer.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    }
+                    placement="topLeft"
+                  >
+                    <div
+                      className="flex items-center justify-center bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300 border-2 border-white dark:border-slate-700 rounded-full text-xs font-medium cursor-pointer hover:scale-110 transition-transform duration-200"
+                      style={{
+                        width: avatarSize,
+                        height: avatarSize,
+                        fontSize: avatarSize > 30 ? "11px" : "9px",
+                        zIndex: 0,
+                      }}
+                    >
+                      +{remainingCount}
+                    </div>
+                  </Tooltip>
+                )}
+              </div>
+            </div>
+
+            {/* Lawyer Info - Compact */}
+            <div className="flex-1 min-w-0">
+              <Tooltip
+                title={
+                  <div className="space-y-1">
+                    <div className="font-medium text-sm mb-2">
+                      Assigned Lawyers:
+                    </div>
+                    {lawyers.map((lawyer, index) => (
+                      <div
+                        key={lawyer.id || index}
+                        className="flex items-center space-x-2"
+                      >
+                        <Avatar
+                          size={20}
+                          src={
+                            lawyer.profileImage
+                              ? `http://localhost:5000${lawyer.profileImage}`
+                              : undefined
+                          }
+                        >
+                          {!lawyer.profileImage &&
+                            lawyer.name.charAt(0).toUpperCase()}
+                        </Avatar>
+                        <div>
+                          <div className="font-medium text-xs">
+                            {lawyer.name}
+                          </div>
+                          <div className="text-xs opacity-75">
+                            {lawyer.email || "Lawyer"}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                }
+                placement="topLeft"
+              >
+                <div className="cursor-pointer">
+                  <Text className="block text-slate-800 dark:text-slate-200 text-sm font-medium">
+                    {lawyers.length} Lawyer{lawyers.length > 1 ? "s" : ""}
+                  </Text>
+                  <Text
+                    className="block text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-slate-300"
+                    ellipsis
+                  >
+                    {lawyers.length <= 2
+                      ? lawyers
+                          .map((lawyer) => lawyer.name.split(" ")[0])
+                          .join(", ")
+                      : `${lawyers
+                          .slice(0, 2)
+                          .map((lawyer) => lawyer.name.split(" ")[0])
+                          .join(", ")}...`}
+                  </Text>
+                </div>
+              </Tooltip>
+            </div>
           </div>
-        </div>
-      ),
+        );
+      },
     },
     {
       title: "Actions",
@@ -508,9 +644,7 @@ useEffect(() => {
                 type="text"
                 size="small"
                 icon={<EyeOutlined />}
-                onClick={() =>
-                  router.push(`/get-case-detail/${record.id}`)
-                }
+                onClick={() => router.push(`/get-case-detail/${record.id}`)}
                 className="hover:!bg-blue-50 dark:text-gray-200 hover:!text-blue-600 dark:hover:!bg-blue-900/30 dark:hover:!text-blue-400"
                 style={{ borderRadius: "6px" }}
               />
@@ -522,9 +656,7 @@ useEffect(() => {
                 type="text"
                 size="small"
                 icon={<EditOutlined />}
-                onClick={() =>
-                  router.push(`/edit-case/${record.id}`)
-                }
+                onClick={() => router.push(`/edit-case/${record.id}`)}
                 className="hover:!bg-amber-50 dark:text-gray-200 hover:!text-amber-600 dark:hover:!bg-amber-900/30 dark:hover:!text-amber-400"
                 style={{ borderRadius: "6px" }}
               />
@@ -642,8 +774,6 @@ useEffect(() => {
                           Add New Case
                         </Button>
                       )}
-
-                     
                     </Space>
                   </Col>
                 </Row>

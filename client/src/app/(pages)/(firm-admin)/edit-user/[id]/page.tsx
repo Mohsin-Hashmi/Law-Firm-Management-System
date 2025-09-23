@@ -347,18 +347,18 @@ export default function EditUser({
                         </span>
                       </Space>
                     }
-                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[20px]"
                     headStyle={{
-                      borderBottom: "1px solid #f1f5f9",
+                      
                       background: "#fafbfc",
                       borderRadius: "16px 16px 0 0",
                     }}
-                    bodyStyle={{ padding: "32px" }}
+                    bodyStyle={{ padding: "20px 32px" }}
                   >
                     <Row
                       align="middle"
                       gutter={[16, 16]}
-                      style={{ marginBottom: "24px" }}
+                      
                     >
                       <Col>
                         <Avatar
@@ -492,7 +492,7 @@ export default function EditUser({
                       background: "#fafbfc",
                       borderRadius: "16px 16px 0 0",
                     }}
-                    bodyStyle={{ padding: "32px" }}
+                    bodyStyle={{ padding: "20px 32px" }}
                   >
                     {/* Role Selection */}
                     <Form.Item

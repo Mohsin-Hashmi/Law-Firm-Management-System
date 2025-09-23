@@ -12,24 +12,24 @@ module.exports = {
       firmId: {
         type: Sequelize.INTEGER,
         references: {
-          model: 'Firms',
-          key: 'id'
+          model: "Firms",
+          key: "id",
         },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       name: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
       },
       email: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true
+        unique: true,
       },
       phone: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
       },
       specialization: {
         type: Sequelize.STRING,
@@ -49,6 +49,13 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
+    // ✅ Explicitly remove foreign key first
+    try {
+      await queryInterface.removeConstraint("Lawyers", "Lawyers_ibfk_1");
+    } catch (error) {
+      console.warn("⚠️ Skipping removal of Lawyers_ibfk_1:", error.message);
+    }
+
     await queryInterface.dropTable("Lawyers");
   },
 };
