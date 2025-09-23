@@ -16,12 +16,15 @@ module.exports = {
     dialect: process.env.DB_DIALECT || "mysql",
   },
   production: {
-    use_env_variable: "DB_URL",
-    dialect: "mysql",
+    username: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
+    host: process.env.DB_HOST,
+    dialect: process.env.DB_DIALECT || "mysql",
     dialectOptions: {
       ssl: {
-        require: true,       // ✅ enable SSL
-        rejectUnauthorized: false, // ✅ allow self-signed certs
+        require: true,              // if your DB actually needs SSL (e.g., RDS)
+        rejectUnauthorized: false,  // allows self-signed certs
       },
     },
   },
