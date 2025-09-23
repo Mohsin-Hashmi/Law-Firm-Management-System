@@ -6,6 +6,7 @@ module.exports = {
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
+    port: process.env.DB_PORT || 3306,
     dialect: process.env.DB_DIALECT || "mysql",
   },
   test: {
@@ -13,6 +14,7 @@ module.exports = {
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
+    port: process.env.DB_PORT || 3306,
     dialect: process.env.DB_DIALECT || "mysql",
   },
   production: {
@@ -20,11 +22,12 @@ module.exports = {
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
+    port: process.env.DB_PORT || 3306,
     dialect: process.env.DB_DIALECT || "mysql",
     dialectOptions: {
       ssl: {
-        require: true,              // if your DB actually needs SSL (e.g., RDS)
-        rejectUnauthorized: false,  // allows self-signed certs
+        require: true,
+        rejectUnauthorized: false,
       },
     },
   },

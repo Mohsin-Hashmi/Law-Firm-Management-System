@@ -3,17 +3,17 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.addConstraint("Users", {
-      fields: ["firmId", "email"],
+      fields: ["email"], // remove firmId
       type: "unique",
-      name: "unique_firm_email",
+      name: "unique_email", // update name accordingly
     });
   },
 
   async down(queryInterface, Sequelize) {
     try {
-      await queryInterface.removeConstraint("Users", "unique_firm_email");
+      await queryInterface.removeConstraint("Users", "unique_email");
     } catch (error) {
-      console.warn("⚠️ Skipping removal of unique_firm_email:", error.message);
+      console.warn("⚠️ Skipping removal of unique_email:", error.message);
     }
   },
 };

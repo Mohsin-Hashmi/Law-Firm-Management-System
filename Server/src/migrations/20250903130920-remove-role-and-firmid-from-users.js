@@ -2,16 +2,26 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.removeColumn('users', 'role');   // remove old enum role column
-    await queryInterface.removeColumn('users', 'firmId'); // remove old firmId column
+    try {
+      await queryInterface.removeColumn('Users', 'role');   // Capital U
+    } catch (err) {
+      console.warn("⚠️ Column 'role' not found, skipping.");
+    }
+
+    try {
+      await queryInterface.removeColumn('Users', 'firmId'); // Capital U
+    } catch (err) {
+      console.warn("⚠️ Column 'firmId' not found, skipping.");
+    }
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.addColumn('users', 'role', {
+    await queryInterface.addColumn('Users', 'role', {
       type: Sequelize.ENUM('Super Admin', 'Firm Admin', 'Lawyer', 'Client'),
       defaultValue: 'Lawyer',
     });
-    await queryInterface.addColumn('users', 'firmId', {
+
+    await queryInterface.addColumn('Users', 'firmId', {
       type: Sequelize.INTEGER,
       allowNull: true,
       references: {

@@ -20,14 +20,14 @@ module.exports = {
       firmId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: { model: 'Firms', key: 'id' },   
+        references: { model: 'Firms', key: 'id' },   // Capital F
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       },
       roleId: {
         type: Sequelize.INTEGER,
         allowNull: true,
-        references: { model: 'Roles', key: 'id' },   
+        references: { model: 'roles', key: 'id' },   // lowercase matches create-role migration
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL',
       },
