@@ -24,13 +24,12 @@ jobs:
 
       - name: Archive artifacts
         run: |
-          tar -czf deploy_artifacts.tar.gz \
+          tar --exclude='server/node_modules' -czf deploy_artifacts.tar.gz \
             client/.next \
             client/package.json \
             client/package-lock.json \
             client/next.config.ts \
-            server \
-            !server/node_modules
+            server
 
       - name: Add SSH key
         uses: webfactory/ssh-agent@v0.9.0
@@ -73,7 +72,7 @@ jobs:
               }
             ]
           }
-PM2CONF
+          PM2CONF
 
           pm2 save
           pm2 status | sed -n '1,200p'
