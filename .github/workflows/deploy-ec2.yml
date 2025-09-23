@@ -11,30 +11,43 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+.      - name: Detect project directories
+        id: detect
+        run: |
+          set -e
+          echo "Workspace contents:" && ls -la
+          # Detect server dir
+          if [ -d server ]; then echo "SERVER_DIR=server" >> $GITHUB_ENV; SRCDIR=server; \
+          elif [ -d Server ]; then echo "SERVER_DIR=Server" >> $GITHUB_ENV; SRCDIR=Server; \
+          else echo "No server directory found" && exit 1; fi
+          # Detect client dir
+          if [ -d client ]; then echo "CLIENT_DIR=client" >> $GITHUB_ENV; \
+          elif [ -d Client ]; then echo "CLIENT_DIR=Client" >> $GITHUB_ENV; \
+          else echo "No client directory found" && exit 1; fi
+
       - name: Setup Node for client build
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Build client
-        working-directory: client
         run: |
           npm ci --ignore-scripts
           npm run build
+        working-directory: ${{ env.CLIENT_DIR }}
 
       - name: Prepare deploy artifacts
         run: |
           set -e
-          pwd
-          ls -la
-          mkdir -p deploy/client deploy/server
+          mkdir -p deploy/${{ env.CLIENT_DIR }} deploy/${{ env.SERVER_DIR }}
           # Copy client runtime artifacts
-          cp -r client/.next deploy/client/.next
-          cp client/package.json deploy/client/package.json
-          cp client/package-lock.json deploy/client/package-lock.json || true
-          [ -f client/next.config.ts ] && cp client/next.config.ts deploy/client/ || true
+          cp -r ${{ env.CLIENT_DIR }}/.next deploy/${{ env.CLIENT_DIR }}/.next
+          cp ${{ env.CLIENT_DIR }}/package.json deploy/${{ env.CLIENT_DIR }}/package.json
+          cp ${{ env.CLIENT_DIR }}/package-lock.json deploy/${{ env.CLIENT_DIR }}/package-lock.json || true
+          [ -f ${{ env.CLIENT_DIR }}/next.config.ts ] && cp ${{ env.CLIENT_DIR }}/next.config.ts deploy/${{ env.CLIENT_DIR }}/ || true
+          [ -f ${{ env.CLIENT_DIR }}/next.config.js ] && cp ${{ env.CLIENT_DIR }}/next.config.js deploy/${{ env.CLIENT_DIR }}/ || true
           # Copy server excluding node_modules
-          rsync -az --delete --exclude=node_modules server/ deploy/server/
+          rsync -az --delete --exclude=node_modules ${{ env.SERVER_DIR }}/ deploy/${{ env.SERVER_DIR }}/
           # Create tarball
           tar -czf deploy_artifacts.tar.gz -C deploy .
 
@@ -53,11 +66,13 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
           set -e
+          EC2_APP_DIR="${EC2_APP_DIR}"
+          SERVER_DIR="${{ env.SERVER_DIR }}"
           cd ${EC2_APP_DIR}
           tar -xzf deploy_artifacts.tar.gz
 
           # Server env expected in a .env file on EC2
-          cd server
+          cd ${SERVER_DIR}
           # Install prod deps without running postinstall migrations during install
           npm ci --omit=dev --ignore-scripts
 
@@ -74,7 +89,7 @@ jobs:
               {
                 "name": "${APP_NAME}",
                 "script": "src/app.js",
-                "cwd": "${EC2_APP_DIR}/server",
+                "cwd": "${EC2_APP_DIR}/${SERVER_DIR}",
                 "env": { "NODE_ENV": "production", "PORT": "4000" }
               }
             ]
