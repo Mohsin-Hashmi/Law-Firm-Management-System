@@ -91,7 +91,7 @@ app.use("/api/firm-admin", caseRoute);
 app.use("/api/lawyers", lawyerRoutes);
 app.use("/api/roles", roleRoutes);
 // =====Start Server====
-app.listen(PORT, async () => {
+app.listen(PORT, "0.0.0.0",  async () => {
   console.log(`App is listening at port ${PORT}`);
   await createSuperAdmin();
 });
