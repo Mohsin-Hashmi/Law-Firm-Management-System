@@ -70,16 +70,19 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
           set -e
-          EC2_APP_DIR='${{ secrets.EC2_APP_DIR }}'
           SERVER_DIR='${{ env.SERVER_DIR }}'
 
-          cd "${EC2_APP_DIR}"
-          ls -la
-          echo "Extracting deploy_artifacts.tar.gz in ${EC2_APP_DIR}"
+          echo "Listing remote target directory: ${{ secrets.EC2_APP_DIR }}"
+          ls -la "${{ secrets.EC2_APP_DIR }}" || true
+          echo "Checking tarball at: ${{ secrets.EC2_APP_DIR }}/deploy_artifacts.tar.gz"
+          ls -la "${{ secrets.EC2_APP_DIR }}/deploy_artifacts.tar.gz" || true
+
+          cd "${{ secrets.EC2_APP_DIR }}"
+          echo "Extracting deploy_artifacts.tar.gz in $(pwd)"
           tar -xzf deploy_artifacts.tar.gz
 
           # Server env expected in a .env file on EC2
-          cd "${SERVER_DIR}"
+          cd "${{ secrets.EC2_APP_DIR }}/${SERVER_DIR}"
           # Install prod deps without running postinstall migrations during install
           npm ci --omit=dev --ignore-scripts
 
@@ -96,7 +99,7 @@ jobs:
               {
                 "name": "${APP_NAME}",
                 "script": "src/app.js",
-                "cwd": "${EC2_APP_DIR}/${SERVER_DIR}",
+                "cwd": "${{ secrets.EC2_APP_DIR }}/${SERVER_DIR}",
                 "env": { "NODE_ENV": "production", "PORT": "4000" }
               }
             ]
