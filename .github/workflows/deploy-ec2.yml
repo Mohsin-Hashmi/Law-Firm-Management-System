@@ -22,14 +22,21 @@ jobs:
           npm ci --ignore-scripts
           npm run build
 
-      - name: Archive artifacts
+      - name: Prepare deploy artifacts
         run: |
-          tar --exclude='server/node_modules' -czf deploy_artifacts.tar.gz \
-            client/.next \
-            client/package.json \
-            client/package-lock.json \
-            client/next.config.ts \
-            server
+          set -e
+          pwd
+          ls -la
+          mkdir -p deploy/client deploy/server
+          # Copy client runtime artifacts
+          cp -r client/.next deploy/client/.next
+          cp client/package.json deploy/client/package.json
+          cp client/package-lock.json deploy/client/package-lock.json || true
+          [ -f client/next.config.ts ] && cp client/next.config.ts deploy/client/ || true
+          # Copy server excluding node_modules
+          rsync -az --delete --exclude=node_modules server/ deploy/server/
+          # Create tarball
+          tar -czf deploy_artifacts.tar.gz -C deploy .
 
       - name: Add SSH key
         uses: webfactory/ssh-agent@v0.9.0
