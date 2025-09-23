@@ -1,0 +1,38 @@
+{
+	"family": "law-firm-task",
+	"networkMode": "awsvpc",
+	"requiresCompatibilities": ["FARGATE"],
+	"cpu": "256",
+	"memory": "512",
+	"executionRoleArn": "${EXECUTION_ROLE_ARN}",
+	"taskRoleArn": "${TASK_ROLE_ARN}",
+	"containerDefinitions": [
+		{
+			"name": "law-firm-container",
+			"image": "public.ecr.aws/docker/library/node:20-alpine",
+			"portMappings": [
+				{ "containerPort": 4000, "protocol": "tcp" }
+			],
+			"essential": true,
+			"environment": [
+				{ "name": "NODE_ENV", "value": "production" },
+				{ "name": "PORT", "value": "4000" }
+			],
+			"secrets": [
+				{ "name": "DB_URL", "valueFrom": "${SSM_DB_URL}" },
+				{ "name": "JWT_SECRET", "valueFrom": "${SSM_JWT_SECRET}" },
+				{ "name": "SUPER_ADMIN_EMAIL", "valueFrom": "${SSM_SUPER_ADMIN_EMAIL}" },
+				{ "name": "SUPER_ADMIN_PASSWORD", "valueFrom": "${SSM_SUPER_ADMIN_PASSWORD}" }
+			],
+			"logConfiguration": {
+				"logDriver": "awslogs",
+				"options": {
+					"awslogs-group": "/ecs/law-firm",
+					"awslogs-region": "us-east-1",
+					"awslogs-stream-prefix": "ecs"
+				}
+			}
+		}
+	]
+}
+

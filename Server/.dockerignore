@@ -1,0 +1,19 @@
+node_modules
+npm-debug.log
+Dockerfile
+.dockerignore
+.git
+.gitignore
+.env
+uploads
+
+# client ignored (we only build server image here)
+../client
+
+# misc
+*.log
+*.swp
+*.swo
+.vscode
+.idea
+

@@ -1,0 +1,80 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node for client build
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build client
+        working-directory: client
+        run: |
+          npm ci --ignore-scripts
+          npm run build
+
+      - name: Archive artifacts
+        run: |
+          tar -czf deploy_artifacts.tar.gz \
+            client/.next \
+            client/package.json \
+            client/package-lock.json \
+            client/next.config.ts \
+            server \
+            !server/node_modules
+
+      - name: Add SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_KEY }}
+
+      - name: Copy files to EC2
+        run: |
+          rsync -e "ssh -o StrictHostKeyChecking=no" -az --delete \
+            deploy_artifacts.tar.gz \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.EC2_APP_DIR }}/
+
+      - name: Deploy on EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+          set -e
+          cd ${EC2_APP_DIR}
+          tar -xzf deploy_artifacts.tar.gz
+
+          # Server env expected in a .env file on EC2
+          cd server
+          # Install prod deps without running postinstall migrations during install
+          npm ci --omit=dev --ignore-scripts
+
+          # Restart server using PM2 (install if missing)
+          if ! command -v pm2 >/dev/null 2>&1; then
+            sudo npm i -g pm2
+          fi
+
+          # Create or reload PM2 process
+          APP_NAME=law-firm-server
+          pm2 startOrReload <<PM2CONF
+          {
+            "apps": [
+              {
+                "name": "${APP_NAME}",
+                "script": "src/app.js",
+                "cwd": "${EC2_APP_DIR}/server",
+                "env": { "NODE_ENV": "production", "PORT": "4000" }
+              }
+            ]
+          }
+PM2CONF
+
+          pm2 save
+          pm2 status | sed -n '1,200p'
+          EOF
