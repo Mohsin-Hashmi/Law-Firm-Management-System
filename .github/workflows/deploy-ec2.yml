@@ -98,23 +98,18 @@ jobs:
             sudo npm i -g pm2
           fi
 
-          # Install server deps and restart
+          # Install server deps and (re)start app with PM2
           cd "${EC2_APP_DIR}/${SERVER_DIR}"
           npm ci --omit=dev --ignore-scripts
 
           APP_NAME=law-firm-server
-          pm2 startOrReload <<'PM2CONF'
-          {
-            "apps": [
-              {
-                "name": "law-firm-server",
-                "script": "src/app.js",
-                "cwd": "${EC2_APP_DIR}/${SERVER_DIR}",
-                "env": { "NODE_ENV": "production", "PORT": "4000" }
-              }
-            ]
-          }
-          PM2CONF
+          if pm2 describe "${APP_NAME}" >/dev/null 2>&1; then
+            echo "Reloading ${APP_NAME}"
+            NODE_ENV=production PORT=4000 pm2 reload "${APP_NAME}" --update-env
+          else
+            echo "Starting ${APP_NAME}"
+            NODE_ENV=production PORT=4000 pm2 start src/app.js --name "${APP_NAME}" --cwd "${EC2_APP_DIR}/${SERVER_DIR}"
+          fi
 
           pm2 save
           pm2 status | sed -n '1,200p'
