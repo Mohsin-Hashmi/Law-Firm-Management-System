@@ -56,23 +56,30 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.EC2_KEY }}
 
+      - name: Ensure remote directory exists
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "mkdir -p '${{ secrets.EC2_APP_DIR }}'"
+
       - name: Copy files to EC2
         run: |
           rsync -e "ssh -o StrictHostKeyChecking=no" -az --delete \
             deploy_artifacts.tar.gz \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.EC2_APP_DIR }}/
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:'${{ secrets.EC2_APP_DIR }}'/
 
       - name: Deploy on EC2
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
           set -e
-          EC2_APP_DIR="${EC2_APP_DIR}"
-          SERVER_DIR="${{ env.SERVER_DIR }}"
-          cd ${EC2_APP_DIR}
+          EC2_APP_DIR='${{ secrets.EC2_APP_DIR }}'
+          SERVER_DIR='${{ env.SERVER_DIR }}'
+
+          cd "${EC2_APP_DIR}"
+          ls -la
+          echo "Extracting deploy_artifacts.tar.gz in ${EC2_APP_DIR}"
           tar -xzf deploy_artifacts.tar.gz
 
           # Server env expected in a .env file on EC2
-          cd ${SERVER_DIR}
+          cd "${SERVER_DIR}"
           # Install prod deps without running postinstall migrations during install
           npm ci --omit=dev --ignore-scripts
 
