@@ -11,7 +11,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-.      - name: Detect project directories
+      - name: Detect project directories
         id: detect
         run: |
           set -e
