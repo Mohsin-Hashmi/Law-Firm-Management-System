@@ -105,10 +105,10 @@ jobs:
           APP_NAME=law-firm-server
           if pm2 describe "${APP_NAME}" >/dev/null 2>&1; then
             echo "Reloading ${APP_NAME}"
-            NODE_ENV=production PORT=4000 pm2 reload "${APP_NAME}" --update-env
+            NODE_ENV=production PORT=5000 pm2 reload "${APP_NAME}" --update-env
           else
             echo "Starting ${APP_NAME}"
-            NODE_ENV=production PORT=4000 pm2 start src/app.js --name "${APP_NAME}" --cwd "${EC2_APP_DIR}/${SERVER_DIR}"
+            NODE_ENV=production PORT=5000 pm2 start src/app.js --name "${APP_NAME}" --cwd "${EC2_APP_DIR}/${SERVER_DIR}"
           fi
 
           pm2 save
