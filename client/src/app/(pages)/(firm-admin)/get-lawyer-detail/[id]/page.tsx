@@ -189,8 +189,8 @@ export default function GetLawyerDetail({
                       onClick={() => router.back()}
                       size="large"
                       className="rounded-xl font-semibold px-6 h-12 
-                     bg-white/20 border-white/30 text-white backdrop-blur 
-                     hover:!bg-white/30 hover:!text-white"
+                     bg-white/20 border-white/30 text-white  
+                     "
                     >
                       Back
                     </Button>

@@ -427,6 +427,7 @@ const getLawyerById = async (req, res) => {
 
     // Fetch lawyer
     const lawyer = await Lawyer.findOne({ where: { id: lawyerId } });
+    console.log("Lawyer firmId:", lawyer.firmId);
     if (!lawyer) {
       return res
         .status(404)
