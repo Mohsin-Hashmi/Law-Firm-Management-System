@@ -4,7 +4,6 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Permission extends Model {
     static associate(models) {
-      // Many-to-many: Permission <-> Role
       Permission.belongsToMany(models.Role, {
         through: 'role_permissions',
         foreignKey: 'permissionId',
@@ -24,6 +23,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'Permission',
+      tableName: 'permissions', // match migration
+      timestamps: true,         // required for createdAt, updatedAt
     }
   );
 

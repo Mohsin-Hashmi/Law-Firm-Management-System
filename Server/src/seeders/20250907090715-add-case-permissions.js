@@ -2,13 +2,13 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    // 1️⃣ Remove old umbrella permissions
-    await queryInterface.bulkDelete("Permissions", {
+    // Remove old umbrella permissions
+    await queryInterface.bulkDelete("permissions", {
       name: ["manage_lawyers", "manage_clients"],
     });
 
-    // 2️⃣ Insert granular lawyer & client permissions
-    await queryInterface.bulkInsert("Permissions", [
+    // Insert granular lawyer & client permissions
+    await queryInterface.bulkInsert("permissions", [
       // Lawyer CRUD
       { name: "create_lawyer", createdAt: new Date(), updatedAt: new Date() },
       { name: "read_lawyer", createdAt: new Date(), updatedAt: new Date() },
@@ -36,8 +36,8 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    // 1️⃣ Remove granular lawyer, client, and case permissions
-    await queryInterface.bulkDelete("Permissions", {
+    // Remove granular lawyer, client, and case permissions
+    await queryInterface.bulkDelete("permissions", {
       name: [
         "create_lawyer",
         "read_lawyer",
@@ -60,8 +60,8 @@ module.exports = {
       ],
     });
 
-    // 2️⃣ Restore umbrella permissions
-    await queryInterface.bulkInsert("Permissions", [
+    // Restore umbrella permissions
+    await queryInterface.bulkInsert("permissions", [
       { name: "manage_lawyers", createdAt: new Date(), updatedAt: new Date() },
       { name: "manage_clients", createdAt: new Date(), updatedAt: new Date() },
     ]);

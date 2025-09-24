@@ -1,5 +1,8 @@
 require("dotenv").config();
 
+console.log("ENV DB_HOST:", process.env.DB_HOST);
+console.log("ENV NODE_ENV:", process.env.NODE_ENV);
+
 module.exports = {
   development: {
     username: process.env.DB_USER,

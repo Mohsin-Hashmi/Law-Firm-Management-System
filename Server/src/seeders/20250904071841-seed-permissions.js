@@ -9,9 +9,8 @@ module.exports = {
 
     try {
       for (const p of Object.values(permissions)) {
-        // ✅ Use MySQL-friendly backticks instead of double quotes
         const [result] = await queryInterface.sequelize.query(
-          `SELECT id FROM \`Permissions\` WHERE name = :name LIMIT 1`,
+          `SELECT id FROM \`permissions\` WHERE name = :name LIMIT 1`, // lowercase
           {
             replacements: { name: p },
             transaction,
@@ -19,9 +18,8 @@ module.exports = {
         );
 
         if (result.length === 0) {
-          // Insert only if not exists
           await queryInterface.bulkInsert(
-            "Permissions",
+            "permissions", // lowercase
             [
               {
                 name: p,
@@ -42,9 +40,8 @@ module.exports = {
   },
 
   async down(queryInterface) {
-    // ✅ Safer: delete only seeded permissions
     await queryInterface.bulkDelete(
-      "Permissions",
+      "permissions", // lowercase
       {
         name: Object.values(require("../constants/permissions")),
       },

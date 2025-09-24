@@ -8,7 +8,7 @@ module.exports = {
 
     // Fetch all permissions
     const [permissions] = await queryInterface.sequelize.query(
-      `SELECT id, name FROM \`Permissions\`;`
+      `SELECT id, name FROM \`permissions\`;` // ✅ lowercase
     );
 
     if (!permissions || permissions.length === 0) {
@@ -48,7 +48,6 @@ module.exports = {
         "assign_role",
         "create_role",
         "view_role",
-        
       ],
       3: [
         "read_client",
@@ -65,7 +64,7 @@ module.exports = {
         "view_case_status",
         "view_case_documents",
         "upload_case_document",
-         "view_stats",
+        "view_stats",
       ], // Client
     };
 
