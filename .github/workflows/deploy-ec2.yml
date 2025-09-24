@@ -16,31 +16,41 @@ jobs:
         run: |
           set -e
           echo "Workspace contents:" && ls -la
-          # Detect server dir
-          if [ -d server ]; then echo "SERVER_DIR=server" >> $GITHUB_ENV; SRCDIR=server; \
-          elif [ -d Server ]; then echo "SERVER_DIR=Server" >> $GITHUB_ENV; SRCDIR=Server; \
-          else echo "No server directory found" && exit 1; fi
-          # Detect client dir
-          if [ -d client ]; then echo "CLIENT_DIR=client" >> $GITHUB_ENV; \
-          elif [ -d Client ]; then echo "CLIENT_DIR=Client" >> $GITHUB_ENV; \
-          else echo "No client directory found" && exit 1; fi
+          # Detect server directory
+          if [ -d server ]; then
+            echo "SERVER_DIR=server" >> $GITHUB_ENV
+          elif [ -d Server ]; then
+            echo "SERVER_DIR=Server" >> $GITHUB_ENV
+          else
+            echo "No server directory found" && exit 1
+          fi
+          # Detect client directory
+          if [ -d client ]; then
+            echo "CLIENT_DIR=client" >> $GITHUB_ENV
+          elif [ -d Client ]; then
+            echo "CLIENT_DIR=Client" >> $GITHUB_ENV
+          else
+            echo "No client directory found" && exit 1
+          fi
 
-      - name: Setup Node for client build
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Build client
+      - name: Build frontend (production)
+        working-directory: ${{ env.CLIENT_DIR }}
+        env:
+          NEXT_PUBLIC_BASE_URL: http://13.60.35.167:5000
         run: |
           npm ci --ignore-scripts
-          NEXT_PUBLIC_BASE_URL=http://13.60.35.167:5000 npm run build
-        working-directory: ${{ env.CLIENT_DIR }}
+          npm run build
 
       - name: Prepare deploy artifacts
         run: |
           set -e
           mkdir -p deploy/${{ env.CLIENT_DIR }} deploy/${{ env.SERVER_DIR }}
-          # Copy client runtime artifacts
+          # Copy frontend build
           cp -r ${{ env.CLIENT_DIR }}/.next deploy/${{ env.CLIENT_DIR }}/.next
           cp ${{ env.CLIENT_DIR }}/package.json deploy/${{ env.CLIENT_DIR }}/package.json
           cp ${{ env.CLIENT_DIR }}/package-lock.json deploy/${{ env.CLIENT_DIR }}/package-lock.json || true
@@ -64,9 +74,9 @@ jobs:
         run: |
           rsync -e "ssh -o StrictHostKeyChecking=no" -az --delete \
             deploy_artifacts.tar.gz \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:'${{ secrets.EC2_APP_DIR }}'/
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:'${{ secrets.EC2_APP_DIR }}'/ 
 
-      - name: Deploy on EC2
+      - name: Deploy server on EC2
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
             "EC2_APP_DIR='${{ secrets.EC2_APP_DIR }}' SERVER_DIR='${{ env.SERVER_DIR }}' bash -s" << 'EOF'
@@ -93,12 +103,12 @@ jobs:
             fi
           fi
 
-          # Ensure PM2 installed
+          # Ensure PM2 is installed
           if ! command -v pm2 >/dev/null 2>&1; then
             sudo npm i -g pm2
           fi
 
-          # Install server deps and (re)start app with PM2
+          # Install server deps and start/reload app with PM2
           cd "${EC2_APP_DIR}/${SERVER_DIR}"
           npm ci --omit=dev --ignore-scripts
 
