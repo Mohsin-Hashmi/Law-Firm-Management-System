@@ -22,9 +22,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 const allowedOrigins = [
-  "https://law-firm-management-system-git-main-mohsins-projects-0662fa42.vercel.app", 
+  "https://legal-law-firm-management-system.vercel.app", // production
   "http://localhost:3000", // local development
 ];
+
 
 
 app.use(
