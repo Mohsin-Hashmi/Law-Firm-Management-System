@@ -1,5 +1,4 @@
 const { sequelize } = require("../models");
-const { where } = require("sequelize");
 const {
   Client,
   Lawyer,
@@ -9,14 +8,15 @@ const {
   UserFirm,
   ClientLawyer,
 } = require("../models");
-const validate = require("validator");
 const bcrypt = require("bcryptjs");
-/**Create Client API */
+
+/** Create Client API */
 const createClient = async (req, res) => {
   const t = await sequelize.transaction();
   try {
-    const firmId = req.user?.firmId;
+    const userFirmIds = req.user?.firmIds || []; // array of firm IDs from JWT
     const {
+      firmId, // must be provided in request body
       fullName,
       dob,
       gender,
@@ -32,457 +32,224 @@ const createClient = async (req, res) => {
 
     if (!firmId) {
       await t.rollback();
-      return res
-        .status(400)
-        .json({ success: false, message: "Firm Id not found" });
+      return res.status(400).json({ success: false, message: "Firm Id is required" });
+    }
+
+    // Validate user belongs to this firm
+    if (!userFirmIds.includes(firmId)) {
+      await t.rollback();
+      return res.status(403).json({
+        success: false,
+        message: "You cannot create a client in this firm",
+      });
     }
 
     if (!fullName || !email || !phone) {
       await t.rollback();
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Full name, email, and phone are required.",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Full name, email, and phone are required.",
+      });
     }
 
-    // check duplicate
-    const existingClient = await Client.findOne({
-      where: { email, firmId },
-      transaction: t,
-    });
+    // Check duplicate client in firm
+    const existingClient = await Client.findOne({ where: { email, firmId }, transaction: t });
     if (existingClient) {
       await t.rollback();
-      return res.status(400).json({
-        success: false,
-        message: "A client with this email already exists in the firm",
-      });
+      return res.status(400).json({ success: false, message: "Client already exists in this firm" });
     }
 
-    // check duplicate user
-    const existingUser = await User.findOne({
-      where: { email },
-      transaction: t,
-    });
+    // Check duplicate user globally
+    const existingUser = await User.findOne({ where: { email }, transaction: t });
     if (existingUser) {
       await t.rollback();
-      return res.status(400).json({
-        success: false,
-        message: "A user with this email already exists",
-      });
+      return res.status(400).json({ success: false, message: "User already exists" });
     }
 
-    // find Client role
-    const clientRole = await Role.findOne({
-      where: { name: "Client" },
-      transaction: t,
-    });
+    // Find client role
+    const clientRole = await Role.findOne({ where: { name: "Client" }, transaction: t });
     if (!clientRole) {
       await t.rollback();
-      return res
-        .status(400)
-        .json({ success: false, message: "Client role not found" });
+      return res.status(400).json({ success: false, message: "Client role not found" });
     }
 
-    // create user
+    // Create user
     const hashedPassword = await bcrypt.hash(process.env.DUMMY_PASSWORD, 10);
     const user = await User.create(
-      {
-        name: fullName,
-        email,
-        password: hashedPassword,
-        roleId: clientRole.id,
-        mustChangePassword: true,
-      },
+      { name: fullName, email, password: hashedPassword, roleId: clientRole.id, mustChangePassword: true },
       { transaction: t }
     );
 
-    // create user-firm relation
-    await UserFirm.create(
-      {
-        userId: user.id,
-        firmId,
-        roleId: clientRole.id,
-      },
-      { transaction: t }
-    );
+    // Create user-firm relation
+    await UserFirm.create({ userId: user.id, firmId, roleId: clientRole.id }, { transaction: t });
 
-    // handle profile image
-    let profileImage = null;
-    if (req.file) profileImage = `/uploads/clients/${req.file.filename}`;
+    // Profile image
+    const profileImage = req.file ? `/uploads/clients/${req.file.filename}` : null;
 
-    // create client
+    // Create client
     const client = await Client.create(
-      {
-        firmId,
-        userId: user.id,
-        fullName,
-        dob,
-        gender,
-        email,
-        phone,
-        address,
-        clientType,
-        organization,
-        status,
-        billingAddress,
-        outstandingBalance,
-        profileImage,
-      },
+      { firmId, userId: user.id, fullName, dob, gender, email, phone, address, clientType, organization, status, billingAddress, outstandingBalance, profileImage },
       { transaction: t }
     );
-    if (req.user.role === "Lawyer") {
-      const lawyer = await Lawyer.findOne({
-        where: { userId: req.user.id, firmId },
-        transaction: t,
-      });
 
+    // If logged-in user is lawyer, create ClientLawyer relation
+    if (req.user.role === "Lawyer") {
+      const lawyer = await Lawyer.findOne({ where: { userId: req.user.id, firmId }, transaction: t });
       if (lawyer) {
-        await ClientLawyer.create(
-          {
-            lawyerId: lawyer.id,
-            clientId: client.id,
-          },
-          { transaction: t }
-        );
+        await ClientLawyer.create({ lawyerId: lawyer.id, clientId: client.id }, { transaction: t });
       }
     }
+
     await t.commit();
-    return res.status(201).json({
-      success: true,
-      message: "Client created successfully",
-      client,
-      user,
-    });
+    return res.status(201).json({ success: true, message: "Client created successfully", client, user });
   } catch (error) {
     await t.rollback();
-    console.log("Error creating client:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error creating client",
-      error: error.message,
-    });
+    console.error("Error creating client:", error);
+    res.status(500).json({ success: false, message: "Error creating client", error: error.message });
   }
 };
 
-/**Get All Clients API */
+/** Get All Clients API */
 const getAllClients = async (req, res) => {
   try {
-    const firmId = req.user?.firmId;
-    if (!firmId) {
-      return res.status(400).json({
-        success: false,
-        message: "Firm ID not found",
-      });
+    const userFirmIds = req.user?.firmIds || [];
+    if (!userFirmIds || userFirmIds.length === 0) {
+      return res.status(400).json({ success: false, message: "No firm IDs found for user" });
     }
+
     const clients = await Client.findAll({
-      where: { firmId },
+      where: { firmId: userFirmIds },
       include: [
-        {
-          model: Lawyer,
-          as: "lawyers",
-          attributes: ["id", "name", "email", "phone", "specialization"],
-          through: { attributes: [] }, // hide join table fields
-        },
-        {
-          model: Case,
-          as: "cases",
-          attributes: [
-            "id",
-            "title",
-            "caseNumber",
-            "caseType",
-            "status",
-            "openedAt",
-            "closedAt",
-          ],
-        },
+        { model: Lawyer, as: "lawyers", attributes: ["id", "name", "email", "phone", "specialization"], through: { attributes: [] } },
+        { model: Case, as: "cases", attributes: ["id", "title", "caseNumber", "caseType", "status", "openedAt", "closedAt"] },
       ],
       order: [["createdAt", "DESC"]],
     });
-    return res.status(200).json({
-      success: true,
-      count: clients.length,
-      clients: clients,
-    });
+
+    return res.status(200).json({ success: true, count: clients.length, clients });
   } catch (error) {
-    console.log("Error is", error);
-    res.status(400).json({
-      success: false,
-      message: "Failed to get clients",
-      error: error.message,
-    });
+    console.error("Error fetching clients:", error);
+    res.status(500).json({ success: false, message: "Failed to get clients", error: error.message });
   }
 };
 
-/**Get Client By Id API */
+/** Get Client by ID API */
 const getClientById = async (req, res) => {
   try {
     const { id } = req.params;
-    const firmId = req.user.firmId;
-    if (!id) {
-      return res.status(400).json({
-        success: false,
-        message: "client Id is required",
-      });
-    }
-    if (!firmId) {
-      return res.status(400).json({
-        success: false,
-        message: "Firm Id not found",
-      });
-    }
+    const userFirmIds = req.user?.firmIds || [];
+    if (!id) return res.status(400).json({ success: false, message: "Client ID is required" });
+
     const client = await Client.findOne({
-      where: {
-        id,
-        firmId,
-      },
+      where: { id, firmId: userFirmIds },
       include: [
-        {
-          model: Lawyer,
-          as: "lawyers",
-          through: { attributes: [] },
-        },
-        {
-          model: Case,
-          as: "cases",
-        },
+        { model: Lawyer, as: "lawyers", through: { attributes: [] } },
+        { model: Case, as: "cases" },
       ],
     });
-    if (!client) {
-      return res.status(404).json({
-        success: false,
-        message: "Client not found in your firm",
-      });
-    }
-    res.status(200).json({
-      success: true,
-      message: "client found successfully",
-      client: client,
-    });
+
+    if (!client) return res.status(404).json({ success: false, message: "Client not found in your firm" });
+
+    res.status(200).json({ success: true, message: "Client found successfully", client });
   } catch (error) {
-    console.error("Error fetching client by id:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error fetching client by id",
-    });
+    console.error("Error fetching client by ID:", error);
+    res.status(500).json({ success: false, message: "Error fetching client by ID", error: error.message });
   }
 };
 
-/**Update Client By Id API */
+/** Update Client API */
 const updateClient = async (req, res) => {
   try {
     const { id } = req.params;
-    const firmId = req.user.firmId;
-    const {
-      fullName,
-      dob,
-      gender,
-      email,
-      phone,
-      address,
-      clientType,
-      organization,
-      status,
-      billingAddress,
-      outstandingBalance,
-    } = req.body;
-    
-    // Handle uploaded file
+    const userFirmIds = req.user?.firmIds || [];
+    const { firmId } = req.body; // optional, but must be validated
+
+    const client = await Client.findOne({ where: { id, firmId: userFirmIds } });
+    if (!client) return res.status(404).json({ success: false, message: "Client not found or not part of your firm" });
+
     const profileImage = req.file ? `/uploads/clients/${req.file.filename}` : undefined;
 
-    if (!id) {
-      return res.status(400).json({
-        success: false,
-        message: "Client Id in required",
-      });
-    }
-    if (!firmId) {
-      return res.status(400).json({
-        success: false,
-        message: "Firm Id not found",
-      });
-    }
-    const client = await Client.findOne({
-      where: {
-        id,
-        firmId,
-      },
-    });
-    if (!client) {
-      return res.status(404).json({
-        success: false,
-        message: "Client not found or not part of your firm",
-      });
-    }
-
-    // Build update object
     const updateData = {
-      fullName: fullName ?? client.fullName,
-      dob: dob ?? client.dob,
-      gender: gender ?? client.gender,
-      email: email ?? client.email,
-      phone: phone ?? client.phone,
-      address: address ?? client.address,
-      clientType: clientType ?? client.clientType,
-      organization: organization ?? client.organization,
-      status: status ?? client.status,
-      billingAddress: billingAddress ?? client.billingAddress,
-      outstandingBalance:
-        outstandingBalance !== undefined
-          ? outstandingBalance
-          : client.outstandingBalance,
+      fullName: req.body.fullName ?? client.fullName,
+      dob: req.body.dob ?? client.dob,
+      gender: req.body.gender ?? client.gender,
+      email: req.body.email ?? client.email,
+      phone: req.body.phone ?? client.phone,
+      address: req.body.address ?? client.address,
+      clientType: req.body.clientType ?? client.clientType,
+      organization: req.body.organization ?? client.organization,
+      status: req.body.status ?? client.status,
+      billingAddress: req.body.billingAddress ?? client.billingAddress,
+      outstandingBalance: req.body.outstandingBalance ?? client.outstandingBalance,
     };
-
-    // Only update profileImage if a new one was uploaded
-    if (profileImage) {
-      updateData.profileImage = profileImage;
-    }
+    if (profileImage) updateData.profileImage = profileImage;
 
     await client.update(updateData);
-
-    return res.status(200).json({
-      success: true,
-      message: "Client updated successfully",
-      client,
-    });
+    res.status(200).json({ success: true, message: "Client updated successfully", client });
   } catch (error) {
     console.error("Update Client Error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Error updating client",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: "Error updating client", error: error.message });
   }
 };
 
-/**Delete Client By Id API */
+/** Delete Client API */
 const deleteClient = async (req, res) => {
   try {
     const { id } = req.params;
-    const firmId = req.user.firmId;
-    if (!id) {
-      return res.status(400).json({
-        success: false,
-        message: "Client Id is required",
-      });
-    }
-    if (!firmId) {
-      return res.status(400).json({
-        success: false,
-        message: "Firm Id not found",
-      });
-    }
-    const client = await Client.findOne({
-      where: {
-        id,
-        firmId,
-      },
-    });
-    if (!client) {
-      return res.status(404).json({
-        success: false,
-        message: "Client not found in your frim",
-      });
-    }
+    const userFirmIds = req.user?.firmIds || [];
+
+    const client = await Client.findOne({ where: { id, firmId: userFirmIds } });
+    if (!client) return res.status(404).json({ success: false, message: "Client not found in your firm" });
+
     await client.destroy();
     await User.destroy({ where: { id: client.userId } });
-    return res.status(200).json({
-      success: true,
-      message: "Client deleted successfully",
-      client: client,
-    });
+
+    res.status(200).json({ success: true, message: "Client deleted successfully", client });
   } catch (error) {
-    console.error("Error deleting client:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error deleting client",
-    });
+    console.error("Delete Client Error:", error);
+    res.status(500).json({ success: false, message: "Error deleting client", error: error.message });
   }
 };
 
+/** Get All Clients of Lawyer API */
 const getAllClientsOfLawyer = async (req, res) => {
   try {
     let { lawyerId } = req.params;
-    const { firmId, role, id: userId } = req.user; // from token
+    const { role, id: userId, firmIds } = req.user;
 
-    // If role is Lawyer, automatically set lawyerId
+    // If role is Lawyer, use logged-in lawyer
     if (role === "Lawyer") {
-      const lawyerRecord = await Lawyer.findOne({
-        where: { userId, firmId },
-      });
-      if (!lawyerRecord) {
-        return res.status(404).json({
-          success: false,
-          message: "Lawyer profile not found for this user",
-        });
-      }
-      lawyerId = lawyerRecord.id;
+      const lawyer = await Lawyer.findOne({ where: { userId, firmId: firmIds } });
+      if (!lawyer) return res.status(404).json({ success: false, message: "Lawyer profile not found" });
+      lawyerId = lawyer.id;
     }
 
-    if (!lawyerId) {
-      return res.status(400).json({
-        success: false,
-        message: "Lawyer Id is required",
-      });
-    }
+    if (!lawyerId) return res.status(400).json({ success: false, message: "Lawyer ID is required" });
 
-    // ✅ Fetch unique clients assigned to this lawyer via cases
     const clients = await Client.findAll({
-      where: { firmId },
+      where: { firmId: firmIds },
       include: [
-        // Clients linked via ClientLawyer (direct lawyer-client relationship)
-        {
-          model: Lawyer,
-          as: "lawyers",
-          attributes: ["id", "name", "email"],
-          where: { id: lawyerId, firmId },
-          through: { attributes: [] }, 
-          required: false, 
-        },
-        // Clients linked via Cases (case-based relationship)
+        { model: Lawyer, as: "lawyers", where: { id: lawyerId }, through: { attributes: [] }, required: false },
         {
           model: Case,
           as: "cases",
-          attributes: ["id", "title", "caseNumber"],
-          include: [
-            {
-              model: Lawyer,
-              as: "lawyers",
-              attributes: ["id", "name", "email"],
-              where: { id: lawyerId, firmId },
-              through: { attributes: [] },
-            },
-          ],
+          include: [{ model: Lawyer, as: "lawyers", where: { id: lawyerId }, through: { attributes: [] } }],
           required: false,
         },
       ],
       distinct: true,
     });
 
-    if (!clients || clients.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No clients found for this lawyer",
-      });
-    }
+    if (!clients.length) return res.status(404).json({ success: false, message: "No clients found for this lawyer" });
 
-    return res.json({
-      success: true,
-      count: clients.length,
-      clients,
-    });
+    res.status(200).json({ success: true, count: clients.length, clients });
   } catch (err) {
     console.error("Get Clients Error:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Server error",
-      error: err.message,
-    });
+    res.status(500).json({ success: false, message: "Server error", error: err.message });
   }
 };
 
+/** Client Performance API */
 const getClientPerformance = async (req, res) => {
   try {
     const { id: clientId } = req.params;
@@ -492,31 +259,15 @@ const getClientPerformance = async (req, res) => {
         {
           model: Case,
           as: "cases",
-          include: [
-            {
-              model: Lawyer,
-              as: "lawyers",
-              attributes: ["id", "name", "email", "phone", "specialization"],
-              through: { attributes: [] }, // remove join table details
-            },
-          ],
+          include: [{ model: Lawyer, as: "lawyers", attributes: ["id", "name", "email", "phone", "specialization"], through: { attributes: [] } }],
         },
-        {
-          model: Lawyer,
-          as: "lawyers", // direct ClientLawyer relation
-          attributes: ["id", "name", "email", "phone", "specialization"],
-          through: { attributes: [] },
-        },
+        { model: Lawyer, as: "lawyers", attributes: ["id", "name", "email", "phone", "specialization"], through: { attributes: [] } },
       ],
     });
 
-    if (!client) {
-      return res.status(404).json({ message: "Client not found" });
-    }
+    if (!client) return res.status(404).json({ message: "Client not found" });
 
-    // --- Statistics ---
     const totalCases = client.cases.length;
-
     const caseStats = {
       open: client.cases.filter((c) => c.status === "Open").length,
       closed: client.cases.filter((c) => c.status === "Closed").length,
@@ -524,29 +275,22 @@ const getClientPerformance = async (req, res) => {
       appeal: client.cases.filter((c) => c.status === "Appeal").length,
     };
 
-    // Lawyers assigned across all cases (flatten lawyers array)
-    const allLawyers = client.cases.flatMap((c) => c.lawyers);
-    const uniqueLawyersMap = new Map();
-    allLawyers.forEach((lawyer) => {
-      uniqueLawyersMap.set(lawyer.id, lawyer);
-    });
-    const uniqueLawyers = Array.from(uniqueLawyersMap.values());
+    const uniqueLawyers = Array.from(new Map(client.cases.flatMap(c => c.lawyers).map(l => [l.id, l])).values());
 
-    return res.json({
+    res.json({
       clientId: client.id,
       clientName: client.fullName,
       clientEmail: client.email,
       totalCases,
       caseStats,
       totalLawyersAssigned: uniqueLawyers.length,
-      lawyers: uniqueLawyers, // list with id, name, email, etc.
+      lawyers: uniqueLawyers,
     });
   } catch (error) {
     console.error("Error in client performance:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-
 
 module.exports = {
   createClient,
@@ -555,5 +299,5 @@ module.exports = {
   updateClient,
   deleteClient,
   getAllClientsOfLawyer,
-  getClientPerformance
+  getClientPerformance,
 };
