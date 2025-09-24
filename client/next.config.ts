@@ -11,10 +11,8 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
 
-  // ✅ Turbopack (stable)
-  turbopack: {
-    rules: {},
-  },
+  
+  
 };
 
 export default nextConfig;

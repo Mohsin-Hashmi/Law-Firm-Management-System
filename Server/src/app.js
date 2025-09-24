@@ -22,7 +22,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 const allowedOrigins = [
-  "https://legal-law-firm-management-system.vercel.app", 
+  "https://legal-law-firm-management-system.vercel.app", // production
+  "http://localhost:3000", // local development
 ];
 
 app.use(
