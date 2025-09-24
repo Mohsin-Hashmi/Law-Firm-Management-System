@@ -22,9 +22,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 const allowedOrigins = [
-  "https://legal-law-firm-management-system.vercel.app", // production
+  "https://law-firm-management-system-git-main-mohsins-projects-0662fa42.vercel.app", 
   "http://localhost:3000", // local development
 ];
+
 
 app.use(
   cors({
@@ -91,14 +92,13 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => {
   res.send("server is running");
 });
-
-app.use("api/auth", authRoutes);
-app.use("api/super-admin", superAdminRoutes);
-app.use("api/firm-admin", adminRoute);
-app.use("api/firm-admin", clientRoute);
-app.use("api/firm-admin", caseRoute);
-app.use("api/lawyers", lawyerRoutes);
-app.use("api/roles", roleRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/super-admin", superAdminRoutes);
+app.use("/api/firm-admin", adminRoute);
+app.use("/api/firm-admin", clientRoute);
+app.use("/api/firm-admin", caseRoute);
+app.use("/api/lawyers", lawyerRoutes);
+app.use("/api/roles", roleRoutes);
 
 // ✅ Global Error Handler
 app.use((err, req, res, next) => {
