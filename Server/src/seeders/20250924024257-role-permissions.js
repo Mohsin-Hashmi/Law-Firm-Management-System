@@ -1,24 +1,19 @@
-"use strict";
-module.exports = {
-  async up(queryInterface) {
-    const now = new Date();
+'use strict';
 
-    // Delete old mappings for all roles before reinserting
-    await queryInterface.bulkDelete("role_permissions", null, {});
+module.exports = {
+  async up(queryInterface, Sequelize) {
+    const now = new Date();
 
     // Fetch all permissions
     const [permissions] = await queryInterface.sequelize.query(
-      `SELECT id, name FROM \`permissions\`;` // ✅ lowercase
+      `SELECT id, name FROM permissions;` // ✅ ensure lowercase
     );
 
     if (!permissions || permissions.length === 0) {
-      throw new Error(
-        "No permissions found! Make sure permissions are seeded first."
-      );
+      throw new Error("No permissions found! Make sure permissions are seeded first.");
     }
 
-    const rolePermissions = [];
-
+    // Role → Permissions mapping
     const rolePermissionMap = {
       1: permissions.map((p) => p.name), // Super Admin → all
       2: [
@@ -58,20 +53,21 @@ module.exports = {
         "view_case_documents",
         "upload_case_document",
         "view_stats",
-      ], // Lawyer
+      ],
       4: [
         "read_case",
         "view_case_status",
         "view_case_documents",
         "upload_case_document",
         "view_stats",
-      ], // Client
+      ],
     };
 
+    // Prepare bulk insert array
+    const rolePermissions = [];
+
     for (const [roleId, permNames] of Object.entries(rolePermissionMap)) {
-      for (const perm of permissions.filter((p) =>
-        permNames.includes(p.name)
-      )) {
+      for (const perm of permissions.filter((p) => permNames.includes(p.name))) {
         rolePermissions.push({
           roleId: parseInt(roleId),
           permissionId: perm.id,
@@ -81,12 +77,10 @@ module.exports = {
       }
     }
 
-    await queryInterface.bulkInsert("role_permissions", rolePermissions, {
-      ignoreDuplicates: true,
-    });
+    await queryInterface.bulkInsert('role_permissions', rolePermissions, { ignoreDuplicates: true });
   },
 
-  async down(queryInterface) {
-    await queryInterface.bulkDelete("role_permissions", null, {});
+  async down(queryInterface, Sequelize) {
+    await queryInterface.bulkDelete('role_permissions', null, {});
   },
 };

@@ -146,6 +146,7 @@ export default function AuthForm({ type }: AuthFormProps) {
         dispatch(
           addUser({
             ...user,
+            role: user.role,
             mustChangePassword: user.mustChangePassword,
             firms: user.firms || [],
             currentFirmId,

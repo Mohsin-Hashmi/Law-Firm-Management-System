@@ -10,7 +10,12 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.removeColumn('userfirms', 'status');
-    await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_userfirms_status";'); // cleanup for Postgres
-  }
+    // ✅ Check if column exists before removing
+    const table = await queryInterface.describeTable('userfirms');
+    if (table.status) {
+      await queryInterface.removeColumn('userfirms', 'status');
+    }
+
+    
+  },
 };
