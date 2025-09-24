@@ -413,8 +413,9 @@ const getAllLawyer = async (req, res) => {
 const getLawyerById = async (req, res) => {
   try {
     const adminId = req.user.id; // from JWT
-    const adminFirmId = req.user.firmId; // from JWT
-    console.log("logged in user is ", adminId, "with firmId:", adminId);
+    const adminFirmIds = req.user.firmIds; // array of firm IDs from JWT
+
+    console.log("Logged in user:", adminId, "with firm IDs:", adminFirmIds);
 
     const lawyerId = Number(req.params.id);
     if (!req.params.id || isNaN(lawyerId)) {
@@ -434,8 +435,8 @@ const getLawyerById = async (req, res) => {
 
     console.log("Lawyer firmId:", lawyer.firmId);
 
-    // Check if admin belongs to the same firm
-    if (Number(lawyer.firmId) !== Number(adminFirmId)) {
+    // Check if admin belongs to any of the lawyer's firms
+    if (!adminFirmIds.includes(lawyer.firmId)) {
       return res.status(403).json({
         success: false,
         error: "Admin not allowed to access this lawyer",
@@ -456,6 +457,7 @@ const getLawyerById = async (req, res) => {
     });
   }
 };
+
 /**Update a Lawyers by ID API */
 const updateLawyer = async (req, res) => {
   try {
