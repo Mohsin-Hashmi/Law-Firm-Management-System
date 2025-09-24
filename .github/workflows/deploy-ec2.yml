@@ -33,7 +33,7 @@ jobs:
       - name: Build client
         run: |
           npm ci --ignore-scripts
-          npm run build
+         NEXT_PUBLIC_BASE_URL=http://13.60.35.167:5000 npm run build
         working-directory: ${{ env.CLIENT_DIR }}
 
       - name: Prepare deploy artifacts
