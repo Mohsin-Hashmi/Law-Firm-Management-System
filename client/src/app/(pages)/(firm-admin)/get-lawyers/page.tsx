@@ -441,24 +441,26 @@ export default function GetLawyers() {
                   </Col>
                   <Col>
                     <Space size="middle">
-                      <Button
-                        type="primary"
-                        size="large"
-                        icon={<UserAddOutlined />}
-                        onClick={() => router.push("/add-lawyer")}
-                        style={{
-                          background: "white",
-                          borderColor: "white",
-                          color: "#2563eb",
-                          borderRadius: "12px",
-                          fontWeight: "600",
-                          padding: "8px 24px",
-                          height: "48px",
-                          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                        }}
-                      >
-                        Add New Case
-                      </Button>
+                      {hasPermission("create_lawyer") && (
+                        <Button
+                          type="primary"
+                          size="large"
+                          icon={<UserAddOutlined />}
+                          onClick={() => router.push("/add-lawyer")}
+                          style={{
+                            background: "white",
+                            borderColor: "white",
+                            color: "#2563eb",
+                            borderRadius: "12px",
+                            fontWeight: "600",
+                            padding: "8px 24px",
+                            height: "48px",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                          }}
+                        >
+                          Add New Lawyer
+                        </Button>
+                      )}
                     </Space>
                   </Col>
                 </Row>

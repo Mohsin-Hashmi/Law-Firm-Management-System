@@ -468,16 +468,28 @@ const updateLawyer = async (req, res) => {
       return res.status(400).json({ success: false, error: "Id is required" });
     }
 
-    // Get firmId from JWT
-    const firmId = req.user.firmId;
+    // Get firmIds array from JWT
+    const adminFirmIds = req.user.firmIds || [];
 
-    // Find lawyer by id and firmId (ensures admin only updates their own firm's lawyer)
-    const lawyer = await Lawyer.findOne({ where: { id, firmId } });
+    if (!adminFirmIds.length) {
+      return res.status(403).json({
+        success: false,
+        error: "No firm assigned to your account",
+      });
+    }
+
+    // Find lawyer by id and ensure they belong to one of admin's firms
+    const lawyer = await Lawyer.findOne({
+      where: {
+        id,
+        firmId: adminFirmIds, // Sequelize automatically treats array as IN
+      },
+    });
 
     if (!lawyer) {
       return res.status(404).json({
         success: false,
-        message: "Lawyer not found or not part of your firm",
+        message: "Lawyer not found or not part of your firms",
       });
     }
 
@@ -508,6 +520,7 @@ const updateLawyer = async (req, res) => {
     });
   }
 };
+
 
 /**Delete a Lawyers by ID API */
 const deleteLawyer = async (req, res) => {
