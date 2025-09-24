@@ -85,6 +85,8 @@ const SignUp = async (req, res) => {
 
 const LoginIn = async (req, res) => {
   try {
+    console.log("🔵 LOGIN REQUEST RECEIVED");
+    console.log("🔵 REQUEST BODY:", req.body);
     const { email, password } = req.body;
     const user = await User.findOne({
       where: { email },

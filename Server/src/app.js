@@ -95,7 +95,7 @@ app.get("/", (req, res) => {
   res.send("server is running");
 });
 
-app.use("/auth", authRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/super-admin", superAdminRoutes);
 app.use("/api/firm-admin", adminRoute);
 app.use("/api/firm-admin", clientRoute);
