@@ -211,7 +211,7 @@ export default function GetClientDetail({
                 <Col>
                   <Space size="middle">
                     <Button
-                      icon={<ArrowLeftOutlined />}
+                      icon={<ArrowLeftOutlined style={{ fontSize: "14px" }} />}
                       onClick={() => router.back()}
                       size="large"
                       style={{
@@ -232,16 +232,15 @@ export default function GetClientDetail({
                       <Button
                         type="primary"
                         size="large"
-                        icon={<EditOutlined />}
+                        icon={<EditOutlined style={{ fontSize: "14px" }} />}
                         onClick={() => router.push(`/edit-client/${clientId}`)}
+                        className="bg-white dark:bg-slate-700 hover:bg-gray-100 dark:hover:bg-slate-600 text-emerald-600 dark:text-white border-white dark:border-slate-600"
                         style={{
-                          background: "#059669",
-                          borderColor: "#059669",
                           borderRadius: "12px",
                           fontWeight: "600",
                           padding: "12px 32px",
                           height: "48px",
-                          boxShadow: "0 4px 12px rgba(5, 150, 105, 0.3)",
+                          boxShadow: "0 4px 12px rgba(255, 255, 255, 0.3)",
                         }}
                       >
                         Edit Profile

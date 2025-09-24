@@ -185,7 +185,7 @@ export default function GetLawyerDetail({
                 <Col>
                   <Space size="middle">
                     <Button
-                      icon={<ArrowLeftOutlined />}
+                      icon={<ArrowLeftOutlined style={{ fontSize: "14px" }} />}
                       onClick={() => router.back()}
                       size="large"
                       style={{
@@ -204,18 +204,17 @@ export default function GetLawyerDetail({
                     </Button>
                     <Button
                       type="primary"
-                        size="large"
-                        icon={<EditOutlined />}
-                        onClick={() => router.push(`/edit-lawyer/${lawyerId}`)}
-                        style={{
-                          background: "#E43636",
-                          borderColor: "#E43636",
-                          borderRadius: "12px",
-                          fontWeight: "600",
-                          padding: "12px 32px",
-                          height: "48px",
-                          boxShadow: "0 4px 12px rgba(5, 150, 105, 0.3)",
-                        }}
+                      size="large"
+                      icon={<EditOutlined style={{ fontSize: "14px" }} />}
+                      onClick={() => router.push(`/edit-lawyer/${lawyerId}`)}
+                      className="bg-white dark:bg-slate-700 hover:bg-gray-100 dark:hover:bg-slate-600 text-[#E43636] dark:text-white border-white dark:border-slate-600"
+                      style={{
+                        borderRadius: "12px",
+                        fontWeight: "600",
+                        padding: "12px 32px",
+                        height: "48px",
+                        boxShadow: "0 4px 12px rgba(255, 255, 255, 0.3)",
+                      }}
                     >
                       Edit Profile
                     </Button>
