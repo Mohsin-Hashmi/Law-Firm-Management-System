@@ -189,7 +189,7 @@ const LoginIn = async (req, res) => {
       {
         id: user.id,
         role: user.role?.name,
-        firmIds: firms.map((f) => f.id), 
+        firmIds: firms.length > 0 ? firms.map((f) => f.id) : [],
       },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }

@@ -23,7 +23,11 @@ const userAuth = async (req, res, next) => {
     req.user = {
       id: user.id,
       role: decoded.role || user.role?.name,
-      firmIds: decoded.firmIds || [],
+      firmIds: Array.isArray(decoded.firmIds)
+        ? decoded.firmIds
+        : decoded.firmIds
+        ? [decoded.firmIds]
+        : [],
     };
 
     next();
