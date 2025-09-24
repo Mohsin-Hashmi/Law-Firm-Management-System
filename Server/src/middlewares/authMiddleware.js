@@ -19,17 +19,19 @@ const userAuth = async (req, res, next) => {
       return res.status(401).json({ success: false, error: "User not found" });
     }
 
+    // Use firmIds array from JWT
     req.user = {
       id: user.id,
-      role: decoded.role || user.role?.name, // now it’s a string
-      firmId: decoded.firmId ?? null,
+      role: decoded.role || user.role?.name,
+      firmIds: decoded.firmIds || [],
     };
 
     next();
-  } catch (err) {``
-    return res
-      .status(401)
-      .json({ success: false, error: "Invalid token, Please login again" });
+  } catch (err) {
+    return res.status(401).json({
+      success: false,
+      error: "Invalid token, Please login again",
+    });
   }
 };
 
@@ -51,7 +53,7 @@ const allowRoles = (roles) => (req, res, next) => {
     });
   }
   next();
-}
+};
 const LawyerAuth = (req, res, next) => {
   if (req.user.role !== "Lawyer") {
     return res.status(403).json({
@@ -72,4 +74,10 @@ const superAdminAuth = (req, res, next) => {
   next();
 };
 
-module.exports = { userAuth, firmAdminAuth, superAdminAuth, LawyerAuth, allowRoles };
+module.exports = {
+  userAuth,
+  firmAdminAuth,
+  superAdminAuth,
+  LawyerAuth,
+  allowRoles,
+};
