@@ -214,9 +214,17 @@ export default function GetClientDetail({
                       icon={<ArrowLeftOutlined />}
                       onClick={() => router.back()}
                       size="large"
-                      className="rounded-xl font-semibold px-6 h-12 
-                     bg-white/20 border-white/30 text-white backdrop-blur 
-                     hover:!bg-white/30 hover:!text-white"
+                      style={{
+                        background: "rgba(255,255,255,0.2)",
+                        borderColor: "rgba(255,255,255,0.3)",
+                        color: "white",
+                        borderRadius: "12px",
+                        fontWeight: "600",
+                        padding: "8px 24px",
+                        height: "48px",
+                        backdropFilter: "blur(10px)",
+                      }}
+                      ghost
                     >
                       Back
                     </Button>
@@ -225,10 +233,16 @@ export default function GetClientDetail({
                         type="primary"
                         size="large"
                         icon={<EditOutlined />}
-                        onClick={() => router.push(`/edit-client/${client.id}`)}
-                        className="rounded-xl font-semibold px-6 h-12 
-                     bg-white text-emerald-600 shadow-md 
-                     "
+                        onClick={() => router.push(`/edit-client/${clientId}`)}
+                        style={{
+                          background: "#059669",
+                          borderColor: "#059669",
+                          borderRadius: "12px",
+                          fontWeight: "600",
+                          padding: "12px 32px",
+                          height: "48px",
+                          boxShadow: "0 4px 12px rgba(5, 150, 105, 0.3)",
+                        }}
                       >
                         Edit Profile
                       </Button>

@@ -188,20 +188,34 @@ export default function GetLawyerDetail({
                       icon={<ArrowLeftOutlined />}
                       onClick={() => router.back()}
                       size="large"
-                      className="rounded-xl font-semibold px-6 h-12 
-                     bg-white/20 border-white/30 text-white  
-                     "
+                      style={{
+                        background: "rgba(255,255,255,0.2)",
+                        borderColor: "rgba(255,255,255,0.3)",
+                        color: "white",
+                        borderRadius: "12px",
+                        fontWeight: "600",
+                        padding: "8px 24px",
+                        height: "48px",
+                        backdropFilter: "blur(10px)",
+                      }}
+                      ghost
                     >
                       Back
                     </Button>
                     <Button
                       type="primary"
-                      size="large"
-                      icon={<EditOutlined />}
-                      onClick={() => router.push(`/edit-lawyer/${lawyer.id}`)}
-                      className="rounded-xl font-semibold px-6 h-12 
-                     bg-white text-blue-900 shadow-md 
-                     "
+                        size="large"
+                        icon={<EditOutlined />}
+                        onClick={() => router.push(`/edit-lawyer/${lawyerId}`)}
+                        style={{
+                          background: "#E43636",
+                          borderColor: "#E43636",
+                          borderRadius: "12px",
+                          fontWeight: "600",
+                          padding: "12px 32px",
+                          height: "48px",
+                          boxShadow: "0 4px 12px rgba(5, 150, 105, 0.3)",
+                        }}
                     >
                       Edit Profile
                     </Button>
