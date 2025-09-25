@@ -1,32 +1,40 @@
 const { Case, Client, Firm, Lawyer, CaseDocument } = require("../models");
-const { Op, where } = require("sequelize");
+const { Op } = require("sequelize");
+
+const getActiveFirmId = (req) => {
+  return (
+    req.user?.activeFirmId || (req.user?.firmIds ? req.user.firmIds[0] : null)
+  );
+};
 
 const createCase = async (req, res) => {
   try {
     const { title, caseNumber, caseType, description, clientId, lawyerIds } =
       req.body;
+    const firmId = getActiveFirmId(req);
 
-    const firmId = req.user.firmId;
+    if (!firmId)
+      return res
+        .status(400)
+        .json({ success: false, error: "Firm Id not found" });
 
     const firm = await Firm.findByPk(firmId);
-    if (!firm) {
+    if (!firm)
       return res.status(404).json({ success: false, error: "Firm not found" });
-    }
+
     const client = await Client.findOne({ where: { id: clientId, firmId } });
-    if (!client) {
+    if (!client)
       return res.status(404).json({
         success: false,
         error: "Client not found or doesn’t belong to this firm",
       });
-    }
 
     const existingCase = await Case.findOne({ where: { caseNumber, firmId } });
-    if (existingCase) {
+    if (existingCase)
       return res.status(400).json({
         success: false,
         error: "Case number already exists for this firm",
       });
-    }
 
     const newCase = await Case.create({
       title,
@@ -37,32 +45,26 @@ const createCase = async (req, res) => {
       clientId,
     });
 
+    // Assign logged-in lawyer if role is Lawyer
     if (req.user.role === "Lawyer") {
       const lawyer = await Lawyer.findOne({
-        where: {
-          userId: req.user.id,
-          firmId,
-        },
+        where: { userId: req.user.id, firmId },
       });
-      if (lawyer) {
-        await newCase.addLawyer(lawyer);
-      }
+      if (lawyer) await newCase.addLawyer(lawyer);
     }
 
+    // Assign additional lawyers
     if (lawyerIds && lawyerIds.length > 0) {
-      let lawyerIdArray = Array.isArray(lawyerIds)
-        ? lawyerIds.map((id) => Number(id))
+      const lawyerIdArray = Array.isArray(lawyerIds)
+        ? lawyerIds.map(Number)
         : [Number(lawyerIds)];
-
       const lawyers = await Lawyer.findAll({
         where: { id: { [Op.in]: lawyerIdArray }, firmId },
       });
-
-      if (lawyers.length > 0) {
-        await newCase.addLawyers(lawyers);
-      }
+      if (lawyers.length > 0) await newCase.addLawyers(lawyers);
     }
 
+    // Attach documents
     if (req.files && req.files.length > 0) {
       const docs = req.files.map((file) => ({
         fileName: file.originalname,
@@ -71,14 +73,13 @@ const createCase = async (req, res) => {
         caseId: newCase.id,
         uploadedBy: req.user.id,
       }));
-
       await CaseDocument.bulkCreate(docs);
     }
 
     const createdCase = await Case.findByPk(newCase.id, {
       include: [
-        { model: Client, as: "client" }, // alias must match
-        { model: Lawyer, as: "lawyers" }, // alias must match
+        { model: Client, as: "client" },
+        { model: Lawyer, as: "lawyers" },
       ],
     });
 
@@ -93,52 +94,36 @@ const createCase = async (req, res) => {
   }
 };
 
+// ==================== GET CASE BY ID ====================
 const getCaseById = async (req, res) => {
   try {
     const { caseId } = req.params;
-    const firmId = req.user.firmId;
-    console.log(`Looking for Case: ${caseId} Firm (from user): ${firmId}`);
-    if (!caseId) {
-      return res.status(404).json({
-        success: false,
-        message: "Case Id is required",
-      });
-    }
-    if (!firmId) {
-      return res.status(404).json({
-        success: false,
-        message: "Firm Id is required",
-      });
-    }
+    const firmId = getActiveFirmId(req);
+
+    if (!caseId)
+      return res
+        .status(404)
+        .json({ success: false, message: "Case Id is required" });
+    if (!firmId)
+      return res
+        .status(404)
+        .json({ success: false, message: "Firm Id is required" });
 
     const caseData = await Case.findOne({
       where: { id: caseId, firmId },
       include: [
-        {
-          model: Client,
-          as: "client",
-        },
-        {
-          model: Lawyer,
-          as: "lawyers",
-          through: { attributes: [] },
-        },
-        {
-          model: CaseDocument,
-          as: "documents",
-        },
+        { model: Client, as: "client" },
+        { model: Lawyer, as: "lawyers", through: { attributes: [] } },
+        { model: CaseDocument, as: "documents" },
       ],
     });
-    if (!caseData) {
-      return res.status(404).json({
-        success: false,
-        message: "Case not found",
-      });
-    }
-    return res.json({
-      success: true,
-      case: caseData,
-    });
+
+    if (!caseData)
+      return res
+        .status(404)
+        .json({ success: false, message: "Case not found" });
+
+    return res.json({ success: true, case: caseData });
   } catch (err) {
     return res.status(500).json({
       success: false,
@@ -148,6 +133,7 @@ const getCaseById = async (req, res) => {
   }
 };
 
+// ==================== UPDATE CASE ====================
 const updateCase = async (req, res) => {
   try {
     const { caseId } = req.params;
@@ -162,36 +148,29 @@ const updateCase = async (req, res) => {
       closedAt,
       documentIdsToRemove,
     } = req.body;
+    const firmId = getActiveFirmId(req);
 
-    const firmId = req.user.firmId;
-
-    if (!caseId) {
+    if (!caseId)
       return res
         .status(400)
         .json({ success: false, error: "Case ID is required" });
-    }
 
-    // === 1. Find Case ===
     const caseRecord = await Case.findOne({ where: { id: caseId, firmId } });
-    if (!caseRecord) {
+    if (!caseRecord)
       return res.status(404).json({
         success: false,
         error: "Case not found or doesn’t belong to this firm",
       });
-    }
 
-    // === 2. Validate client (if provided) ===
     if (clientId) {
       const client = await Client.findOne({ where: { id: clientId, firmId } });
-      if (!client) {
+      if (!client)
         return res.status(404).json({
           success: false,
           error: "Client not found or doesn’t belong to this firm",
         });
-      }
     }
 
-    // === 3. Update Case Fields ===
     await caseRecord.update({
       title: title ?? caseRecord.title,
       caseType: caseType ?? caseRecord.caseType,
@@ -202,23 +181,19 @@ const updateCase = async (req, res) => {
       closedAt: closedAt ?? caseRecord.closedAt,
     });
 
-    // === 4. Update Lawyers ===
     if (lawyerIds) {
       let lawyerIdArray = [];
-
       if (Array.isArray(lawyerIds)) {
         lawyerIdArray = lawyerIds
           .map((id) => Number(id))
-          .filter((id) => !isNaN(id)); // remove invalid ones
+          .filter((id) => !isNaN(id));
       } else if (typeof lawyerIds === "string") {
         try {
-          // case: JSON string like "[1,2]"
           const parsed = JSON.parse(lawyerIds);
           lawyerIdArray = Array.isArray(parsed)
             ? parsed.map((id) => Number(id)).filter((id) => !isNaN(id))
             : [Number(parsed)].filter((id) => !isNaN(id));
         } catch {
-          // case: single value string "3"
           const num = Number(lawyerIds);
           if (!isNaN(num)) lawyerIdArray = [num];
         }
@@ -228,30 +203,21 @@ const updateCase = async (req, res) => {
         const lawyers = await Lawyer.findAll({
           where: { id: { [Op.in]: lawyerIdArray }, firmId },
         });
-
-        if (lawyers.length === 0) {
+        if (lawyers.length === 0)
           return res.status(404).json({
             success: false,
             error: "No valid lawyers found for provided IDs",
           });
-        }
-
         await caseRecord.setLawyers(lawyers);
       }
     }
 
-    // === 5. Handle Documents ===
-    // (a) Delete selected documents
     if (documentIdsToRemove && Array.isArray(documentIdsToRemove)) {
       await CaseDocument.destroy({
-        where: {
-          id: { [Op.in]: documentIdsToRemove },
-          caseId: caseRecord.id,
-        },
+        where: { id: { [Op.in]: documentIdsToRemove }, caseId: caseRecord.id },
       });
     }
 
-    // (b) Add new uploaded documents
     if (req.files && req.files.length > 0) {
       const docs = req.files.map((file) => ({
         fileName: file.originalname,
@@ -260,16 +226,14 @@ const updateCase = async (req, res) => {
         caseId: caseRecord.id,
         uploadedBy: req.user.id,
       }));
-
       await CaseDocument.bulkCreate(docs);
     }
 
-    // === 6. Fetch updated case with relations ===
     const updatedCase = await Case.findByPk(caseRecord.id, {
       include: [
         { model: Client, as: "client" },
         { model: Lawyer, as: "lawyers" },
-        { model: CaseDocument, as: "documents" }, // ✅ include docs
+        { model: CaseDocument, as: "documents" },
       ],
     });
 
@@ -284,76 +248,66 @@ const updateCase = async (req, res) => {
   }
 };
 
+// ==================== DELETE CASE ====================
 const deleteCase = async (req, res) => {
   try {
     const { caseId } = req.params;
-    const firmId = req.user?.firmId;
-    if (!caseId) {
-      return res.status(400).json({
-        success: false,
-        message: "Case Id is required",
-      });
-    }
-    if (!firmId) {
-      return res.status(400).json({
-        success: false,
-        message: "Frim Id is required",
-      });
-    }
-    const caseData = await Case.findOne({
-      where: {
-        id: caseId,
-        firmId,
-      },
-    });
-    if (!caseData) {
-      return res.status(404).json({
-        success: false,
-        message: "Case not found for this firm",
-      });
-    }
-    await Case.destroy({
-      where: { id: caseId },
-    });
+    const firmId = getActiveFirmId(req);
+
+    if (!caseId)
+      return res
+        .status(400)
+        .json({ success: false, message: "Case Id is required" });
+    if (!firmId)
+      return res
+        .status(400)
+        .json({ success: false, message: "Firm Id is required" });
+
+    const caseData = await Case.findOne({ where: { id: caseId, firmId } });
+    if (!caseData)
+      return res
+        .status(404)
+        .json({ success: false, message: "Case not found for this firm" });
+
+    await Case.destroy({ where: { id: caseId } });
+
     return res.json({
       success: true,
       message: "Case deleted successfully",
       case: caseData,
     });
   } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: "Server error",
-      error: err.message,
-    });
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error", error: err.message });
   }
 };
 
+// ==================== UPDATE CASE STATUS ====================
 const updateCaseStatus = async (req, res) => {
   try {
     const { caseId } = req.params;
-    const { status } = req.body; // new status
-    const firmId = req.user.firmId;
-    if (!caseId) {
+    const { status } = req.body;
+    const firmId = getActiveFirmId(req);
+
+    if (!caseId)
       return res
         .status(400)
         .json({ success: false, error: "Case ID is required" });
-    }
-
-    if (!status) {
+    if (!status)
       return res
         .status(400)
         .json({ success: false, error: "Status is required" });
-    }
 
     const caseRecord = await Case.findOne({ where: { id: caseId, firmId } });
-    if (!caseRecord) {
+    if (!caseRecord)
       return res.status(404).json({
         success: false,
         error: "Case not found or doesn’t belong to this firm",
       });
-    }
+
     await caseRecord.update({ status });
+
     return res.status(200).json({
       success: true,
       message: "Case status updated successfully",
@@ -365,35 +319,26 @@ const updateCaseStatus = async (req, res) => {
   }
 };
 
-// THis api for client dashboard
+// ==================== GET ALL CASES OF CLIENT ====================
 const getAllCasesOfClient = async (req, res) => {
   try {
     const { clientId } = req.params;
-    const { firmId } = req.user;
+    const firmId = getActiveFirmId(req);
 
-    if (!clientId) {
-      return res.status(400).json({
-        success: false,
-        message: "Client Id is required",
-      });
-    }
-    if (!firmId) {
-      return res.status(400).json({
-        success: false,
-        message: "Firm Id missing in token",
-      });
-    }
+    if (!clientId)
+      return res
+        .status(400)
+        .json({ success: false, message: "Client Id is required" });
+    if (!firmId)
+      return res
+        .status(400)
+        .json({ success: false, message: "Firm Id missing in token" });
 
-    const client = await Client.findOne({
-      where: { id: clientId, firmId },
-    });
-
-    if (!client) {
-      return res.status(404).json({
-        success: false,
-        message: "Client not found for this firm",
-      });
-    }
+    const client = await Client.findOne({ where: { id: clientId, firmId } });
+    if (!client)
+      return res
+        .status(404)
+        .json({ success: false, message: "Client not found for this firm" });
 
     const cases = await Case.findAll({
       where: { clientId, firmId },
@@ -407,12 +352,10 @@ const getAllCasesOfClient = async (req, res) => {
       ],
     });
 
-    if (!cases || cases.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No cases found for this client",
-      });
-    }
+    if (!cases || cases.length === 0)
+      return res
+        .status(404)
+        .json({ success: false, message: "No cases found for this client" });
 
     return res.json({
       success: true,
@@ -420,24 +363,21 @@ const getAllCasesOfClient = async (req, res) => {
       cases,
     });
   } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: "Server error",
-      error: err.message,
-    });
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error", error: err.message });
   }
 };
 
+// ==================== GET ALL CASES OF FIRM ====================
 const getAllCasesOfFirm = async (req, res) => {
   try {
-    const { firmId } = req.params;
-    if (!firmId) {
-      return res.status(400).json({
-        success: false,
-        message: "Frim Id is required",
-      });
-    }
-    // Fetch all cases of the firm
+    const firmId = getActiveFirmId(req);
+    if (!firmId)
+      return res
+        .status(400)
+        .json({ success: false, message: "Firm Id is required" });
+
     const cases = await Case.findAll({
       where: { firmId },
       include: [
@@ -449,62 +389,43 @@ const getAllCasesOfFirm = async (req, res) => {
         {
           model: Lawyer,
           as: "lawyers",
-          through: { attributes: [] }, // hide CaseLawyer junction
+          through: { attributes: [] },
           attributes: ["id", "name", "email", "profileImage"],
         },
       ],
     });
 
-    if (!cases || cases.length === 0) {
-      return res.json({
-        success: true,
-        count: 0,
-        cases: [],
-        message: "No cases found for this firm",
-      });
-    }
-
-    return res.json({
-      success: true,
-      count: cases.length,
-      cases: cases,
-    });
+    return res.json({ success: true, count: cases.length, cases });
   } catch (err) {
-    console.log("Error is", err);
-    return res.status(500).json({
-      success: false,
-      message: "Server error",
-      error: err.message,
-    });
+    console.error("Error fetching cases of firm:", err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error", error: err.message });
   }
 };
 
-// This API is for lawyer dashboard
+// ==================== GET ALL CASES OF LAWYER ====================
 const getAllCasesOfLawyer = async (req, res) => {
   try {
     let { lawyerId } = req.params;
-    const { firmId, role, id: userId } = req.user; // decoded from token
+    const { role, id: userId } = req.user;
+    const firmId = getActiveFirmId(req);
 
-    // If the logged-in user is a lawyer, auto-set lawyerId
     if (role === "Lawyer") {
       const lawyerRecord = await Lawyer.findOne({ where: { userId, firmId } });
-      if (!lawyerRecord) {
+      if (!lawyerRecord)
         return res.status(404).json({
           success: false,
           message: "Lawyer profile not found for this user",
         });
-      }
-      lawyerId = lawyerRecord.id; // ✅ assign automatically
+      lawyerId = lawyerRecord.id;
     }
 
-    if (!lawyerId) {
-      return res.status(400).json({
-        success: false,
-        message: "Lawyer Id is required",
-      });
-    }
+    if (!lawyerId)
+      return res
+        .status(400)
+        .json({ success: false, message: "Lawyer Id is required" });
 
-    // Fetch all cases for this lawyer in the firm
     const cases = await Case.findAll({
       where: { firmId },
       include: [
@@ -529,25 +450,17 @@ const getAllCasesOfLawyer = async (req, res) => {
       ],
     });
 
-    if (!cases || cases.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No cases found for this lawyer",
-      });
-    }
+    if (!cases || cases.length === 0)
+      return res
+        .status(404)
+        .json({ success: false, message: "No cases found for this lawyer" });
 
-    return res.json({
-      success: true,
-      count: cases.length,
-      cases,
-    });
+    return res.json({ success: true, count: cases.length, cases });
   } catch (err) {
-    console.error("Error is", err);
-    return res.status(500).json({
-      success: false,
-      message: "Server error",
-      error: err.message,
-    });
+    console.error("Error fetching lawyer cases:", err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error", error: err.message });
   }
 };
 
