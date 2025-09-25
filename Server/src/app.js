@@ -2,6 +2,8 @@ const dotenv = require("dotenv");
 dotenv.config();
 const express = require("express");
 const app = express();
+// Trust reverse proxy (Nginx/ALB) so secure cookies and protocol detection work
+app.set("trust proxy", 1);
 const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/user");
 const superAdminRoutes = require("./routes/superAdmin");
@@ -22,9 +24,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 const allowedOrigins = [
+  process.env.FRONTEND_ORIGIN, // e.g., https://your-domain
   "https://legal-law-firm-management-system.vercel.app", // production
   "http://localhost:3000", // local development
-];
+].filter(Boolean);
 
 
 
