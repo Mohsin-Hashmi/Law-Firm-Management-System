@@ -2,7 +2,7 @@
 import DashboardLayout from "@/app/components/DashboardLayout";
 import { addLawyer } from "@/app/service/adminAPI";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
-import { setLawyers } from "@/app/store/lawyerSlice";
+import { addLawyerReducer } from "@/app/store/lawyerSlice";
 import { RootState } from "@/app/store/store";
 import ConfirmationModal from "@/app/components/ConfirmationModal";
 import {
@@ -103,7 +103,7 @@ export default function AddLawyer() {
         toast.error("Failed to create lawyer");
         return;
       }
-      dispatch(setLawyers(response.data.newLawyer));
+      dispatch(addLawyerReducer(response.data.newLawyer));
       toast.success("Attorney added successfully!");
       router.push("/get-lawyers");
 

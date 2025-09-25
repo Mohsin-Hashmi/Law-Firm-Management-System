@@ -22,6 +22,12 @@ const lawyerSlice = createSlice({
     setLawyers(state, action: PayloadAction<Lawyer[]>) {
       state.lawyers = action.payload;
     },
+    addLawyerReducer(state, action: PayloadAction<Lawyer>) {
+      const exists = state.lawyers.find((l) => l.id === action.payload.id);
+      if (!exists) {
+        state.lawyers.push(action.payload);
+      }
+    },
     setLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload;
     },
@@ -41,6 +47,7 @@ const lawyerSlice = createSlice({
 
 export const {
   setLawyers,
+  addLawyerReducer,
   setLoading,
   setError,
   clearLawyers,
