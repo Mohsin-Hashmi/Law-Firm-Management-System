@@ -12,7 +12,7 @@ export const createFirm = async (data: FirmPayload, role?: string) => {
   // Decide API path based on role
   const rolePath = role === "Super Admin" ? "super-admin" : "firm-admin";
 
-  const response = await axios.post(`${BASE_URL}/api/${rolePath}/firm`, data, {
+  const response = await axios.post(`${BASE_URL}/${rolePath}/firm`, data, {
     withCredentials: true,
   });
 
@@ -22,7 +22,7 @@ export const createFirm = async (data: FirmPayload, role?: string) => {
 export const getMyFirms = async (): Promise<FirmPayload[]> => {
   try {
     const response = await axios.get(
-      `${BASE_URL}/api/firm-admin/my-firms`,
+      `${BASE_URL}/firm-admin/my-firms`,
       { withCredentials: true }
     );
 
@@ -38,7 +38,7 @@ export const getMyFirms = async (): Promise<FirmPayload[]> => {
 export const deleteFirm = async (firmId: number): Promise<boolean> => {
   try {
     const response = await axios.delete(
-      `${BASE_URL}/api/firm-admin/delete-firm`,
+      `${BASE_URL}/firm-admin/delete-firm`,
       {
         data: { firmId },
         withCredentials: true,
@@ -59,7 +59,7 @@ export const deleteFirm = async (firmId: number): Promise<boolean> => {
 export const addLawyer = async (firmId: number, data: FormData) => {
   if (!firmId) throw new Error("firmId is required");
   const response = await axios.post(
-    `${BASE_URL}/api/firm-admin/${firmId}/addlawyers`,
+    `${BASE_URL}/firm-admin/${firmId}/addlawyers`,
     data,
     {
       withCredentials: true,
@@ -80,9 +80,9 @@ export const getStats = async (
 
     if (role === "Super Admin") {
       if (!firmId) throw new Error("Firm ID is required for Super Admin");
-      url = `${BASE_URL}/api/firm-admin/firms/${firmId}/stats`; // ✅ pass firmId
+      url = `${BASE_URL}/firm-admin/firms/${firmId}/stats`; // ✅ pass firmId
     } else if (role === "Firm Admin") {
-      url = `${BASE_URL}/api/firm-admin/firms/${firmId}/stats`; // ✅ firmId auto-resolved from token
+      url = `${BASE_URL}/firm-admin/firms/${firmId}/stats`; // ✅ firmId auto-resolved from token
     } else {
       throw new Error("Invalid role or missing firmId");
     }
@@ -103,7 +103,7 @@ export const getStats = async (
 export const getLawyers = async (firmId?: number): Promise<Lawyer[]> => {
   try {
     const response = await axios.get(
-      `${BASE_URL}/api/firm-admin/firms/lawyers`,
+      `${BASE_URL}/firm-admin/firms/lawyers`,
       {
         params: { firmId }, // <-- pass firmId in query
         withCredentials: true,
@@ -123,7 +123,7 @@ export const getLawyers = async (firmId?: number): Promise<Lawyer[]> => {
 export const getLawyerById = async (id: number): Promise<Lawyer | null> => {
   try {
     const response = await axios.get(
-      `${BASE_URL}/api/firm-admin/firm/lawyer/${id}`,
+      `${BASE_URL}/firm-admin/firm/lawyer/${id}`,
       {
         withCredentials: true,
       }
@@ -144,7 +144,7 @@ export const deleteLawyer = async (
 ): Promise<{ success: boolean; message: string }> => {
   try {
     const response = await axios.delete(
-      `${BASE_URL}/api/firm-admin/firm/lawyer/${id}`,
+      `${BASE_URL}/firm-admin/firm/lawyer/${id}`,
       {
         withCredentials: true,
       }
@@ -179,7 +179,7 @@ export const updateLawyer = async (
     }
 
     const response = await axios.put(
-      `${BASE_URL}/api/firm-admin/firm/lawyer/${id}`,
+      `${BASE_URL}/firm-admin/firm/lawyer/${id}`,
       formData,
       {
         headers: {
@@ -199,7 +199,7 @@ export const updateLawyer = async (
 // Switch firm API
 export const switchFirmAPI = async (firmId: number) => {
   const res = await axios.post(
-    `${BASE_URL}/api/firm-admin/switch-firm`,
+    `${BASE_URL}/firm-admin/switch-firm`,
     { firmId },
     { withCredentials: true }
   );
@@ -209,7 +209,7 @@ export const switchFirmAPI = async (firmId: number) => {
 export const getLawyerPerformance = async (lawyerId: number | string) => {
   try {
     const response = await axios.get(
-      `${BASE_URL}/api/firm-admin/${lawyerId}/performance`,
+      `${BASE_URL}/firm-admin/${lawyerId}/performance`,
       {
         withCredentials: true, // only if you are using cookies/sessions
       }
@@ -226,7 +226,7 @@ export const getLawyerPerformance = async (lawyerId: number | string) => {
 export const createClient = async (firmId: number, data: FormData) => {
   try {
     const response = await axios.post(
-      `${BASE_URL}/api/firm-admin/${firmId}/addClient`,
+      `${BASE_URL}/firm-admin/${firmId}/addClient`,
       data,
       {
         withCredentials: true,
@@ -251,7 +251,7 @@ export const createClient = async (firmId: number, data: FormData) => {
 export const getAllClients = async (firmId: number): Promise<Client[]> => {
   try {
     const response = await axios.get<{ clients: Client[] }>(
-      `${BASE_URL}/api/firm-admin/firm/${firmId}/clients`,
+      `${BASE_URL}/firm-admin/firm/${firmId}/clients`,
       { withCredentials: true }
     );
 
@@ -275,7 +275,7 @@ export const getClientById = async (id: number) => {
       success: boolean;
       message: string;
       client: Client;
-    }>(`${BASE_URL}/api/firm-admin/firm/client/${id}`, {
+    }>(`${BASE_URL}/firm-admin/firm/client/${id}`, {
       withCredentials: true,
     });
     const data = response.data.client;
@@ -316,7 +316,7 @@ export const updateClient = async (
     }
 
     const response = await axios.put(
-      `${BASE_URL}/api/firm-admin/firm/client/${id}`,
+      `${BASE_URL}/firm-admin/firm/client/${id}`,
       formData,
       {
         headers: {
@@ -335,7 +335,7 @@ export const updateClient = async (
 export const deleteClient = async (id: number) => {
   try {
     const response = await axios.delete<{ message: string }>(
-      `${BASE_URL}/api/firm-admin/firm/client/${id}`,
+      `${BASE_URL}/firm-admin/firm/client/${id}`,
       {
         withCredentials: true,
       }
@@ -353,7 +353,7 @@ export const deleteClient = async (id: number) => {
 export const createCase = async (firmId: number, data: FormData) => {
   try {
     const response = await axios.post(
-      `${BASE_URL}/api/firm-admin/${firmId}/addCase`,
+      `${BASE_URL}/firm-admin/${firmId}/addCase`,
       data,
       {
         withCredentials: true,
@@ -370,7 +370,7 @@ export const createCase = async (firmId: number, data: FormData) => {
 export const getAllCasesOfFirm = async (firmId: number): Promise<Case[]> => {
   try {
     const response = await axios.get<{ cases: Case[] }>(
-      `${BASE_URL}/api/firm-admin/firm/${firmId}/cases`,
+      `${BASE_URL}/firm-admin/firm/${firmId}/cases`,
       { withCredentials: true }
     );
 
@@ -390,7 +390,7 @@ export const getAllCasesOfFirm = async (firmId: number): Promise<Case[]> => {
 export const getAllCasesOfLawyer = async (): Promise<Case[]> => {
   try {
     const response = await axios.get<{ cases: Case[] }>(
-      `${BASE_URL}/api/firm-admin/lawyer/cases`,
+      `${BASE_URL}/firm-admin/lawyer/cases`,
       { withCredentials: true }
     );
 
@@ -410,7 +410,7 @@ export const getAllCasesOfLawyer = async (): Promise<Case[]> => {
 export const getAllClientsOfLawyer = async (): Promise<Client[]> => {
   try {
     const response = await axios.get(
-      `${BASE_URL}/api/firm-admin/lawyer/clients`,
+      `${BASE_URL}/firm-admin/lawyer/clients`,
       { withCredentials: true }
     );
     return response.data.clients;
@@ -429,7 +429,7 @@ export const getAllClientsOfLawyer = async (): Promise<Client[]> => {
 export const getCaseById = async (id: number) => {
   try {
     const resposne = await axios.get(
-      `${BASE_URL}/api/firm-admin/firm/cases/${id}`,
+      `${BASE_URL}/firm-admin/firm/cases/${id}`,
       { withCredentials: true }
     );
     return resposne.data;
@@ -448,7 +448,7 @@ export const getCaseById = async (id: number) => {
 export const deleteCaseByFirm = async (firmId: number, id: number) => {
   try {
     const response = await axios.delete(
-      `${BASE_URL}/api/firm-admin/firm/${firmId}/cases/${id}`,
+      `${BASE_URL}/firm-admin/firm/${firmId}/cases/${id}`,
       { withCredentials: true }
     );
     return response.data.case;
@@ -467,7 +467,7 @@ export const deleteCaseByFirm = async (firmId: number, id: number) => {
 export const updateCaseByFirm = async (id: number, data: FormData) => {
   try {
     const resposne = await axios.put(
-      `${BASE_URL}/api/firm-admin/firm/cases/${id}`,
+      `${BASE_URL}/firm-admin/firm/cases/${id}`,
       data,
       { withCredentials: true }
     );
@@ -491,7 +491,7 @@ export const updateCaseStatus = async (
 ) => {
   try {
     const response = await axios.patch(
-      `${BASE_URL}/api/firm-admin/firm/${firmId}/cases/${id}/status`,
+      `${BASE_URL}/firm-admin/firm/${firmId}/cases/${id}/status`,
       {
         status,
       },
@@ -521,7 +521,7 @@ export const updateCaseStatus = async (
 
 export const getPermissions = async () => {
   try {
-    const response = await axios.get(`${BASE_URL}/api/roles/get-permissions`, {
+    const response = await axios.get(`${BASE_URL}/roles/get-permissions`, {
       withCredentials: true,
     });
     return response.data;
@@ -541,7 +541,7 @@ export const getPermissions = async () => {
 export const createRole = async (roleData: CreateRolePayload) => {
   try {
     const response = await axios.post(
-      `${BASE_URL}/api/roles/create-role`,
+      `${BASE_URL}/roles/create-role`,
       roleData,
       {
         withCredentials: true,
@@ -556,7 +556,7 @@ export const createRole = async (roleData: CreateRolePayload) => {
 export const assignRole = async (formData: AssignRolePayload) => {
   try {
     const response = await axios.post(
-      `${BASE_URL}/api/roles/assign-role`,
+      `${BASE_URL}/roles/assign-role`,
       formData,
       {
         withCredentials: true,
@@ -571,7 +571,7 @@ export const assignRole = async (formData: AssignRolePayload) => {
 
 export const fetchRoles = async () => {
   try {
-    const response = await axios.get(`${BASE_URL}/api/roles/get-roles`, {
+    const response = await axios.get(`${BASE_URL}/roles/get-roles`, {
       withCredentials: true,
     });
     return response.data;
@@ -584,7 +584,7 @@ export const fetchRoles = async () => {
 export const fetchUsersWithRolesAndPermissions = async () => {
   try {
     const response = await axios.get(
-      `${BASE_URL}/api/roles/get-users-with-role-and-permissions`,
+      `${BASE_URL}/roles/get-users-with-role-and-permissions`,
       {
         withCredentials: true, 
       }
@@ -599,7 +599,7 @@ export const fetchUsersWithRolesAndPermissions = async () => {
 export const deleteUserById = async (id: number) => {
   try {
     const response = await axios.delete(
-      `${BASE_URL}/api/roles/delete-user/${id}`,
+      `${BASE_URL}/roles/delete-user/${id}`,
       { withCredentials: true }
     );
 
@@ -614,7 +614,7 @@ export const fetchUserById = async (
 ): Promise<GetUserByIdResponse> => {
   try {
     const response = await axios.get(
-      `${BASE_URL}/api/roles/get-user/${id}`,
+      `${BASE_URL}/roles/get-user/${id}`,
       { withCredentials: true }
     );
     return response.data;
@@ -630,7 +630,7 @@ export const updateUser = async (
 ): Promise<UpdateUserResponse> => {
   try {
     const response = await axios.put<UpdateUserResponse>(
-      `${BASE_URL}/api/roles/update-user/${id}`,
+      `${BASE_URL}/roles/update-user/${id}`,
       updateData,
       {
         withCredentials: true,
@@ -650,7 +650,7 @@ export const updateUser = async (
 export const lawyerStatsData = async () => {
   try {
     const response = await axios.get(
-      `${BASE_URL}/api/firm-admin/lawyers/stats`,
+      `${BASE_URL}/firm-admin/lawyers/stats`,
       {
         withCredentials: true,
       }
@@ -664,7 +664,7 @@ export const lawyerStatsData = async () => {
 export const clientStatsData = async (id: number): Promise<ClientStats | null> => {
   try {
     const response = await axios.get(
-      `${BASE_URL}/api/firm-admin/${id}/client/performance`,
+      `${BASE_URL}/firm-admin/${id}/client/performance`,
       {
         withCredentials: true,
       }

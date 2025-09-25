@@ -6,7 +6,7 @@ import { SubscriptionPayload } from "../types/firm";
 
 // Get all firms
 export const getAllFirms = async () => {
-  const response = await axios.get(`${BASE_URL}/api/super-admin/firms`, {
+  const response = await axios.get(`${BASE_URL}/super-admin/firms`, {
     withCredentials: true,
   });
   return response.data;
@@ -14,7 +14,7 @@ export const getAllFirms = async () => {
 
 // Get firm by ID
 export const getFirmById = async (id: number) => {
-  const response = await axios.get(`${BASE_URL}/api/super-admin/firm/${id}`, {
+  const response = await axios.get(`${BASE_URL}/super-admin/firm/${id}`, {
     withCredentials: true,
   });
   return response.data;
@@ -23,7 +23,7 @@ export const getFirmById = async (id: number) => {
 // Update firm status (e.g., active/inactive)
 export const updateFirmStatus = async (id: number, status: string) => {
   const response = await axios.patch(
-    `${BASE_URL}/api/super-admin/firms/${id}/status`,
+    `${BASE_URL}/super-admin/firms/${id}/status`,
     { status }, // <-- body required
     { withCredentials: true }
   );
@@ -33,7 +33,7 @@ export const updateFirmStatus = async (id: number, status: string) => {
 // Update firm subscription
 export const updateFirmSubscription = async (id: number, subscription: SubscriptionPayload) => {
   const response = await axios.patch(
-    `${BASE_URL}/api/super-admin/firm/${id}/subscription`,
+    `${BASE_URL}/super-admin/firm/${id}/subscription`,
     subscription, // pass subscription object {plan, duration, ...}
     { withCredentials: true }
   );
@@ -42,7 +42,7 @@ export const updateFirmSubscription = async (id: number, subscription: Subscript
 
 // Delete firm
 export const deleteFirm = async (id: number) => {
-  const response = await axios.delete(`${BASE_URL}/api/super-admin/firm/${id}`, {
+  const response = await axios.delete(`${BASE_URL}/super-admin/firm/${id}`, {
     withCredentials: true,
   });
   return response.data;
@@ -53,7 +53,7 @@ export const deleteFirm = async (id: number) => {
 
 // Get all lawyers
 export const getAllLawyers = async () => {
-  const response = await axios.get(`${BASE_URL}/api/super-admin/lawyers`, {
+  const response = await axios.get(`${BASE_URL}/super-admin/lawyers`, {
     withCredentials: true,
   });
   return response.data;
@@ -61,7 +61,7 @@ export const getAllLawyers = async () => {
 
 // Get lawyer by ID
 export const getLawyerById = async (id: number) => {
-  const response = await axios.get(`${BASE_URL}/api/super-admin/lawyer/${id}`, {
+  const response = await axios.get(`${BASE_URL}/super-admin/lawyer/${id}`, {
     withCredentials: true,
   });
   return response.data;
@@ -70,7 +70,7 @@ export const getLawyerById = async (id: number) => {
 // Update lawyer status
 export const updateLawyerStatus = async (id: number, status: string) => {
   const response = await axios.patch(
-    `${BASE_URL}/api/super-admin/lawyer/${id}/status`,
+    `${BASE_URL}/super-admin/lawyer/${id}/status`,
     { status },
     { withCredentials: true }
   );
@@ -80,7 +80,7 @@ export const updateLawyerStatus = async (id: number, status: string) => {
 // Delete lawyer
 export const deleteLawyer = async (id: number) => {
   const response = await axios.delete(
-    `${BASE_URL}/api/super-admin/lawyer/${id}`,
+    `${BASE_URL}/super-admin/lawyer/${id}`,
     { withCredentials: true }
   );
   return response.data;
@@ -91,7 +91,7 @@ export const deleteLawyer = async (id: number) => {
 
 // Get all clients
 export const getAllClients = async () => {
-  const response = await axios.get(`${BASE_URL}/api/super-admin/clients`, {
+  const response = await axios.get(`${BASE_URL}/super-admin/clients`, {
     withCredentials: true,
   });
   return response.data;
@@ -99,7 +99,7 @@ export const getAllClients = async () => {
 
 // Get client by ID
 export const getClientById = async (id: number) => {
-  const response = await axios.get(`${BASE_URL}/api/super-admin/client/${id}`, {
+  const response = await axios.get(`${BASE_URL}/super-admin/client/${id}`, {
     withCredentials: true,
   });
   return response.data;
@@ -108,7 +108,7 @@ export const getClientById = async (id: number) => {
 // Delete client
 export const deleteClient = async (id: number) => {
   const response = await axios.delete(
-    `${BASE_URL}/api/super-admin/client/${id}`,
+    `${BASE_URL}/super-admin/client/${id}`,
     { withCredentials: true }
   );
   return response.data;
@@ -119,7 +119,7 @@ export const deleteClient = async (id: number) => {
 
 // Get case metadata (stats)
 export const getCaseMetadata = async () => {
-  const response = await axios.get(`${BASE_URL}/api/super-admin/cases/metadata`, {
+  const response = await axios.get(`${BASE_URL}/super-admin/cases/metadata`, {
     withCredentials: true,
   });
   return response.data;
@@ -127,7 +127,7 @@ export const getCaseMetadata = async () => {
 
 // Get platform overview stats
 export const getPlatformOverview = async () => {
-  const response = await axios.get(`${BASE_URL}/api/super-admin/platform/overview`, {
+  const response = await axios.get(`${BASE_URL}/super-admin/platform/overview`, {
     withCredentials: true,
   });
   return response.data;
