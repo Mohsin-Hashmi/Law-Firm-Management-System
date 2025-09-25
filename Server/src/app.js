@@ -93,13 +93,13 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => {
   res.send("server is running");
 });
-app.use("/api/auth", authRoutes);
-app.use("/api/super-admin", superAdminRoutes);
-app.use("/api/firm-admin", adminRoute);
-app.use("/api/firm-admin", clientRoute);
-app.use("/api/firm-admin", caseRoute);
-app.use("/api/lawyers", lawyerRoutes);
-app.use("/api/roles", roleRoutes);
+app.use("/auth", authRoutes);
+app.use("/super-admin", superAdminRoutes);
+app.use("/firm-admin", adminRoute);
+app.use("/firm-admin", clientRoute);
+app.use("/firm-admin", caseRoute);
+app.use("/lawyers", lawyerRoutes);
+app.use("/roles", roleRoutes);
 
 // ✅ Global Error Handler
 app.use((err, req, res, next) => {
