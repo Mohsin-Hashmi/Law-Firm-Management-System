@@ -4,7 +4,6 @@ const bcrypt = require("bcryptjs");
 const { Role, Permission, User, UserFirm, Firm } = require("../models");
 const { Op } = require("sequelize");
 
-
 const getActiveFirmId = (req) => {
   return (
     req.user?.activeFirmId || (req.user?.firmIds ? req.user.firmIds[0] : null)
@@ -41,8 +40,12 @@ const createRole = async (req, res) => {
 
     return res.json({ success: true, role: newRole });
   } catch (error) {
-    console.error("Error in creating role:", error);
-    res.status(500).json({ success: false, message: "Failed to create role" });
+    console.error("Error in creating role:", error.message, error.stack);
+    res.status(500).json({
+      success: false,
+      message: "Failed to create role",
+      error: error.message,
+    });
   }
 };
 
@@ -141,21 +144,17 @@ const createUserWithRole = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Firm ID not found" });
     if (!name || !email || !roleId)
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Name, email, and roleId are required",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Name, email, and roleId are required",
+      });
 
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser)
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "User with this email already exists",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "User with this email already exists",
+      });
 
     const role = await Role.findOne({ where: { id: roleId, firmId } });
     if (!role)
