@@ -1,3 +1,4 @@
+"use client";
 import DashboardLayout from "@/app/components/DashboardLayout";
 import PlatformStats from "@/app/components/PlatformStats";
 import { ThemeProvider } from "next-themes";
