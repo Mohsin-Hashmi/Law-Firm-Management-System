@@ -2,8 +2,8 @@
 
 const BASE_URL =
   process.env.NODE_ENV === "production"
-    ? "https://legal-law-firm-management-system.vercel.app"
-    : "http://localhost:5000";
+    ? "https://legal-law-firm-management-system.vercel.app/api" 
+    : "http://localhost:5000/api";
 
 export default BASE_URL;
 
