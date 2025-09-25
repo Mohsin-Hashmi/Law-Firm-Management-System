@@ -281,7 +281,7 @@ export default function GetCases() {
     (case_) => (case_.status ?? "").toLowerCase() === "closed"
   );
   const pendingCases = cases.filter(
-    (case_) => (case_.status ?? "").toLowerCase() === "pending"
+    (case_) => (case_.status ?? "").toLowerCase() === "on hold"
   );
 
   // Get unique case types for filter

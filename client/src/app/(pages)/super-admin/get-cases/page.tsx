@@ -99,7 +99,7 @@ export default function GetCases() {
   const closedCases =
     caseData?.casesByStatus?.find((s) => s.status === "Closed")?.count || 0;
   const pendingCases =
-    caseData?.casesByStatus?.find((s) => s.status === "Pending")?.count || 0;
+    caseData?.casesByStatus?.find((s) => s.status === "On Hold")?.count || 0;
 
   // Get current month cases
   const currentMonthCases = caseData?.casesByMonth?.[0]?.count || 0;
