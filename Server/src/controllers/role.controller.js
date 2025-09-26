@@ -81,7 +81,8 @@ const getRoles = async (req, res) => {
       }
     });
 
-    return res.status(200).json({ success: true, rolesByFirm });
+   return res.status(200).json({ success: true, roles: rolesByFirm[firmId] || [] });
+
   } catch (error) {
     console.error("Get roles error:", error);
     return res

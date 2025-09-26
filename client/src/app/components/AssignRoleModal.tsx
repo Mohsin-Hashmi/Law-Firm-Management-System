@@ -47,7 +47,7 @@ const AssignRoleModal: React.FC<AssignRoleModalProps> = ({
   onClose,
   onRoleAssigned,
 }) => {
-  const router= useRouter();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [rolesLoading, setRolesLoading] = useState(false);
   const [roles, setRoles] = useState<Role[]>([]);
@@ -92,7 +92,7 @@ const AssignRoleModal: React.FC<AssignRoleModalProps> = ({
         try {
           const res = await fetchRoles();
           if (res.success) {
-            setRoles(res.roles);
+            setRoles(res.roles || []);
           }
         } catch (err) {
           console.error(err);
@@ -351,7 +351,7 @@ const AssignRoleModal: React.FC<AssignRoleModalProps> = ({
                   }
                   suffixIcon={<TeamOutlined className="text-slate-400" />}
                 >
-                  {roles.map((role) => (
+                  {(roles || []).map((role) => (
                     <Option key={role.id} value={role.id}>
                       <div className="flex items-center space-x-2 py-1">
                         <div
