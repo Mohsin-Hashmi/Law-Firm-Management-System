@@ -41,6 +41,7 @@ import { getLawyerPerformance } from "@/app/service/adminAPI";
 import { getAllCasesOfLawyer } from "@/app/service/adminAPI";
 import { setCases } from "@/app/store/caseSlice";
 import { Case } from "@/app/types/case";
+import BASE_URL from "@/app/utils/constant";
 
 const { Title, Text } = Typography;
 
@@ -236,7 +237,7 @@ export default function GetLawyerDetail({
                       size={200}
                       src={
                         lawyer.profileImage
-                          ? `http://localhost:5000${lawyer.profileImage}`
+                          ? `${BASE_URL}${lawyer.profileImage}`
                           : undefined
                       }
                       icon={!lawyer.profileImage && <UserOutlined />}

@@ -39,6 +39,7 @@ import DashboardLayout from "@/app/components/DashboardLayout";
 import { ThemeProvider } from "next-themes";
 import ConfirmationModal from "@/app/components/ConfirmationModal";
 import type { ColumnsType } from "antd/es/table";
+import BASE_URL from "@/app/utils/constant";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -74,7 +75,8 @@ export default function GetLawyers() {
   const [selectedLawyer, setSelectedLawyer] = useState<Lawyer | null>(null);
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [specializationFilter, setSpecializationFilter] = useState<string>("all");
+  const [specializationFilter, setSpecializationFilter] =
+    useState<string>("all");
 
   // Filter lawyers based on search and filters
   useEffect(() => {
@@ -88,10 +90,18 @@ export default function GetLawyers() {
     if (searchText) {
       filtered = filtered.filter(
         (lawyer) =>
-          (lawyer.name || "").toLowerCase().includes(searchText.toLowerCase()) ||
-          (lawyer.email || "").toLowerCase().includes(searchText.toLowerCase()) ||
-          (lawyer.firm?.name || "").toLowerCase().includes(searchText.toLowerCase()) ||
-          (lawyer.specialization || "").toLowerCase().includes(searchText.toLowerCase())
+          (lawyer.name || "")
+            .toLowerCase()
+            .includes(searchText.toLowerCase()) ||
+          (lawyer.email || "")
+            .toLowerCase()
+            .includes(searchText.toLowerCase()) ||
+          (lawyer.firm?.name || "")
+            .toLowerCase()
+            .includes(searchText.toLowerCase()) ||
+          (lawyer.specialization || "")
+            .toLowerCase()
+            .includes(searchText.toLowerCase())
       );
     }
 
@@ -107,7 +117,8 @@ export default function GetLawyers() {
     if (specializationFilter !== "all") {
       filtered = filtered.filter(
         (lawyer) =>
-          (lawyer.specialization || "").toLowerCase() === specializationFilter.toLowerCase()
+          (lawyer.specialization || "").toLowerCase() ===
+          specializationFilter.toLowerCase()
       );
     }
 
@@ -185,11 +196,15 @@ export default function GetLawyers() {
   const inactiveLawyers = lawyers.filter(
     (lawyer) => (lawyer.status || "").toLowerCase() === "inactive"
   );
-  
+
   // Get unique specializations for filter
-  const uniqueSpecializations = [...new Set(
-    lawyers.map(lawyer => lawyer.specialization?.toLowerCase()).filter(Boolean)
-  )];
+  const uniqueSpecializations = [
+    ...new Set(
+      lawyers
+        .map((lawyer) => lawyer.specialization?.toLowerCase())
+        .filter(Boolean)
+    ),
+  ];
 
   const columns: ColumnsType<Lawyer> = [
     {
@@ -200,13 +215,19 @@ export default function GetLawyers() {
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <Avatar
             size={48}
-            src={record.profileImage ? `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5000'}${record.profileImage}` : undefined}
+            src={
+              record.profileImage
+                ? `${BASE_URL}${record.profileImage}`
+                : undefined
+            }
             style={{
               background: record.profileImage ? undefined : "#f1f5f9",
               border: "2px solid #e5e7eb",
             }}
           >
-            {!record.profileImage && <UserOutlined style={{ color: "#94a3b8" }} />}
+            {!record.profileImage && (
+              <UserOutlined style={{ color: "#94a3b8" }} />
+            )}
           </Avatar>
           <div>
             <Text
@@ -236,7 +257,9 @@ export default function GetLawyers() {
         <div>
           <Space size="small">
             <BankOutlined style={{ color: "#9ca3af", fontSize: "12px" }} />
-            <Text style={{ fontSize: "13px", color: "#374151", fontWeight: "500" }}>
+            <Text
+              style={{ fontSize: "13px", color: "#374151", fontWeight: "500" }}
+            >
               {record.firm?.name || "N/A"}
             </Text>
           </Space>
@@ -247,10 +270,18 @@ export default function GetLawyers() {
                 padding: "2px 8px",
                 borderRadius: "6px",
                 textAlign: "center",
-                color: record.firm?.subscription_plan === "Premium" ? "#fbbf24" 
-                      : record.firm?.subscription_plan === "Basic" ? "#3b82f6" : "#10b981",
-                backgroundColor: record.firm?.subscription_plan === "Premium" ? "#fef3c7" 
-                              : record.firm?.subscription_plan === "Basic" ? "#dbeafe" : "#d1fae5",
+                color:
+                  record.firm?.subscription_plan === "Premium"
+                    ? "#fbbf24"
+                    : record.firm?.subscription_plan === "Basic"
+                    ? "#3b82f6"
+                    : "#10b981",
+                backgroundColor:
+                  record.firm?.subscription_plan === "Premium"
+                    ? "#fef3c7"
+                    : record.firm?.subscription_plan === "Basic"
+                    ? "#dbeafe"
+                    : "#d1fae5",
                 border: "none",
               }}
             >
@@ -641,11 +672,15 @@ export default function GetLawyers() {
                       "
                     >
                       <Option value="all">All Specializations</Option>
-                      {uniqueSpecializations.map(spec => (
+                      {uniqueSpecializations.map((spec) => (
                         <Option key={spec} value={spec}>
-                          {spec?.split(' ').map(word => 
-                            word.charAt(0).toUpperCase() + word.slice(1)
-                          ).join(' ')}
+                          {spec
+                            ?.split(" ")
+                            .map(
+                              (word) =>
+                                word.charAt(0).toUpperCase() + word.slice(1)
+                            )
+                            .join(" ")}
                         </Option>
                       ))}
                     </Select>
@@ -662,7 +697,8 @@ export default function GetLawyers() {
                         Refresh
                       </Button>
                       <Text className="text-slate-500 dark:text-slate-400 text-sm">
-                        Showing {filteredLawyers.length} of {lawyers.length} lawyers
+                        Showing {filteredLawyers.length} of {lawyers.length}{" "}
+                        lawyers
                       </Text>
                     </Space>
                   </Col>
