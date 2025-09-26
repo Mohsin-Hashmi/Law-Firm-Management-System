@@ -12,35 +12,41 @@ const getActiveFirmId = (req) => {
 
 // ================== ROLE APIs ==================
 
-// Create Role (firm scoped)
+// Create Role (global, but assign to firm via UserFirm)
 const createRole = async (req, res) => {
   try {
     const { name, permissions } = req.body;
     const firmId = getActiveFirmId(req);
 
-    if (!firmId) {
+    if (!firmId)
       return res
         .status(400)
         .json({ success: false, message: "Firm ID not found" });
-    }
 
-    const existingRole = await Role.findOne({ where: { name, firmId } });
-    if (existingRole) {
+    // Check if this role already exists in this firm
+    const existingRole = await UserFirm.findOne({
+      where: { firmId },
+      include: [{ model: Role, as: "role", where: { name } }],
+    });
+
+    if (existingRole)
       return res
         .status(400)
         .json({ success: false, message: "Role already exists in this firm" });
-    }
 
-    const newRole = await Role.create({ name, firmId });
+    const newRole = await Role.create({ name });
 
     if (permissions?.length > 0) {
       const perms = await Permission.findAll({ where: { name: permissions } });
       await newRole.addPermissions(perms);
     }
 
+    // Assign this role to the firm via UserFirm (without a user yet)
+    await UserFirm.create({ firmId, roleId: newRole.id });
+
     return res.json({ success: true, role: newRole });
   } catch (error) {
-    console.error("Error in creating role:", error.message, error.stack);
+    console.error("Error in creating role:", error);
     res.status(500).json({
       success: false,
       message: "Failed to create role",
@@ -49,27 +55,32 @@ const createRole = async (req, res) => {
   }
 };
 
-// Get Roles (firm scoped)
+// Get Roles (firm-scoped via UserFirm)
 const getRoles = async (req, res) => {
   try {
-    const excludedRoles = ["Super Admin", "Firm Admin", "Lawyer", "Client"];
     const firmId = getActiveFirmId(req);
-
-    if (!firmId) {
+    if (!firmId)
       return res
         .status(400)
         .json({ success: false, message: "Firm ID not found" });
-    }
 
-    const roles = await Role.findAll({
-      attributes: ["id", "name"],
-      where: {
-        firmId,
-        name: { [Op.notIn]: excludedRoles },
-      },
+    const excludedRoles = ["Super Admin", "Firm Admin", "Lawyer", "Client"];
+
+    const userFirms = await UserFirm.findAll({
+      where: { firmId },
+      include: [{ model: Role, as: "role", attributes: ["id", "name"] }],
     });
 
-    return res.status(200).json({ success: true, roles });
+    const roles = userFirms
+      .filter((uf) => uf.role && !excludedRoles.includes(uf.role.name))
+      .map((uf) => uf.role);
+
+    // Remove duplicates
+    const uniqueRoles = Array.from(
+      new Map(roles.map((r) => [r.id, r])).values()
+    );
+
+    return res.status(200).json({ success: true, roles: uniqueRoles });
   } catch (error) {
     console.error("Get roles error:", error);
     return res
@@ -97,26 +108,26 @@ const assignPermissionToRole = async (req, res) => {
     const { roleId, permissionName } = req.body;
     const firmId = getActiveFirmId(req);
 
-    if (!firmId) {
+    if (!firmId)
       return res
         .status(400)
         .json({ success: false, message: "Firm ID not found" });
-    }
 
-    const role = await Role.findOne({ where: { id: roleId, firmId } });
-    const permission = await Permission.findOne({
-      where: { name: permissionName },
-    });
-
-    if (!role)
+    const roleAssigned = await UserFirm.findOne({ where: { firmId, roleId } });
+    if (!roleAssigned)
       return res
         .status(404)
         .json({ success: false, message: "Role not found in your firm" });
+
+    const permission = await Permission.findOne({
+      where: { name: permissionName },
+    });
     if (!permission)
       return res
         .status(404)
         .json({ success: false, message: "Permission not found" });
 
+    const role = await Role.findByPk(roleId);
     await role.addPermission(permission);
 
     return res.json({
@@ -133,7 +144,7 @@ const assignPermissionToRole = async (req, res) => {
 
 // ================== USER APIs ==================
 
-// Create User with Role (firm scoped)
+// Create User with Role (firm-scoped via UserFirm)
 const createUserWithRole = async (req, res) => {
   try {
     const { name, email, roleId } = req.body;
@@ -156,17 +167,13 @@ const createUserWithRole = async (req, res) => {
         message: "User with this email already exists",
       });
 
-    const role = await Role.findOne({ where: { id: roleId, firmId } });
-    if (!role)
-      return res
-        .status(404)
-        .json({ success: false, message: "Role not found in your firm" });
-
-    const firm = await Firm.findByPk(firmId);
-    if (!firm)
-      return res
-        .status(404)
-        .json({ success: false, message: "Firm not found" });
+    // Make sure role is assigned to this firm (UserFirm table)
+    const roleAssigned = await UserFirm.findOne({ where: { firmId, roleId } });
+    if (roleAssigned)
+      return res.status(400).json({
+        success: false,
+        message: "Role already assigned to this firm",
+      });
 
     const dummyPassword = process.env.DUMMY_PASSWORD;
     if (!dummyPassword)
@@ -175,7 +182,6 @@ const createUserWithRole = async (req, res) => {
         .json({ success: false, message: "Dummy password not set in env" });
 
     const hashedPassword = await bcrypt.hash(dummyPassword, 10);
-
     const newUser = await User.create({
       name,
       email,
@@ -186,6 +192,7 @@ const createUserWithRole = async (req, res) => {
 
     await UserFirm.create({ userId: newUser.id, firmId, roleId });
 
+    const role = await Role.findByPk(roleId);
     const permissions = await role.getPermissions();
 
     return res.status(201).json({
@@ -216,12 +223,6 @@ const getUsersByFirm = async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: "Firm ID not found" });
-
-    const firm = await Firm.findByPk(firmId);
-    if (!firm)
-      return res
-        .status(404)
-        .json({ success: false, message: "Firm not found" });
 
     const userFirms = await UserFirm.findAll({
       where: { firmId },
@@ -264,6 +265,7 @@ const getUsersByFirm = async (req, res) => {
         status: uf.status,
       }));
 
+    const firm = await Firm.findByPk(firmId);
     return res
       .status(200)
       .json({ success: true, firm: { id: firm.id, name: firm.name }, users });
@@ -286,7 +288,6 @@ const deleteUserByFirm = async (req, res) => {
       return res.status(404).json({ message: "User not found in your firm" });
 
     await userFirm.destroy();
-
     const remainingFirms = await UserFirm.findOne({ where: { userId: id } });
     if (!remainingFirms) await User.destroy({ where: { id } });
 
@@ -315,7 +316,6 @@ const updateUserByFirm = async (req, res) => {
         { model: User, as: "user", attributes: ["id", "name", "email"] },
       ],
     });
-
     if (!userFirm)
       return res
         .status(404)
@@ -325,14 +325,13 @@ const updateUserByFirm = async (req, res) => {
       userFirm.status = status;
       await userFirm.save();
     }
-
     if (roleId) {
       userFirm.roleId = roleId;
       await userFirm.save();
     }
 
     let currentRole = null;
-    if (userFirm.roleId) {
+    if (userFirm.roleId)
       currentRole = await Role.findByPk(userFirm.roleId, {
         include: [
           {
@@ -343,7 +342,6 @@ const updateUserByFirm = async (req, res) => {
           },
         ],
       });
-    }
 
     if (
       currentRole &&
@@ -361,6 +359,7 @@ const updateUserByFirm = async (req, res) => {
         });
         await currentRole.removePermissions(permsToRemove);
       }
+
       currentRole = await Role.findByPk(userFirm.roleId, {
         include: [
           {
@@ -402,11 +401,6 @@ const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
     const firmId = getActiveFirmId(req);
-
-    if (!firmId)
-      return res
-        .status(400)
-        .json({ success: false, message: "Firm ID not found" });
 
     const userFirm = await UserFirm.findOne({
       where: { userId: id, firmId },
@@ -458,10 +452,10 @@ const getUserById = async (req, res) => {
 
 module.exports = {
   createRole,
+  getRoles,
   getPermissions,
   assignPermissionToRole,
   createUserWithRole,
-  getRoles,
   getUsersByFirm,
   deleteUserByFirm,
   updateUserByFirm,
