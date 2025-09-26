@@ -23,16 +23,12 @@ const createRole = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Firm ID not found" });
 
-    // Check if this role already exists in this firm
-    const existingRole = await UserFirm.findOne({
-      where: { firmId },
-      include: [{ model: Role, as: "role", where: { name } }],
-    });
-
+    // Check if this role already exists globally (roles are global)
+    const existingRole = await Role.findOne({ where: { name } });
     if (existingRole)
       return res
         .status(400)
-        .json({ success: false, message: "Role already exists in this firm" });
+        .json({ success: false, message: "Role already exists" });
 
     const newRole = await Role.create({ name });
 
@@ -41,8 +37,7 @@ const createRole = async (req, res) => {
       await newRole.addPermissions(perms);
     }
 
-    // Assign this role to the firm via UserFirm (without a user yet)
-    await UserFirm.create({ firmId, roleId: newRole.id });
+    // DO NOT create UserFirm here — firm association happens only when a user is assigned this role
 
     return res.json({ success: true, role: newRole });
   } catch (error) {
@@ -54,6 +49,7 @@ const createRole = async (req, res) => {
     });
   }
 };
+
 
 // Get Roles (firm-scoped via UserFirm)
 const getRoles = async (req, res) => {
