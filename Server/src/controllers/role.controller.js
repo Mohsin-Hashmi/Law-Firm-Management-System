@@ -54,29 +54,34 @@ const createRole = async (req, res) => {
 // Get Roles (firm-scoped via UserFirm)
 const getRoles = async (req, res) => {
   try {
-    const firmId = getActiveFirmId(req);
-    if (!firmId)
+    const userFirmIds = req.user?.firmIds;
+    if (!userFirmIds || userFirmIds.length === 0) {
       return res
         .status(400)
-        .json({ success: false, message: "Firm ID not found" });
+        .json({ success: false, message: "No firms associated with user" });
+    }
 
     const excludedRoles = ["Super Admin", "Firm Admin", "Lawyer", "Client"];
 
+    // Fetch UserFirm records for the user's firms
     const userFirms = await UserFirm.findAll({
-      where: { firmId },
+      where: { firmId: userFirmIds },
       include: [{ model: Role, as: "role", attributes: ["id", "name"] }],
     });
 
-    const roles = userFirms
-      .filter((uf) => uf.role && !excludedRoles.includes(uf.role.name))
-      .map((uf) => uf.role);
+    // Map roles per firm
+    const rolesByFirm = {};
+    userFirms.forEach((uf) => {
+      if (uf.role && !excludedRoles.includes(uf.role.name)) {
+        if (!rolesByFirm[uf.firmId]) rolesByFirm[uf.firmId] = [];
+        // Prevent duplicate roles in the same firm
+        if (!rolesByFirm[uf.firmId].some((r) => r.id === uf.role.id)) {
+          rolesByFirm[uf.firmId].push(uf.role);
+        }
+      }
+    });
 
-    // Remove duplicates
-    const uniqueRoles = Array.from(
-      new Map(roles.map((r) => [r.id, r])).values()
-    );
-
-    return res.status(200).json({ success: true, roles: uniqueRoles });
+    return res.status(200).json({ success: true, rolesByFirm });
   } catch (error) {
     console.error("Get roles error:", error);
     return res
@@ -84,6 +89,7 @@ const getRoles = async (req, res) => {
       .json({ success: false, message: "Failed to fetch roles" });
   }
 };
+
 
 // ================== PERMISSIONS APIs ==================
 
