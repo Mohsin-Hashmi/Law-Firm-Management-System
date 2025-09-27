@@ -36,6 +36,7 @@ import { getLawyerById, updateLawyer } from "@/app/service/adminAPI";
 import { Lawyer } from "@/app/types/firm";
 import type { UploadProps, UploadFile } from "antd";
 import { toast } from "react-hot-toast";
+import BASE_URL from "@/app/utils/constant";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -656,7 +657,7 @@ export default function EditLawyer({ params }: { params: { id: number } }) {
                     src={
                       previewImage ||
                       (lawyer.profileImage
-                        ? `http://localhost:5000${lawyer.profileImage}`
+                        ? `${BASE_URL}${lawyer.profileImage}`
                         : undefined)
                     }
                     icon={

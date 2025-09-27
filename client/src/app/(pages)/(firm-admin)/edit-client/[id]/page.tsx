@@ -45,7 +45,7 @@ import type { UploadProps, UploadFile } from "antd";
 import { toast } from "react-hot-toast";
 import dayjs from "dayjs";
 import ConfirmationModal from "@/app/components/ConfirmationModal";
-
+import BASE_URL from "@/app/utils/constant";
 const { Title, Text } = Typography;
 const { Option } = Select;
 const { TextArea } = Input;
@@ -861,7 +861,7 @@ export default function EditClient({ params }: { params: { id: number } }) {
                     src={
                       previewImage ||
                       (client.profileImage
-                        ? `http://localhost:5000${client.profileImage}`
+                        ? `${BASE_URL}${client.profileImage}`
                         : undefined)
                     }
                     icon={
