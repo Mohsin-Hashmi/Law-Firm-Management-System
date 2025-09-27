@@ -726,7 +726,7 @@ export default function AddCase() {
                         ]}
                       >
                         <Select
-                          mode="multiple"
+                          mode="tags"
                           placeholder="Select lawyers to assign to this case"
                           optionFilterProp="label"
                           className="
@@ -734,7 +734,7 @@ export default function AddCase() {
     dark:!border-[#4B5563] 
     [&_.ant-select-selector]:dark:!bg-[#2A3441] 
     [&_.ant-select-selector]:dark:!border-[#4B5563] 
-    [&_.ant-select-selection-item]:dark:!text-white 
+    [&_.ant-select-selection-item]:!hidden
     [&_.ant-select-arrow]:dark:!text-white 
     [&_.ant-select-selector]:!min-h-[50px] 
     [&_.ant-select-selection-placeholder]:dark:!text-[#9ca3af] 
@@ -749,6 +749,7 @@ export default function AddCase() {
     [&_.ant-select-item-option-active]:dark:!bg-[#374151]
   "
                           showSearch
+                          tagRender={() => <></>}
                         >
                           {lawyers.map((lawyer) => (
                             <Option
