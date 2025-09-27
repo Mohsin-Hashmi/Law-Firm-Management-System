@@ -216,6 +216,7 @@ const LoginIn = async (req, res) => {
         firms,
         currentFirmId,
       },
+      token
     });
   } catch (err) {
     console.error(err);
