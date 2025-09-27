@@ -4,6 +4,7 @@ const express = require("express");
 const app = express();
 // Trust reverse proxy (Nginx/ALB) so secure cookies and protocol detection work
 app.set("trust proxy", 1);
+
 const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/user");
 const superAdminRoutes = require("./routes/superAdmin");
@@ -13,11 +14,11 @@ const clientRoute = require("./routes/client");
 const caseRoute = require("./routes/case");
 const roleRoutes = require("./routes/role");
 const cors = require("cors");
-const { User, Role, sequelize } = require("./models"); // ✅ import sequelize
+const { User, Role, sequelize } = require("./models");
 const bcrypt = require("bcryptjs");
 const path = require("path");
 
-
+// ====== Middleware ======
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -28,8 +29,7 @@ const allowedOrigins = [
   "http://localhost:3000", // local development
 ].filter(Boolean);
 
-
-
+// Apply CORS to APIs
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -46,8 +46,23 @@ app.use(
   })
 );
 
-// Serve static files from uploads folder
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+//  Serve static files from uploads with CORS
+app.use(
+  "/uploads",
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET"],
+    credentials: true,
+  }),
+  express.static(path.join(__dirname, "../uploads"))
+);
 
 const PORT = process.env.PORT || 4000;
 
