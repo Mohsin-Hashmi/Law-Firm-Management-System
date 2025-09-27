@@ -439,7 +439,12 @@ export default function GetLawyerDetail({
                           <div className="flex justify-center items-center py-12">
                             <Spin size="large" />
                           </div>
-                        ) : performanceData ? (
+                        ) : performanceData &&
+                          (performanceData.totalCases > 0 ||
+                            performanceData.completedCases > 0 ||
+                            performanceData.activeCases > 0 ||
+                            performanceData.wonCases > 0 ||
+                            performanceData.lostCases > 0) ? (
                           <div style={{ width: "100%", height: 300 }}>
                             <ResponsiveContainer width="100%" height={300}>
                               <AreaChart

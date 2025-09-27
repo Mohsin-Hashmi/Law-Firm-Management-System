@@ -505,7 +505,13 @@ export default function GetClientDetail({
                           <div className="flex justify-center items-center py-12">
                             <Spin size="large" />
                           </div>
-                        ) : clientStats && prepareChartData().length > 0 ? (
+                        ) : clientStats &&
+                          (clientStats.totalCases > 0 ||
+                            (clientStats.totalLawyersAssigned || 0) > 0 ||
+                            clientStats.openCases > 0 ||
+                            clientStats.closedCases > 0 ||
+                            (clientStats.wonCases || 0) > 0 ||
+                            (clientStats.completedCases || 0) > 0) ? (
                           <div style={{ width: "100%", height: 300 }}>
                             <ResponsiveContainer width={600} height={270}>
                               <BarChart
