@@ -786,7 +786,7 @@ export default function AddCase() {
                             form.getFieldValue("lawyerIds") || [];
 
                           return selectedLawyerIds.length > 0 ? (
-                            <div className="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                            <div>
                               <Text className="text-slate-700 dark:text-slate-200 text-sm font-medium block mb-3">
                                 Assigned Lawyers ({selectedLawyerIds.length}):
                               </Text>
@@ -798,14 +798,16 @@ export default function AddCase() {
                                   return lawyer ? (
                                     <div
                                       key={id}
-                                      className="flex items-center gap-3"
+                                      className="flex items-center gap-3 p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg"
                                     >
-                                      <TeamOutlined className="text-blue-500" />
-                                      <div>
-                                        <Text className="text-slate-800 dark:text-white font-medium text-sm">
+                                      <div className="flex items-center justify-center w-8 h-8 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg">
+                                        <TeamOutlined className="text-emerald-600 dark:text-emerald-400" />
+                                      </div>
+                                      <div className="flex-1">
+                                        <Text className="text-slate-800 dark:text-white font-semibold text-sm block">
                                           {lawyer.name}
                                         </Text>
-                                        <Text className="text-slate-500 dark:text-slate-400 text-xs block">
+                                        <Text className="text-slate-500 dark:text-slate-400 text-xs">
                                           {lawyer.email}
                                         </Text>
                                       </div>
