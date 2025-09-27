@@ -501,8 +501,8 @@ export default function GetLawyerDetail({
                           </div>
                         ) : (
                           <div className="flex justify-center items-center py-12">
-                            <div className="px-8 py-6 rounded-2xl text-lg font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center space-x-3 shadow-sm">
-                              <FileTextOutlined className="text-slate-500 dark:text-slate-400 text-xl" />
+                            <div className="px-8 py-6 rounded-2xl text-lg font-semibold text-amber-700 dark:text-amber-700 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800  flex items-center space-x-3 shadow-sm">
+                              <FileTextOutlined className="text-amber-600 dark:text-amber-400 text-xl" />
                               <span>No Performance Data Yet Available</span>
                             </div>
                           </div>
