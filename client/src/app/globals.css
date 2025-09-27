@@ -97,3 +97,19 @@ body {
 .ant-modal-mask {
   background-color: rgba(0, 0, 0, 0.1) !important;
 }
+/* Center align the selected tags inside the select */
+.ant-select-selector {
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Make the overflow container flex nicely */
+.ant-select-selection-overflow {
+  display: flex !important;
+  align-items: center !important;
+}
+
+.ant-select-selection-item {
+  display: flex !important;
+  align-items: center !important;
+}

@@ -656,7 +656,7 @@ export default function AddCase() {
                             <div className="flex items-center gap-3">
                               <UserOutlined className="text-slate-400" />
                               <div>
-                                <div className="font-medium">
+                                <div className="font-normal text-sm">
                                   {client.fullName}
                                 </div>
                                 <div className="text-xs text-slate-500">
@@ -722,11 +722,11 @@ export default function AddCase() {
                         }
                         name="lawyerIds"
                         rules={[
-                          { required: true, message: "Please select lawyers" },
+                          { required: true, message: "Please select a client" },
                         ]}
                       >
                         <Select
-                          mode="tags"
+                          mode="multiple"
                           placeholder="Select lawyers to assign to this case"
                           optionFilterProp="label"
                           className="
@@ -734,10 +734,21 @@ export default function AddCase() {
     dark:!border-[#4B5563] 
     [&_.ant-select-selector]:dark:!bg-[#2A3441] 
     [&_.ant-select-selector]:dark:!border-[#4B5563] 
-    [&_.ant-select-selection-item]:!hidden
+    [&_.ant-select-selection-item]:dark:!text-white 
     [&_.ant-select-arrow]:dark:!text-white 
+
     [&_.ant-select-selector]:!min-h-[50px] 
+    [&_.ant-select-selector]:flex 
+    [&_.ant-select-selector]:items-center 
+
     [&_.ant-select-selection-placeholder]:dark:!text-[#9ca3af] 
+    [&_.ant-select-selection-placeholder]:flex 
+    [&_.ant-select-selection-placeholder]:items-center 
+    [&_.ant-select-selection-placeholder]:!h-full 
+
+    [&_.ant-select-selection-overflow]:flex 
+    [&_.ant-select-selection-overflow]:items-center 
+
     [&_.ant-select-arrow]:!top-8
     [&_.ant-select-arrow]:!-translate-y-1/2
   "
@@ -749,7 +760,6 @@ export default function AddCase() {
     [&_.ant-select-item-option-active]:dark:!bg-[#374151]
   "
                           showSearch
-                          tagRender={() => <></>}
                         >
                           {lawyers.map((lawyer) => (
                             <Option
@@ -757,14 +767,11 @@ export default function AddCase() {
                               value={lawyer.id}
                               label={`${lawyer.name} ${lawyer.email}`}
                             >
-                              <div className="flex items-center gap-3">
+                              <div className="flex items-center  gap-3 max-h-[32px]">
                                 <TeamOutlined className="text-slate-400" />
                                 <div>
-                                  <div className="font-medium">
+                                  <div className="font-normal">
                                     {lawyer.name}
-                                  </div>
-                                  <div className="text-xs text-slate-500">
-                                    {lawyer.email}
                                   </div>
                                 </div>
                               </div>
@@ -779,7 +786,7 @@ export default function AddCase() {
                             form.getFieldValue("lawyerIds") || [];
 
                           return selectedLawyerIds.length > 0 ? (
-                            <div>
+                            <div className="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
                               <Text className="text-slate-700 dark:text-slate-200 text-sm font-medium block mb-3">
                                 Assigned Lawyers ({selectedLawyerIds.length}):
                               </Text>
@@ -791,16 +798,14 @@ export default function AddCase() {
                                   return lawyer ? (
                                     <div
                                       key={id}
-                                      className="flex items-center gap-3 p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg"
+                                      className="flex items-center gap-3"
                                     >
-                                      <div className="flex items-center justify-center w-8 h-8 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg">
-                                        <TeamOutlined className="text-emerald-600 dark:text-emerald-400" />
-                                      </div>
-                                      <div className="flex-1">
-                                        <Text className="text-slate-800 dark:text-white font-semibold text-sm block">
+                                      <TeamOutlined className="text-blue-500" />
+                                      <div>
+                                        <Text className="text-slate-800 dark:text-white font-medium text-sm">
                                           {lawyer.name}
                                         </Text>
-                                        <Text className="text-slate-500 dark:text-slate-400 text-xs">
+                                        <Text className="text-slate-500 dark:text-slate-400 text-xs block">
                                           {lawyer.email}
                                         </Text>
                                       </div>
