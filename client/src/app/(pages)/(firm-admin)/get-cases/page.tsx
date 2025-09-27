@@ -52,6 +52,7 @@ import { updateCaseStatus } from "@/app/service/adminAPI";
 import ConfirmationModal from "@/app/components/ConfirmationModal";
 import { Client } from "@/app/types/client";
 import { usePermission } from "@/app/hooks/usePermission";
+import BASE_URL from "@/app/utils/constant";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -343,7 +344,7 @@ export default function GetCases() {
             size={48}
             src={
               record.client?.profileImage
-                ? `http://localhost:5000${record.client.profileImage}`
+                ? `${BASE_URL}${record.client.profileImage}`
                 : undefined
             }
             style={{
@@ -361,19 +362,23 @@ export default function GetCases() {
               getCaseTypeIcon(record.client.clientType)}
           </Avatar>
           <div className="flex-1 min-w-0">
-            <Text
-              className="block text-slate-900 dark:text-slate-200 font-medium"
-              ellipsis={{ tooltip: record.client?.fullName }}
-            >
-              {record.client?.fullName || "No client assigned"}
-            </Text>
-            {record.client?.email && (
+            <div>
               <Text
-                className="block text-slate-500 dark:text-slate-400 text-xs"
-                ellipsis={{ tooltip: record.client.email }}
+                className="block text-slate-900 dark:text-slate-200 font-medium"
+                ellipsis={{ tooltip: record.client?.fullName }}
               >
-                {record.client.email}
+                {record.client?.fullName || "No client assigned"}
               </Text>
+            </div>
+            {record.client?.email && (
+              <div>
+                <Text
+                  className="block text-slate-500 dark:text-slate-400 text-xs"
+                  ellipsis={{ tooltip: record.client.email }}
+                >
+                  {record.client.email}
+                </Text>
+              </div>
             )}
           </div>
         </div>
@@ -502,7 +507,7 @@ export default function GetCases() {
                       size={avatarSize}
                       src={
                         lawyer.profileImage
-                          ? `http://localhost:5000${lawyer.profileImage}`
+                          ? `${BASE_URL}${lawyer.profileImage}`
                           : undefined
                       }
                       className="border-2 border-white dark:border-slate-700 cursor-pointer hover:scale-110 transition-transform duration-200"
@@ -539,7 +544,7 @@ export default function GetCases() {
                               size={20}
                               src={
                                 lawyer.profileImage
-                                  ? `http://localhost:5000${lawyer.profileImage}`
+                                  ? `${BASE_URL}${lawyer.profileImage}`
                                   : undefined
                               }
                             >
@@ -586,7 +591,7 @@ export default function GetCases() {
                           size={20}
                           src={
                             lawyer.profileImage
-                              ? `http://localhost:5000${lawyer.profileImage}`
+                              ? `${BASE_URL}${lawyer.profileImage}`
                               : undefined
                           }
                         >
