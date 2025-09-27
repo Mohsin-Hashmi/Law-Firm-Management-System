@@ -4,7 +4,7 @@ import PlatformStats from "@/app/components/PlatformStats";
 import { ThemeProvider } from "next-themes";
 import { useAppSelector } from "@/app/store/hooks";
 import { RootState } from "@/app/store/store";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 export default function SuperAdminDashboard() {
   const user = useAppSelector((state: RootState) => state.user.user);
@@ -14,6 +14,9 @@ export default function SuperAdminDashboard() {
       router.push("/auth/login");
     }
   }, [user, router]);
+  if (!user) {
+    return null; 
+  }
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <DashboardLayout>
