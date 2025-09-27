@@ -93,7 +93,7 @@ export default function EditClient({ params }: { params: { id: number } }) {
 
       // Set existing profile image
       if (data.profileImage) {
-        setPreviewImage(`http://localhost:5000${data.profileImage}`);
+        setPreviewImage(`${BASE_URL}${data.profileImage}`);
       }
     } catch (error) {
       console.error("Error fetching client detail:", error);
