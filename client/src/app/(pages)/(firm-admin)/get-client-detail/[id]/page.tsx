@@ -487,7 +487,6 @@ export default function GetClientDetail({
                         </Space>
                       </Card>
                     </Col>
-
                     {/* Client Performance Chart */}
                     <Col span={24}>
                       <Card
@@ -503,13 +502,8 @@ export default function GetClientDetail({
                         </Title>
 
                         {loadingStats ? (
-                          <div
-                            style={{ textAlign: "center", padding: "40px 0" }}
-                          >
+                          <div className="flex justify-center items-center py-12">
                             <Spin size="large" />
-                            <p className="text-gray-500 dark:text-gray-400 mt-4">
-                              Loading performance data...
-                            </p>
                           </div>
                         ) : clientStats && prepareChartData().length > 0 ? (
                           <div style={{ width: "100%", height: 300 }}>
@@ -559,19 +553,11 @@ export default function GetClientDetail({
                             </ResponsiveContainer>
                           </div>
                         ) : (
-                          <div
-                            style={{ textAlign: "center", padding: "40px 0" }}
-                          >
-                            <FileTextOutlined
-                              style={{
-                                fontSize: "48px",
-                                color: "#9ca3af",
-                                marginBottom: "16px",
-                              }}
-                            />
-                            <p className="text-gray-500 dark:text-gray-400">
-                              No performance data available for this client.
-                            </p>
+                          <div className="flex justify-center items-center py-12">
+                            <div className="px-8 py-6 rounded-2xl text-lg font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center space-x-3 shadow-sm">
+                              <FileTextOutlined className="text-slate-500 dark:text-slate-400 text-xl" />
+                              <span>No Performance Data Yet Available</span>
+                            </div>
                           </div>
                         )}
                       </Card>

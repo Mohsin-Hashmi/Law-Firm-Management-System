@@ -436,9 +436,9 @@ export default function GetLawyerDetail({
                         </Title>
 
                         {loadingPerformance ? (
-                          <p className="text-gray-500 dark:text-gray-400">
-                            Loading performance data...
-                          </p>
+                          <div className="flex justify-center items-center py-12">
+                            <Spin size="large" />
+                          </div>
                         ) : performanceData ? (
                           <div style={{ width: "100%", height: 300 }}>
                             <ResponsiveContainer width="100%" height={300}>
@@ -495,9 +495,12 @@ export default function GetLawyerDetail({
                             </ResponsiveContainer>
                           </div>
                         ) : (
-                          <p className="text-red-500 dark:text-red-400">
-                            No performance data found.
-                          </p>
+                          <div className="flex justify-center items-center py-12">
+                            <div className="px-8 py-6 rounded-2xl text-lg font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center space-x-3 shadow-sm">
+                              <FileTextOutlined className="text-slate-500 dark:text-slate-400 text-xl" />
+                              <span>No Performance Data Yet Available</span>
+                            </div>
+                          </div>
                         )}
                       </Card>
                     </Col>
