@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "roleId",
         as: "permissions",
       });
+      Role.belongsTo(models.Firm, { foreignKey: "firmId", as: "firm" });
     }
   }
 

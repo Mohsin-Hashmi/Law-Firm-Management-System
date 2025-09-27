@@ -18,26 +18,32 @@ const createRole = async (req, res) => {
     const { name, permissions } = req.body;
     const firmId = getActiveFirmId(req);
 
-    if (!firmId)
+    if (!firmId) {
       return res
         .status(400)
         .json({ success: false, message: "Firm ID not found" });
-
-    // Check if this role already exists globally (roles are global)
-    const existingRole = await Role.findOne({ where: { name } });
-    if (existingRole)
-      return res
-        .status(400)
-        .json({ success: false, message: "Role already exists" });
-
-    const newRole = await Role.create({ name });
-
-    if (permissions?.length > 0) {
-      const perms = await Permission.findAll({ where: { name: permissions } });
-      await newRole.addPermissions(perms);
     }
 
-    // DO NOT create UserFirm here — firm association happens only when a user is assigned this role
+    // Check if this role already exists for this firm
+    const existingRole = await Role.findOne({
+      where: { name, firmId },
+    });
+
+    if (existingRole) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Role already exists for this firm" });
+    }
+
+    // ✅ Save firmId in the Role table
+    const newRole = await Role.create({ name, firmId });
+
+    if (permissions?.length > 0) {
+      const perms = await Permission.findAll({
+        where: { name: permissions },
+      });
+      await newRole.addPermissions(perms);
+    }
 
     return res.json({ success: true, role: newRole });
   } catch (error) {
@@ -54,43 +60,41 @@ const createRole = async (req, res) => {
 // Get Roles (firm-scoped via UserFirm)
 const getRoles = async (req, res) => {
   try {
-    const userFirmIds = req.user?.firmIds;
-    if (!userFirmIds || userFirmIds.length === 0) {
-      return res
-        .status(400)
-        .json({ success: false, message: "No firms associated with user" });
+    const firmId = getActiveFirmId(req);
+    console.log("Firm ID from request:", firmId);
+
+    if (!firmId) {
+      return res.status(400).json({
+        success: false,
+        message: "Firm ID not found",
+      });
     }
 
     const excludedRoles = ["Super Admin", "Firm Admin", "Lawyer", "Client"];
 
-    // Fetch UserFirm records for the user's firms
-    const userFirms = await UserFirm.findAll({
-      where: { firmId: userFirmIds },
-      include: [{ model: Role, as: "role", attributes: ["id", "name"] }],
+    // Fetch roles specific to this firm
+    const roles = await Role.findAll({
+      where: {
+        firmId, // 🔥 filter by firmId
+        name: { [Op.notIn]: excludedRoles },
+      },
+      attributes: ["id", "name"],
+      order: [["name", "ASC"]],
     });
-
-    // Map roles per firm
-    const rolesByFirm = {};
-    userFirms.forEach((uf) => {
-      if (uf.role && !excludedRoles.includes(uf.role.name)) {
-        if (!rolesByFirm[uf.firmId]) rolesByFirm[uf.firmId] = [];
-        // Prevent duplicate roles in the same firm
-        if (!rolesByFirm[uf.firmId].some((r) => r.id === uf.role.id)) {
-          rolesByFirm[uf.firmId].push(uf.role);
-        }
-      }
+    
+    return res.status(200).json({
+      success: true,
+      firmId,
+      roles,
     });
-
-   return res.status(200).json({ success: true, roles: rolesByFirm[firmId] || [] });
-
   } catch (error) {
     console.error("Get roles error:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Failed to fetch roles" });
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch firm-specific roles",
+    });
   }
 };
-
 
 // ================== PERMISSIONS APIs ==================
 
@@ -163,19 +167,12 @@ const createUserWithRole = async (req, res) => {
         message: "Name, email, and roleId are required",
       });
 
+    // Only check for duplicate users by email
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser)
       return res.status(400).json({
         success: false,
         message: "User with this email already exists",
-      });
-
-    // Make sure role is assigned to this firm (UserFirm table)
-    const roleAssigned = await UserFirm.findOne({ where: { firmId, roleId } });
-    if (roleAssigned)
-      return res.status(400).json({
-        success: false,
-        message: "Role already assigned to this firm",
       });
 
     const dummyPassword = process.env.DUMMY_PASSWORD;
@@ -185,6 +182,8 @@ const createUserWithRole = async (req, res) => {
         .json({ success: false, message: "Dummy password not set in env" });
 
     const hashedPassword = await bcrypt.hash(dummyPassword, 10);
+
+    //  Create the user and assign global roleId
     const newUser = await User.create({
       name,
       email,
@@ -193,6 +192,7 @@ const createUserWithRole = async (req, res) => {
       mustChangePassword: true,
     });
 
+    // Create firm association with the role
     await UserFirm.create({ userId: newUser.id, firmId, roleId });
 
     const role = await Role.findByPk(roleId);

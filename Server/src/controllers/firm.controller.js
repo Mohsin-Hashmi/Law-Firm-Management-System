@@ -17,6 +17,23 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { where } = require("sequelize");
 
+const getActiveFirmId = (req) => {
+  if (req.user?.firmId) {
+    return req.user.firmId; 
+  }
+
+  if (req.user?.activeFirmId) {
+    return req.user.activeFirmId; 
+  }
+
+  if (Array.isArray(req.user?.firmIds) && req.user.firmIds.length > 0) {
+    return req.user.firmIds[0]; 
+  }
+
+  return null;
+};
+
+
 const createFirm = async (req, res) => {
   const t = await sequelize.transaction();
   try {
@@ -367,32 +384,16 @@ const firmStats = async (req, res) => {
 /** Get all Lawyers API */
 const getAllLawyer = async (req, res) => {
   try {
-    let firmId = req.query.firmId; // get from query (e.g. /lawyers?firmId=2)
+    let firmId = req.query.firmId || getActiveFirmId(req);
 
-    // fallback to firmId from logged-in admin if not passed
     if (!firmId) {
-      const adminId = req.user?.id;
-      if (!adminId) {
-        return res.status(401).json({ success: false, error: "Unauthorized" });
-      }
-
-      const adminUser = await AdminFirm.findOne({ where: { adminId } });
-      if (!adminUser || !adminUser.firmId) {
-        return res
-          .status(404)
-          .json({ success: false, error: "Firm not found for this admin" });
-      }
-
-      firmId = adminUser.firmId;
+      return res.status(400).json({ success: false, message: "Firm ID not found" });
     }
 
-    // fetch lawyers by firmId
     const lawyers = await Lawyer.findAll({ where: { firmId } });
 
     if (!lawyers.length) {
-      return res
-        .status(404)
-        .json({ success: false, error: "No lawyer found in this firm" });
+      return res.status(404).json({ success: false, error: "No lawyer found in this firm" });
     }
 
     return res.status(200).json({
@@ -577,19 +578,25 @@ const deleteLawyer = async (req, res) => {
 const switchFirm = async (req, res) => {
   try {
     const { firmId } = req.body;
-    const userId = req.user.id; // your auth middleware should populate req.user
+    const userId = req.user.id;
 
-    // verify user has access to this firm
-    const adminFirm = await AdminFirm.findAll({
-      where: { adminId: userId, firmId },
-    });
+    // verify user has access
+    const adminFirm = await AdminFirm.findOne({ where: { adminId: userId, firmId } });
     if (!adminFirm) {
       return res.status(403).json({ success: false, message: "Access denied" });
     }
 
-    // create new token with updated firmId
+    // fetch all firmIds for this admin
+    const allAdminFirms = await AdminFirm.findAll({ where: { adminId: userId } });
+    const firmIds = allAdminFirms.map(f => f.firmId);
+     const roleRecord = await Role.findOne({
+      where: { firmId }  // firm specific role
+    });
+    const userRole = roleRecord ? roleRecord.name : null;
+
+    // sign token with firmId + firmIds
     const token = jwt.sign(
-      { id: userId, role: req.user.role, firmId },
+      { id: userId, role: req.user.role, firmId, firmIds },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
@@ -601,12 +608,13 @@ const switchFirm = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return res.json({ success: true, currentFirmId: firmId, token });
+    return res.json({ success: true, currentFirmId: firmId, userRole,   token });
   } catch (err) {
     console.error("switchFirm error:", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 };
+
 
 //lawyer performance api
 const getLawyerPerformance = async (req, res) => {
