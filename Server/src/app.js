@@ -17,8 +17,7 @@ const { User, Role, sequelize } = require("./models"); // ✅ import sequelize
 const bcrypt = require("bcryptjs");
 const path = require("path");
 
-// Serve static files from uploads folder
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -46,6 +45,9 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+// Serve static files from uploads folder
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 const PORT = process.env.PORT || 4000;
 
