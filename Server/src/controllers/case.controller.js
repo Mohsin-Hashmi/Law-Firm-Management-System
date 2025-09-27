@@ -71,7 +71,8 @@ const createCase = async (req, res) => {
         filePath: file.path,
         fileType: file.mimetype,
         caseId: newCase.id,
-        uploadedBy: req.user.id,
+        uploadedById: req.user.id,
+        uploadedByType: req.user.role, // "Lawyer", "Client", or "Firm Admin"
       }));
       await CaseDocument.bulkCreate(docs);
     }
@@ -114,7 +115,33 @@ const getCaseById = async (req, res) => {
       include: [
         { model: Client, as: "client" },
         { model: Lawyer, as: "lawyers", through: { attributes: [] } },
-        { model: CaseDocument, as: "documents" },
+        {
+          model: CaseDocument,
+          as: "documents",
+          attributes: [
+            "id",
+            "fileName",
+            "fileType",
+            "filePath",
+            "uploadedById",
+            "uploadedByType",
+            "createdAt",
+          ],
+          include: [
+            {
+              model: Lawyer,
+              as: "lawyerUploader",
+              attributes: ["id", "name", "email"],
+              required: false,
+            },
+            {
+              model: Client,
+              as: "clientUploader",
+              attributes: ["id", "fullName", "email"],
+              required: false,
+            },
+          ],
+        },
       ],
     });
 
@@ -224,7 +251,8 @@ const updateCase = async (req, res) => {
         filePath: file.path,
         fileType: file.mimetype,
         caseId: caseRecord.id,
-        uploadedBy: req.user.id,
+        uploadedById: req.user.id,
+        uploadedByType: req.user.role,
       }));
       await CaseDocument.bulkCreate(docs);
     }
@@ -445,7 +473,29 @@ const getAllCasesOfLawyer = async (req, res) => {
         {
           model: CaseDocument,
           as: "documents",
-          attributes: ["id", "fileName", "fileType", "filePath", "uploadedBy"],
+          attributes: [
+            "id",
+            "fileName",
+            "fileType",
+            "filePath",
+            "uploadedById",
+            "uploadedByType",
+            "createdAt",
+          ],
+          include: [
+            {
+              model: Lawyer,
+              as: "lawyerUploader",
+              attributes: ["id", "name"],
+              required: false,
+            },
+            {
+              model: Client,
+              as: "clientUploader",
+              attributes: ["id", "fullName"],
+              required: false,
+            },
+          ],
         },
       ],
     });
@@ -467,6 +517,34 @@ const getAllCasesOfLawyer = async (req, res) => {
 /**
  * Case Document APIs
  */
+
+const getAllCasesDocumentsByFirm = async (req, res) => {
+  try {
+    console.log("User object in request:", req.user);
+    const firmId = getActiveFirmId(req);
+    console.log("FirmId from request:", firmId);
+    if (!firmId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Firm Id is required" });
+    }
+
+    const documents = await CaseDocument.findAll({
+      include: [{ model: Case, as: "case" }],
+    });
+
+    return res.json({
+      success: true,
+      count: documents.length,
+      documents,
+    });
+  } catch (err) {
+    console.error("Error fetching case documents of firm:", err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error", error: err.message });
+  }
+};
 
 const addDocumentsByCase = async (req, res) => {
   try {
@@ -497,6 +575,7 @@ module.exports = {
   getAllCasesOfClient,
   getAllCasesOfFirm,
   getAllCasesOfLawyer,
+  getAllCasesDocumentsByFirm,
   addDocumentsByCase,
   getAllDocumentsByCase,
   getOneDocumentOfCase,

@@ -618,7 +618,7 @@ export default function GetLawyers() {
 
               {/* Filters and Search */}
               <Card
-                className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm transition-colors duration-300 mb-6"
+                className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm transition-colors duration-300 mb-6"
                 bodyStyle={{ padding: "24px" }}
               >
                 <Row gutter={[16, 16]} align="middle">
@@ -630,7 +630,7 @@ export default function GetLawyers() {
                       }
                       value={searchText}
                       onChange={(e) => setSearchText(e.target.value)}
-                      className="rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white"
+                      className="w-full rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white"
                       size="large"
                     />
                   </Col>
@@ -641,14 +641,14 @@ export default function GetLawyers() {
                       onChange={setStatusFilter}
                       size="large"
                       className="w-full 
-                        [&_.ant-select-selector]:!rounded-xl 
-                        [&_.ant-select-selector]:dark:!bg-slate-900 
-                        [&_.ant-select-selector]:dark:!border-slate-600 
-                        [&_.ant-select-selector]:dark:!text-white
-                        [&_.ant-select-selection-item]:dark:!text-white
-                        [&_.ant-select-selection-placeholder]:dark:!text-gray-400
-                        [&_.ant-select-arrow]:dark:!text-white
-                      "
+          [&_.ant-select-selector]:!rounded-xl 
+          [&_.ant-select-selector]:dark:!bg-slate-900 
+          [&_.ant-select-selector]:dark:!border-slate-600 
+          [&_.ant-select-selector]:dark:!text-white
+          [&_.ant-select-selection-item]:dark:!text-white
+          [&_.ant-select-selection-placeholder]:dark:!text-gray-400
+          [&_.ant-select-arrow]:dark:!text-white
+        "
                     >
                       <Option value="all">All Status</Option>
                       <Option value="active">Active</Option>
@@ -662,14 +662,14 @@ export default function GetLawyers() {
                       onChange={setSpecializationFilter}
                       size="large"
                       className="w-full 
-                        [&_.ant-select-selector]:!rounded-xl 
-                        [&_.ant-select-selector]:dark:!bg-slate-900 
-                        [&_.ant-select-selector]:dark:!border-slate-600 
-                        [&_.ant-select-selector]:dark:!text-white
-                        [&_.ant-select-selection-item]:dark:!text-white
-                        [&_.ant-select-selection-placeholder]:dark:!text-gray-400
-                        [&_.ant-select-arrow]:dark:!text-white
-                      "
+          [&_.ant-select-selector]:!rounded-xl 
+          [&_.ant-select-selector]:dark:!bg-slate-900 
+          [&_.ant-select-selector]:dark:!border-slate-600 
+          [&_.ant-select-selector]:dark:!text-white
+          [&_.ant-select-selection-item]:dark:!text-white
+          [&_.ant-select-selection-placeholder]:dark:!text-gray-400
+          [&_.ant-select-arrow]:dark:!text-white
+        "
                     >
                       <Option value="all">All Specializations</Option>
                       {uniqueSpecializations.map((spec) => (
@@ -692,7 +692,7 @@ export default function GetLawyers() {
                         onClick={fetchLawyers}
                         loading={loading}
                         className="rounded-xl border border-slate-300 dark:border-slate-600 dark:text-white 
-                          !bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent"
+            !bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent"
                       >
                         Refresh
                       </Button>

@@ -4,12 +4,35 @@ module.exports = (sequelize, DataTypes) => {
     fileName: { type: DataTypes.STRING, allowNull: false },
     fileType: { type: DataTypes.STRING },
     filePath: { type: DataTypes.STRING, allowNull: false },
-    uploadedBy: { type: DataTypes.INTEGER, allowNull: false }, // 👈 added
+
+    uploadedById: { type: DataTypes.INTEGER, allowNull: true }, 
+    uploadedByType: { 
+      type: DataTypes.ENUM("Lawyer", "Client", "Firm Admin"), 
+      allowNull: true 
+    },
   });
 
   CaseDocument.associate = (models) => {
     CaseDocument.belongsTo(models.Case, { foreignKey: "caseId", as: "case" });
-    CaseDocument.belongsTo(models.Lawyer, { foreignKey: "uploadedBy", as: "uploader" }); // 👈 optional relation
+
+    // Polymorphic associations
+    CaseDocument.belongsTo(models.Lawyer, {
+      foreignKey: "uploadedById",
+      constraints: false,
+      as: "lawyerUploader",
+    });
+
+    CaseDocument.belongsTo(models.Client, {
+      foreignKey: "uploadedById",
+      constraints: false,
+      as: "clientUploader",
+    });
+
+    CaseDocument.belongsTo(models.Firm, {
+      foreignKey: "uploadedById",
+      constraints: false,
+      as: "firmUploader",
+    });
   };
 
   return CaseDocument;

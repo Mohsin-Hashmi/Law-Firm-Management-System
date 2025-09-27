@@ -114,7 +114,7 @@ export const navLinks: NavLink[] = [
   // ---------- Documents ----------
   {
     label: "View Case Documents",
-    href: "/",
+    href: "/get-case-documents",
     icon: <FileTextOutlined />,
     category: "Document Management",
     requiredPermissions: ["view_case_documents"],

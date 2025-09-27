@@ -339,7 +339,6 @@ export default function AddCase() {
                   }}
                 >
                   {`"Case Creation Progress"`}
-                  
                 </Text>
                 <Progress
                   percent={getFormProgress()}
@@ -616,7 +615,7 @@ export default function AddCase() {
                     <Form.Item
                       label={
                         <span className="text-slate-700 dark:text-slate-200 font-medium">
-                          Select Client *
+                          Select Client
                         </span>
                       }
                       name="clientId"
@@ -720,6 +719,9 @@ export default function AddCase() {
                           </span>
                         }
                         name="lawyerIds"
+                        rules={[
+                          { required: true, message: "Please select a client" },
+                        ]}
                       >
                         <Select
                           mode="multiple"

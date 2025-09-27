@@ -1,7 +1,14 @@
-require("dotenv").config();
+const dotenv = require("dotenv");
 
-console.log("ENV DB_HOST:", process.env.DB_HOST);
+// Load the right env file based on NODE_ENV
+if (process.env.NODE_ENV === "production") {
+  dotenv.config({ path: ".env" });
+} else {
+  dotenv.config({ path: ".env.local" });
+}
+
 console.log("ENV NODE_ENV:", process.env.NODE_ENV);
+console.log("ENV DB_HOST:", process.env.DB_HOST);
 
 module.exports = {
   development: {

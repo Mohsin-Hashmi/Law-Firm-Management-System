@@ -57,6 +57,7 @@ import { useAppSelector } from "@/app/store/hooks";
 import { RootState } from "@/app/store/store";
 import { setLawyers } from "@/app/store/lawyerSlice";
 import { useAppDispatch } from "@/app/store/hooks";
+import BASE_URL from "@/app/utils/constant";
 
 export default function GetLawyers() {
   const { hasPermission } = usePermission();
@@ -223,7 +224,7 @@ export default function GetLawyers() {
             size={48}
             src={
               record.profileImage
-                ? `http://localhost:5000${record.profileImage}`
+                ? `${BASE_URL}${record.profileImage}`
                 : undefined
             }
             style={{

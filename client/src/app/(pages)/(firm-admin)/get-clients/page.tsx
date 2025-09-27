@@ -57,6 +57,7 @@ import { useAppDispatch } from "@/app/store/hooks";
 import { setClients } from "@/app/store/clientSlice";
 import { Client } from "@/app/types/client";
 import { toast } from "react-hot-toast";
+import BASE_URL from "@/app/utils/constant";
 
 export default function GetClients() {
   const { hasPermission } = usePermission();
@@ -261,7 +262,7 @@ export default function GetClients() {
             size={48}
             src={
               record.profileImage
-                ? `http://localhost:5000${record.profileImage}`
+                ? `${BASE_URL}${record.profileImage}`
                 : undefined
             }
             style={{

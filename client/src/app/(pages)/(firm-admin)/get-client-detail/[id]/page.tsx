@@ -50,6 +50,7 @@ import { use } from "react";
 import { ClientStats } from "@/app/types/client";
 import { usePermission } from "@/app/hooks/usePermission";
 const { Title, Text } = Typography;
+import BASE_URL from "@/app/utils/constant";
 
 export default function GetClientDetail({
   params,
@@ -264,7 +265,7 @@ export default function GetClientDetail({
                       size={200}
                       src={
                         client.profileImage
-                          ? `http://localhost:5000${client.profileImage}`
+                          ? `${BASE_URL}${client.profileImage}`
                           : undefined
                       }
                       icon={!client.profileImage && <UserOutlined />}

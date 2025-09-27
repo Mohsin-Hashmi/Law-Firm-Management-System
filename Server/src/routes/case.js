@@ -1,6 +1,11 @@
 const express = require("express");
 const caseRoute = express.Router();
-const { userAuth, firmAdminAuth, LawyerAuth, allowRoles } = require("../middlewares/authMiddleware");
+const {
+  userAuth,
+  firmAdminAuth,
+  LawyerAuth,
+  allowRoles,
+} = require("../middlewares/authMiddleware");
 const {
   createCase,
   getCaseById,
@@ -10,6 +15,7 @@ const {
   getAllCasesOfClient,
   getAllCasesOfFirm,
   getAllCasesOfLawyer,
+  getAllCasesDocumentsByFirm,
   addDocumentsByCase,
   getAllDocumentsByCase,
   getOneDocumentOfCase,
@@ -95,6 +101,14 @@ caseRoute.get(
 );
 
 // DOCUMENT MANAGEMENT
+
+caseRoute.get(
+  "/firm/cases/documents",
+  userAuth,
+  firmAdminAuth,
+  checkPermission(permissions.VIEW_CASE_DOCUMENTS),
+  getAllCasesDocumentsByFirm
+);
 caseRoute.post(
   "/firm/:firmId/cases/:caseId/documents",
   userAuth,
