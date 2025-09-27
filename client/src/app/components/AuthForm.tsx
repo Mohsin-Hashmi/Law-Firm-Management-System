@@ -18,6 +18,7 @@ import { toast } from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { addUser } from "../store/userSlice";
 import { FaGoogle } from "react-icons/fa";
+import { json } from "stream/consumers";
 
 type AuthFormProps = {
   type: "login" | "signup";
@@ -136,6 +137,7 @@ export default function AuthForm({ type }: AuthFormProps) {
           toast.error(response.data.message || "Login failed");
           return;
         }
+      
 
         const user = response.data.user;
         console.log("Login user is :", user);
@@ -143,6 +145,10 @@ export default function AuthForm({ type }: AuthFormProps) {
           user.currentFirmId ||
           (user.firms && user.firms.length > 0 ? user.firms[0].id : null);
         // Save user in Redux no matter what
+
+          const token = response.data.token;
+        localStorage.setItem("authToken", token);
+        localStorage.setItem("user", JSON.stringify(user));
         dispatch(
           addUser({
             ...user,
