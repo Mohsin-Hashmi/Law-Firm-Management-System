@@ -677,17 +677,19 @@ export default function AddCase() {
                         );
 
                         return selectedClient ? (
-                          <div className="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-                            <Text className="text-slate-700 dark:text-slate-200 text-sm font-medium block mb-2">
+                          <div>
+                            <Text className="text-slate-700 dark:text-slate-200 text-sm font-medium block mb-3">
                               Selected Client:
                             </Text>
-                            <div className="flex items-center gap-3">
-                              <UserOutlined className="text-blue-500" />
-                              <div>
-                                <Text className="text-slate-800 dark:text-white font-medium">
+                            <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                              <div className="flex items-center justify-center w-8 h-8 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
+                                <UserOutlined className="text-blue-600 dark:text-blue-400" />
+                              </div>
+                              <div className="flex-1">
+                                <Text className="text-slate-800 dark:text-white font-semibold text-sm block">
                                   {selectedClient.fullName}
                                 </Text>
-                                <Text className="text-slate-500 dark:text-slate-400 text-xs block">
+                                <Text className="text-slate-500 dark:text-slate-400 text-xs">
                                   {selectedClient.email}
                                 </Text>
                               </div>
@@ -720,7 +722,7 @@ export default function AddCase() {
                         }
                         name="lawyerIds"
                         rules={[
-                          { required: true, message: "Please select a client" },
+                          { required: true, message: "Please select lawyers" },
                         ]}
                       >
                         <Select
@@ -754,7 +756,7 @@ export default function AddCase() {
                               value={lawyer.id}
                               label={`${lawyer.name} ${lawyer.email}`}
                             >
-                              <div className="flex items-center  gap-3">
+                              <div className="flex items-center gap-3">
                                 <TeamOutlined className="text-slate-400" />
                                 <div>
                                   <div className="font-medium">
@@ -776,7 +778,7 @@ export default function AddCase() {
                             form.getFieldValue("lawyerIds") || [];
 
                           return selectedLawyerIds.length > 0 ? (
-                            <div className="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                            <div>
                               <Text className="text-slate-700 dark:text-slate-200 text-sm font-medium block mb-3">
                                 Assigned Lawyers ({selectedLawyerIds.length}):
                               </Text>
@@ -788,14 +790,16 @@ export default function AddCase() {
                                   return lawyer ? (
                                     <div
                                       key={id}
-                                      className="flex items-center gap-3"
+                                      className="flex items-center gap-3 p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg"
                                     >
-                                      <TeamOutlined className="text-blue-500" />
-                                      <div>
-                                        <Text className="text-slate-800 dark:text-white font-medium text-sm">
+                                      <div className="flex items-center justify-center w-8 h-8 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg">
+                                        <TeamOutlined className="text-emerald-600 dark:text-emerald-400" />
+                                      </div>
+                                      <div className="flex-1">
+                                        <Text className="text-slate-800 dark:text-white font-semibold text-sm block">
                                           {lawyer.name}
                                         </Text>
-                                        <Text className="text-slate-500 dark:text-slate-400 text-xs block">
+                                        <Text className="text-slate-500 dark:text-slate-400 text-xs">
                                           {lawyer.email}
                                         </Text>
                                       </div>
@@ -809,7 +813,6 @@ export default function AddCase() {
                       </Form.Item>
                     </Card>
                   )}
-
                   {/* Case Status */}
                   <Card
                     title={
@@ -826,7 +829,7 @@ export default function AddCase() {
                     <Form.Item
                       label={
                         <span className="text-slate-700 dark:text-slate-200 font-medium">
-                          Initial Status *
+                          Initial Status
                         </span>
                       }
                       name="status"
