@@ -118,10 +118,27 @@ export default function AuthForm({ type }: AuthFormProps) {
           toast.error("Passwords do not match");
           return;
         }
+
         const payload = { name, email, password, confirmPassword };
         const response = await signupUser(payload);
+
+        if (!response.data.success) {
+          // Show proper error messages from backend
+          if (response.data.error?.includes("already registered")) {
+            toast.error(
+              "This email is already registered. Please login instead."
+            );
+          } else if (response.data.error?.includes("invalid email")) {
+            toast.error("Please enter a valid email address.");
+          } else {
+            toast.error(response.data.error || "Signup failed.");
+          }
+          return;
+        }
+
+        // Signup success
         dispatch(addUser(response.data.user));
-        toast.success("Signup Successfully");
+        toast.success("Signup successful! Please login.");
 
         setName("");
         setEmail("");
@@ -134,19 +151,25 @@ export default function AuthForm({ type }: AuthFormProps) {
         const response = await loginUser(payload);
 
         if (!response.data.success) {
-          toast.error(response.data.message || "Login failed");
+          // Show different login error cases
+          if (response.data.error?.includes("not found")) {
+            toast.error("Email not found. Please check your email or sign up.");
+          } else if (response.data.error?.includes("invalid email")) {
+            toast.error("Please enter a valid email address.");
+          } else if (response.data.error?.includes("invalid password")) {
+            toast.error("Incorrect password. Please try again.");
+          } else {
+            toast.error(response.data.error || "Login failed.");
+          }
           return;
         }
-      
 
         const user = response.data.user;
-        console.log("Login user is :", user);
         const currentFirmId =
           user.currentFirmId ||
           (user.firms && user.firms.length > 0 ? user.firms[0].id : null);
-        // Save user in Redux no matter what
 
-          const token = response.data.token;
+        const token = response.data.token;
         localStorage.setItem("authToken", token);
         localStorage.setItem("user", JSON.stringify(user));
         dispatch(
@@ -162,41 +185,47 @@ export default function AuthForm({ type }: AuthFormProps) {
 
         if (response.data.mustChangePassword) {
           toast("You need to reset your password before continuing.");
-          // go straight to dashboard — the modal will handle reset
           router.push("/dashboard");
           return;
         }
 
-        // ✅ Normal login success flow
-        toast.success("Login successfully");
+        toast.success("Login successful!");
         setEmail("");
         setPassword("");
 
-        // Redirect based on firm presence or to the intended page
         if (currentFirmId) {
-          // redirect role-wise
-           if (user.role === "Firm Admin") {
-            router.push("/dashboard"); // firm admin's dashboard
+          if (user.role === "Firm Admin") {
+            router.push("/dashboard");
           } else if (user.role === "Lawyer") {
             router.push("/dashboard");
           } else {
-            router.push("/dashboard"); // fallback for other roles
+            router.push("/dashboard");
           }
         } else {
-          // Firm Admin can add firms
           if (user.role === "Firm Admin") {
             router.push("/add-firm");
-          }else if (user.role === "Super Admin" ){
-            router.push("/super-admin/dashboard")
-          }
-           else {
-            router.push("/dashboard"); // fallback
+          } else if (user.role === "Super Admin") {
+            router.push("/super-admin/dashboard");
+          } else {
+            router.push("/dashboard");
           }
         }
       }
-    } catch (error) {
-      console.error("Login error:", error);
-      toast.error("An error occurred. Please try again.");
+    } catch (error: unknown) {
+      console.error("Auth error:", error);
+
+      // Axios-style errors (if using axios)
+      if (typeof error === "object" && error !== null && "response" in error) {
+        const axiosError = error as {
+          response?: { data?: { error?: string; message?: string } };
+        };
+        const msg =
+          axiosError.response?.data?.error ||
+          axiosError.response?.data?.message;
+        toast.error(msg || "Something went wrong.");
+      } else {
+        toast.error("Network error. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
