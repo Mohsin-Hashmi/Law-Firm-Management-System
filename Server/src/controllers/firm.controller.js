@@ -7,6 +7,7 @@ const {
   AdminFirm,
   Lawyer,
   Client,
+  UserFirm,
   Case,
   CaseLawyer,
   Role,
@@ -19,20 +20,19 @@ const { where } = require("sequelize");
 
 const getActiveFirmId = (req) => {
   if (req.user?.firmId) {
-    return req.user.firmId; 
+    return req.user.firmId;
   }
 
   if (req.user?.activeFirmId) {
-    return req.user.activeFirmId; 
+    return req.user.activeFirmId;
   }
 
   if (Array.isArray(req.user?.firmIds) && req.user.firmIds.length > 0) {
-    return req.user.firmIds[0]; 
+    return req.user.firmIds[0];
   }
 
   return null;
 };
-
 
 const createFirm = async (req, res) => {
   const t = await sequelize.transaction();
@@ -280,6 +280,17 @@ const createLawyer = async (req, res) => {
       { transaction: t }
     );
 
+    //Create user-firm relation
+    await UserFirm.create(
+      {
+        userId: user.id,
+        firmId,
+        roleId: lawyerRole.id,
+      },
+      {
+        transaction: t,
+      }
+    );
     // Create lawyer
     const lawyer = await Lawyer.create(
       {
@@ -387,13 +398,17 @@ const getAllLawyer = async (req, res) => {
     let firmId = req.query.firmId || getActiveFirmId(req);
 
     if (!firmId) {
-      return res.status(400).json({ success: false, message: "Firm ID not found" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Firm ID not found" });
     }
 
     const lawyers = await Lawyer.findAll({ where: { firmId } });
 
     if (!lawyers.length) {
-      return res.status(404).json({ success: false, error: "No lawyer found in this firm" });
+      return res
+        .status(404)
+        .json({ success: false, error: "No lawyer found in this firm" });
     }
 
     return res.status(200).json({
@@ -523,7 +538,6 @@ const updateLawyer = async (req, res) => {
   }
 };
 
-
 /**Delete a Lawyers by ID API */
 const deleteLawyer = async (req, res) => {
   try {
@@ -581,16 +595,20 @@ const switchFirm = async (req, res) => {
     const userId = req.user.id;
 
     // verify user has access
-    const adminFirm = await AdminFirm.findOne({ where: { adminId: userId, firmId } });
+    const adminFirm = await AdminFirm.findOne({
+      where: { adminId: userId, firmId },
+    });
     if (!adminFirm) {
       return res.status(403).json({ success: false, message: "Access denied" });
     }
 
     // fetch all firmIds for this admin
-    const allAdminFirms = await AdminFirm.findAll({ where: { adminId: userId } });
-    const firmIds = allAdminFirms.map(f => f.firmId);
-     const roleRecord = await Role.findOne({
-      where: { firmId }  // firm specific role
+    const allAdminFirms = await AdminFirm.findAll({
+      where: { adminId: userId },
+    });
+    const firmIds = allAdminFirms.map((f) => f.firmId);
+    const roleRecord = await Role.findOne({
+      where: { firmId }, // firm specific role
     });
     const userRole = roleRecord ? roleRecord.name : null;
 
@@ -608,13 +626,12 @@ const switchFirm = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return res.json({ success: true, currentFirmId: firmId, userRole,   token });
+    return res.json({ success: true, currentFirmId: firmId, userRole, token });
   } catch (err) {
     console.error("switchFirm error:", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 };
-
 
 //lawyer performance api
 const getLawyerPerformance = async (req, res) => {
