@@ -33,6 +33,7 @@ const firmSlice = createSlice({
       state.error = null;
       state.loading = false;
     },
+    
    
   },
 });

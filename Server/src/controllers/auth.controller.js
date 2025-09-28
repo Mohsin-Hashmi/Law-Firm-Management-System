@@ -218,12 +218,12 @@ const LoginIn = async (req, res) => {
       },
       token
     });
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error(error);
     res.status(500).json({
       success: false,
       message: "Internal server error",
-      error: err.message,
+      error: error.message,
     });
   }
 };

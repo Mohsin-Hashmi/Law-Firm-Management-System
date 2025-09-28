@@ -34,6 +34,8 @@ export interface FirmStats {
     activeUsers: number;
     inactiveUsers: number;
   };
+  subscription_plan: "Free" | "Basic" | "Premium";
+  phone?: string;
 }
 
 export interface Lawyer {

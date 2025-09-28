@@ -114,6 +114,7 @@ export default function DashboardLayout({
 
   const handleFirmDeleted = (firmId: number) => {
     console.log(`Firm ${firmId} deleted successfully`);
+     setIsViewFirmsModalOpen(false);
   };
 
   const antIcon = <LoadingOutlined style={{ fontSize: 16 }} spin />;

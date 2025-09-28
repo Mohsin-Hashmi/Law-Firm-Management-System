@@ -152,14 +152,14 @@ export default function AuthForm({ type }: AuthFormProps) {
 
         if (!response.data.success) {
           // Show different login error cases
-          if (response.data.error?.includes("not found")) {
+          if (response.data.message?.includes("not found")) {
             toast.error("Email not found. Please check your email or sign up.");
-          } else if (response.data.error?.includes("invalid email")) {
+          } else if (response.data.message?.includes("invalid email")) {
             toast.error("Please enter a valid email address.");
-          } else if (response.data.error?.includes("invalid password")) {
+          } else if (response.data.message?.includes("invalid password")) {
             toast.error("Incorrect password. Please try again.");
           } else {
-            toast.error(response.data.error || "Login failed.");
+            toast.error(response.data.message || "Login failed.");
           }
           return;
         }

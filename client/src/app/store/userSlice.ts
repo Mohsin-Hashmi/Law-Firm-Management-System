@@ -8,7 +8,7 @@ export interface User {
   createdAt?: string;
   updatedAt?: string;
   firmId?: number; // current firm ID
-  currentFirmId?: number; // optional
+  currentFirmId?: number | null; // Make it nullable
   firms?: { id: number; name: string }[]; // array of firms
   mustChangePassword?: boolean;
   permissions?: string[]; // Make optional since it might not be loaded initially
@@ -72,25 +72,31 @@ const userSlice = createSlice({
         state.user.currentFirmId = action.payload;
       }
     },
-    addFirm: (state, action) => {
+
+    addFirm: (state, action: PayloadAction<{ id: number; name: string }>) => {
       if (state.user) {
         state.user.firms = [...(state.user.firms || []), action.payload];
       }
     },
 
+    // Updated updateUserFirms - handles both single firm and array of firms
     updateUserFirms: (
       state,
-      action: PayloadAction<{ id: number; name: string }>
+      action: PayloadAction<{ id: number; name: string }[]>
     ) => {
-      if (state.user) {
-        const existingFirms = state.user.firms || [];
-        const firmExists = existingFirms.some(
-          (firm) => firm.id === action.payload.id
-        );
+      if (!state.user) return; // exit early if no user is set
 
-        if (!firmExists) {
-          state.user.firms = [...existingFirms, action.payload];
-        }
+      state.user.firms = action.payload;
+
+      if (action.payload.length === 0) {
+        state.user.currentFirmId = null;
+        state.user.firmId = undefined;
+      } else if (
+        state.user.currentFirmId &&
+        !action.payload.find((f) => f.id === state.user!.currentFirmId)
+      ) {
+        state.user.currentFirmId = action.payload[0].id;
+        state.user.firmId = action.payload[0].id;
       }
     },
 
@@ -139,7 +145,7 @@ export const {
   updateUserRole,
   clearUserPermissions,
   setPermissionsLoaded,
-  addFirm
+  addFirm,
 } = userSlice.actions;
 
 export default userSlice.reducer;

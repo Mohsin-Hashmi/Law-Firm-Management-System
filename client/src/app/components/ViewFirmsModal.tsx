@@ -8,7 +8,6 @@ import {
   Space,
   Card,
   Tag,
-  Popconfirm,
   Empty,
 } from "antd";
 import {
@@ -19,37 +18,58 @@ import {
   PhoneOutlined,
   CrownOutlined,
 } from "@ant-design/icons";
-import { getMyFirms } from "../service/adminAPI"; // Adjust the import path
+import { getMyFirms, deleteFirm } from "../service/adminAPI";
 import { toast } from "react-hot-toast";
-import { deleteFirm } from "../service/adminAPI";
 import ConfirmationModal from "./ConfirmationModal";
-const { Title, Text } = Typography;
+import { useAppSelector, useAppDispatch } from "../store/hooks";
+import { useRouter } from "next/navigation";
+import { RootState } from "../store/store";
+import { setFirm, clearFirm } from "../store/firmSlice";
+import { updateUserFirms, switchFirm } from "../store/userSlice"; // Add this import
+import { FirmStats, FirmPayload } from "../types/firm";
 
-interface Firm {
-  id: number;
-  name: string;
-  subscription_plan: string;
-  phone?: string;
-}
+const { Title, Text } = Typography;
 
 interface ViewFirmsModalProps {
   visible: boolean;
   onClose: () => void;
-  onFirmDeleted?: (firmId: number) => void; // Optional callback for when a firm is deleted
+  onFirmDeleted?: (firmId: number) => void;
 }
+
+// ✅ Mapper function (outside the component)
+const mapFirmPayloadToStats = (payload: FirmPayload): FirmStats => ({
+  firmId: payload.id ?? 0,
+  firmName: payload.name,
+  lawyersCount: 0,
+  clientsCount: 0,
+  casesCount: 0,
+  totalUsersCount: 0,
+  activeLawyersCount: 0,
+  subscription_plan: payload.subscription_plan,
+  phone: payload.phone ?? "",
+  status: payload.status ?? "Active",
+  stats: {
+    totalUsers: 0,
+    activeUsers: 0,
+    inactiveUsers: 0,
+  },
+});
 
 const ViewFirmsModal: React.FC<ViewFirmsModalProps> = ({
   visible,
   onClose,
   onFirmDeleted,
 }) => {
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const currentFirm = useAppSelector((state: RootState) => state.firm.firm);
+  const user = useAppSelector((state: RootState) => state.user.user); // Add this to get user data
   const [loading, setLoading] = useState(false);
-  const [firms, setFirms] = useState<Firm[]>([]);
+  const [firms, setFirms] = useState<FirmStats[]>([]);
   const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
   const [confirmVisible, setConfirmVisible] = useState(false);
-  const [selectedFirm, setSelectedFirm] = useState<Firm | null>(null);
+  const [selectedFirm, setSelectedFirm] = useState<FirmStats | null>(null);
 
-  // Check if dark mode is active
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
@@ -84,8 +104,9 @@ const ViewFirmsModal: React.FC<ViewFirmsModalProps> = ({
   const fetchFirms = async () => {
     setLoading(true);
     try {
-      const firmsData = await getMyFirms();
-      setFirms(firmsData);
+      const firmsData: FirmPayload[] = await getMyFirms();
+      const mappedFirms: FirmStats[] = firmsData.map(mapFirmPayloadToStats);
+      setFirms(mappedFirms);
     } catch (err) {
       console.error("Error fetching firms:", err);
       message.error("Failed to load firms");
@@ -93,7 +114,8 @@ const ViewFirmsModal: React.FC<ViewFirmsModalProps> = ({
       setLoading(false);
     }
   };
-  const showDeleteConfirm = (firm: Firm) => {
+
+  const showDeleteConfirm = (firm: FirmStats) => {
     setSelectedFirm(firm);
     setConfirmVisible(true);
   };
@@ -102,20 +124,57 @@ const ViewFirmsModal: React.FC<ViewFirmsModalProps> = ({
     setDeletingIds((prev) => new Set([...prev, firmId]));
 
     try {
-      // Add your delete API call here
       await deleteFirm(firmId);
 
-      // For now, just simulate the delete
-      setTimeout(() => {
-        setFirms((prev) => prev.filter((firm) => firm.id !== firmId));
-        setDeletingIds((prev) => {
-          const newSet = new Set(prev);
-          newSet.delete(firmId);
-          return newSet;
-        });
-        toast.success("Firm deleted successfully");
-        onFirmDeleted?.(firmId);
-      }, 1000);
+      // Remove from local firms state
+      const remainingFirms = firms.filter((firm) => firm.firmId !== firmId);
+      setFirms(remainingFirms);
+
+      // 🔑 Update Redux user.firms (so dropdown updates)
+      const updatedUserFirms = remainingFirms.map((f) => ({
+        id: f.firmId,
+        name: f.firmName,
+      }));
+      dispatch(updateUserFirms(updatedUserFirms));
+
+      // Handle current firm logic
+      if (currentFirm?.firmId === firmId) {
+        if (remainingFirms.length > 0) {
+          // Switch to the first available firm
+          const firstFirm = remainingFirms[0];
+          const newFirmData = {
+            firmId: firstFirm.firmId,
+            firmName: firstFirm.firmName,
+            subscription_plan: firstFirm.subscription_plan,
+            phone: firstFirm.phone,
+            status: firstFirm.status,
+          };
+          dispatch(setFirm(newFirmData));
+          dispatch(switchFirm(firstFirm.firmId)); // Update currentFirmId in user slice
+          router.push("/dashboard");
+        } else {
+          // No firms left
+          dispatch(clearFirm());
+          router.push("/dashboard");
+        }
+      }
+
+      setDeletingIds((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(firmId);
+        return newSet;
+      });
+
+      toast.success("Firm deleted successfully");
+      onFirmDeleted?.(firmId);
+
+      // 🔑 Auto-close modal if no firms left or if only one firm remains
+      if (remainingFirms.length <= 1) {
+        setTimeout(() => {
+          onClose();
+        }, 1000); // Close after 1 second to show success message
+      }
+
     } catch (err) {
       console.error("Error deleting firm:", err);
       message.error("Failed to delete firm");
@@ -213,7 +272,7 @@ const ViewFirmsModal: React.FC<ViewFirmsModalProps> = ({
           <div className="max-h-80 overflow-y-auto space-y-2">
             {firms.map((firm) => (
               <Card
-                key={firm.id}
+                key={firm.firmId}
                 className="border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:shadow-sm transition-shadow"
                 bodyStyle={{ padding: "12px" }}
               >
@@ -228,7 +287,7 @@ const ViewFirmsModal: React.FC<ViewFirmsModalProps> = ({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-2 mb-1">
                         <Text className="text-slate-900 dark:text-white font-medium text-sm truncate">
-                          {firm.name}
+                          {firm.firmName}
                         </Text>
                         <Tag
                           color={getSubscriptionColor(firm.subscription_plan)}
@@ -266,28 +325,12 @@ const ViewFirmsModal: React.FC<ViewFirmsModalProps> = ({
                       type="text"
                       danger
                       icon={<DeleteOutlined style={{ fontSize: "12px" }} />}
-                      loading={deletingIds.has(firm.id)}
+                      loading={deletingIds.has(firm.firmId)}
                       className="hover:bg-red-50 dark:hover:bg-red-900/20 w-7 h-7"
                       size="small"
                       onClick={() => showDeleteConfirm(firm)}
                     />
                   </div>
-                  <ConfirmationModal
-                    visible={confirmVisible}
-                    entityName="Firm"
-                    action="delete"
-                    title={`Delete ${selectedFirm?.name}?`}
-                    description={`Are you sure you want to delete ${selectedFirm?.name}? This action cannot be undone.`}
-                    onConfirm={() => {
-                      if (selectedFirm) {
-                        handleDeleteFirm(selectedFirm.id);
-                      }
-                      setConfirmVisible(false);
-                    }}
-                    onCancel={() => setConfirmVisible(false)}
-                    confirmText="Delete"
-                    cancelText="Cancel"
-                  />
                 </div>
               </Card>
             ))}
@@ -313,6 +356,24 @@ const ViewFirmsModal: React.FC<ViewFirmsModalProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        visible={confirmVisible}
+        entityName="Firm"
+        action="delete"
+        title={`Delete ${selectedFirm?.firmName}?`}
+        description={`Are you sure you want to delete ${selectedFirm?.firmName}? This action cannot be undone.`}
+        onConfirm={() => {
+          if (selectedFirm) {
+            handleDeleteFirm(selectedFirm.firmId);
+          }
+          setConfirmVisible(false);
+        }}
+        onCancel={() => setConfirmVisible(false)}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </Modal>
   );
 };
