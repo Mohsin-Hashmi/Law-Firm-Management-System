@@ -211,7 +211,7 @@ const RoleModal: React.FC<RoleModalProps> = ({
                   >
                     <div className="flex items-center space-x-3">
                       <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                        <IeOutlined className="text-blue-600 dark:text-blue-400 text-sm" />
+                        <CheckCircleOutlined className="text-blue-600 dark:text-blue-400 text-sm" />
                       </div>
                       <div>
                         <Text className="text-slate-900 dark:text-white font-medium">

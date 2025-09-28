@@ -20,6 +20,7 @@ import {
   Checkbox,
   Divider,
   Tag,
+  Switch,
 } from "antd";
 import {
   UserOutlined,
@@ -31,6 +32,9 @@ import {
   CheckOutlined,
   CloseOutlined,
   SettingOutlined,
+  IeOutlined,
+  CheckCircleOutlined
+  
 } from "@ant-design/icons";
 
 import {
@@ -76,6 +80,18 @@ export default function EditUser({
       fetchPermissions();
     }
   }, [userId]);
+
+  useEffect(() => {
+    if (user) {
+      form.setFieldsValue({
+        ...user,
+        status: user.status
+          ? user.status.charAt(0).toUpperCase() +
+            user.status.slice(1).toLowerCase()
+          : "Active", // default if no status
+      });
+    }
+  }, [user, form]);
 
   const fetchUserDetail = async () => {
     try {
@@ -186,6 +202,26 @@ export default function EditUser({
 
   const handlePermissionChange = (checkedValues: string[]) => {
     setSelectedPermissions(checkedValues);
+  };
+
+  const getPermissionDescription = (name: string) => {
+    // Add descriptions based on permission names
+    const descriptions: Record<string, string> = {
+      user_management: "Allows full access to manage users and accounts",
+      case_management: "Allows access to create and manage legal cases",
+      client_management: "Allows access to manage client information",
+      document_management: "Allows access to manage legal documents",
+      billing_management: "Allows access to billing and financial information",
+      report_generation: "Allows access to generate and view reports",
+    };
+
+    return (
+      descriptions[name] ||
+      `Allows access to ${name
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (l) => l.toUpperCase())
+        .toLowerCase()}`
+    );
   };
 
   const getPermissionChanges = () => {
@@ -349,22 +385,14 @@ export default function EditUser({
                     }
                     className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[20px]"
                     headStyle={{
-                      
                       background: "#fafbfc",
                       borderRadius: "16px 16px 0 0",
                     }}
                     bodyStyle={{ padding: "20px 32px" }}
                   >
-                    <Row
-                      align="middle"
-                      gutter={[16, 16]}
-                      
-                    >
+                    <Row align="middle" gutter={[16, 16]}>
                       <Col>
-                        <Avatar
-                          size={80}
-                          icon={<UserOutlined />}
-                        />
+                        <Avatar size={80} icon={<UserOutlined />} />
                       </Col>
                       <Col flex={1}>
                         <Title
@@ -453,7 +481,8 @@ export default function EditUser({
                           <Select
                             placeholder="Select account status"
                             size="large"
-                            className="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-selector]:dark:!bg-[#2A3441] [&_.ant-select-selector]:dark:!border-[#4B5563] [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white [&_.ant-select-selector]:!min-h-[50px] [&_.ant-select-selector]:!px-4"
+                            className="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-selector]:dark:!bg-[#2A3441] [&_.ant-select-selector]:dark:!border-[#4B5563] [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white [&_.ant-select-selector]:!min-h-[50px] [&_.ant-select-selector]:!px-4 [&_.ant-select-arrow]:!top-8
+                            [&_.ant-select-arrow]:!-translate-y-1/2"
                             dropdownClassName="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-item]:dark:!bg-[#2A3441] [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-[#374151] [&_.ant-select-item-option-active]:dark:!bg-[#374151]"
                           >
                             <Option value="Active">
@@ -502,193 +531,214 @@ export default function EditUser({
                         </span>
                       }
                       name="roleId"
-                      rules={[
-                        { required: true, message: "Please select a role" },
-                      ]}
                     >
-                      <Select
-                        placeholder="Select user role"
-                        size="large"
-                        optionLabelProp="label" // 👈 show label instead of id
-                        onChange={handleRoleChange}
-                        className="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-selector]:dark:!bg-[#2A3441] [&_.ant-select-selector]:dark:!border-[#4B5563] [&_.ant-select-selection-item]:dark:!text-white [&_.ant-select-arrow]:dark:!text-white [&_.ant-select-selector]:!min-h-[50px] [&_.ant-select-selector]:!px-4"
-                        dropdownClassName="dark:!bg-[#2A3441] dark:!border-[#4B5563] [&_.ant-select-item]:dark:!bg-[#2A3441] [&_.ant-select-item]:dark:!text-white [&_.ant-select-item-option-selected]:dark:!bg-[#374151] [&_.ant-select-item-option-active]:dark:!bg-[#374151]"
-                        suffixIcon={
-                          <TeamOutlined style={{ color: "#9ca3af" }} />
-                        }
+                      <div
+                        className="flex items-center gap-2 px-4 py-3 rounded-lg border 
+               border-slate-200 dark:border-[#4B5563] 
+               bg-white dark:bg-[#2A3441]"
                       >
-                        {roles && roles.length > 0 ? (
-                          roles.map((role) => (
-                            <Option
-                              key={role.id}
-                              value={role.id}
-                              label={role.name}
-                            >
-                              {" "}
-                              {/* 👈 add label */}
-                              <Space direction="vertical" size="small">
-                                <Text strong>{role.name}</Text>
-                                <Text
-                                  style={{ fontSize: "12px", color: "#64748b" }}
-                                >
-                                  {role.permissions?.length || 0} permissions
-                                </Text>
-                              </Space>
-                            </Option>
-                          ))
-                        ) : (
-                          <Option disabled>No roles available</Option>
-                        )}
-                      </Select>
+                        <UserOutlined
+                          style={{ color: "#9ca3af", fontSize: "18px" }}
+                        />
+                        <Text className="text-[16px] dark:text-white font-medium">
+                          {user?.role?.name || "No Role Assigned"}
+                        </Text>
+                      </div>
                     </Form.Item>
 
-                    <Divider orientation="left">
-                      <Space>
+                    
+                      <Space className="mb-3">
                         <SettingOutlined style={{ color: "#9ca3af" }} />
                         <Text style={{ color: "#64748b", fontSize: "14px" }}>
-                          Custom Permissions
+                          Permissions
                         </Text>
                       </Space>
-                    </Divider>
+                    
 
                     {/* Permissions Selection */}
                     <div style={{ maxHeight: "300px", overflowY: "auto" }}>
-                      <Checkbox.Group
-                        value={selectedPermissions}
-                        onChange={handlePermissionChange}
-                        style={{ width: "100%" }}
-                      >
-                        <Row gutter={[8, 8]}>
-                          {allPermissions.map((permission) => (
-                            <Col xs={24} key={permission.id}>
-                              <Checkbox
-                                value={permission.name}
-                                style={{
-                                  width: "100%",
-                                  padding: "8px 12px",
-                                  margin: 0,
-                                  borderRadius: "6px",
-                                  border: selectedPermissions.includes(
-                                    permission.name
-                                  )
-                                    ? "1px solid #1e40af"
-                                    : "1px solid #e5e7eb",
-                                  background: selectedPermissions.includes(
-                                    permission.name
-                                  )
-                                    ? "#eff6ff"
-                                    : "transparent",
-                                }}
-                              >
-                                <Space direction="vertical" size="small">
-                                  <Text
-                                    style={{
-                                      fontWeight: selectedPermissions.includes(
-                                        permission.name
-                                      )
-                                        ? "600"
-                                        : "400",
-                                      color: selectedPermissions.includes(
-                                        permission.name
-                                      )
-                                        ? "#1e40af"
-                                        : "#374151",
-                                    }}
-                                  >
-                                    {permission.name}
+                      <div className="space-y-3">
+                        {allPermissions.map((permission) => (
+                          <div
+                            key={permission.id}
+                            className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors"
+                          >
+                            <div className="flex items-center space-x-3">
+                              <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                                <CheckCircleOutlined className="text-blue-600 dark:text-blue-400 text-sm" />
+                              </div>
+                              <div>
+                                <Text className="text-slate-900 dark:text-white font-medium">
+                                  {permission.name
+                                    .replace(/_/g, " ")
+                                    .replace(/\b\w/g, (l) => l.toUpperCase())}
+                                </Text>
+                                {permission.description && (
+                                  <Text className="text-slate-500 dark:text-slate-300 text-xs block">
+                                    {permission.description}
                                   </Text>
-                                  {permission.description && (
-                                    <Text
-                                      style={{
-                                        fontSize: "12px",
-                                        color: "#64748b",
-                                      }}
-                                    >
-                                      {permission.description}
-                                    </Text>
-                                  )}
-                                </Space>
-                              </Checkbox>
-                            </Col>
-                          ))}
-                        </Row>
-                      </Checkbox.Group>
+                                )}
+                              </div>
+                            </div>
+                            <Switch
+                              checked={selectedPermissions.includes(
+                                permission.name
+                              )}
+                              onChange={(checked) => {
+                                const newPermissions = checked
+                                  ? [...selectedPermissions, permission.name]
+                                  : selectedPermissions.filter(
+                                      (p) => p !== permission.name
+                                    );
+                                setSelectedPermissions(newPermissions);
+                              }}
+                              size="small"
+                            />
+                          </div>
+                        ))}
+                      </div>
+
+                      {allPermissions.length === 0 && (
+                        <div className="text-center py-8 text-slate-500 dark:text-slate-400">
+                          No permissions available
+                        </div>
+                      )}
                     </div>
                   </Card>
                 </Col>
               </Row>
 
-              {/* Changes Summary */}
+              {/* Changes Summary - Elegant Design matching Case Summary */}
               {(addedPermissions.length > 0 ||
                 removedPermissions.length > 0) && (
-                <Card
-                  title={
-                    <Space>
-                      <EditOutlined style={{ color: "#1e40af" }} />
-                      <span style={{ color: "#111827", fontWeight: "600" }}>
+                <div className="!mt-6 bg-gradient-to-br from-blue-50 via-blue-50/80 to-indigo-50/60 dark:from-slate-800/60 dark:via-slate-700/40 dark:to-slate-800/80 border border-blue-200/80 dark:border-slate-600/70 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                  {/* Header */}
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center justify-center w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
+                      <EditOutlined className="text-blue-600 dark:text-blue-400 text-lg" />
+                    </div>
+                    <div>
+                      <Title
+                        level={4}
+                        className="text-slate-800 dark:text-slate-100 !mb-0"
+                        style={{
+                          fontSize: "18px",
+                          fontWeight: 600,
+                          letterSpacing: "-0.025em",
+                        }}
+                      >
                         Permission Changes Summary
+                      </Title>
+                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-0">
+                        Review changes before updating
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Changes Content */}
+                  <div className="space-y-3">
+                    {/* Total Changes Overview */}
+                    <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
+                      <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
+                        Total Changes:
+                      </Text>
+                      <span className="text-slate-800 dark:text-white font-semibold text-sm bg-slate-100 dark:bg-slate-600/30 px-2 py-1 rounded-md">
+                        {addedPermissions.length + removedPermissions.length}{" "}
+                        permission
+                        {addedPermissions.length + removedPermissions.length !==
+                        1
+                          ? "s"
+                          : ""}
                       </span>
-                    </Space>
-                  }
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
-                  headStyle={{
-                    borderBottom: "1px solid #f1f5f9",
-                    background: "#fafbfc",
-                    borderRadius: "16px 16px 0 0",
-                  }}
-                  bodyStyle={{ padding: "32px" }}
-                >
-                  <Row gutter={[24, 16]}>
+                    </div>
+
+                    {/* Added Permissions */}
                     {addedPermissions.length > 0 && (
-                      <Col xs={24} md={12}>
-                        <Space
-                          direction="vertical"
-                          size="small"
-                          style={{ width: "100%" }}
-                        >
-                          <Text strong style={{ color: "#059669" }}>
-                            Permissions to Add ({addedPermissions.length})
-                          </Text>
-                          <Space wrap>
-                            {addedPermissions.map((perm) => (
-                              <Tag
-                                key={perm}
-                                color="success"
-                                icon={<CheckOutlined />}
-                              >
-                                {perm}
-                              </Tag>
-                            ))}
-                          </Space>
-                        </Space>
-                      </Col>
+                      <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
+                        <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
+                          To Add:
+                        </Text>
+                        <span className="text-emerald-600 dark:text-emerald-400 font-semibold text-sm bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-md">
+                          +{addedPermissions.length} permissions
+                        </span>
+                      </div>
                     )}
+
+                    {/* Removed Permissions */}
                     {removedPermissions.length > 0 && (
-                      <Col xs={24} md={12}>
-                        <Space
-                          direction="vertical"
-                          size="small"
-                          style={{ width: "100%" }}
-                        >
-                          <Text strong style={{ color: "#dc2626" }}>
-                            Permissions to Remove ({removedPermissions.length})
-                          </Text>
-                          <Space wrap>
-                            {removedPermissions.map((perm) => (
-                              <Tag
-                                key={perm}
-                                color="error"
-                                icon={<CloseOutlined />}
-                              >
-                                {perm}
-                              </Tag>
-                            ))}
-                          </Space>
-                        </Space>
-                      </Col>
+                      <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
+                        <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
+                          To Remove:
+                        </Text>
+                        <span className="text-red-600 dark:text-red-400 font-semibold text-sm bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-md">
+                          -{removedPermissions.length} permissions
+                        </span>
+                      </div>
                     )}
-                  </Row>
-                </Card>
+
+                    {/* Added Permissions Details */}
+                    {addedPermissions.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-blue-200/50 dark:border-slate-600/50">
+                        <Text className="text-slate-700 dark:text-slate-200 font-medium text-sm block mb-2">
+                          Permissions to Add:
+                        </Text>
+                        <div className="flex flex-wrap gap-2">
+                          {addedPermissions.map((perm) => (
+                            <Tag
+                              key={perm}
+                              className="rounded-lg px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border-none font-medium text-sm"
+                              icon={<CheckOutlined />}
+                            >
+                              {perm
+                                .replace(/_/g, " ")
+                                .replace(/\b\w/g, (l) => l.toUpperCase())}
+                            </Tag>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Removed Permissions Details */}
+                    {removedPermissions.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-blue-200/50 dark:border-slate-600/50">
+                        <Text className="text-slate-700 dark:text-slate-200 font-medium text-sm block mb-2">
+                          Permissions to Remove:
+                        </Text>
+                        <div className="flex flex-wrap gap-2">
+                          {removedPermissions.map((perm) => (
+                            <Tag
+                              key={perm}
+                              className="rounded-lg px-3 py-1 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border-none font-medium text-sm line-through opacity-75"
+                              icon={<CloseOutlined />}
+                            >
+                              {perm
+                                .replace(/_/g, " ")
+                                .replace(/\b\w/g, (l) => l.toUpperCase())}
+                            </Tag>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="mt-5 pt-4 border-t border-blue-200/50 dark:border-slate-600/50">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                      <svg
+                        className="w-3 h-3"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      Permission changes ready for review
+                    </p>
+                  </div>
+                </div>
               )}
 
               {/* Action Buttons */}
