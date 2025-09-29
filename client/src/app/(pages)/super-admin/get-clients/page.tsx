@@ -41,6 +41,7 @@ import DashboardLayout from "@/app/components/DashboardLayout";
 import { ThemeProvider } from "next-themes";
 import ConfirmationModal from "@/app/components/ConfirmationModal";
 import type { ColumnsType } from "antd/es/table";
+import BASE_URL from "@/app/utils/constant";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -216,7 +217,7 @@ export default function GetClients() {
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <Avatar
             size={48}
-            src={record.profileImage ? `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5000'}${record.profileImage}` : undefined}
+            src={record.profileImage ? `${BASE_URL}${record.profileImage}` : undefined}
             style={{
               background: record.profileImage ? undefined : "#f1f5f9",
               border: "2px solid #e5e7eb",
