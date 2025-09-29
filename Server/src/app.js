@@ -32,24 +32,21 @@ const allowedOrigins = [
 
 
 // Apply CORS to APIs
-// Serve static files from project-root/uploads
 app.use(
-  "/uploads",
   cors({
     origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
+      if (!origin) return callback(null, true); // allow requests with no origin
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       } else {
         return callback(new Error("Not allowed by CORS"));
       }
     },
-    methods: ["GET"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
-  }),
-  express.static(path.join(__dirname, "uploads"))
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
 );
-
 
 //  Serve static files from uploads with CORS
 app.use(
@@ -66,7 +63,7 @@ app.use(
     methods: ["GET"],
     credentials: true,
   }),
-  express.static(path.join(__dirname, "../uploads"))
+  express.static(path.join(__dirname, "uploads"))
 );
 
 const PORT = process.env.PORT || 4000;
