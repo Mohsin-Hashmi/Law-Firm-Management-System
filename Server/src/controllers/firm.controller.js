@@ -425,13 +425,18 @@ const getAllLawyer = async (req, res) => {
   }
 };
 
-/**Get a Lawyers by ID API */
+/** Get a Lawyer by ID API */
 const getLawyerById = async (req, res) => {
   try {
     const adminId = req.user.id; // from JWT
-    const adminFirmIds = req.user.firmIds; // array of firm IDs from JWT
+    const activeFirmId = getActiveFirmId(req);
 
-    console.log("Logged in user:", adminId, "with firm IDs:", adminFirmIds);
+    console.log(
+      "Logged in user:",
+      adminId,
+      "with active firm ID:",
+      activeFirmId
+    );
 
     const lawyerId = Number(req.params.id);
     if (!req.params.id || isNaN(lawyerId)) {
@@ -443,7 +448,6 @@ const getLawyerById = async (req, res) => {
 
     // Fetch lawyer
     const lawyer = await Lawyer.findOne({ where: { id: lawyerId } });
-    console.log("Lawyer firmId:", lawyer.firmId);
     if (!lawyer) {
       return res
         .status(404)
@@ -452,8 +456,8 @@ const getLawyerById = async (req, res) => {
 
     console.log("Lawyer firmId:", lawyer.firmId);
 
-    // Check if admin belongs to any of the lawyer's firms
-    if (!adminFirmIds.includes(lawyer.firmId)) {
+    // Check if admin's active firm matches lawyer's firm
+    if (lawyer.firmId !== activeFirmId) {
       return res.status(403).json({
         success: false,
         error: "Admin not allowed to access this lawyer",
@@ -475,7 +479,7 @@ const getLawyerById = async (req, res) => {
   }
 };
 
-/**Update a Lawyers by ID API */
+/** Update a Lawyer by ID API */
 const updateLawyer = async (req, res) => {
   try {
     const { id } = req.params;
@@ -485,28 +489,24 @@ const updateLawyer = async (req, res) => {
       return res.status(400).json({ success: false, error: "Id is required" });
     }
 
-    // Get firmIds array from JWT
-    const adminFirmIds = req.user.firmIds || [];
+    const activeFirmId = getActiveFirmId(req);
 
-    if (!adminFirmIds.length) {
+    if (!activeFirmId) {
       return res.status(403).json({
         success: false,
-        error: "No firm assigned to your account",
+        error: "No active firm assigned to your account",
       });
     }
 
-    // Find lawyer by id and ensure they belong to one of admin's firms
+    // Find lawyer by id and ensure they belong to admin's active firm
     const lawyer = await Lawyer.findOne({
-      where: {
-        id,
-        firmId: adminFirmIds, // Sequelize automatically treats array as IN
-      },
+      where: { id, firmId: activeFirmId },
     });
 
     if (!lawyer) {
       return res.status(404).json({
         success: false,
-        message: "Lawyer not found or not part of your firms",
+        message: "Lawyer not found or not part of your firm",
       });
     }
 
@@ -538,13 +538,13 @@ const updateLawyer = async (req, res) => {
   }
 };
 
-/**Delete a Lawyers by ID API */
+/** Delete a Lawyer by ID API */
 const deleteLawyer = async (req, res) => {
   try {
     const { id } = req.params;
     const adminId = req.user.id;
     const adminRole = req.user.role;
-    const firmIdFromToken = req.user.firmId;
+    const activeFirmId = getActiveFirmId(req);
 
     if (!id)
       return res.status(400).json({ success: false, error: "Id is required" });
@@ -560,16 +560,17 @@ const deleteLawyer = async (req, res) => {
     if (adminRole === "Super Admin") {
       const adminFirms = await AdminFirm.findAll({ where: { adminId } });
       allowedFirmIds = adminFirms.map((f) => f.firmId);
-    } else if (adminRole === "Firm Admin") {
-      allowedFirmIds = [firmIdFromToken];
+    } else if (adminRole === "Firm Admin" && activeFirmId) {
+      allowedFirmIds = [activeFirmId];
     }
 
-    // if (!allowedFirmIds.includes(lawyer.firmId)) {
-    //   return res.status(403).json({
-    //     success: false,
-    //     message: "Admin not allowed to delete this lawyer",
-    //   });
-    // }
+    if (!allowedFirmIds.includes(lawyer.firmId)) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin not allowed to delete this lawyer",
+      });
+    }
+
     const userId = lawyer.userId;
     await lawyer.destroy();
     if (userId) {
