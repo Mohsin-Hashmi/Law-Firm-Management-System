@@ -442,7 +442,7 @@ export default function GetClients() {
             <div className="max-w-full">
               {/* Header Section */}
               <Card
-                className="bg-[#E43636] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+                className="bg-emerald-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
                 bodyStyle={{ padding: "32px 20px" }}
               >
                 <Row align="middle" justify="space-between">
