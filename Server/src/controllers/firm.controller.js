@@ -19,19 +19,10 @@ const bcrypt = require("bcryptjs");
 const { where } = require("sequelize");
 
 const getActiveFirmId = (req) => {
-  if (req.user?.firmId) {
-    return req.user.firmId;
-  }
-
-  if (req.user?.activeFirmId) {
-    return req.user.activeFirmId;
-  }
-
-  if (Array.isArray(req.user?.firmIds) && req.user.firmIds.length > 0) {
-    return req.user.firmIds[0];
-  }
-
-  return null;
+  // Use req.user.activeFirmId if you set it when switching firms from Redux
+  return (
+    req.user?.activeFirmId || (req.user?.firmIds ? req.user.firmIds[0] : null)
+  );
 };
 
 const createFirm = async (req, res) => {
