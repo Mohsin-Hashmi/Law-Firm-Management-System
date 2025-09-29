@@ -29,22 +29,27 @@ const allowedOrigins = [
   "http://localhost:3000", // local development
 ].filter(Boolean);
 
+
+
 // Apply CORS to APIs
+// Serve static files from project-root/uploads
 app.use(
+  "/uploads",
   cors({
     origin: function (origin, callback) {
-      if (!origin) return callback(null, true); // allow requests with no origin
+      if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       } else {
         return callback(new Error("Not allowed by CORS"));
       }
     },
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET"],
     credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
+  }),
+  express.static(path.join(__dirname, "uploads"))
 );
+
 
 //  Serve static files from uploads with CORS
 app.use(

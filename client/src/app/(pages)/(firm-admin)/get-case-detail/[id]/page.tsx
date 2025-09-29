@@ -12,47 +12,38 @@ import {
   Spin,
   Button,
   Tag,
-  Divider,
-  message,
-  Statistic,
-  Badge,
-  Tooltip,
-  List,
-  Empty,
-  Progress,
+  Input,
+  Select,
   Table,
-  Modal,
+  Empty,
+  Tooltip,
+  Statistic,
 } from "antd";
 import {
   UserOutlined,
-  MailOutlined,
-  PhoneOutlined,
-  HomeOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
   ArrowLeftOutlined,
   EditOutlined,
   FileTextOutlined,
-  CalendarOutlined,
   TeamOutlined,
-  IdcardOutlined,
-  FolderOpenOutlined,
   BankOutlined,
-  ClockCircleOutlined,
-  DollarOutlined,
+  SafetyOutlined,
+  SearchOutlined,
+  FilterOutlined,
   DownloadOutlined,
   EyeOutlined,
-  TrophyOutlined,
-  BarChartOutlined,
-  SafetyOutlined,
+  FolderOpenOutlined,
+  PlusOutlined,
+  ReloadOutlined,
+  BankTwoTone,
 } from "@ant-design/icons";
 import { getCaseById } from "@/app/service/adminAPI";
 import { toast } from "react-hot-toast";
 import { ThemeProvider } from "next-themes";
 import { use } from "react";
 
-
 const { Title, Text } = Typography;
+const { Search } = Input;
+const { Option } = Select;
 
 // Define interfaces based on your backend response
 interface Client {
@@ -78,7 +69,7 @@ interface Lawyer {
 interface CaseDocument {
   id: number;
   fileName: string;
-  fileUrl: string;
+  filePath: string;
   uploadDate: string;
   fileSize?: number;
   documentType?: string;
@@ -105,82 +96,6 @@ interface Case {
 import { useAppSelector } from "@/app/store/hooks";
 import { RootState } from "@/app/store/store";
 
-// Circular Progress Component
-const CircularProgress = ({ 
-  percent, 
-  size = 120, 
-  strokeWidth = 8, 
-  color = "#059669",
-  title,
-  subtitle 
-}: {
-  percent: number;
-  size?: number;
-  strokeWidth?: number;
-  color?: string;
-  title: string;
-  subtitle?: string;
-}) => {
-  const radius = (size - strokeWidth) / 2;
-  const circumference = radius * 2 * Math.PI;
-  const offset = circumference - (percent / 100) * circumference;
-
-  return (
-    <div className="flex flex-col items-center">
-      <div className="relative" style={{ width: size, height: size }}>
-        <svg
-          className="transform -rotate-90"
-          width={size}
-          height={size}
-        >
-          {/* Background circle */}
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            stroke="#e5e7eb"
-            strokeWidth={strokeWidth}
-            fill="transparent"
-            className="dark:stroke-slate-600"
-          />
-          {/* Progress circle */}
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            stroke={color}
-            strokeWidth={strokeWidth}
-            fill="transparent"
-            strokeDasharray={circumference}
-            strokeDashoffset={offset}
-            strokeLinecap="round"
-            className="transition-all duration-500 ease-out"
-            style={{
-              filter: 'drop-shadow(0 0 4px rgba(5, 150, 105, 0.3))'
-            }}
-          />
-        </svg>
-        {/* Center text */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-2xl font-bold text-slate-800 dark:text-white">
-            {percent}%
-          </span>
-        </div>
-      </div>
-      <div className="mt-3 text-center">
-        <Text className="text-sm font-semibold text-slate-700 dark:text-white block">
-          {title}
-        </Text>
-        {subtitle && (
-          <Text className="text-xs text-slate-500 dark:text-slate-400">
-            {subtitle}
-          </Text>
-        )}
-      </div>
-    </div>
-  );
-};
-
 export default function GetCaseDetail({
   params,
 }: {
@@ -194,14 +109,40 @@ export default function GetCaseDetail({
 
   const [caseData, setCaseData] = useState<Case | null>(null);
   const [loading, setLoading] = useState(true);
-  const [documentModalVisible, setDocumentModalVisible] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<CaseDocument | null>(null);
+  const [searchText, setSearchText] = useState("");
+  const [documentTypeFilter, setDocumentTypeFilter] = useState<string>("");
+  const [filteredDocuments, setFilteredDocuments] = useState<CaseDocument[]>(
+    []
+  );
+  console.log("Filtered docs:", filteredDocuments);
 
   useEffect(() => {
     if (caseId && firmId !== undefined) {
       fetchCaseDetail();
     }
   }, [caseId, firmId]);
+
+  useEffect(() => {
+    if (caseData?.documents) {
+      let filtered = caseData.documents;
+
+      // Apply search filter
+      if (searchText) {
+        filtered = filtered.filter((doc) =>
+          doc.fileName.toLowerCase().includes(searchText.toLowerCase())
+        );
+      }
+
+      // Apply document type filter
+      if (documentTypeFilter) {
+        filtered = filtered.filter(
+          (doc) => doc.documentType === documentTypeFilter
+        );
+      }
+
+      setFilteredDocuments(filtered);
+    }
+  }, [caseData, searchText, documentTypeFilter]);
 
   const fetchCaseDetail = async () => {
     if (firmId === undefined) return;
@@ -218,164 +159,116 @@ export default function GetCaseDetail({
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-      case "ongoing":
-      case "open":
-        return { color: "#059669", bg: "#f0fdf4", border: "#bbf7d0" };
-      case "closed":
-      case "completed":
-        return { color: "#64748b", bg: "#f8fafc", border: "#e2e8f0" };
-      case "pending":
-        return { color: "#d97706", bg: "#fffbeb", border: "#fde68a" };
-      case "suspended":
-        return { color: "#dc2626", bg: "#fef2f2", border: "#fecaca" };
-      default:
-        return { color: "#6b7280", bg: "#f9fafb", border: "#e5e7eb" };
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "high":
-        return { color: "#dc2626", bg: "#fef2f2", border: "#fecaca" };
-      case "medium":
-        return { color: "#d97706", bg: "#fffbeb", border: "#fde68a" };
-      case "low":
-        return { color: "#059669", bg: "#f0fdf4", border: "#bbf7d0" };
-      default:
-        return { color: "#6b7280", bg: "#f9fafb", border: "#e5e7eb" };
-    }
-  };
-
-  const formatFileSize = (bytes?: number) => {
-    if (!bytes) return "Unknown size";
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + " " + sizes[i];
-  };
-
-  const getProgressValue = () => {
-    if (!caseData) return 0;
-    switch (caseData.status) {
-      case "pending":
-        return 25;
-      case "active":
-      case "ongoing":
-      case "open":
-        return 65;
-      case "completed":
-      case "closed":
-        return 100;
-      default:
-        return 0;
-    }
-  };
-
   const handleDocumentView = (document: CaseDocument) => {
-    setSelectedDocument(document);
-    setDocumentModalVisible(true);
+    if (!document.filePath) {
+      toast.error("No file URL available for this document");
+      return;
+    }
+
+    // Clean up leading slashes to avoid `//` in the URL
+    const baseUrl = "http://localhost:5000";
+    const normalizedUrl = document.filePath.startsWith("/")
+      ? `${baseUrl}/${document.filePath}`
+      : `${baseUrl}/${document.filePath}`;
+
+    window.open(normalizedUrl, "_blank", "noopener,noreferrer");
   };
 
   const documentColumns = [
     {
-      title: 'Document',
-      dataIndex: 'fileName',
-      key: 'fileName',
+      title: "Document",
+      dataIndex: "fileName",
+      key: "fileName",
+      width: "70%",
       render: (text: string, record: CaseDocument) => (
-        <Space>
-          <Avatar
-            size={40}
-            icon={<FileTextOutlined />}
-            className="bg-blue-50 text-blue-600 border border-blue-200"
-          />
-          <div>
-            <Text className="font-semibold text-slate-800 dark:text-white block">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
+            <FileTextOutlined style={{ color: "#2563eb", fontSize: "22px" }} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <Text
+              className="block text-slate-900 dark:text-slate-200 font-semibold text-base"
+              ellipsis={{ tooltip: text }}
+            >
               {text}
             </Text>
             {record.documentType && (
               <Tag
-                // size="small"
-                className="mt-1"
-                color="blue"
+                style={{
+                  background: `#2563eb15`,
+                  color: "#2563eb",
+                  border: `1px solid #2563eb30`,
+                  borderRadius: "8px",
+                  padding: "4px 12px",
+                  fontSize: "12px",
+                  fontWeight: "600",
+                  textTransform: "uppercase",
+                  marginTop: "4px",
+                }}
               >
                 {record.documentType}
               </Tag>
             )}
           </div>
-        </Space>
+        </div>
       ),
     },
     {
-      title: 'Size',
-      dataIndex: 'fileSize',
-      key: 'fileSize',
-      render: (size: number) => (
-        <Text className="text-slate-600 dark:text-slate-300">
-          {formatFileSize(size)}
-        </Text>
-      ),
-    },
-    {
-      title: 'Upload Date',
-      dataIndex: 'uploadDate',
-      key: 'uploadDate',
-      render: (date: string) => (
-        <Text className="text-slate-600 dark:text-slate-300">
-          {new Date(date).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          })}
-        </Text>
-      ),
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
+      title: "Actions",
+      key: "actions",
+      width: "30%",
+      align: "right",
+      fixed: "right",
       render: (text: any, record: CaseDocument) => (
-        <Space>
-          <Tooltip title="View Document">
-            <Button
-              type="text"
-              icon={<EyeOutlined />}
-              onClick={() => handleDocumentView(record)}
-              className="text-blue-600 hover:bg-blue-50 border border-blue-200 rounded-lg"
-            />
-          </Tooltip>
-          <Tooltip title="Download">
-            <Button
-              type="text"
-              icon={<DownloadOutlined />}
-              onClick={() => {
-                const link = document.createElement("a");
-                link.href = `http://localhost:5000${record.fileUrl}`;
-                link.download = record.fileName;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-              }}
-              className="text-emerald-600 hover:bg-emerald-50 border border-emerald-200 rounded-lg"
-            />
-          </Tooltip>
-        </Space>
+        <div className="flex justify-end">
+          <Space size="small">
+            <Tooltip title="View Document">
+              <Button
+                type="text"
+                size="small"
+                icon={<EyeOutlined />}
+                onClick={() => handleDocumentView(record)}
+                className="hover:!bg-blue-50 dark:text-gray-200 hover:!text-blue-600 dark:hover:!bg-blue-900/30 dark:hover:!text-blue-400"
+                style={{ borderRadius: "6px" }}
+              />
+            </Tooltip>
+            <Tooltip title="Download">
+              <Button
+                type="text"
+                size="small"
+                icon={<DownloadOutlined />}
+                onClick={() => {
+                  const link = document.createElement("a");
+                  link.href = `http://localhost:5000${record.filePath}`;
+                  link.download = record.fileName;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }}
+                className="hover:!bg-green-50 dark:text-gray-200 hover:!text-green-600 dark:hover:!bg-green-900/30 dark:hover:!text-green-400"
+                style={{ borderRadius: "6px" }}
+              />
+            </Tooltip>
+          </Space>
+        </div>
       ),
     },
   ];
 
+  const getUniqueDocumentTypes = () => {
+    if (!caseData?.documents) return [];
+    return [
+      ...new Set(
+        caseData.documents.map((doc) => doc.documentType).filter(Boolean)
+      ),
+    ];
+  };
+
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="min-h-screen flex justify-center items-center transition-colors duration-300">
-          <div className="text-center">
-            <Spin size="large" />
-            <div className="mt-4">
-              <Text className="text-slate-600 dark:text-slate-400">
-                Loading case details...
-              </Text>
-            </div>
-          </div>
+        <div className="flex items-center justify-center min-h-screen">
+          <Spin size="large" />
         </div>
       </DashboardLayout>
     );
@@ -384,24 +277,25 @@ export default function GetCaseDetail({
   if (!caseData) {
     return (
       <DashboardLayout>
-        <div className="min-h-screen  flex justify-center items-center transition-colors duration-300">
+        <div className="flex items-center justify-center min-h-screen">
           <div style={{ textAlign: "center" }}>
-            <FolderOpenOutlined
+            <FileTextOutlined
               style={{
-                fontSize: "64px",
+                fontSize: "48px",
                 color: "#9ca3af",
                 marginBottom: "16px",
               }}
             />
-            <Title level={3} className="text-slate-600 dark:text-slate-400">
-              Case Not Found
+            <Title level={4} className="!text-slate-500 dark:!text-slate-300">
+              Case not found
             </Title>
-            <Text className="text-slate-600 dark:text-slate-400 text-base">
+            <Text className="dark:text-slate-400">
               The requested case could not be found.
             </Text>
             <br />
             <Button
               type="primary"
+              icon={<ArrowLeftOutlined />}
               onClick={() => router.back()}
               style={{ marginTop: "16px" }}
             >
@@ -413,63 +307,57 @@ export default function GetCaseDetail({
     );
   }
 
-  const statusStyle = getStatusColor(caseData.status);
-  const priorityStyle = getPriorityColor(caseData.priority);
-
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <DashboardLayout>
-        <div className="min-h-screen p-6  transition-colors duration-300">
+        <div className="min-h-screen transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
           <div className="max-w-full">
-            
-            {/* Professional Header */}
+            {/* Header Section - Matching get-cases page exactly */}
             <Card
-              className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-slate-800 dark:to-slate-900 border-none rounded-2xl shadow-xl mb-8"
-              bodyStyle={{ padding: "32px" }}
+              className="bg-[#433878] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+              bodyStyle={{ padding: "32px 20px" }}
             >
               <Row align="middle" justify="space-between">
                 <Col>
                   <Space size="large">
-                    <div className="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 border-white/20 backdrop-blur-sm">
-                      <SafetyOutlined className="text-[32px] text-white" />
+                    <div
+                      style={{
+                        width: "80px",
+                        height: "80px",
+                        background: "rgba(255,255,255,0.15)",
+                        borderRadius: "16px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        border: "2px solid rgba(255,255,255,0.2)",
+                      }}
+                    >
+                      <SafetyOutlined
+                        style={{ fontSize: "32px", color: "white" }}
+                      />
                     </div>
                     <div>
                       <Title
                         level={1}
-                        className="!text-white !m-0 text-4xl font-bold tracking-tight"
+                        style={{
+                          color: "white",
+                          margin: 0,
+                          fontSize: "36px",
+                          fontWeight: "600",
+                          letterSpacing: "-0.025em",
+                        }}
                       >
                         {caseData.title}
                       </Title>
-                      <Text className="text-white/90 text-lg font-medium">
-                        Case ID: #{caseData.id?.toString().padStart(6, "0")}
+                      <Text
+                        style={{
+                          color: "rgba(255,255,255,0.8)",
+                          fontSize: "18px",
+                          fontWeight: "400",
+                        }}
+                      >
+                        Status: {caseData.status}
                       </Text>
-                      <div className="mt-3">
-                        <Space size="middle" wrap>
-                          <Tag
-                            style={{
-                              backgroundColor: "rgba(255,255,255,0.2)",
-                              color: "white",
-                              border: "1px solid rgba(255,255,255,0.3)",
-                              borderRadius: "8px",
-                              padding: "4px 12px",
-                              fontSize: "13px",
-                              fontWeight: "500",
-                              backdropFilter: "blur(10px)",
-                            }}
-                          >
-                            <BankOutlined className="mr-1" />
-                            {caseData.caseType}
-                          </Tag>
-                          <Badge
-                            status="success"
-                            text={
-                              <span className="text-white/90 text-sm font-medium">
-                                {caseData.status}
-                              </span>
-                            }
-                          />
-                        </Space>
-                      </div>
                     </div>
                   </Space>
                 </Col>
@@ -478,8 +366,15 @@ export default function GetCaseDetail({
                     <Button
                       icon={<ArrowLeftOutlined />}
                       onClick={() => router.back()}
-                      size="large"
-                      className="rounded-xl font-semibold px-6 h-12 bg-white/20 border-white/30 text-white backdrop-blur hover:!bg-white/30 hover:!text-white"
+                      style={{
+                        background: "rgba(255,255,255,0.2)",
+                        borderColor: "rgba(255,255,255,0.3)",
+                        color: "white",
+                        borderRadius: "12px",
+                        fontWeight: "600",
+                        padding: "8px 24px",
+                        height: "48px",
+                      }}
                     >
                       Back
                     </Button>
@@ -487,10 +382,17 @@ export default function GetCaseDetail({
                       type="primary"
                       size="large"
                       icon={<EditOutlined />}
-                      onClick={() =>
-                        router.push(`/edit-case/${caseData.id}`)
-                      }
-                      className="rounded-xl font-semibold px-6 h-12 bg-white text-blue-600 shadow-lg hover:!bg-white hover:!text-blue-700"
+                      onClick={() => router.push(`/edit-case/${caseData.id}`)}
+                      style={{
+                        background: "white",
+                        borderColor: "white",
+                        color: "#2563eb",
+                        borderRadius: "12px",
+                        fontWeight: "600",
+                        padding: "8px 24px",
+                        height: "48px",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                      }}
                     >
                       Edit Case
                     </Button>
@@ -499,654 +401,260 @@ export default function GetCaseDetail({
               </Row>
             </Card>
 
-            {/* Progress and Key Metrics */}
-            <Row gutter={[24, 24]} className="mb-8">
-              <Col xs={24} lg={8}>
+            {/* Info Cards - Matching get-cases page styling with updated client and lawyer cards */}
+            <Row gutter={[24, 24]} style={{ marginBottom: "32px" }}>
+              {/* Case Name Card */}
+              <Col xs={24} sm={6}>
                 <Card
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
-                  bodyStyle={{ padding: "32px", textAlign: "center" }}
+                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
+                  bodyStyle={{
+                    padding: "30px",
+                    height: "140px",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                  }}
+                  hoverable
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-4px)";
+                    e.currentTarget.style.boxShadow =
+                      "0 10px 25px rgba(0,0,0,0.15)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow =
+                      "0 1px 3px rgba(0,0,0,0.1)";
+                  }}
                 >
-                  <CircularProgress
-                    percent={getProgressValue()}
-                    title="Case Progress"
-                    subtitle="Overall completion"
-                    color="#059669"
-                  />
-                </Card>
-              </Col>
-              
-              <Col xs={24} lg={8}>
-                <Card
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
-                  bodyStyle={{ padding: "32px", textAlign: "center" }}
-                >
-                  <CircularProgress
-                    percent={caseData.lawyers?.length ? (caseData.lawyers.length / 5) * 100 : 0}
-                    title="Team Utilization"
-                    subtitle={`${caseData.lawyers?.length || 0} lawyers assigned`}
-                    color="#1e40af"
-                  />
-                </Card>
-              </Col>
-              
-              <Col xs={24} lg={8}>
-                <Card
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
-                  bodyStyle={{ padding: "32px", textAlign: "center" }}
-                >
-                  <CircularProgress
-                    percent={caseData.documents?.length ? Math.min((caseData.documents.length / 10) * 100, 100) : 0}
-                    title="Documentation"
-                    subtitle={`${caseData.documents?.length || 0} documents`}
-                    color="#7c3aed"
-                  />
-                </Card>
-              </Col>
-            </Row>
-
-            {/* Case Overview */}
-            <Card
-              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 mb-8"
-              title={
-                <Space>
-                  <TrophyOutlined className="text-blue-600 dark:text-blue-400" />
-                  <span className="text-slate-900 dark:text-white font-bold text-lg">
-                    Case Overview
-                  </span>
-                </Space>
-              }
-              bodyStyle={{ padding: "32px" }}
-            >
-              <Row gutter={[32, 32]}>
-                <Col xs={24} lg={16}>
-                  <Space direction="vertical" size="large" style={{ width: "100%" }}>
-                    <div>
-                      <Space size="middle" wrap className="mb-4">
-                        <Tag
-                          style={{
-                            backgroundColor: statusStyle.bg,
-                            color: statusStyle.color,
-                            border: `1px solid ${statusStyle.border}`,
-                            borderRadius: "8px",
-                            padding: "6px 16px",
-                            fontSize: "14px",
-                            fontWeight: "600",
-                          }}
-                        >
-                          {caseData.status}
-                        </Tag>
-                        <Tag
-                          style={{
-                            backgroundColor: priorityStyle.bg,
-                            color: priorityStyle.color,
-                            border: `1px solid ${priorityStyle.border}`,
-                            borderRadius: "8px",
-                            padding: "6px 16px",
-                            fontSize: "14px",
-                            fontWeight: "600",
-                          }}
-                        >
-                          {caseData.priority} Priority
-                        </Tag>
-                      </Space>
-                      
-                      <div className="mb-6">
-                        <Text className="text-slate-600 dark:text-slate-400 text-sm font-semibold block mb-2">
-                          Case Description
-                        </Text>
-                        <Text className="text-slate-800 dark:text-white text-base leading-relaxed">
-                          {caseData.description}
-                        </Text>
-                      </div>
-                    </div>
-                  </Space>
-                </Col>
-
-                <Col xs={24} lg={8}>
-                  <Card
-                    bordered={false}
-                    className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 rounded-xl"
-                    bodyStyle={{ padding: "24px" }}
-                  >
-                    <Space direction="vertical" style={{ width: "100%" }} size="large">
-                      <Statistic
-                        title={
-                          <span className="text-emerald-600 dark:text-emerald-400 text-sm font-semibold">
-                            Estimated Value
-                          </span>
-                        }
-                        value={caseData.estimatedValue || 0}
-                        prefix="$"
-                        valueStyle={{
-                          color: "#059669",
-                          fontSize: "24px",
-                          fontWeight: "700",
-                        }}
-                        formatter={(value) => `${Number(value).toLocaleString()}`}
-                      />
-                      
-                      <Statistic
-                        title={
-                          <span className="text-blue-600 dark:text-blue-400 text-sm font-semibold">
-                            Actual Value
-                          </span>
-                        }
-                        value={caseData.actualValue || 0}
-                        prefix="$"
-                        valueStyle={{
-                          color: "#1e40af",
-                          fontSize: "24px",
-                          fontWeight: "700",
-                        }}
-                        formatter={(value) => `${Number(value).toLocaleString()}`}
-                      />
-                    </Space>
-                  </Card>
-                </Col>
-              </Row>
-            </Card>
-
-            {/* Client and Team Information */}
-            <Row gutter={[24, 24]} className="mb-8">
-              {/* Client Information */}
-              <Col xs={24} lg={12}>
-                <Card
-                  title={
-                    <Space>
-                      <UserOutlined className="text-emerald-600 dark:text-emerald-400" />
-                      <span className="text-slate-900 dark:text-white font-bold">
-                        Client Information
+                  <Statistic
+                    title={
+                      <span className="text-slate-500 dark:text-white text-lg font-medium mb-[15px] block">
+                        Case Name
                       </span>
-                    </Space>
-                  }
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 h-full"
-                  bodyStyle={{ padding: "24px" }}
+                    }
+                    value={caseData.title}
+                    valueStyle={{
+                      fontSize: "20px",
+                      fontWeight: "700",
+                      lineHeight: "1.2",
+                      color: "inherit",
+                    }}
+                    prefix={
+                      <FileTextOutlined className="text-blue-600 dark:text-blue-400 text-2xl mr-1" />
+                    }
+                    className="text-blue-600 dark:text-blue-600 [&_.ant-statistic-content-value]:dark:!text-blue-600"
+                  />
+                </Card>
+              </Col>
+
+              {/* Client Card - Updated with image in top right */}
+              <Col xs={24} sm={6}>
+                <Card
+                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
+                  bodyStyle={{
+                    padding: "30px",
+                    position: "relative",
+                    height: "140px",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                  }}
+                  hoverable
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-4px)";
+                    e.currentTarget.style.boxShadow =
+                      "0 10px 25px rgba(0,0,0,0.15)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow =
+                      "0 1px 3px rgba(0,0,0,0.1)";
+                  }}
                 >
-                  <div className="text-center mb-6">
-                    <Avatar
-                      size={80}
-                      src={
-                        caseData.client?.profileImage
-                          ? `http://localhost:5000${caseData.client.profileImage}`
-                          : undefined
-                      }
-                      icon={<UserOutlined />}
-                      className="bg-gradient-to-br from-emerald-100 to-emerald-200 border-2 border-emerald-300 shadow-lg mb-4"
-                    />
-                    <Title level={4} className="text-slate-800 dark:text-white m-0">
-                      {caseData.client?.fullName}
-                    </Title>
-                    <Tag
-                      className="mt-2"
-                      color="green"
+                  {/* Small avatar in top right */}
+                  <Avatar
+                    size={40}
+                    src={
+                      caseData.client?.profileImage
+                        ? `http://localhost:5000${caseData.client.profileImage}`
+                        : undefined
+                    }
+                    icon={<UserOutlined />}
+                    className="absolute top-4 right-4 bg-emerald-100 border-2 border-emerald-200"
+                  />
+                  <div>
+                    <Text className="text-slate-500 dark:text-white text-lg font-medium mb-2 block">
+                      Client
+                    </Text>
+                    <Text
+                      className="text-emerald-600 dark:text-emerald-500 text-xl font-bold block"
+                      ellipsis={{ tooltip: caseData.client?.fullName }}
                     >
-                      {caseData.client?.clientType}
-                    </Tag>
+                      {caseData.client?.fullName}
+                    </Text>
                   </div>
-
-                  <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-                    <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
-                      <div className="flex items-center mb-2">
-                        <MailOutlined className="text-emerald-600 mr-2" />
-                        <Text className="text-slate-600 dark:text-slate-400 text-sm font-medium">
-                          Email
-                        </Text>
-                      </div>
-                      <Text
-                        className="text-slate-800 dark:text-white font-medium"
-                        copyable={{ tooltips: ["Copy email", "Copied!"] }}
-                      >
-                        {caseData.client?.email}
-                      </Text>
-                    </div>
-
-                    <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
-                      <div className="flex items-center mb-2">
-                        <PhoneOutlined className="text-emerald-600 mr-2" />
-                        <Text className="text-slate-600 dark:text-slate-400 text-sm font-medium">
-                          Phone
-                        </Text>
-                      </div>
-                      <Text
-                        className="text-slate-800 dark:text-white font-medium"
-                        copyable={{ tooltips: ["Copy phone", "Copied!"] }}
-                      >
-                        {caseData.client?.phone}
-                      </Text>
-                    </div>
-
-                    {caseData.client?.address && (
-                      <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
-                        <div className="flex items-center mb-2">
-                          <HomeOutlined className="text-emerald-600 mr-2" />
-                          <Text className="text-slate-600 dark:text-slate-400 text-sm font-medium">
-                            Address
-                          </Text>
-                        </div>
-                        <Text className="text-slate-800 dark:text-white font-medium">
-                          {caseData.client.address}
-                        </Text>
-                      </div>
-                    )}
-                  </Space>
                 </Card>
               </Col>
 
-              {/* Assigned Lawyers */}
-              <Col xs={24} lg={12}>
+              {/* Legal Team Card - Updated with images in top right */}
+              <Col xs={24} sm={6}>
                 <Card
-                  title={
-                    <Space>
-                      <TeamOutlined className="text-blue-600 dark:text-blue-400" />
-                      <span className="text-slate-900 dark:text-white font-bold">
-                        Legal Team ({caseData.lawyers?.length || 0})
-                      </span>
-                    </Space>
-                  }
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 h-full"
-                  bodyStyle={{ padding: "24px" }}
+                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
+                  bodyStyle={{
+                    padding: "30px",
+                    position: "relative",
+                    height: "140px",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                  }}
+                  hoverable
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-4px)";
+                    e.currentTarget.style.boxShadow =
+                      "0 10px 25px rgba(0,0,0,0.15)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow =
+                      "0 1px 3px rgba(0,0,0,0.1)";
+                  }}
                 >
-                  {caseData.lawyers && caseData.lawyers.length > 0 ? (
-                    <List
-                      dataSource={caseData.lawyers}
-                      renderItem={(lawyer) => (
-                        <List.Item className="border-none px-0 py-3">
-                          <List.Item.Meta
-                            avatar={
-                              <Avatar
-                                size={48}
-                                src={
-                                  lawyer.profileImage
-                                    ? `http://localhost:5000${lawyer.profileImage}`
-                                    : undefined
-                                }
-                                icon={<UserOutlined />}
-                                className="bg-gradient-to-br from-blue-100 to-blue-200 border border-blue-300"
-                              />
-                            }
-                            title={
-                              <Text className="text-slate-800 dark:text-white font-semibold text-base">
-                                {lawyer.fullName}
-                              </Text>
-                            }
-                            description={
-                              <Space direction="vertical" size="small">
-                                <Text className="text-slate-600 dark:text-slate-400 text-sm">
-                                  {lawyer.email}
-                                </Text>
-                                <Text className="text-slate-600 dark:text-slate-400 text-sm">
-                                  {lawyer.phone}
-                                </Text>
-                                {lawyer.specialization && (
-                                  <Tag
-                                    color="blue"
-                                    // size="small"
-                                    className="text-xs"
-                                  >
-                                    {lawyer.specialization}
-                                  </Tag>
-                                )}
-                              </Space>
-                            }
-                          />
-                        </List.Item>
-                      )}
-                    />
-                  ) : (
-                    <Empty
-                      image={<TeamOutlined style={{ fontSize: "48px", color: "#d1d5db" }} />}
-                      description="No lawyers assigned"
-                    />
-                  )}
+                  {/* Small avatar group in top right */}
+                  <div className="absolute top-4 right-4">
+                    <Avatar.Group maxCount={2} size={32}>
+                      {caseData.lawyers?.map((lawyer, index) => (
+                        <Avatar
+                          key={lawyer.id}
+                          src={
+                            lawyer.profileImage
+                              ? `http://localhost:5000${lawyer.profileImage}`
+                              : undefined
+                          }
+                          icon={<UserOutlined />}
+                          className="bg-blue-100 border-2 border-blue-200"
+                        />
+                      ))}
+                    </Avatar.Group>
+                  </div>
+                  <div>
+                    <Text className="text-slate-500 dark:text-white text-lg font-medium mb-2 block">
+                      Legal Team
+                    </Text>
+                    {caseData.lawyers && caseData.lawyers.length > 0 ? (
+                      <Text
+                        className="text-green-600 dark:text-green-500 text-xl font-bold block"
+                        ellipsis={{
+                          tooltip: caseData.lawyers
+                            .map((l) => l.fullName || "Unknown")
+                            .join(", "),
+                        }}
+                      >
+                        {caseData.lawyers.length === 1
+                          ? (caseData.lawyers[0].fullName || "Unknown").split(
+                              " "
+                            )[0]
+                          : `${caseData.lawyers.length} Lawyers`}
+                      </Text>
+                    ) : (
+                      <Text className="text-gray-500 dark:text-gray-400 text-xl font-bold block">
+                        No Lawyers
+                      </Text>
+                    )}
+                  </div>
+                </Card>
+              </Col>
+
+              {/* Case Type Card */}
+              <Col xs={24} sm={6}>
+                <Card
+                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
+                  bodyStyle={{
+                    padding: "30px",
+                    height: "140px",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                  }}
+                  hoverable
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-4px)";
+                    e.currentTarget.style.boxShadow =
+                      "0 10px 25px rgba(0,0,0,0.15)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow =
+                      "0 1px 3px rgba(0,0,0,0.1)";
+                  }}
+                >
+                  <Statistic
+                    title={
+                      <span className="text-slate-500 dark:text-white text-lg font-medium mb-[15px] block">
+                        Case Type
+                      </span>
+                    }
+                    value={caseData.caseType}
+                    valueStyle={{
+                      fontSize: "20px",
+                      fontWeight: "700",
+                      lineHeight: "1",
+                      color: "inherit",
+                    }}
+                    prefix={
+                      <BankOutlined className="text-purple-600 dark:text-purple-400 text-2xl mr-1" />
+                    }
+                    className="text-purple-600 dark:text-purple-600 [&_.ant-statistic-content-value]:dark:!text-purple-600"
+                  />
                 </Card>
               </Col>
             </Row>
 
-            {/* Case Documents Table */}
+            {/* Search and Filter Section - Matching get-cases page */}
             <Card
-              title={
-                <Space>
-                  <FileTextOutlined className="text-purple-600 dark:text-purple-400" />
-                  <span className="text-slate-900 dark:text-white font-bold text-lg">
-                    Case Documents ({caseData.documents?.length || 0})
-                  </span>
-                </Space>
-              }
-              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 mb-8"
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-8"
               bodyStyle={{ padding: "24px" }}
             >
-              {caseData.documents && caseData.documents.length > 0 ? (
-                <Table
-                  dataSource={caseData.documents}
-                  columns={documentColumns}
-                  rowKey="id"
-                  pagination={{
-                    pageSize: 10,
-                    showSizeChanger: true,
-                    showTotal: (total, range) =>
-                      `${range[0]}-${range[1]} of ${total} documents`,
-                  }}
-                  className="[&_.ant-table-thead>tr>th]:bg-slate-50 [&_.ant-table-thead>tr>th]:dark:bg-slate-700 [&_.ant-table-thead>tr>th]:border-slate-200 [&_.ant-table-thead>tr>th]:dark:border-slate-600"
-                />
-              ) : (
-                <Empty
-                  image={<FileTextOutlined style={{ fontSize: "64px", color: "#d1d5db" }} />}
-                  description={
-                    <span className="text-slate-600 dark:text-slate-400 text-lg">
-                      No documents uploaded for this case
-                    </span>
-                  }
-                >
-                  <Button
-                    type="primary"
-                    icon={<FileTextOutlined />}
-                    className="bg-purple-600 hover:bg-purple-700 border-purple-600 rounded-lg mt-4"
-                  >
-                    Upload First Document
-                  </Button>
-                </Empty>
-              )}
-            </Card>
+              <Row gutter={[16, 16]} align="middle" justify="space-between">
+                {/* Search Input */}
+                <Col xs={24} md={16} lg={12}>
+                  <Input
+                    placeholder="Search documents by name..."
+                    prefix={<SearchOutlined className="text-slate-400" />}
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                    className="rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white"
+                    size="large"
+                  />
+                </Col>
 
-            {/* Timeline and Financial Summary */}
-            <Row gutter={[24, 24]} className="mb-8">
-              {/* Case Timeline */}
-              <Col xs={24} lg={12}>
-                <Card
-                  title={
-                    <Space>
-                      <CalendarOutlined className="text-amber-600 dark:text-amber-400" />
-                      <span className="text-slate-900 dark:text-white font-bold">
-                        Case Timeline
-                      </span>
-                    </Space>
-                  }
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 h-full"
-                  bodyStyle={{ padding: "24px" }}
-                >
-                  <Space direction="vertical" size="large" style={{ width: "100%" }}>
-                    <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
-                      <Text className="text-amber-700 dark:text-amber-300 text-sm font-semibold block mb-1">
-                        Case Created
-                      </Text>
-                      <Text className="text-slate-800 dark:text-white text-lg font-bold">
-                        {new Date(caseData.createdAt).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                      </Text>
-                      <Text className="text-slate-600 dark:text-slate-400 text-sm">
-                        {new Date(caseData.createdAt).toLocaleTimeString("en-US", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </Text>
-                    </div>
-
-                    <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
-                      <Text className="text-blue-700 dark:text-blue-300 text-sm font-semibold block mb-1">
-                        Start Date
-                      </Text>
-                      <Text className="text-slate-800 dark:text-white text-lg font-bold">
-                        {new Date(caseData.startDate).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                      </Text>
-                    </div>
-
-                    {caseData.endDate && (
-                      <div className="p-4 bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 rounded-xl border border-emerald-200 dark:border-emerald-800">
-                        <Text className="text-emerald-700 dark:text-emerald-300 text-sm font-semibold block mb-1">
-                          End Date
-                        </Text>
-                        <Text className="text-slate-800 dark:text-white text-lg font-bold">
-                          {new Date(caseData.endDate).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
-                        </Text>
-                      </div>
-                    )}
-
-                    <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
-                      <Text className="text-purple-700 dark:text-purple-300 text-sm font-semibold block mb-1">
-                        Last Updated
-                      </Text>
-                      <Text className="text-slate-800 dark:text-white text-lg font-bold">
-                        {new Date(caseData.updatedAt).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                      </Text>
-                      <Text className="text-slate-600 dark:text-slate-400 text-sm">
-                        {new Date(caseData.updatedAt).toLocaleTimeString("en-US", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </Text>
-                    </div>
-
-                    <div className="p-4 bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-700 dark:to-gray-700 rounded-xl border border-slate-200 dark:border-slate-600">
-                      <Text className="text-slate-700 dark:text-slate-300 text-sm font-semibold block mb-1">
-                        Duration
-                      </Text>
-                      <Text className="text-slate-800 dark:text-white text-lg font-bold">
-                        {caseData.endDate
-                          ? Math.floor(
-                              (new Date(caseData.endDate).getTime() -
-                                new Date(caseData.startDate).getTime()) /
-                                (1000 * 60 * 60 * 24)
-                            )
-                          : Math.floor(
-                              (new Date().getTime() -
-                                new Date(caseData.startDate).getTime()) /
-                                (1000 * 60 * 60 * 24)
-                            )}{" "}
-                        days
-                      </Text>
-                      <Text className="text-slate-600 dark:text-slate-400 text-sm">
-                        {caseData.endDate ? "Total duration" : "Ongoing"}
-                      </Text>
-                    </div>
-                  </Space>
-                </Card>
-              </Col>
-
-              {/* Financial Summary */}
-              <Col xs={24} lg={12}>
-                <Card
-                  title={
-                    <Space>
-                      <DollarOutlined className="text-emerald-600 dark:text-emerald-400" />
-                      <span className="text-slate-900 dark:text-white font-bold">
-                        Financial Summary
-                      </span>
-                    </Space>
-                  }
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 h-full"
-                  bodyStyle={{ padding: "24px" }}
-                >
-                  <Space direction="vertical" size="large" style={{ width: "100%" }}>
-                    <Row gutter={16}>
-                      <Col span={12}>
-                        <Card
-                          bordered={false}
-                          className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 rounded-xl border border-blue-200 dark:border-blue-700"
-                          bodyStyle={{ padding: "20px", textAlign: "center" }}
-                        >
-                          <Statistic
-                            title={
-                              <span className="text-blue-700 dark:text-blue-300 text-xs font-bold">
-                                ESTIMATED VALUE
-                              </span>
-                            }
-                            value={caseData.estimatedValue || 0}
-                            prefix="$"
-                            valueStyle={{
-                              color: "#1e40af",
-                              fontSize: "20px",
-                              fontWeight: "800",
-                            }}
-                            formatter={(value) => `${Number(value).toLocaleString()}`}
-                          />
-                        </Card>
-                      </Col>
-                      <Col span={12}>
-                        <Card
-                          bordered={false}
-                          className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/30 dark:to-emerald-800/30 rounded-xl border border-emerald-200 dark:border-emerald-700"
-                          bodyStyle={{ padding: "20px", textAlign: "center" }}
-                        >
-                          <Statistic
-                            title={
-                              <span className="text-emerald-700 dark:text-emerald-300 text-xs font-bold">
-                                ACTUAL VALUE
-                              </span>
-                            }
-                            value={caseData.actualValue || 0}
-                            prefix="$"
-                            valueStyle={{
-                              color: "#059669",
-                              fontSize: "20px",
-                              fontWeight: "800",
-                            }}
-                            formatter={(value) => `${Number(value).toLocaleString()}`}
-                          />
-                        </Card>
-                      </Col>
-                    </Row>
-
-                    {caseData.estimatedValue && caseData.actualValue && (
-                      <Card
-                        bordered={false}
-                        className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 rounded-xl border border-slate-200 dark:border-slate-600"
-                        bodyStyle={{ padding: "20px" }}
-                      >
-                        <div className="text-center">
-                          <Text className="text-slate-600 dark:text-slate-400 text-sm font-semibold block mb-2">
-                            Value Difference
-                          </Text>
-                          <Text
-                            className="text-2xl font-bold"
-                            style={{
-                              color:
-                                caseData.actualValue >= caseData.estimatedValue
-                                  ? "#059669"
-                                  : "#dc2626",
-                            }}
-                          >
-                            {caseData.actualValue >= caseData.estimatedValue ? "+" : ""}
-                            $
-                            {Math.abs(
-                              caseData.actualValue - caseData.estimatedValue
-                            ).toLocaleString()}
-                          </Text>
-                          <Text
-                            className="text-sm font-medium"
-                            style={{
-                              color:
-                                caseData.actualValue >= caseData.estimatedValue
-                                  ? "#059669"
-                                  : "#dc2626",
-                            }}
-                          >
-                            ({caseData.actualValue >= caseData.estimatedValue ? "+" : ""}
-                            {(
-                              (Math.abs(
-                                caseData.actualValue - caseData.estimatedValue
-                              ) /
-                                caseData.estimatedValue) *
-                              100
-                            ).toFixed(1)}
-                            %)
-                          </Text>
-                        </div>
-                      </Card>
-                    )}
-
-                    <Card
-                      bordered={false}
-                      className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-800/30 rounded-xl border border-purple-200 dark:border-purple-700"
-                      bodyStyle={{ padding: "20px" }}
+                {/* Action Buttons */}
+                <Col xs={24} md={12} lg={12}>
+                  <Space size="middle" className="flex justify-end w-full">
+                    <Button
+                      icon={<ReloadOutlined />}
+                      onClick={() => {
+                        setSearchText("");
+                        setDocumentTypeFilter("");
+                      }}
+                      className="rounded-xl border border-slate-300 dark:border-slate-600 dark:text-white 
+            !bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent"
                     >
-                      <Row gutter={16}>
-                        <Col span={12} className="text-center">
-                          <Text className="text-purple-700 dark:text-purple-300 text-xs font-bold block mb-1">
-                            PRIORITY LEVEL
-                          </Text>
-                          <Text className="text-purple-800 dark:text-purple-200 text-lg font-bold">
-                            {caseData.priority}
-                          </Text>
-                        </Col>
-                        <Col span={12} className="text-center">
-                          <Text className="text-purple-700 dark:text-purple-300 text-xs font-bold block mb-1">
-                            CASE TYPE
-                          </Text>
-                          <Text className="text-purple-800 dark:text-purple-200 text-lg font-bold">
-                            {caseData.caseType}
-                          </Text>
-                        </Col>
-                      </Row>
-                    </Card>
-                  </Space>
-                </Card>
-              </Col>
-            </Row>
-
-            {/* Action Buttons */}
-            <Card
-              className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg"
-              bodyStyle={{ padding: "32px" }}
-            >
-              <Row justify="center">
-                <Col>
-                  <Space size="large" wrap>
+                      Reset Filters
+                    </Button>
                     <Button
                       type="primary"
-                      size="large"
-                      icon={<EditOutlined />}
+                      icon={<PlusOutlined />}
                       onClick={() =>
-                        router.push(`/edit-case/${caseId}`)
+                        toast.success("Upload feature coming soon")
                       }
-                      className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 border-none rounded-xl font-semibold px-8 h-12 shadow-lg"
-                    >
-                      Edit Case
-                    </Button>
-
-                    <Button
-                      size="large"
-                      icon={<FolderOpenOutlined />}
-                      onClick={() => router.push("/get-cases")}
-                      className="rounded-xl border-2 border-slate-300 dark:border-slate-600 font-semibold px-8 h-12 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
-                    >
-                      View All Cases
-                    </Button>
-
-                    <Button
-                      size="large"
-                      icon={<UserOutlined />}
-                      onClick={() =>
-                        router.push(
-                          `/get-client/${caseData.client.id}`
-                        )
-                      }
-                      className="rounded-xl border-2 border-blue-300 dark:border-blue-600 font-semibold px-8 h-12 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/30"
-                    >
-                      View Client Profile
-                    </Button>
-
-                    <Button
-                      size="large"
-                      icon={<FileTextOutlined />}
-                      onClick={() => {
-                        toast.success("Document upload feature coming soon");
+                      style={{
+                        background: "white",
+                        borderColor: "white",
+                        color: "#2563eb",
+                        borderRadius: "12px",
+                        fontWeight: "600",
                       }}
-                      className="rounded-xl border-2 border-purple-300 dark:border-purple-600 font-semibold px-8 h-12 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/30"
                     >
                       Upload Document
                     </Button>
@@ -1154,83 +662,77 @@ export default function GetCaseDetail({
                 </Col>
               </Row>
             </Card>
-          </div>
 
-          {/* Document View Modal */}
-          <Modal
-            title={
-              <Space>
-                <FileTextOutlined className="text-blue-600" />
-                <span className="font-semibold">Document Viewer</span>
-              </Space>
-            }
-            open={documentModalVisible}
-            onCancel={() => {
-              setDocumentModalVisible(false);
-              setSelectedDocument(null);
-            }}
-            footer={[
-              <Button
-                key="download"
-                type="primary"
-                icon={<DownloadOutlined />}
-                onClick={() => {
-                  if (selectedDocument) {
-                    const link = document.createElement("a");
-                    link.href = `http://localhost:5000${selectedDocument.fileUrl}`;
-                    link.download = selectedDocument.fileName;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                  }
-                }}
-                className="bg-emerald-600 hover:bg-emerald-700 border-emerald-600"
-              >
-                Download
-              </Button>,
-              <Button
-                key="close"
-                onClick={() => {
-                  setDocumentModalVisible(false);
-                  setSelectedDocument(null);
-                }}
-              >
-                Close
-              </Button>,
-            ]}
-            width="80%"
-            style={{ maxWidth: "1200px" }}
-          >
-            {selectedDocument && (
-              <div className="text-center">
-                <div className="mb-4">
-                  <Title level={4} className="text-slate-800 dark:text-white">
-                    {selectedDocument.fileName}
-                  </Title>
-                  <Space size="middle">
-                    <Text className="text-slate-600 dark:text-slate-400">
-                      Size: {formatFileSize(selectedDocument.fileSize)}
-                    </Text>
-                    <Text className="text-slate-600 dark:text-slate-400">
-                      Uploaded: {new Date(selectedDocument.uploadDate).toLocaleDateString()}
-                    </Text>
-                    {selectedDocument.documentType && (
-                      <Tag color="blue">{selectedDocument.documentType}</Tag>
-                    )}
-                  </Space>
-                </div>
-                <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-8">
-                  <iframe
-                    src={`http://localhost:5000${selectedDocument.fileUrl}`}
-                    width="100%"
-                    height="600px"
-                    className="rounded-lg"
-                    title={selectedDocument.fileName}
+            {/* Documents Table - Updated without Size and Upload Date columns */}
+            <Card
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm transition-colors duration-300"
+              bodyStyle={{ padding: 0 }}
+            >
+              {filteredDocuments.length > 0 ? (
+                <Table
+                  columns={documentColumns}
+                  dataSource={filteredDocuments}
+                  rowKey="id"
+                  pagination={{
+                    pageSize: 10,
+                    showSizeChanger: true,
+                    showQuickJumper: true,
+                    showTotal: (total, range) =>
+                      `${range[0]}-${range[1]} of ${total} documents`,
+                    className: "dark:text-slate-300",
+                    style: { marginRight: "24px", marginBottom: "16px" },
+                  }}
+                  className="dark:[&_.ant-table]:!bg-slate-800 
+                         dark:[&_.ant-table-thead>tr>th]:!bg-slate-900 
+                         dark:[&_.ant-table-thead>tr>th]:!text-slate-200 
+                         dark:[&_.ant-table-tbody>tr>td]:!bg-slate-800 
+                         dark:[&_.ant-table-tbody>tr>td]:!text-slate-300
+                         dark:[&_.ant-table-tbody>tr:hover>td]:!bg-slate-700"
+                  style={{
+                    borderRadius: "16px",
+                    overflow: "hidden",
+                  }}
+                  scroll={{ x: 800 }}
+                />
+              ) : (
+                <div
+                  style={{
+                    textAlign: "center",
+                    padding: "48px",
+                  }}
+                  className="text-slate-500 dark:text-slate-400"
+                >
+                  <FileTextOutlined
+                    style={{ fontSize: "48px", marginBottom: "16px" }}
                   />
+                  <Title
+                    level={4}
+                    className="!text-slate-500 dark:!text-slate-300"
+                  >
+                    No documents found
+                  </Title>
+                  <Text className="dark:text-slate-400">
+                    {searchText || documentTypeFilter
+                      ? "No documents match your search criteria"
+                      : "No documents uploaded for this case"}
+                  </Text>
+                  <br />
+                  {!searchText && !documentTypeFilter && (
+                    <Button
+                      type="primary"
+                      icon={<PlusOutlined />}
+                      onClick={() =>
+                        toast.success("Upload feature coming soon")
+                      }
+                      style={{ marginTop: "16px" }}
+                    >
+                      Upload First Document
+                    </Button>
+                  )}
                 </div>
-              </div>
-            )}
-          </Modal>
+              )}
+            </Card>
+          </div>
         </div>
       </DashboardLayout>
     </ThemeProvider>

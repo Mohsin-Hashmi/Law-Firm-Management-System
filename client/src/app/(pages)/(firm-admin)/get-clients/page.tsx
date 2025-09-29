@@ -732,7 +732,7 @@ export default function GetClients() {
                 bodyStyle={{ padding: "24px" }}
               >
                 <Row gutter={[16, 16]} align="middle">
-                  <Col xs={24} sm={12} md={8}>
+                  <Col xs={24} sm={12} md={11}>
                     <Input
                       placeholder="Search clients by name, email, or organization"
                       prefix={
@@ -744,7 +744,7 @@ export default function GetClients() {
                       size="large"
                     />
                   </Col>
-                  <Col xs={12} sm={6} md={4}>
+                  <Col xs={12} sm={6} md={5}>
                     <Select
                       placeholder="Filter by Status"
                       value={statusFilter}
@@ -767,7 +767,7 @@ export default function GetClients() {
                       <Option value="Suspended">Suspended</Option>
                     </Select>
                   </Col>
-                  <Col xs={12} sm={6} md={4}>
+                  <Col xs={12} sm={6} md={5}>
                     <Select
                       placeholder="Filter by Type"
                       value={clientTypeFilter}
@@ -789,7 +789,7 @@ export default function GetClients() {
                       <Option value="Corporate">Corporate</Option>
                     </Select>
                   </Col>
-                  <Col xs={24} sm={12} md={8}>
+                  <Col xs={24} sm={12} md={3}>
                     <Space>
                       <Button
                         icon={<ReloadOutlined />}
@@ -800,10 +800,7 @@ export default function GetClients() {
                       >
                         Refresh
                       </Button>
-                      <Text className="text-slate-500 dark:text-slate-400 text-sm">
-                        Showing {filteredClients.length} of {clients.length}{" "}
-                        clients
-                      </Text>
+                     
                     </Space>
                   </Col>
                 </Row>

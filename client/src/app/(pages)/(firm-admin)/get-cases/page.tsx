@@ -938,7 +938,7 @@ export default function GetCases() {
                 bodyStyle={{ padding: "24px" }}
               >
                 <Row gutter={[16, 16]} align="middle">
-                  <Col xs={24} md={8}>
+                  <Col xs={24} sm={12} md={11}>
                     <Input
                       placeholder="Search cases by title, number, client name..."
                       prefix={<SearchOutlined className="text-slate-400" />}
@@ -948,7 +948,7 @@ export default function GetCases() {
                       size="large"
                     />
                   </Col>
-                  <Col xs={12} sm={6} md={4}>
+                  <Col xs={12} sm={6} md={5}>
                     <Select
                       value={statusFilter}
                       onChange={setStatusFilter}
@@ -970,7 +970,7 @@ export default function GetCases() {
                       <Option value="on hold">On Hold</Option>
                     </Select>
                   </Col>
-                  <Col xs={12} sm={6} md={4}>
+                  <Col xs={12} sm={6} md={5}>
                     <Select
                       value={caseTypeFilter}
                       onChange={setCaseTypeFilter}
@@ -993,7 +993,7 @@ export default function GetCases() {
                       ))}
                     </Select>
                   </Col>
-                  <Col xs={24} md={8} className="flex justify-end">
+                  <Col xs={24} sm={12} md={3}>
                     <Space>
                       <Button
                         icon={<ReloadOutlined />}
@@ -1006,7 +1006,7 @@ export default function GetCases() {
                         className="rounded-xl border border-slate-300 dark:border-slate-600 dark:text-white 
              !bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent"
                       >
-                        Reset Filters
+                        Reset 
                       </Button>
                     </Space>
                   </Col>

@@ -621,7 +621,7 @@ export default function GetLawyers() {
                 bodyStyle={{ padding: "24px" }}
               >
                 <Row gutter={[16, 16]} align="middle">
-                  <Col xs={24} sm={12} md={8}>
+                  <Col xs={24} sm={12} md={11}>
                     <Input
                       placeholder="Search lawyers by name, email, or specialization"
                       prefix={
@@ -633,7 +633,7 @@ export default function GetLawyers() {
                       size="large"
                     />
                   </Col>
-                  <Col xs={12} sm={6} md={4}>
+                  <Col xs={12} sm={6} md={5}>
                     <Select
                       placeholder="Filter by Status"
                       value={statusFilter}
@@ -654,7 +654,7 @@ export default function GetLawyers() {
                       <Option value="inactive">Inactive</Option>
                     </Select>
                   </Col>
-                  <Col xs={12} sm={6} md={4}>
+                  <Col xs={12} sm={6} md={5}>
                     <Select
                       placeholder="Filter by Specialization"
                       value={specializationFilter}
@@ -678,7 +678,7 @@ export default function GetLawyers() {
                       ))}
                     </Select>
                   </Col>
-                  <Col xs={24} sm={12} md={8}>
+                  <Col xs={24} sm={12} md={3}>
                     <Space>
                       <Button
                         icon={<ReloadOutlined />}
@@ -690,10 +690,7 @@ export default function GetLawyers() {
                         Refresh
                       </Button>
 
-                      <Text className="text-slate-500 dark:text-slate-400 text-sm">
-                        Showing {filteredLawyers.length} of {lawyers.length}{" "}
-                        lawyers
-                      </Text>
+                      
                     </Space>
                   </Col>
                 </Row>
