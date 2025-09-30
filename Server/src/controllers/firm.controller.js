@@ -20,11 +20,11 @@ const { where } = require("sequelize");
 
 const getActiveFirmId = (req) => {
   if (req.user?.activeFirmId) {
-    return req.user.activeFirmId;   // use the one user actually selected
+    return req.user.activeFirmId; // use the one user actually selected
   }
 
   if (Array.isArray(req.user?.firmIds) && req.user.firmIds.length > 0) {
-    return req.user.firmIds[0];     // fallback to first firm if no activeFirmId
+    return req.user.firmIds[0]; // fallback to first firm if no activeFirmId
   }
 
   return null;
@@ -62,7 +62,7 @@ const createFirm = async (req, res) => {
       });
     }
 
-    //  Create Firm
+    // Create Firm
     const firm = await Firm.create(
       {
         name,
@@ -77,7 +77,7 @@ const createFirm = async (req, res) => {
       { transaction: t }
     );
 
-    //  Link Admin with Firm (new approach, since firmId was removed from users table)
+    // Link Admin with Firm
     await AdminFirm.create(
       {
         adminId: req.user.id,
@@ -88,10 +88,35 @@ const createFirm = async (req, res) => {
 
     await t.commit();
 
+    //  Fetch updated firmIds for this user
+    const userFirms = await AdminFirm.findAll({
+      where: { adminId: req.user.id },
+    });
+
+    const firmIds = userFirms.map((uf) => uf.firmId);
+
+    //  Create new JWT with updated firmIds and set activeFirmId to the new firm
+    const newToken = jwt.sign(
+      {
+        id: req.user.id,
+        role: req.user.role,
+        firmIds,
+        activeFirmId: firm.id,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.cookie("token", newToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    });
+
     return res.status(201).json({
       success: true,
       message: "Firm created successfully",
       newFirm: firm,
+      token: newToken, // optional: frontend can use directly if you prefer headers
     });
   } catch (error) {
     await t.rollback();
@@ -433,10 +458,13 @@ const getLawyerById = async (req, res) => {
         .json({ success: false, message: "Lawyer ID is required" });
     }
 
-     if (!firmId) {
+    if (!firmId) {
       return res
         .status(400)
-        .json({ success: false, message: "No active firm selected for this user" });
+        .json({
+          success: false,
+          message: "No active firm selected for this user",
+        });
     }
 
     // Fetch lawyer
@@ -466,6 +494,7 @@ const getLawyerById = async (req, res) => {
       success: true,
       message: "Lawyer found successfully",
       lawyer,
+      activeFirmId: firmId,
     });
   } catch (error) {
     console.error("Error fetching lawyer:", error);
