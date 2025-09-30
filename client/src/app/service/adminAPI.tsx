@@ -1,5 +1,6 @@
 import axios from "axios";
 import BASE_URL from "../utils/constant";
+import api from "../utils/axiosConfig";
 import { FirmPayload, LawyerPayload, FirmStats, Lawyer } from "../types/firm";
 import { ClientPayload, Client } from "../types/client";
 import { Case } from "../types/case";
@@ -19,9 +20,7 @@ export const createFirm =
     try {
       const rolePath = role === "Super Admin" ? "super-admin" : "firm-admin";
 
-      const response = await axios.post(`${BASE_URL}/${rolePath}/firm`, data, {
-        withCredentials: true, // ensures cookie is updated
-      });
+      const response = await api.post(`/${rolePath}/firm`, data);
 
       if (response.data.token) {
         // Update axios default header with the new token
@@ -29,8 +28,22 @@ export const createFirm =
           "Authorization"
         ] = `Bearer ${response.data.token}`;
 
-        //Also update cookie/localStorage if you’re storing it manually
+        // Update localStorage with the new token
         localStorage.setItem("token", response.data.token);
+        localStorage.setItem("authToken", response.data.token);
+
+        // Update user data in localStorage with new firm info
+        const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+        const updatedUser = {
+          ...currentUser,
+          firms: [...(currentUser.firms || []), {
+            id: response.data.newFirm.id,
+            name: response.data.newFirm.name,
+          }],
+          activeFirmId: response.data.newFirm.id,
+          firmId: response.data.newFirm.id,
+        };
+        localStorage.setItem("user", JSON.stringify(updatedUser));
 
         const newFirm = {
           id: response.data.newFirm.id,
@@ -50,9 +63,7 @@ export const createFirm =
 
 export const getMyFirms = async (): Promise<FirmPayload[]> => {
   try {
-    const response = await axios.get(`${BASE_URL}/firm-admin/my-firms`, {
-      withCredentials: true,
-    });
+    const response = await api.get("/firm-admin/my-firms");
 
     console.log("firms response:", response.data);
 
@@ -141,12 +152,7 @@ export const getLawyers = async (firmId?: number): Promise<Lawyer[]> => {
 /** Get Lawyer by ID */
 export const getLawyerById = async (id: number): Promise<Lawyer | null> => {
   try {
-    const response = await axios.get(
-      `${BASE_URL}/firm-admin/firm/lawyer/${id}`,
-      {
-        withCredentials: true,
-      }
-    );
+    const response = await api.get(`/firm-admin/firm/lawyer/${id}`);
 
     console.log("lawyer detail response:", response.data);
     // Adjust this return depending on backend response structure
@@ -217,11 +223,24 @@ export const updateLawyer = async (
 
 // Switch firm API
 export const switchFirmAPI = async (firmId: number) => {
-  const res = await axios.post(
-    `${BASE_URL}/firm-admin/switch-firm`,
-    { firmId },
-    { withCredentials: true }
-  );
+  const res = await api.post("/firm-admin/switch-firm", { firmId });
+  
+  // Update token in localStorage if new token is provided
+  if (res.data.token) {
+    localStorage.setItem("token", res.data.token);
+    localStorage.setItem("authToken", res.data.token);
+    axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
+    
+    // Update user data in localStorage with new active firm
+    const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+    const updatedUser = {
+      ...currentUser,
+      activeFirmId: firmId,
+      firmId: firmId,
+    };
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+  }
+  
   return res.data;
 };
 

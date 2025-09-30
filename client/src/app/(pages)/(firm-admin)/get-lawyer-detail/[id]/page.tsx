@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "@/app/components/DashboardLayout";
+import { useTokenRefresh } from "@/app/hooks/useTokenRefresh";
 import {
   Card,
   Row,
@@ -52,6 +53,9 @@ export default function GetLawyerDetail({
 }) {
   const router = useRouter();
   const lawyerId = Number(params.id);
+  
+  // Use token refresh hook to ensure token is up to date
+  useTokenRefresh();
 
   const [lawyer, setLawyer] = useState<Lawyer | null>(null);
   const [performanceData, setPerformaceData] =
