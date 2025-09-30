@@ -40,6 +40,7 @@ import { addUser, addFirm } from "@/app/store/userSlice";
 import { useAppSelector } from "@/app/store/hooks";
 import { ThemeProvider } from "next-themes";
 import ConfirmationModal from "@/app/components/ConfirmationModal"; // adjust path
+import { useAppDispatch } from "@/app/store/hooks";
 
 const { Option } = Select;
 const { Title, Text } = Typography;
@@ -55,10 +56,10 @@ interface FormValues {
 }
 
 export default function AddFirm() {
+  const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.user?.user);
   console.log("Current user in AddFirm:", user);
   const router = useRouter();
-  const dispatch = useDispatch();
   const [form] = Form.useForm<FormValues>();
   // State values
   const [name, setName] = useState("");
@@ -89,7 +90,7 @@ export default function AddFirm() {
         toast.error("User role is missing. Cannot create firm.");
         return;
       }
-      const response = await createFirm(payload, user.role);
+      const response = await  dispatch(createFirm(payload, user.role));
       if (!response) {
         toast.error("Failed to create firm");
         return;
