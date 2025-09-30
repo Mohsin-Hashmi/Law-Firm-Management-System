@@ -19,10 +19,15 @@ const bcrypt = require("bcryptjs");
 const { where } = require("sequelize");
 
 const getActiveFirmId = (req) => {
-  // Use req.user.activeFirmId if you set it when switching firms from Redux
-  return (
-    req.user?.activeFirmId || (req.user?.firmIds ? req.user.firmIds[0] : null)
-  );
+  if (req.user?.activeFirmId) {
+    return req.user.activeFirmId;   // use the one user actually selected
+  }
+
+  if (Array.isArray(req.user?.firmIds) && req.user.firmIds.length > 0) {
+    return req.user.firmIds[0];     // fallback to first firm if no activeFirmId
+  }
+
+  return null;
 };
 
 const createFirm = async (req, res) => {
@@ -426,6 +431,12 @@ const getLawyerById = async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: "Lawyer ID is required" });
+    }
+
+     if (!firmId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No active firm selected for this user" });
     }
 
     // Fetch lawyer

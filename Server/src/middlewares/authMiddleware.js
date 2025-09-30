@@ -28,6 +28,8 @@ const userAuth = async (req, res, next) => {
         : decoded.firmIds
         ? [decoded.firmIds]
         : [],
+
+      activeFirmId: decoded.activeFirmId || null,
     };
 
     next();
