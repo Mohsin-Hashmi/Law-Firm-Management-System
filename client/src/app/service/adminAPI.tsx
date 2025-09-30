@@ -6,33 +6,31 @@ import { Case } from "../types/case";
 import { CreateRolePayload } from "../types/role";
 import { AssignRolePayload } from "../types/role";
 import { ClientStats } from "../types/client";
-import { UpdateUserPayload, UpdateUserResponse, GetUserByIdResponse } from "../types/user";
+import {
+  UpdateUserPayload,
+  UpdateUserResponse,
+  GetUserByIdResponse,
+} from "../types/user";
 import { addFirm, switchFirm } from "../store/userSlice";
 import { AppDispatch } from "../store/store";
 /**Create firm API call */
 export const createFirm =
-  (data: FirmPayload, role?: string) =>
-  async (dispatch: AppDispatch) => {
+  (data: FirmPayload, role?: string) => async (dispatch: AppDispatch) => {
     try {
       const rolePath = role === "Super Admin" ? "super-admin" : "firm-admin";
 
       const response = await axios.post(`${BASE_URL}/${rolePath}/firm`, data, {
-        withCredentials: true,
+        withCredentials: true, // ensures cookie is updated
       });
 
-      if (response.data.token) {
-        // Set auth header for subsequent requests
-        axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.token}`;
-
+      if (response.data.success) {
         const newFirm = {
           id: response.data.newFirm.id,
           name: response.data.newFirm.name,
         };
 
-        // 🔹 Add firm to user slice
+        // 🔹 Update redux store
         dispatch(addFirm(newFirm));
-
-        // 🔹 Switch active firm to the new one
         dispatch(switchFirm(newFirm.id));
       }
 
@@ -45,14 +43,13 @@ export const createFirm =
 
 export const getMyFirms = async (): Promise<FirmPayload[]> => {
   try {
-    const response = await axios.get(
-      `${BASE_URL}/firm-admin/my-firms`,
-      { withCredentials: true }
-    );
+    const response = await axios.get(`${BASE_URL}/firm-admin/my-firms`, {
+      withCredentials: true,
+    });
 
     console.log("firms response:", response.data);
 
-    return response.data.firms; 
+    return response.data.firms;
   } catch (error) {
     console.error("Error fetching firms:", error);
     return [];
@@ -61,13 +58,10 @@ export const getMyFirms = async (): Promise<FirmPayload[]> => {
 
 export const deleteFirm = async (firmId: number): Promise<boolean> => {
   try {
-    const response = await axios.delete(
-      `${BASE_URL}/firm-admin/delete-firm`,
-      {
-        data: { firmId },
-        withCredentials: true,
-      }
-    );
+    const response = await axios.delete(`${BASE_URL}/firm-admin/delete-firm`, {
+      data: { firmId },
+      withCredentials: true,
+    });
 
     return response.data.success; // true/false from backend
   } catch (error) {
@@ -75,9 +69,6 @@ export const deleteFirm = async (firmId: number): Promise<boolean> => {
     return false;
   }
 };
-
-
-
 
 /**Add Lawyer API */
 export const addLawyer = async (firmId: number, data: FormData) => {
@@ -126,13 +117,10 @@ export const getStats = async (
 
 export const getLawyers = async (firmId?: number): Promise<Lawyer[]> => {
   try {
-    const response = await axios.get(
-      `${BASE_URL}/firm-admin/firms/lawyers`,
-      {
-        params: { firmId }, // <-- pass firmId in query
-        withCredentials: true,
-      }
-    );
+    const response = await axios.get(`${BASE_URL}/firm-admin/firms/lawyers`, {
+      params: { firmId }, // <-- pass firmId in query
+      withCredentials: true,
+    });
 
     console.log("lawyers response:", response.data);
 
@@ -325,14 +313,22 @@ export const updateClient = async (
     if (clientData.email) formData.append("email", clientData.email);
     if (clientData.phone) formData.append("phone", clientData.phone);
     if (clientData.address) formData.append("address", clientData.address);
-    if (clientData.clientType) formData.append("clientType", clientData.clientType);
-    if (clientData.organization) formData.append("organization", clientData.organization);
+    if (clientData.clientType)
+      formData.append("clientType", clientData.clientType);
+    if (clientData.organization)
+      formData.append("organization", clientData.organization);
     if (clientData.status) formData.append("status", clientData.status);
-    if (clientData.billingAddress) formData.append("billingAddress", clientData.billingAddress);
-    if (clientData.outstandingBalance !== undefined) formData.append("outstandingBalance", clientData.outstandingBalance.toString());
+    if (clientData.billingAddress)
+      formData.append("billingAddress", clientData.billingAddress);
+    if (clientData.outstandingBalance !== undefined)
+      formData.append(
+        "outstandingBalance",
+        clientData.outstandingBalance.toString()
+      );
     if (clientData.gender) formData.append("gender", clientData.gender);
     if (clientData.dob) formData.append("dob", clientData.dob);
-    if (clientData.firmId !== undefined) formData.append("firmId", clientData.firmId.toString());
+    if (clientData.firmId !== undefined)
+      formData.append("firmId", clientData.firmId.toString());
 
     // Append file if provided
     if (file) {
@@ -433,10 +429,9 @@ export const getAllCasesOfLawyer = async (): Promise<Case[]> => {
 
 export const getAllClientsOfLawyer = async (): Promise<Client[]> => {
   try {
-    const response = await axios.get(
-      `${BASE_URL}/firm-admin/lawyer/clients`,
-      { withCredentials: true }
-    );
+    const response = await axios.get(`${BASE_URL}/firm-admin/lawyer/clients`, {
+      withCredentials: true,
+    });
     return response.data.clients;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -610,10 +605,10 @@ export const fetchUsersWithRolesAndPermissions = async () => {
     const response = await axios.get(
       `${BASE_URL}/roles/get-users-with-role-and-permissions`,
       {
-        withCredentials: true, 
+        withCredentials: true,
       }
     );
-    return response.data; 
+    return response.data;
   } catch (error) {
     console.error("Error Fetching Users with Roles and Permissions:", error);
     return { success: false, firm: null, users: [] };
@@ -622,12 +617,11 @@ export const fetchUsersWithRolesAndPermissions = async () => {
 
 export const deleteUserById = async (id: number) => {
   try {
-    const response = await axios.delete(
-      `${BASE_URL}/roles/delete-user/${id}`,
-      { withCredentials: true }
-    );
+    const response = await axios.delete(`${BASE_URL}/roles/delete-user/${id}`, {
+      withCredentials: true,
+    });
 
-    return response.data; 
+    return response.data;
   } catch (error) {
     console.error("Error deleting user:", error);
   }
@@ -637,10 +631,9 @@ export const fetchUserById = async (
   id: number
 ): Promise<GetUserByIdResponse> => {
   try {
-    const response = await axios.get(
-      `${BASE_URL}/roles/get-user/${id}`,
-      { withCredentials: true }
-    );
+    const response = await axios.get(`${BASE_URL}/roles/get-user/${id}`, {
+      withCredentials: true,
+    });
     return response.data;
   } catch (error) {
     console.error("Error fetching user by ID:", error);
@@ -670,22 +663,20 @@ export const updateUser = async (
   }
 };
 
-
 export const lawyerStatsData = async () => {
   try {
-    const response = await axios.get(
-      `${BASE_URL}/firm-admin/lawyers/stats`,
-      {
-        withCredentials: true,
-      }
-    );
+    const response = await axios.get(`${BASE_URL}/firm-admin/lawyers/stats`, {
+      withCredentials: true,
+    });
     return response.data;
   } catch (error) {
     console.log("Error Fetching Lawyers Stats", error);
   }
 };
 
-export const clientStatsData = async (id: number): Promise<ClientStats | null> => {
+export const clientStatsData = async (
+  id: number
+): Promise<ClientStats | null> => {
   try {
     const response = await axios.get(
       `${BASE_URL}/firm-admin/${id}/client/performance`,

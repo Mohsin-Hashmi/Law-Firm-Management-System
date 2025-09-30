@@ -109,7 +109,9 @@ const createFirm = async (req, res) => {
 
     res.cookie("token", newToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     return res.status(201).json({
@@ -459,12 +461,10 @@ const getLawyerById = async (req, res) => {
     }
 
     if (!firmId) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "No active firm selected for this user",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "No active firm selected for this user",
+      });
     }
 
     // Fetch lawyer
