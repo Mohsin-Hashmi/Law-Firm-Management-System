@@ -422,13 +422,6 @@ const getLawyerById = async (req, res) => {
     const { id } = req.params;
     const firmId = getActiveFirmId(req);
 
-    console.log(
-      "Logged in user:",
-      adminId,
-      "with active firm ID:",
-      activeFirmId
-    );
-
     if (!id) {
       return res
         .status(400)
