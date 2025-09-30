@@ -15,6 +15,9 @@ export const createFirm = async (data: FirmPayload, role?: string) => {
   const response = await axios.post(`${BASE_URL}/${rolePath}/firm`, data, {
     withCredentials: true,
   });
+  if (response.data.token) {
+    axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.token}`;
+  }
 
   return response;
 };
