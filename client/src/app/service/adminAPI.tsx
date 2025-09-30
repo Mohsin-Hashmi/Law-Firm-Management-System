@@ -7,20 +7,41 @@ import { CreateRolePayload } from "../types/role";
 import { AssignRolePayload } from "../types/role";
 import { ClientStats } from "../types/client";
 import { UpdateUserPayload, UpdateUserResponse, GetUserByIdResponse } from "../types/user";
+import { addFirm, switchFirm } from "../store/userSlice";
+import { AppDispatch } from "../store/store";
 /**Create firm API call */
-export const createFirm = async (data: FirmPayload, role?: string) => {
-  // Decide API path based on role
-  const rolePath = role === "Super Admin" ? "super-admin" : "firm-admin";
+export const createFirm =
+  (data: FirmPayload, role?: string) =>
+  async (dispatch: AppDispatch) => {
+    try {
+      const rolePath = role === "Super Admin" ? "super-admin" : "firm-admin";
 
-  const response = await axios.post(`${BASE_URL}/${rolePath}/firm`, data, {
-    withCredentials: true,
-  });
-  if (response.data.token) {
-    axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.token}`;
-  }
+      const response = await axios.post(`${BASE_URL}/${rolePath}/firm`, data, {
+        withCredentials: true,
+      });
 
-  return response;
-};
+      if (response.data.token) {
+        // Set auth header for subsequent requests
+        axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.token}`;
+
+        const newFirm = {
+          id: response.data.newFirm.id,
+          name: response.data.newFirm.name,
+        };
+
+        // 🔹 Add firm to user slice
+        dispatch(addFirm(newFirm));
+
+        // 🔹 Switch active firm to the new one
+        dispatch(switchFirm(newFirm.id));
+      }
+
+      return response;
+    } catch (error) {
+      console.error("Error creating firm:", error);
+      throw error;
+    }
+  };
 
 export const getMyFirms = async (): Promise<FirmPayload[]> => {
   try {
