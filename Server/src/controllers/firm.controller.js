@@ -419,8 +419,8 @@ const getAllLawyer = async (req, res) => {
 /** Get a Lawyer by ID API */
 const getLawyerById = async (req, res) => {
   try {
-    const adminId = req.user.id; // from JWT
-    const activeFirmId = getActiveFirmId(req);
+    const { id } = req.params;
+    const firmId = getActiveFirmId(req);
 
     console.log(
       "Logged in user:",
@@ -429,30 +429,33 @@ const getLawyerById = async (req, res) => {
       activeFirmId
     );
 
-    const lawyerId = Number(req.params.id);
-    if (!req.params.id || isNaN(lawyerId)) {
-      return res.status(400).json({
-        success: false,
-        error: "Invalid or missing lawyer ID",
-      });
+    if (!id) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Lawyer ID is required" });
     }
 
     // Fetch lawyer
-    const lawyer = await Lawyer.findOne({ where: { id: lawyerId } });
+    const lawyer = await Lawyer.findOne({
+      where: { id, firmId },
+      include: [
+        {
+          model: Client,
+          as: "clients",
+          through: {
+            attributes: [],
+          },
+        },
+        {
+          model: Case,
+          as: "cases",
+        },
+      ],
+    });
     if (!lawyer) {
       return res
         .status(404)
-        .json({ success: false, error: "Lawyer not found" });
-    }
-
-    console.log("Lawyer firmId:", lawyer.firmId);
-
-    // Check if admin's active firm matches lawyer's firm
-    if (lawyer.firmId !== activeFirmId) {
-      return res.status(403).json({
-        success: false,
-        error: "Admin not allowed to access this lawyer",
-      });
+        .json({ success: false, error: "Lawyer not found in your firm" });
     }
 
     return res.status(200).json({

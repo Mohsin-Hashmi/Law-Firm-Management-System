@@ -45,7 +45,7 @@ import {
   UserAddOutlined,
   SettingOutlined,
   IeOutlined,
-  CloseOutlined
+  CloseOutlined,
 } from "@ant-design/icons";
 import { toast } from "react-hot-toast";
 import DashboardLayout from "@/app/components/DashboardLayout";
@@ -460,25 +460,28 @@ export default function GetUserRoles() {
   ];
 
   const getPermissionDescription = (permission: string) => {
-  const descriptions: Record<string, string> = {
-    'create_case': 'Allows user to create new legal cases',
-    'create_client': 'Allows user to create new client profiles',
-    'read_case': 'Allows user to view legal case information',
-    'read_client': 'Allows user to view client information',
-    'update_case': 'Allows user to modify existing legal cases',
-    'update_client': 'Allows user to update client information',
-    'delete_case': 'Allows user to delete legal cases',
-    'delete_client': 'Allows user to remove client profiles',
-    'upload_case_document': 'Allows user to upload case-related documents',
-    'view_case_documents': 'Allows user to access and view case documents',
-    'view_case_status': 'Allows user to check the status of legal cases',
-    'view_stats': 'Allows user to view system statistics and reports',
-    'manage_settings': 'Allows user to configure system settings',
-    'admin_access': 'Provides full administrative access to the system',
+    const descriptions: Record<string, string> = {
+      create_case: "Allows user to create new legal cases",
+      create_client: "Allows user to create new client profiles",
+      read_case: "Allows user to view legal case information",
+      read_client: "Allows user to view client information",
+      update_case: "Allows user to modify existing legal cases",
+      update_client: "Allows user to update client information",
+      delete_case: "Allows user to delete legal cases",
+      delete_client: "Allows user to remove client profiles",
+      upload_case_document: "Allows user to upload case-related documents",
+      view_case_documents: "Allows user to access and view case documents",
+      view_case_status: "Allows user to check the status of legal cases",
+      view_stats: "Allows user to view system statistics and reports",
+      manage_settings: "Allows user to configure system settings",
+      admin_access: "Provides full administrative access to the system",
+    };
+
+    return (
+      descriptions[permission] ||
+      `Allows access to ${formatPermissionName(permission).toLowerCase()}`
+    );
   };
-  
-  return descriptions[permission] || `Allows access to ${formatPermissionName(permission).toLowerCase()}`;
-};
 
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
@@ -486,8 +489,8 @@ export default function GetUserRoles() {
         {loading ? (
           <div className="flex items-center justify-center min-h-screen">
             <Spin
+              className="flex items-center justify-center min-h-screen "
               size="large"
-              tip="Loading users with roles and permissions..."
             />
           </div>
         ) : (
@@ -660,7 +663,7 @@ export default function GetUserRoles() {
                 bodyStyle={{ padding: "24px" }}
               >
                 <Row gutter={[16, 16]} align="middle">
-                  <Col xs={24} sm={12} md={8}>
+                  <Col xs={24} sm={12} md={14}>
                     <Input
                       placeholder="Search users by name, email, or role"
                       prefix={
@@ -672,7 +675,7 @@ export default function GetUserRoles() {
                       size="large"
                     />
                   </Col>
-                  <Col xs={12} sm={6} md={4}>
+                  <Col xs={12} sm={6} md={6}>
                     <style>
                       {`
                         /* Light mode select */
@@ -727,18 +730,15 @@ export default function GetUserRoles() {
                       value={roleFilter}
                       onChange={setRoleFilter}
                       size="large"
-                      className={`w-full ${
-                        isDarkMode
-                          ? "role-filter-dark-select"
-                          : "role-filter-select"
-                      }`}
-                      style={{ height: "40px" }}
-                      dropdownStyle={getDropdownStyle()}
-                      dropdownClassName={
-                        isDarkMode
-                          ? "role-filter-dark-dropdown"
-                          : "role-filter-light-dropdown"
-                      }
+                      className="w-full 
+    [&_.ant-select-selector]:!rounded-xl 
+    [&_.ant-select-selector]:dark:!bg-slate-900 
+    [&_.ant-select-selector]:dark:!border-slate-600 
+    [&_.ant-select-selector]:dark:!text-white
+    [&_.ant-select-selection-item]:dark:!text-white
+    [&_.ant-select-selection-placeholder]:dark:!text-gray-400
+    [&_.ant-select-arrow]:dark:!text-white
+  "
                     >
                       <Option value="all">All Roles</Option>
                       {uniqueRoles.map((role) => (
@@ -748,7 +748,7 @@ export default function GetUserRoles() {
                       ))}
                     </Select>
                   </Col>
-                  <Col xs={24} sm={12} md={12}>
+                  <Col xs={24} sm={12} md={2}>
                     <Space>
                       <Button
                         icon={<ReloadOutlined />}
@@ -759,9 +759,6 @@ export default function GetUserRoles() {
                       >
                         Refresh
                       </Button>
-                      <Text className="text-slate-500 dark:text-slate-400 text-sm">
-                        Showing {filteredUsers.length} of {users.length} users
-                      </Text>
                     </Space>
                   </Col>
                 </Row>
@@ -920,9 +917,13 @@ export default function GetUserRoles() {
                                             {formatPermissionName(permission)}
                                           </Text>
                                         </div>
-                                        { <Text className="text-slate-500 dark:text-slate-300 text-xs">
-                                          {getPermissionDescription(permission)}
-                                        </Text> }
+                                        {
+                                          <Text className="text-slate-500 dark:text-slate-300 text-xs">
+                                            {getPermissionDescription(
+                                              permission
+                                            )}
+                                          </Text>
+                                        }
                                       </div>
                                     </div>
 
