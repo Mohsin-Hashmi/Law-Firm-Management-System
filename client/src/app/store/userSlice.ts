@@ -8,7 +8,7 @@ export interface User {
   createdAt?: string;
   updatedAt?: string;
   firmId?: number; // current firm ID
-  currentFirmId?: number | null; // Make it nullable
+  activeFirmId?: number | null; // Make it nullable
   firms?: { id: number; name: string }[]; // array of firms
   mustChangePassword?: boolean;
   permissions?: string[]; // Make optional since it might not be loaded initially
@@ -69,7 +69,7 @@ const userSlice = createSlice({
     switchFirm: (state, action: PayloadAction<number>) => {
       if (state.user) {
         state.user.firmId = action.payload;
-        state.user.currentFirmId = action.payload;
+        state.user.activeFirmId = action.payload;
       }
     },
 
@@ -89,13 +89,13 @@ const userSlice = createSlice({
       state.user.firms = action.payload;
 
       if (action.payload.length === 0) {
-        state.user.currentFirmId = null;
+        state.user.activeFirmId = null;
         state.user.firmId = undefined;
       } else if (
-        state.user.currentFirmId &&
-        !action.payload.find((f) => f.id === state.user!.currentFirmId)
+        state.user.activeFirmId &&
+        !action.payload.find((f) => f.id === state.user!.activeFirmId)
       ) {
-        state.user.currentFirmId = action.payload[0].id;
+        state.user.activeFirmId = action.payload[0].id;
         state.user.firmId = action.payload[0].id;
       }
     },

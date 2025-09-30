@@ -150,7 +150,7 @@ const ViewFirmsModal: React.FC<ViewFirmsModalProps> = ({
             status: firstFirm.status,
           };
           dispatch(setFirm(newFirmData));
-          dispatch(switchFirm(firstFirm.firmId)); // Update currentFirmId in user slice
+          dispatch(switchFirm(firstFirm.firmId)); // Update activeFirmId in user slice
           router.push("/dashboard");
         } else {
           // No firms left

@@ -165,8 +165,8 @@ export default function AuthForm({ type }: AuthFormProps) {
         }
 
         const user = response.data.user;
-        const currentFirmId =
-          user.currentFirmId ||
+        const activeFirmId =
+          user.activeFirmId ||
           (user.firms && user.firms.length > 0 ? user.firms[0].id : null);
 
         const token = response.data.token;
@@ -178,8 +178,8 @@ export default function AuthForm({ type }: AuthFormProps) {
             role: user.role,
             mustChangePassword: user.mustChangePassword,
             firms: user.firms || [],
-            currentFirmId,
-            firmId: currentFirmId,
+            activeFirmId,
+            firmId: activeFirmId,
           })
         );
 
@@ -193,7 +193,7 @@ export default function AuthForm({ type }: AuthFormProps) {
         setEmail("");
         setPassword("");
 
-        if (currentFirmId) {
+        if (activeFirmId) {
           if (user.role === "Firm Admin") {
             router.push("/dashboard");
           } else if (user.role === "Lawyer") {

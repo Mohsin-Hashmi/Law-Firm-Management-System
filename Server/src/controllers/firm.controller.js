@@ -654,7 +654,7 @@ const switchFirm = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return res.json({ success: true, currentFirmId: firmId, userRole, token });
+    return res.json({ success: true, activeFirmId: firmId, userRole, token });
   } catch (err) {
     console.error("switchFirm error:", err);
     return res.status(500).json({ success: false, message: err.message });

@@ -62,7 +62,7 @@ export default function GetCases() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const user = useAppSelector((state: RootState) => state.user.user);
-  const firmId = user?.firmId ?? user?.currentFirmId;
+  const firmId = user?.firmId ?? user?.activeFirmId;
   const role = user?.role;
   const [cases, setCasesData] = useState<Case[]>([]);
   const [filteredCases, setFilteredCases] = useState<Case[]>([]);

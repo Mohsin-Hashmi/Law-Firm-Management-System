@@ -137,20 +137,20 @@ const LoginIn = async (req, res) => {
 
     // Build firms dynamically
     let firms = [];
-    let currentFirmId = null;
+    let activeFirmId = null;
 
     if (user.role?.name === "Firm Admin") {
       firms = user.adminFirms.map((af) => ({
         id: af.firm.id,
         name: af.firm.name,
       }));
-      currentFirmId = firms.length > 0 ? firms[0].id : null;
+      activeFirmId = firms.length > 0 ? firms[0].id : null;
     } else if (user.role?.name === "Lawyer") {
       firms = user.lawyers.map((lf) => ({
         id: lf.firm.id,
         name: lf.firm.name,
       }));
-      currentFirmId = firms.length > 0 ? firms[0].id : null;
+      activeFirmId = firms.length > 0 ? firms[0].id : null;
     } else if (user.role?.name === "Client") {
       firms = user.client.map((cl) => ({
         id: cl.firm.id,
@@ -163,7 +163,7 @@ const LoginIn = async (req, res) => {
         name: uf.firm.name,
         roleId: uf.roleId,
       }));
-      currentFirmId = firms.length > 0 ? firms[0].id : null;
+      activeFirmId = firms.length > 0 ? firms[0].id : null;
     }
 
     // Must change password
@@ -179,7 +179,7 @@ const LoginIn = async (req, res) => {
           mustChangePassword: true,
           permissions: user.role?.permissions.map((p) => p.name) || [],
           firms,
-          currentFirmId,
+          activeFirmId,
         },
       });
     }
@@ -214,7 +214,7 @@ const LoginIn = async (req, res) => {
         mustChangePassword: user.mustChangePassword,
         permissions: user.role?.permissions.map((p) => p.name) || [],
         firms,
-        currentFirmId,
+        activeFirmId,
       },
       token
     });
@@ -316,7 +316,7 @@ const getCurrentUser = async (req, res) => {
           id: af.firm.id,
           name: af.firm.name,
         })),
-        currentFirmId:
+        activeFirmId:
           user.adminFirms?.length > 0 ? user.adminFirms[0].firmId : null,
         firmId: user.adminFirms?.length > 0 ? user.adminFirms[0].firmId : null,
       },

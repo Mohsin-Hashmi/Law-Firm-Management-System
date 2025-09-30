@@ -301,7 +301,7 @@ export default function DashboardLayout({
                       </div>
                     </div>
                     <Select
-                      value={user?.currentFirmId}
+                      value={user?.activeFirmId}
                       disabled={isSwitchingFirm}
                       style={{
                         width: 40,
