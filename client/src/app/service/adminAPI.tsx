@@ -23,13 +23,20 @@ export const createFirm =
         withCredentials: true, // ensures cookie is updated
       });
 
-      if (response.data.success) {
+      if (response.data.token) {
+        // Update axios default header with the new token
+        axios.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${response.data.token}`;
+
+        //Also update cookie/localStorage if you’re storing it manually
+        localStorage.setItem("token", response.data.token);
+
         const newFirm = {
           id: response.data.newFirm.id,
           name: response.data.newFirm.name,
         };
 
-        // 🔹 Update redux store
         dispatch(addFirm(newFirm));
         dispatch(switchFirm(newFirm.id));
       }
