@@ -77,7 +77,7 @@ export const NavLinks = ({
     transition-all duration-200 group relative
     ${
       pathname === link.href
-        ? "border-r-4 border-red-500 dark:bg-slate-900"
+        ? "border-r-4 border-blue-600 dark:bg-slate-900"
         : ""
     }`}
                     title={collapsed ? link.label : ""}
