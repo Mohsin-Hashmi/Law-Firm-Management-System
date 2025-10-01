@@ -52,6 +52,7 @@ const firmAdminAuth = (req, res, next) => {
 };
 
 const allowRoles = (roles) => (req, res, next) => {
+  console.log("req.user.role is:", req.user.role);
   if (!roles.includes(req.user.role)) {
     return res.status(403).json({
       success: false,
@@ -60,6 +61,15 @@ const allowRoles = (roles) => (req, res, next) => {
   }
   next();
 };
+
+const allowRolesForCaseDocuments= (roles)=> (req, res, next)=>{
+  if(!roles.includes(req.user.role)){
+    return res.status(403).json({
+      success:false,
+      error: `Access denied! Only ${roles.join(", ")} allowed`,
+    })
+  }
+}
 const LawyerAuth = (req, res, next) => {
   if (req.user.role !== "Lawyer") {
     return res.status(403).json({
@@ -86,4 +96,5 @@ module.exports = {
   superAdminAuth,
   LawyerAuth,
   allowRoles,
+  allowRolesForCaseDocuments
 };

@@ -520,9 +520,7 @@ const getAllCasesOfLawyer = async (req, res) => {
 
 const getAllCasesDocumentsByFirm = async (req, res) => {
   try {
-    console.log("User object in request:", req.user);
     const firmId = getActiveFirmId(req);
-    console.log("FirmId from request:", firmId);
     if (!firmId) {
       return res
         .status(400)
@@ -530,7 +528,24 @@ const getAllCasesDocumentsByFirm = async (req, res) => {
     }
 
     const documents = await CaseDocument.findAll({
-      include: [{ model: Case, as: "case" }],
+      attributes: [
+        "id",
+        "fileName",
+        "fileType",
+        "filePath",
+        "uploadedById",
+        "uploadedByType",
+        "createdAt",
+      ],
+      include: [
+        {
+          model: Case,
+          as: "case",
+          attributes: ["id", "title", "caseNumber"],
+          where: { firmId },
+        },
+      ],
+      order: [["createdAt", "DESC"]],
     });
 
     return res.json({
@@ -548,22 +563,295 @@ const getAllCasesDocumentsByFirm = async (req, res) => {
 
 const addDocumentsByCase = async (req, res) => {
   try {
-  } catch (err) {}
+    const { caseId } = req.params;
+    const firmId = getActiveFirmId(req);
+
+    if (!caseId)
+      return res
+        .status(400)
+        .json({ success: false, message: "Case Id is required" });
+    if (!firmId)
+      return res
+        .status(400)
+        .json({ success: false, message: "Firm Id is required" });
+
+    const caseRecord = await Case.findOne({ where: { id: caseId, firmId } });
+    if (!caseRecord)
+      return res
+        .status(404)
+        .json({ success: false, message: "Case not found for this firm" });
+
+    // Role-based access
+    if (req.user.role === "Lawyer") {
+      const lawyer = await Lawyer.findOne({
+        where: { userId: req.user.id, firmId },
+      });
+      if (!lawyer)
+        return res
+          .status(403)
+          .json({ success: false, message: "Lawyer profile not found" });
+      const assignedCount = await caseRecord.countLawyers({
+        where: { id: lawyer.id },
+      });
+      if (assignedCount === 0)
+        return res.status(403).json({
+          success: false,
+          message: "You are not assigned to this case",
+        });
+    } else if (req.user.role === "Client") {
+      const client = await Client.findOne({
+        where: { userId: req.user.id, firmId },
+      });
+      if (!client)
+        return res
+          .status(403)
+          .json({ success: false, message: "Client profile not found" });
+      if (caseRecord.clientId !== client.id)
+        return res.status(403).json({
+          success: false,
+          message: "You are not the client of this case",
+        });
+    } else if (req.user.role !== "Firm Admin" && req.user.role !== "Super Admin") {
+      return res.status(403).json({ success: false, message: "Unauthorized" });
+    }
+
+    if (!req.files || req.files.length === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No documents uploaded" });
+    }
+
+    const docs = req.files.map((file) => ({
+      fileName: file.originalname,
+      filePath: file.path,
+      fileType: file.mimetype,
+      caseId: caseRecord.id,
+      uploadedById: req.user.id,
+      uploadedByType: req.user.role,
+    }));
+
+    const created = await CaseDocument.bulkCreate(docs);
+
+    return res.status(201).json({
+      success: true,
+      message: "Documents uploaded",
+      documents: created,
+    });
+  } catch (err) {
+    console.error("Add Documents Error:", err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error", error: err.message });
+  }
 };
 
 const getAllDocumentsByCase = async (req, res) => {
   try {
-  } catch (err) {}
+    const { caseId } = req.params;
+    const firmId = getActiveFirmId(req);
+
+    if (!caseId)
+      return res
+        .status(400)
+        .json({ success: false, message: "Case Id is required" });
+    if (!firmId)
+      return res
+        .status(400)
+        .json({ success: false, message: "Firm Id is required" });
+
+    const caseRecord = await Case.findOne({ where: { id: caseId, firmId } });
+    if (!caseRecord)
+      return res
+        .status(404)
+        .json({ success: false, message: "Case not found for this firm" });
+
+    // Role-based visibility checks
+    if (req.user.role === "Lawyer") {
+      const lawyer = await Lawyer.findOne({
+        where: { userId: req.user.id, firmId },
+      });
+      if (!lawyer)
+        return res
+          .status(403)
+          .json({ success: false, message: "Lawyer profile not found" });
+      const assignedCount = await caseRecord.countLawyers({
+        where: { id: lawyer.id },
+      });
+      if (assignedCount === 0)
+        return res.status(403).json({
+          success: false,
+          message: "You are not assigned to this case",
+        });
+    } else if (req.user.role === "Client") {
+      const client = await Client.findOne({
+        where: { userId: req.user.id, firmId },
+      });
+      if (!client)
+        return res
+          .status(403)
+          .json({ success: false, message: "Client profile not found" });
+      if (caseRecord.clientId !== client.id)
+        return res.status(403).json({
+          success: false,
+          message: "You are not the client of this case",
+        });
+    } else if (req.user.role !== "Firm Admin" && req.user.role !== "Super Admin") {
+      return res.status(403).json({ success: false, message: "Unauthorized" });
+    }
+
+    const documents = await CaseDocument.findAll({
+      where: { caseId: caseRecord.id },
+      attributes: [
+        "id",
+        "fileName",
+        "fileType",
+        "filePath",
+        "uploadedById",
+        "uploadedByType",
+        "createdAt",
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    return res.json({ success: true, count: documents.length, documents });
+  } catch (err) {
+    console.error("List Documents Error:", err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error", error: err.message });
+  }
 };
 
 const getOneDocumentOfCase = async (req, res) => {
   try {
-  } catch (err) {}
+    const { caseId, docId } = req.params;
+    const firmId = getActiveFirmId(req);
+
+    if (!caseId || !docId)
+      return res
+        .status(400)
+        .json({ success: false, message: "Case Id and Document Id are required" });
+    if (!firmId)
+      return res
+        .status(400)
+        .json({ success: false, message: "Firm Id is required" });
+
+    const caseRecord = await Case.findOne({ where: { id: caseId, firmId } });
+    if (!caseRecord)
+      return res
+        .status(404)
+        .json({ success: false, message: "Case not found for this firm" });
+
+    // Role-based visibility checks
+    if (req.user.role === "Lawyer") {
+      const lawyer = await Lawyer.findOne({
+        where: { userId: req.user.id, firmId },
+      });
+      if (!lawyer)
+        return res
+          .status(403)
+          .json({ success: false, message: "Lawyer profile not found" });
+      const assignedCount = await caseRecord.countLawyers({
+        where: { id: lawyer.id },
+      });
+      if (assignedCount === 0)
+        return res.status(403).json({
+          success: false,
+          message: "You are not assigned to this case",
+        });
+    } else if (req.user.role === "Client") {
+      const client = await Client.findOne({
+        where: { userId: req.user.id, firmId },
+      });
+      if (!client)
+        return res
+          .status(403)
+          .json({ success: false, message: "Client profile not found" });
+      if (caseRecord.clientId !== client.id)
+        return res.status(403).json({
+          success: false,
+          message: "You are not the client of this case",
+        });
+    } else if (req.user.role !== "Firm Admin" && req.user.role !== "Super Admin") {
+      return res.status(403).json({ success: false, message: "Unauthorized" });
+    }
+
+    const document = await CaseDocument.findOne({
+      where: { id: docId, caseId: caseRecord.id },
+      attributes: [
+        "id",
+        "fileName",
+        "fileType",
+        "filePath",
+        "uploadedById",
+        "uploadedByType",
+        "createdAt",
+      ],
+    });
+
+    if (!document)
+      return res
+        .status(404)
+        .json({ success: false, message: "Document not found" });
+
+    return res.json({ success: true, document });
+  } catch (err) {
+    console.error("Get Document Error:", err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error", error: err.message });
+  }
 };
 
 const deleteDocumentOfCase = async (req, res) => {
   try {
-  } catch (err) {}
+    const { caseId, docId } = req.params;
+    const firmId = getActiveFirmId(req);
+
+    if (!caseId || !docId)
+      return res
+        .status(400)
+        .json({ success: false, message: "Case Id and Document Id are required" });
+    if (!firmId)
+      return res
+        .status(400)
+        .json({ success: false, message: "Firm Id is required" });
+
+    const caseRecord = await Case.findOne({ where: { id: caseId, firmId } });
+    if (!caseRecord)
+      return res
+        .status(404)
+        .json({ success: false, message: "Case not found for this firm" });
+
+    const document = await CaseDocument.findOne({
+      where: { id: docId, caseId: caseRecord.id },
+    });
+
+    if (!document)
+      return res
+        .status(404)
+        .json({ success: false, message: "Document not found" });
+
+    // Try removing file from disk
+    try {
+      const fs = require("fs");
+      if (document.filePath && fs.existsSync(document.filePath)) {
+        fs.unlinkSync(document.filePath);
+      }
+    } catch (fileErr) {
+      // proceed even if file removal fails
+      console.warn("File unlink failed:", fileErr.message);
+    }
+
+    await document.destroy();
+
+    return res.json({ success: true, message: "Document deleted" });
+  } catch (err) {
+    console.error("Delete Document Error:", err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error", error: err.message });
+  }
 };
 
 module.exports = {

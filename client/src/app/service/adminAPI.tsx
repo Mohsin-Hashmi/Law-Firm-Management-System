@@ -36,10 +36,13 @@ export const createFirm =
         const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
         const updatedUser = {
           ...currentUser,
-          firms: [...(currentUser.firms || []), {
-            id: response.data.newFirm.id,
-            name: response.data.newFirm.name,
-          }],
+          firms: [
+            ...(currentUser.firms || []),
+            {
+              id: response.data.newFirm.id,
+              name: response.data.newFirm.name,
+            },
+          ],
           activeFirmId: response.data.newFirm.id,
           firmId: response.data.newFirm.id,
         };
@@ -224,13 +227,13 @@ export const updateLawyer = async (
 // Switch firm API
 export const switchFirmAPI = async (firmId: number) => {
   const res = await api.post("/firm-admin/switch-firm", { firmId });
-  
+
   // Update token in localStorage if new token is provided
   if (res.data.token) {
     localStorage.setItem("token", res.data.token);
     localStorage.setItem("authToken", res.data.token);
     axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
-    
+
     // Update user data in localStorage with new active firm
     const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
     const updatedUser = {
@@ -240,7 +243,7 @@ export const switchFirmAPI = async (firmId: number) => {
     };
     localStorage.setItem("user", JSON.stringify(updatedUser));
   }
-  
+
   return res.data;
 };
 
@@ -715,4 +718,77 @@ export const clientStatsData = async (
     console.log("Error Fetching Lawyers Stats", error);
     return null;
   }
+};
+
+export interface UploadCaseDocumentsResponse {
+  success: boolean;
+  message: string;
+  documents: {
+    id: number;
+    fileName: string;
+    fileType: string;
+    filePath: string;
+    uploadedById: number;
+    uploadedByType: string;
+    createdAt: string;
+  }[];
+}
+
+export const getCaseDocuments = async (
+  role: string,
+  firmId: number,
+  caseId: number
+) => {
+  let url = "";
+
+  if (role === "Firm Admin" || role === "Super Admin") {
+    url = `${BASE_URL}/firm-admin/firm/${firmId}/cases/${caseId}/documents`;
+  } else if (role === "Lawyer") {
+    url = `${BASE_URL}/firm-admin/lawyer/cases/${caseId}/documents`;
+  } else if (role === "Client") {
+    url = `${BASE_URL}/firm-admin/client/cases/${caseId}/documents`;
+  }
+
+  const response = await axios.get(url, { withCredentials: true });
+  return response.data.documents;
+};
+
+export const uploadCaseDocuments = async (
+  role: string,
+  firmId: number,
+  caseId: number,
+  files: File[]
+): Promise<UploadCaseDocumentsResponse> => {
+  const form = new FormData();
+  files.forEach((file) => form.append("documents", file));
+
+  let url = "";
+
+  if (role === "Firm Admin" || role === "Super Admin") {
+    url = `${BASE_URL}/firm-admin/firm/${firmId}/cases/${caseId}/documents`;
+  } else if (role === "Lawyer") {
+    url = `${BASE_URL}/firm-admin/lawyer/cases/${caseId}/documents`;
+  } else if (role === "Client") {
+    url = `${BASE_URL}/firm-admin/client/cases/${caseId}/documents`;
+  }
+
+  const response = await axios.post(url, form, {
+    withCredentials: true,
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+  return response.data as UploadCaseDocumentsResponse;
+};
+
+
+export const deleteCaseDocument = async (
+  firmId: number,
+  caseId: number,
+  docId: number
+) => {
+  const response = await axios.delete(
+    `${BASE_URL}/firm-admin/firm/${firmId}/cases/${caseId}/documents/${docId}`,
+    { withCredentials: true }
+  );
+  return response.data as { success: boolean; message: string };
 };

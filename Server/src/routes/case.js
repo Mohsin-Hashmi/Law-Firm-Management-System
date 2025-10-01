@@ -5,6 +5,7 @@ const {
   firmAdminAuth,
   LawyerAuth,
   allowRoles,
+  allowRolesForCaseDocuments
 } = require("../middlewares/authMiddleware");
 const {
   createCase,
@@ -100,12 +101,11 @@ caseRoute.get(
   getAllCasesOfLawyer
 );
 
-// DOCUMENT MANAGEMENT
-
+//DOCUMENT MANAGEMENT
 caseRoute.get(
   "/firm/cases/documents",
   userAuth,
-  firmAdminAuth,
+  allowRolesForCaseDocuments,
   checkPermission(permissions.VIEW_CASE_DOCUMENTS),
   getAllCasesDocumentsByFirm
 );
@@ -137,6 +137,54 @@ caseRoute.delete(
   firmAdminAuth,
   checkPermission(permissions.DELETE_CASE_DOCUMENT),
   deleteDocumentOfCase
+);
+
+// Lawyer document routes
+caseRoute.post(
+  "/lawyer/cases/:caseId/documents",
+  userAuth,
+  allowRoles(["Lawyer", "Super Admin", "Firm Admin"]),
+  upload.array("documents", 5),
+  checkPermission(permissions.UPLOAD_CASE_DOCUMENT),
+  addDocumentsByCase
+);
+caseRoute.get(
+  "/lawyer/cases/:caseId/documents",
+  userAuth,
+  allowRoles(["Lawyer", "Super Admin", "Firm Admin"]),
+  checkPermission(permissions.VIEW_CASE_DOCUMENTS),
+  getAllDocumentsByCase
+);
+caseRoute.get(
+  "/lawyer/cases/:caseId/documents/:docId",
+  userAuth,
+  allowRoles(["Lawyer", "Super Admin", "Firm Admin"]),
+  checkPermission(permissions.VIEW_CASE_DOCUMENTS),
+  getOneDocumentOfCase
+);
+
+// Client document routes
+caseRoute.post(
+  "/client/cases/:caseId/documents",
+  userAuth,
+  allowRoles(["Client", "Super Admin", "Firm Admin"]),
+  upload.array("documents", 5),
+  checkPermission(permissions.UPLOAD_CASE_DOCUMENT),
+  addDocumentsByCase
+);
+caseRoute.get(
+  "/client/cases/:caseId/documents",
+  userAuth,
+  allowRoles(["Client", "Super Admin", "Firm Admin"]),
+  checkPermission(permissions.VIEW_CASE_DOCUMENTS),
+  getAllDocumentsByCase
+);
+caseRoute.get(
+  "/client/cases/:caseId/documents/:docId",
+  userAuth,
+  allowRoles(["Client", "Super Admin", "Firm Admin"]),
+  checkPermission(permissions.VIEW_CASE_DOCUMENTS),
+  getOneDocumentOfCase
 );
 
 module.exports = caseRoute;

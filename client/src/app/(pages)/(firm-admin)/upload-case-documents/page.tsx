@@ -12,7 +12,6 @@ import {
   Col,
   Input,
   message,
-  Modal,
   Row,
   Select,
   Space,
@@ -21,21 +20,22 @@ import {
   Tag,
   Tooltip,
   Typography,
+  Modal,
 } from "antd";
 import {
   BankOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
   ExclamationCircleOutlined,
-  EyeOutlined,
   FileTextOutlined,
   FolderOpenOutlined,
   PlusOutlined,
   ReloadOutlined,
   SearchOutlined,
-  DeleteOutlined,
   UserOutlined,
-  KeyOutlined,
+  UploadOutlined,
+  DeleteOutlined,
+  CheckOutlined,
   CloseOutlined,
   BankTwoTone,
 } from "@ant-design/icons";
@@ -45,8 +45,6 @@ import BASE_URL from "@/app/utils/constant";
 import {
   getAllCasesOfFirm,
   getAllCasesOfLawyer,
-  getCaseDocuments,
-  deleteCaseDocument,
   uploadCaseDocuments,
 } from "@/app/service/adminAPI";
 import { usePermission } from "@/app/hooks/usePermission";
@@ -54,7 +52,7 @@ import { usePermission } from "@/app/hooks/usePermission";
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-export default function GetCaseDocumentsPage() {
+export default function UploadCaseDocumentsPage() {
   const { hasPermission } = usePermission();
   const user = useAppSelector((state: RootState) => state.user.user);
   const firmId = user?.firmId ?? user?.activeFirmId;
@@ -69,95 +67,11 @@ export default function GetCaseDocumentsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const [docModalOpen, setDocModalOpen] = useState<boolean>(false);
-  const [docModalLoading, setDocModalLoading] = useState<boolean>(false);
-  const [selectedCase, setSelectedCase] = useState<Case | null>(null);
-  const [documents, setDocuments] = useState<
-    Array<{
-      id: number;
-      fileName: string;
-      fileType: string;
-      filePath: string;
-      uploadedById: number;
-      uploadedByType: string;
-      createdAt: string;
-    }>
-  >([]);
-
-  const [confirmDelete, setConfirmDelete] = useState<{
-    open: boolean;
-    docId: number | null;
-  }>({ open: false, docId: null });
-
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [selectedCase, setSelectedCase] = useState<Case | null>(null);
   const [pendingUploads, setPendingUploads] = useState<File[]>([]);
   const [uploading, setUploading] = useState<boolean>(false);
-
-  const openDocModal = async (caseRecord: Case) => {
-    if (!firmId) return;
-    setSelectedCase(caseRecord);
-    setDocModalOpen(true);
-    setDocModalLoading(true);
-    try {
-      const docs = await getCaseDocuments(role!, firmId, caseRecord.id);
-
-      setDocuments(docs);
-    } catch (e) {
-      message.error("Failed to load documents");
-    } finally {
-      setDocModalLoading(false);
-    }
-  };
-
-  const refreshDocuments = async () => {
-    if (!selectedCase || !firmId) return;
-    const docs = await getCaseDocuments(role!, firmId, selectedCase.id);
-
-    setDocuments(docs);
-  };
-
-  const handleDeleteDoc = async () => {
-    if (!firmId || !selectedCase || !confirmDelete.docId) return;
-    try {
-      await deleteCaseDocument(firmId, selectedCase.id, confirmDelete.docId);
-      message.success("Document deleted");
-      setConfirmDelete({ open: false, docId: null });
-      await refreshDocuments();
-    } catch (e) {
-      message.error("Delete failed");
-    }
-  };
-
-  const handlePickFiles = (caseRecord: Case) => {
-    setSelectedCase(caseRecord);
-    fileInputRef.current?.click();
-  };
-
-  const onFilesSelected: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    const files = e.target.files ? Array.from(e.target.files) : [];
-    setPendingUploads(files);
-  };
-
-  const executeUpload = async () => {
-    if (!firmId || !selectedCase || pendingUploads.length === 0) return;
-    try {
-      setUploading(true);
-      await uploadCaseDocuments(
-        role || "Client", // role is now checked above
-        firmId,
-        selectedCase.id,
-        pendingUploads
-      );
-      message.success("Documents uploaded");
-      setPendingUploads([]);
-      await refreshDocuments();
-      setDocModalOpen(true);
-    } catch (e) {
-      message.error("Upload failed");
-    } finally {
-      setUploading(false);
-    }
-  };
+  const [confirmModalOpen, setConfirmModalOpen] = useState<boolean>(false);
 
   const fetchCases = async (firmId: number) => {
     try {
@@ -274,6 +188,65 @@ export default function GetCaseDocumentsPage() {
       month: "short",
       day: "numeric",
     });
+  };
+
+  const handlePickFiles = (caseRecord: Case) => {
+    setSelectedCase(caseRecord);
+    fileInputRef.current?.click();
+  };
+
+  const onFilesSelected: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    setPendingUploads(files);
+  };
+
+  const handleConfirmUpload = () => {
+    setConfirmModalOpen(true);
+  };
+
+  const executeUpload = async () => {
+    if (!firmId || !selectedCase || pendingUploads.length === 0) return;
+    try {
+      setUploading(true);
+      setConfirmModalOpen(false);
+
+      await uploadCaseDocuments(
+        role || "Client",
+        firmId,
+        selectedCase.id,
+        pendingUploads
+      );
+
+      message.success("Documents uploaded successfully");
+      setPendingUploads([]);
+      setSelectedCase(null);
+    } catch (e) {
+      message.error("Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleCancelUpload = () => {
+    setPendingUploads([]);
+    setSelectedCase(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setPendingUploads((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const getTotalFileSize = () => {
+    const totalBytes = pendingUploads.reduce((sum, file) => sum + file.size, 0);
+    const totalMB = (totalBytes / (1024 * 1024)).toFixed(2);
+    return totalMB;
+  };
+
+  const getFileExtension = (filename: string) => {
+    return filename.split(".").pop()?.toUpperCase() || "";
   };
 
   const columns: ColumnsType<Case> = [
@@ -475,13 +448,13 @@ export default function GetCaseDocumentsPage() {
       width: 80,
       fixed: "right",
       render: (_: unknown, record: Case) => (
-        <Tooltip title="View Documents">
+        <Tooltip title="Add Documents">
           <Button
             type="text"
             size="small"
-            icon={<FileTextOutlined />}
-            onClick={() => openDocModal(record)}
-            className="hover:!bg-blue-50 dark:text-gray-200 hover:!text-blue-600 dark:hover:!bg-blue-900/30 dark:hover:!text-blue-400"
+            icon={<PlusOutlined />}
+            onClick={() => handlePickFiles(record)}
+            className="hover:!bg-green-50 dark:text-gray-200 hover:!text-green-600 dark:hover:!bg-green-900/30 dark:hover:!text-green-400"
             style={{ borderRadius: "6px" }}
           />
         </Tooltip>
@@ -515,7 +488,7 @@ export default function GetCaseDocumentsPage() {
                       border: "2px solid rgba(255,255,255,0.2)",
                     }}
                   >
-                    <FileTextOutlined
+                    <UploadOutlined
                       style={{ fontSize: "32px", color: "white" }}
                     />
                   </div>
@@ -530,7 +503,7 @@ export default function GetCaseDocumentsPage() {
                         letterSpacing: "-0.025em",
                       }}
                     >
-                      Case Documents
+                      Upload Case Documents
                     </Title>
                     <Text
                       style={{
@@ -539,7 +512,7 @@ export default function GetCaseDocumentsPage() {
                         fontWeight: "400",
                       }}
                     >
-                      View and manage documents across your cases
+                      Select a case to add documents
                     </Text>
                   </div>
                 </Space>
@@ -547,7 +520,7 @@ export default function GetCaseDocumentsPage() {
             </Row>
           </Card>
 
-          {/* Stats */}
+          {/* Statistics Cards */}
           <Row gutter={[24, 24]} style={{ marginBottom: "32px" }}>
             <Col xs={24} sm={6}>
               <Card
@@ -712,14 +685,7 @@ export default function GetCaseDocumentsPage() {
                   value={statusFilter}
                   onChange={setStatusFilter}
                   size="large"
-                  className="w-full 
-    [&_.ant-select-selector]:!rounded-xl 
-    [&_.ant-select-selector]:dark:!bg-slate-900 
-    [&_.ant-select-selector]:dark:!border-slate-600 
-    [&_.ant-select-selector]:dark:!text-white
-    [&_.ant-select-selection-item]:dark:!text-white
-    [&_.ant-select-selection-placeholder]:dark:!text-gray-400
-    [&_.ant-select-arrow]:dark:!text-white"
+                  className="w-full [&_.ant-select-selector]:!rounded-xl"
                 >
                   <Option value="all">All Status</Option>
                   <Option value="open">Open</Option>
@@ -732,14 +698,7 @@ export default function GetCaseDocumentsPage() {
                   value={caseTypeFilter}
                   onChange={setCaseTypeFilter}
                   size="large"
-                  className="w-full 
-    [&_.ant-select-selector]:!rounded-xl 
-    [&_.ant-select-selector]:dark:!bg-slate-900 
-    [&_.ant-select-selector]:dark:!border-slate-600 
-    [&_.ant-select-selector]:dark:!text-white
-    [&_.ant-select-selection-item]:dark:!text-white
-    [&_.ant-select-selection-placeholder]:dark:!text-gray-400
-    [&_.ant-select-arrow]:dark:!text-white"
+                  className="w-full [&_.ant-select-selector]:!rounded-xl"
                 >
                   <Option value="all">All Types</Option>
                   {uniqueCaseTypes.map((type) => (
@@ -758,8 +717,6 @@ export default function GetCaseDocumentsPage() {
                     setCaseTypeFilter("all");
                     if (firmId) fetchCases(firmId);
                   }}
-                  className="rounded-xl border border-slate-300 dark:border-slate-600 dark:text-white 
-             !bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent"
                 >
                   Reset
                 </Button>
@@ -769,7 +726,7 @@ export default function GetCaseDocumentsPage() {
 
           {/* Cases Table */}
           <Card
-            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm"
+            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm mb-8"
             bodyStyle={{ padding: 0 }}
           >
             <Table
@@ -800,6 +757,142 @@ export default function GetCaseDocumentsPage() {
                          dark:[&_.ant-table-tbody>tr:hover>td]:!bg-slate-700"
             />
           </Card>
+
+          {/* Upload Summary Section */}
+          {pendingUploads.length > 0 && selectedCase && (
+            <div className="!mt-6 !mb-8 bg-gradient-to-br from-blue-50 via-blue-50/80 to-indigo-50/60 dark:from-slate-800/60 dark:via-slate-700/40 dark:to-slate-800/80 border border-blue-200/80 dark:border-slate-600/70 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+              {/* Header */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center justify-center w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
+                  <UploadOutlined className="text-blue-600 dark:text-blue-400 text-lg" />
+                </div>
+                <div>
+                  <Title
+                    level={4}
+                    className="text-slate-800 dark:text-slate-100 !mb-0"
+                    style={{
+                      fontSize: "18px",
+                      fontWeight: 600,
+                      letterSpacing: "-0.025em",
+                    }}
+                  >
+                    Document Upload Summary
+                  </Title>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-0">
+                    Review documents before uploading to{" "}
+                    <strong>{selectedCase.title}</strong>
+                  </p>
+                </div>
+              </div>
+
+              {/* Upload Statistics */}
+              <div className="space-y-3 mb-4">
+                <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
+                  <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
+                    Total Documents:
+                  </Text>
+                  <span className="text-slate-800 dark:text-white font-semibold text-sm bg-slate-100 dark:bg-slate-600/30 px-2 py-1 rounded-md">
+                    {pendingUploads.length} file
+                    {pendingUploads.length !== 1 ? "s" : ""}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
+                  <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
+                    Total Size:
+                  </Text>
+                  <span className="text-blue-600 dark:text-blue-400 font-semibold text-sm bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded-md">
+                    {getTotalFileSize()} MB
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
+                  <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
+                    Case:
+                  </Text>
+                  <span className="text-slate-800 dark:text-white font-semibold text-sm bg-slate-100 dark:bg-slate-600/30 px-2 py-1 rounded-md">
+                    {selectedCase.caseNumber}
+                  </span>
+                </div>
+              </div>
+
+              {/* Documents List */}
+              <div className="mt-4 pt-4 border-t border-blue-200/50 dark:border-slate-600/50">
+                <Text className="text-slate-700 dark:text-slate-200 font-medium text-sm block mb-3">
+                  Documents to Upload:
+                </Text>
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {pendingUploads.map((file, idx) => (
+                    <div
+                      key={`${file.name}-${idx}`}
+                      className="flex items-center justify-between p-3 rounded-lg bg-white dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 hover:shadow-sm transition-shadow"
+                    >
+                      <div className="flex items-center space-x-3 flex-1 min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                          <FileTextOutlined className="text-blue-600 dark:text-blue-400 text-sm" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <Text className="text-slate-900 dark:text-white font-medium text-sm block truncate">
+                            {file.name}
+                          </Text>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Tag className="!m-0 text-xs" color="blue">
+                              {getFileExtension(file.name)}
+                            </Tag>
+                            <Text className="text-slate-500 dark:text-slate-400 text-xs">
+                              {(file.size / 1024).toFixed(2)} KB
+                            </Text>
+                          </div>
+                        </div>
+                      </div>
+                      <Button
+                        type="text"
+                        size="small"
+                        danger
+                        icon={<DeleteOutlined />}
+                        onClick={() => removeFile(idx)}
+                        className="ml-2"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="mt-5 pt-4 border-t border-blue-200/50 dark:border-slate-600/50 flex justify-end gap-3">
+                <Button
+                  size="large"
+                  onClick={handleCancelUpload}
+                  icon={<CloseOutlined />}
+                  style={{
+                    borderRadius: "12px",
+                    border: "1px solid #d1d5db",
+                    fontWeight: "600",
+                    padding: "12px 24px",
+                    height: "44px",
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="primary"
+                  size="large"
+                  icon={<CheckOutlined />}
+                  onClick={handleConfirmUpload}
+                  style={{
+                    background: "#1e40af",
+                    borderRadius: "12px",
+                    fontWeight: "600",
+                    padding: "12px 24px",
+                    height: "44px",
+                    boxShadow: "0 4px 12px rgba(30, 64, 175, 0.3)",
+                  }}
+                >
+                  Confirm Upload
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Hidden file input */}
@@ -812,244 +905,48 @@ export default function GetCaseDocumentsPage() {
           onChange={onFilesSelected}
         />
 
-        {/* Upload Summary */}
-        {pendingUploads.length > 0 && (
-          <Card className="fixed bottom-6 right-6 w-[420px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl">
-            <div className="p-4">
-              <div className="flex justify-between items-center mb-2">
-                <Text strong>Upload Summary</Text>
-                <Space>
-                  <Button size="small" onClick={() => setPendingUploads([])}>
-                    Cancel
-                  </Button>
-                  <Button
-                    type="primary"
-                    size="small"
-                    loading={uploading}
-                    onClick={executeUpload}
-                  >
-                    Upload
-                  </Button>
-                </Space>
-              </div>
-              <div className="max-h-56 overflow-auto space-y-2">
-                {pendingUploads.map((f, idx) => (
-                  <div
-                    key={`${f.name}-${idx}`}
-                    className="flex items-center justify-between text-sm"
-                  >
-                    <span className="truncate max-w-[260px]">{f.name}</span>
-                    <Button
-                      type="link"
-                      size="small"
-                      onClick={() =>
-                        setPendingUploads((prev) =>
-                          prev.filter((_, i) => i !== idx)
-                        )
-                      }
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                ))}
-              </div>
-              {selectedCase && (
-                <div className="mt-3 text-xs text-slate-500">
-                  Adding to case: <b>{selectedCase.title}</b>
-                </div>
-              )}
-            </div>
-          </Card>
-        )}
-
-        {/* Documents Modal */}
+        {/* Confirmation Modal */}
         <Modal
-          title={null}
-          open={docModalOpen}
-          onCancel={() => setDocModalOpen(false)}
-          footer={null}
-          width={700}
-          centered
-          closeIcon={
-            <CloseOutlined className="text-slate-400 hover:text-slate-600" />
+          title={
+            <div className="flex items-center gap-2">
+              <UploadOutlined className="text-blue-600" />
+              <span>Confirm Document Upload</span>
+            </div>
           }
-        >
-          <div>
-            {/* Header */}
-            <div className="mb-5">
-              <Space size="small" className="mb-1">
-                <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                  <FileTextOutlined className="text-blue-600 dark:text-blue-400 text-sm" />
-                </div>
-                <div>
-                  <Title
-                    level={5}
-                    className="!text-slate-900 dark:!text-white !mb-0 !text-lg"
-                  >
-                    Documents • {selectedCase?.title}
-                  </Title>
-                  <Text className="text-slate-500 dark:text-slate-300 text-xs">
-                    {selectedCase?.caseNumber}
-                  </Text>
-                </div>
-              </Space>
-            </div>
-
-            {docModalLoading ? (
-              <div className="py-8 text-center">Loading...</div>
-            ) : documents.length === 0 ? (
-              <div className="py-8 text-center">
-                <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center bg-slate-100 dark:bg-slate-700">
-                  <FileTextOutlined className="text-2xl text-slate-400" />
-                </div>
-                <Title
-                  level={5}
-                  className="!text-slate-900 dark:!text-white !mb-2"
-                >
-                  No Documents Found
-                </Title>
-                <Text className="text-slate-500 dark:text-slate-400 text-sm">
-                  This case currently has no documents attached.
-                </Text>
-                {hasPermission("upload_case_document") && (
-                  <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={() => {
-                      setDocModalOpen(false);
-                      if (selectedCase) handlePickFiles(selectedCase);
-                    }}
-                    className="mt-4"
-                  >
-                    Upload Documents
-                  </Button>
-                )}
-              </div>
-            ) : (
-              <div>
-                <div className="mb-4 p-3 rounded-lg border bg-blue-50 dark:bg-slate-700 border-blue-200 dark:border-slate-600">
-                  <Text className="text-xs text-blue-700 dark:text-blue-300 font-medium">
-                    <CheckCircleOutlined className="mr-2" />
-                    {documents.length} document
-                    {documents.length !== 1 ? "s" : ""} found
-                  </Text>
-                </div>
-
-                <div className="max-h-96 overflow-y-auto space-y-2">
-                  {documents.map((doc) => (
-                    <Card
-                      key={doc.id}
-                      className="border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:shadow-sm transition-shadow"
-                      bodyStyle={{ padding: "12px" }}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3 flex-1">
-                          <div className="w-9 h-9 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-                            <FileTextOutlined className="text-blue-600 dark:text-blue-400 text-sm" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <Text className="text-slate-900 dark:text-white font-medium text-sm block truncate">
-                              {doc.fileName}
-                            </Text>
-                            <Text className="text-slate-500 dark:text-slate-400 text-xs">
-                              {new Date(doc.createdAt).toLocaleString()}
-                            </Text>
-                          </div>
-                        </div>
-                        <Space>
-                          <Tooltip title="View Document">
-                            <Button
-                              type="text"
-                              icon={<EyeOutlined />}
-                              onClick={() =>
-                                window.open(
-                                  `${BASE_URL}/${doc.filePath}`.replace(
-                                    /\\/g,
-                                    "/"
-                                  ),
-                                  "_blank"
-                                )
-                              }
-                              className="hover:!bg-blue-50 hover:!text-blue-600"
-                            />
-                          </Tooltip>
-                          {role === "Firm Admin" &&
-                            hasPermission("delete_case_document") && (
-                              <Tooltip title="Delete Document">
-                                <Button
-                                  type="text"
-                                  icon={<DeleteOutlined />}
-                                  danger
-                                  onClick={() =>
-                                    setConfirmDelete({
-                                      open: true,
-                                      docId: doc.id,
-                                    })
-                                  }
-                                  className="hover:!bg-red-50 hover:!text-red-600"
-                                />
-                              </Tooltip>
-                            )}
-                        </Space>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Footer */}
-            <div className="flex justify-between items-center mt-5 pt-3 border-t border-slate-200 dark:border-slate-600">
-              <div>
-                {documents.length > 0 && (
-                  <Text className="text-slate-500 dark:text-slate-400 text-xs">
-                    {documents.length} document
-                    {documents.length !== 1 ? "s" : ""} found
-                  </Text>
-                )}
-              </div>
-              <div className="flex gap-2">
-                {hasPermission("upload_case_document") &&
-                  documents.length > 0 && (
-                    <Button
-                      type="primary"
-                      size="small"
-                      icon={<PlusOutlined />}
-                      onClick={() => {
-                        setDocModalOpen(false);
-                        if (selectedCase) handlePickFiles(selectedCase);
-                      }}
-                      className="h-8 px-3 rounded-md text-xs"
-                    >
-                      Add More
-                    </Button>
-                  )}
-                <Button
-                  onClick={() => setDocModalOpen(false)}
-                  className="h-8 px-3 rounded-md text-xs"
-                  size="small"
-                >
-                  Close
-                </Button>
-              </div>
-            </div>
-          </div>
-        </Modal>
-
-        {/* Confirm Delete Modal */}
-        <Modal
-          title="Confirm Deletion"
-          open={confirmDelete.open}
-          onCancel={() => setConfirmDelete({ open: false, docId: null })}
-          onOk={handleDeleteDoc}
-          okButtonProps={{ danger: true }}
-          okText="Delete"
-          cancelText="Cancel"
+          open={confirmModalOpen}
+          onCancel={() => setConfirmModalOpen(false)}
+          footer={[
+            <Button key="cancel" onClick={() => setConfirmModalOpen(false)}>
+              Cancel
+            </Button>,
+            <Button
+              key="upload"
+              type="primary"
+              loading={uploading}
+              onClick={executeUpload}
+              icon={<UploadOutlined />}
+            >
+              Upload Now
+            </Button>,
+          ]}
         >
           <div className="py-4">
-            <Text>
-              Are you sure you want to delete this document? This action cannot
-              be undone.
+            <Text className="block mb-4">
+              You are about to upload <strong>{pendingUploads.length}</strong>{" "}
+              document
+              {pendingUploads.length !== 1 ? "s" : ""} ({getTotalFileSize()} MB)
+              to:
+            </Text>
+            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <Text strong className="block">
+                {selectedCase?.title}
+              </Text>
+              <Text className="text-sm text-slate-600 dark:text-slate-400">
+                Case Number: {selectedCase?.caseNumber}
+              </Text>
+            </div>
+            <Text className="block mt-4 text-sm text-slate-500">
+              This action cannot be undone. Are you sure you want to proceed?
             </Text>
           </div>
         </Modal>

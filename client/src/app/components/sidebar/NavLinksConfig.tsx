@@ -121,7 +121,7 @@ export const navLinks: NavLink[] = [
   },
   {
     label: "Upload Case Documents",
-    href: "/",
+    href: "/upload-case-documents",
     icon: <PlusOutlined />,
     category: "Document Management",
     requiredPermissions: ["upload_case_document"],
