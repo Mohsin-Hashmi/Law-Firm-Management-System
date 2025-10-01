@@ -25,7 +25,8 @@ app.use(cookieParser());
 
 const allowedOrigins = [
   process.env.FRONTEND_ORIGIN, // e.g., https://your-domain
-  "https://legal-law-firm-management-system.vercel.app", // production
+   "https://legal-law-firm-management-system.vercel.app",
+  "https://northmanlegal.vercel.app",
   "http://localhost:3000", // local development
 ].filter(Boolean);
 
