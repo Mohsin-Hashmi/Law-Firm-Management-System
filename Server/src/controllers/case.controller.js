@@ -400,7 +400,7 @@ const getAllCasesOfClient = async (req, res) => {
 // ==================== GET ALL CASES OF FIRM ====================
 const getAllCasesOfFirm = async (req, res) => {
   try {
-    const firmId = getActiveFirmId(req);
+    const firmId = req.query.firmId || getActiveFirmId(req);
     if (!firmId)
       return res
         .status(400)
@@ -435,11 +435,13 @@ const getAllCasesOfFirm = async (req, res) => {
 // ==================== GET ALL CASES OF LAWYER ====================
 const getAllCasesOfLawyer = async (req, res) => {
   try {
-    let { lawyerId } = req.params;
     const { role, id: userId } = req.user;
     const firmId = getActiveFirmId(req);
 
+    let lawyerId = req.params.lawyerId; // may be undefined
+
     if (role === "Lawyer") {
+      // Auto-detect lawyerId for logged-in lawyers
       const lawyerRecord = await Lawyer.findOne({ where: { userId, firmId } });
       if (!lawyerRecord)
         return res.status(404).json({
@@ -449,10 +451,12 @@ const getAllCasesOfLawyer = async (req, res) => {
       lawyerId = lawyerRecord.id;
     }
 
-    if (!lawyerId)
+    // Only require lawyerId if the user is not a lawyer
+    if (!lawyerId && role !== "Lawyer") {
       return res
         .status(400)
         .json({ success: false, message: "Lawyer Id is required" });
+    }
 
     const cases = await Case.findAll({
       where: { firmId },
@@ -513,6 +517,7 @@ const getAllCasesOfLawyer = async (req, res) => {
       .json({ success: false, message: "Server error", error: err.message });
   }
 };
+
 
 /**
  * Case Document APIs

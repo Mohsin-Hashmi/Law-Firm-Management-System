@@ -43,12 +43,10 @@ const createClient = async (req, res) => {
     } = req.body;
 
     if (!fullName || !email || !phone) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Full name, email, and phone are required",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Full name, email, and phone are required",
+      });
     }
 
     // Check duplicate client in this firm
@@ -57,12 +55,10 @@ const createClient = async (req, res) => {
       transaction: t,
     });
     if (existingClient)
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Client already exists in this firm",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Client already exists in this firm",
+      });
 
     // Check duplicate user globally
     const existingUser = await User.findOne({
@@ -143,31 +139,27 @@ const createClient = async (req, res) => {
     }
 
     await t.commit();
-    return res
-      .status(201)
-      .json({
-        success: true,
-        message: "Client created successfully",
-        client,
-        user,
-      });
+    return res.status(201).json({
+      success: true,
+      message: "Client created successfully",
+      client,
+      user,
+    });
   } catch (error) {
     await t.rollback();
     console.error("Error creating client:", error);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Error creating client",
-        error: error.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Error creating client",
+      error: error.message,
+    });
   }
 };
 
 /** Get All Clients API */
 const getAllClients = async (req, res) => {
   try {
-    const firmId = getActiveFirmId(req);
+    const firmId = req.query.firmId || getActiveFirmId(req);
     if (!firmId)
       return res
         .status(400)
@@ -204,13 +196,11 @@ const getAllClients = async (req, res) => {
       .json({ success: true, count: clients.length, clients });
   } catch (error) {
     console.error("Error fetching clients:", error);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to get clients",
-        error: error.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get clients",
+      error: error.message,
+    });
   }
 };
 
@@ -242,13 +232,11 @@ const getClientById = async (req, res) => {
       .json({ success: true, message: "Client found successfully", client });
   } catch (error) {
     console.error("Error fetching client by ID:", error);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Error fetching client by ID",
-        error: error.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching client by ID",
+      error: error.message,
+    });
   }
 };
 
@@ -260,12 +248,10 @@ const updateClient = async (req, res) => {
 
     const client = await Client.findOne({ where: { id, firmId } });
     if (!client)
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: "Client not found or not part of your firm",
-        });
+      return res.status(404).json({
+        success: false,
+        message: "Client not found or not part of your firm",
+      });
 
     const profileImage = req.file
       ? `/uploads/clients/${req.file.filename}`
@@ -293,13 +279,11 @@ const updateClient = async (req, res) => {
       .json({ success: true, message: "Client updated successfully", client });
   } catch (error) {
     console.error("Update Client Error:", error);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Error updating client",
-        error: error.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Error updating client",
+      error: error.message,
+    });
   }
 };
 
@@ -323,13 +307,11 @@ const deleteClient = async (req, res) => {
       .json({ success: true, message: "Client deleted successfully", client });
   } catch (error) {
     console.error("Delete Client Error:", error);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Error deleting client",
-        error: error.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Error deleting client",
+      error: error.message,
+    });
   }
 };
 
@@ -338,10 +320,9 @@ const getAllClientsOfLawyer = async (req, res) => {
   try {
     let { lawyerId } = req.params;
     const { role, id: userId } = req.user;
-    const firmId = getActiveFirmId(req);
 
     if (role === "Lawyer") {
-      const lawyer = await Lawyer.findOne({ where: { userId, firmId } });
+      const lawyer = await Lawyer.findOne({ where: { userId } });
       if (!lawyer)
         return res
           .status(404)
@@ -355,27 +336,26 @@ const getAllClientsOfLawyer = async (req, res) => {
         .json({ success: false, message: "Lawyer ID is required" });
 
     const clients = await Client.findAll({
-      where: { firmId },
       include: [
         {
           model: Lawyer,
           as: "lawyers",
           where: { id: lawyerId },
           through: { attributes: [] },
-          required: false,
+          required: true, // ensures only clients linked to this lawyer
         },
         {
           model: Case,
           as: "cases",
+          required: false, // <-- allow clients without cases
           include: [
             {
               model: Lawyer,
               as: "lawyers",
-              where: { id: lawyerId },
               through: { attributes: [] },
+              required: false,
             },
           ],
-          required: false,
         },
       ],
       distinct: true,
@@ -396,6 +376,7 @@ const getAllClientsOfLawyer = async (req, res) => {
       .json({ success: false, message: "Server error", error: err.message });
   }
 };
+
 
 /** Client Performance API */
 const getClientPerformance = async (req, res) => {

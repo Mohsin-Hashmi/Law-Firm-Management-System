@@ -42,7 +42,7 @@ clientRoute.post(
   createClient
 );
 clientRoute.get(
-  "/firm/:firmId/clients",
+  "/firm/clients",
   userAuth,
   firmAdminAuth,
   checkPermission(permissions.READ_CLIENT),
@@ -70,6 +70,7 @@ clientRoute.delete(
   checkPermission(permissions.DELETE_CLIENT),
   deleteClient
 );
+
 clientRoute.get(
   "/lawyer/clients",
   userAuth,

@@ -49,7 +49,7 @@ caseRoute.post(
   createCase
 );
 caseRoute.get(
-  "/firm/:firmId/cases",
+  "/firm/cases",
   userAuth,
   firmAdminAuth,
   checkPermission(permissions.READ_CASE),
@@ -96,7 +96,7 @@ caseRoute.get(
 caseRoute.get(
   "/lawyer/cases",
   userAuth,
-  LawyerAuth,
+  allowRoles(["Firm Admin", "Lawyer"]),
   checkPermission(permissions.READ_CASE),
   getAllCasesOfLawyer
 );

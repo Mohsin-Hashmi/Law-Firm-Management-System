@@ -428,12 +428,6 @@ const getAllLawyer = async (req, res) => {
 
     const lawyers = await Lawyer.findAll({ where: { firmId } });
 
-    if (!lawyers.length) {
-      return res
-        .status(404)
-        .json({ success: false, error: "No lawyer found in this firm" });
-    }
-
     return res.status(200).json({
       success: true,
       allLawyers: lawyers,
@@ -750,11 +744,24 @@ const lawyerStats = async (req, res) => {
       where: { status: "Appeal" },
     });
 
-    // ✅ Active clients linked to this lawyer
     const activeClientsCount = await Client.count({
-      include: [{ model: Lawyer, as: "lawyers", where: { id: lawyerId } }],
+      include: [
+        {
+          model: Case,
+          as: "cases",
+          required: true, // ensures only clients with cases are counted
+          include: [
+            {
+              model: Lawyer,
+              as: "lawyers",
+              where: { id: lawyerId },
+              required: true,
+            },
+          ],
+        },
+      ],
       where: { status: "Active" },
-      distinct: true,
+      distinct: true, // important to avoid counting same client twice if multiple cases
     });
 
     res.json({

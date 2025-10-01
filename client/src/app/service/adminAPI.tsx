@@ -292,8 +292,8 @@ export const createClient = async (firmId: number, data: FormData) => {
 export const getAllClients = async (firmId: number): Promise<Client[]> => {
   try {
     const response = await axios.get<{ clients: Client[] }>(
-      `${BASE_URL}/firm-admin/firm/${firmId}/clients`,
-      { withCredentials: true }
+      `${BASE_URL}/firm-admin/firm/clients`,
+      { params: { firmId }, withCredentials: true }
     );
 
     return response.data.clients;
@@ -419,8 +419,9 @@ export const createCase = async (firmId: number, data: FormData) => {
 export const getAllCasesOfFirm = async (firmId: number): Promise<Case[]> => {
   try {
     const response = await axios.get<{ cases: Case[] }>(
-      `${BASE_URL}/firm-admin/firm/${firmId}/cases`,
-      { withCredentials: true }
+      `${BASE_URL}/firm-admin/firm/cases`,
+      
+      { params: { firmId }, withCredentials: true }
     );
 
     return response.data.cases;
@@ -439,7 +440,7 @@ export const getAllCasesOfFirm = async (firmId: number): Promise<Case[]> => {
 export const getAllCasesOfLawyer = async (): Promise<Case[]> => {
   try {
     const response = await axios.get<{ cases: Case[] }>(
-      `${BASE_URL}/firm-admin/lawyer/cases`,
+      `${BASE_URL}/firm-admin/lawyer/cases`, // same as backend route
       { withCredentials: true }
     );
 
@@ -455,6 +456,8 @@ export const getAllCasesOfLawyer = async (): Promise<Case[]> => {
     throw new Error("Unexpected error while fetching cases of lawyer");
   }
 };
+
+
 
 export const getAllClientsOfLawyer = async (): Promise<Client[]> => {
   try {
