@@ -89,7 +89,7 @@ caseRoute.patch(
 caseRoute.get(
   "/clients/:clientId/cases",
   userAuth,
-  firmAdminAuth,
+  allowRoles(["Client", "Firm Admin"]),
   checkPermission(permissions.READ_CASE),
   getAllCasesOfClient
 );

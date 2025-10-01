@@ -31,15 +31,10 @@ export interface CaseStats {
 }
 
 export interface ClientStats {
-  openCases: number;
-  closedCases: number;
+  clientId: number;
+  clientName: string;
   totalCases: number;
-  totalClients: number;
-  totalLawyers: number;
-  totalLawyersAssigned?: number;
-  activeCases?: number;
-  caseStats: CaseStats;
-  completedCases?: number;
-  wonCases?: number;
-  lawyers?: Lawyer[];
+  activeCases: number;
+  completedCases: number;
+  uploadedDocuments: number;
 }

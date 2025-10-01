@@ -15,6 +15,7 @@ const {
   deleteClient,
   getAllClientsOfLawyer,
   getClientPerformance,
+  clientStats,
 } = require("../controllers/client.controller");
 const multer = require("multer");
 const path = require("path");
@@ -59,7 +60,7 @@ clientRoute.put(
   "/firm/client/:id",
   userAuth,
   firmAdminAuth,
-  upload.single('profileImage'),
+  upload.single("profileImage"),
   checkPermission(permissions.UPDATE_CLIENT),
   updateClient
 );
@@ -86,4 +87,11 @@ clientRoute.get(
   getClientPerformance
 );
 
+clientRoute.get(
+  "/client/stats",
+  userAuth,
+  allowRoles(["Client"]),
+  checkPermission(permissions.VIEW_STATS),
+  clientStats
+);
 module.exports = clientRoute;

@@ -1,7 +1,8 @@
 import { NavLink, navLinks } from "./NavLinksConfig";
-import { superAdminNavLinks } from "./SuperAdminNavLinksConfig"; 
+import { superAdminNavLinks } from "./SuperAdminNavLinksConfig";
 import { usePermission } from "@/app/hooks/usePermission";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface NavLinksProps {
   collapsed?: boolean;
@@ -19,6 +20,7 @@ export const NavLinks = ({
   isSuperAdmin,
 }: NavLinksProps) => {
   const { hasPermission } = usePermission();
+  const pathname = usePathname();
 
   // pick correct set of links
   const links = isSuperAdmin ? superAdminNavLinks : navLinks;
@@ -32,7 +34,7 @@ export const NavLinks = ({
       );
 
   // Group by category
-  const grouped = filteredLinks.reduce((acc, link) => { 
+  const grouped = filteredLinks.reduce((acc, link) => {
     const cat = link.category || "Other";
     if (!acc[cat]) acc[cat] = [];
     acc[cat].push(link);
@@ -70,9 +72,14 @@ export const NavLinks = ({
                     className={`flex items-center ${
                       collapsed ? "justify-center px-3" : "px-3"
                     } py-3 text-slate-700 dark:text-slate-300 rounded-xl 
-                      hover:bg-slate-50 dark:hover:bg-slate-800 
-                      hover:text-slate-900 dark:hover:text-white 
-                      transition-all duration-200 group relative`}
+    hover:bg-slate-50 dark:hover:bg-slate-800 
+    hover:text-slate-900 dark:hover:text-white 
+    transition-all duration-200 group relative
+    ${
+      pathname === link.href
+        ? "border-r-4 border-red-500 dark:bg-slate-900"
+        : ""
+    }`}
                     title={collapsed ? link.label : ""}
                   >
                     <span className="text-lg group-hover:scale-110 transition-transform duration-200">

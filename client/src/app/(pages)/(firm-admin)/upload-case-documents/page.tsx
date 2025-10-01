@@ -42,10 +42,12 @@ import {
 import { ColumnsType } from "antd/es/table";
 import { Case } from "@/app/types/case";
 import BASE_URL from "@/app/utils/constant";
+
 import {
   getAllCasesOfFirm,
   getAllCasesOfLawyer,
   uploadCaseDocuments,
+  getAllCasesOfClient
 } from "@/app/service/adminAPI";
 import { usePermission } from "@/app/hooks/usePermission";
 import ConfirmationModal from "@/app/components/ConfirmationModal";
@@ -72,7 +74,8 @@ export default function UploadCaseDocumentsPage() {
   const [selectedCase, setSelectedCase] = useState<Case | null>(null);
   const [pendingUploads, setPendingUploads] = useState<File[]>([]);
   const [uploading, setUploading] = useState<boolean>(false);
-  const [confirmUploadModalOpen, setConfirmUploadModalOpen] = useState<boolean>(false);
+  const [confirmUploadModalOpen, setConfirmUploadModalOpen] =
+    useState<boolean>(false);
 
   const fetchCases = async (firmId: number) => {
     try {
@@ -82,6 +85,8 @@ export default function UploadCaseDocumentsPage() {
         response = await getAllCasesOfFirm(firmId);
       } else if (role === "Lawyer") {
         response = await getAllCasesOfLawyer();
+      } else if (role === "Client" && user?.id) {
+        response = await getAllCasesOfClient(user.id);
       }
       setCases(response);
       setFilteredCases(response);
@@ -926,9 +931,13 @@ export default function UploadCaseDocumentsPage() {
           onConfirm={executeUpload}
           onCancel={() => setConfirmUploadModalOpen(false)}
           title="Upload Documents"
-          description={`You are about to upload ${pendingUploads.length} document${
+          description={`You are about to upload ${
+            pendingUploads.length
+          } document${
             pendingUploads.length !== 1 ? "s" : ""
-          } (${getTotalFileSize()} MB) to case "${selectedCase?.title}". Do you want to proceed?`}
+          } (${getTotalFileSize()} MB) to case "${
+            selectedCase?.title
+          }". Do you want to proceed?`}
           confirmText="Upload"
           cancelText="Cancel"
         />

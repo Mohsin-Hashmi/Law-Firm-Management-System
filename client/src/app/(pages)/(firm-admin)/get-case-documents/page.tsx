@@ -53,7 +53,7 @@ import {
 import { usePermission } from "@/app/hooks/usePermission";
 import { useRouter } from "next/navigation";
 import ConfirmationModal from "@/app/components/ConfirmationModal";
-
+import { getAllCasesOfClient } from "@/app/service/adminAPI";
 const { Title, Text } = Typography;
 const { Option } = Select;
 
@@ -175,6 +175,8 @@ export default function GetCaseDocumentsPage() {
         response = await getAllCasesOfFirm(firmId);
       } else if (role === "Lawyer") {
         response = await getAllCasesOfLawyer();
+      } else if (role === "Client" && user?.id) {
+        response = await getAllCasesOfClient(user.id);
       }
       setCases(response);
       setFilteredCases(response);

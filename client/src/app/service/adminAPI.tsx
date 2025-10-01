@@ -420,7 +420,7 @@ export const getAllCasesOfFirm = async (firmId: number): Promise<Case[]> => {
   try {
     const response = await axios.get<{ cases: Case[] }>(
       `${BASE_URL}/firm-admin/firm/cases`,
-      
+
       { params: { firmId }, withCredentials: true }
     );
 
@@ -458,6 +458,26 @@ export const getAllCasesOfLawyer = async (): Promise<Case[]> => {
 };
 
 
+export const getAllCasesOfClient = async (
+  clientId: number
+): Promise<Case[]> => {
+  try {
+    const response = await axios.get<{ success: boolean; cases: Case[] }>(
+      `${BASE_URL}/firm-admin/clients/${clientId}/cases`,
+      { withCredentials: true }
+    );
+    return response.data.cases;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        `Error fetching client cases: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    }
+    throw new Error("Unexpected error while fetching client cases");
+  }
+};
 
 export const getAllClientsOfLawyer = async (): Promise<Client[]> => {
   try {
@@ -706,16 +726,11 @@ export const lawyerStatsData = async () => {
   }
 };
 
-export const clientStatsData = async (
-  id: number
-): Promise<ClientStats | null> => {
+export const clientStatsData = async (): Promise<ClientStats | null> => {
   try {
-    const response = await axios.get(
-      `${BASE_URL}/firm-admin/${id}/client/performance`,
-      {
-        withCredentials: true,
-      }
-    );
+    const response = await axios.get(`${BASE_URL}/firm-admin/client/stats`, {
+      withCredentials: true,
+    });
     return response.data;
   } catch (error) {
     console.log("Error Fetching Lawyers Stats", error);
@@ -782,7 +797,6 @@ export const uploadCaseDocuments = async (
 
   return response.data as UploadCaseDocumentsResponse;
 };
-
 
 export const deleteCaseDocument = async (
   firmId: number,

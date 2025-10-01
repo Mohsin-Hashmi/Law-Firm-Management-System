@@ -46,6 +46,9 @@ import {
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { useRouter } from "next/navigation";
 import { RootState } from "../store/store";
+import { clientStatsData } from "../service/adminAPI";
+import { useState } from "react";
+import { ClientStats } from "../types/client";
 
 const { Title, Text } = Typography;
 const { Dragger } = Upload;
@@ -69,38 +72,37 @@ export default function ClientView({ firmId, role }: Props) {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const user = useAppSelector((state: RootState) => state.user.user);
-  const loading = useAppSelector((state: RootState) => state.user.loading);
+    const [loading, setLoading] = useState(true);
+    const [stats, setStats] = useState<ClientStats | null>(null);
 
   const error = null; // Replace with actual error state
 
   // Sample client stats - replace with actual data from your API
-  const clientStats = {
-    clientName: user?.name || "Client",
-    totalCases: 0,
-    activeCases: 0,
-    completedCases: 0,
-    pendingDocuments: 0,
-    uploadedDocuments: 0,
-    caseProgress: 0,
-    nextHearing: "No upcoming hearings",
+
+useEffect(() => {
+  if (!firmId || !role) return;
+
+  const fetchClientStats = async () => {
+    try {
+      setLoading(true);
+      const data = await clientStatsData();
+      if (data) {
+        setStats({
+          clientId: data.clientId,
+          clientName: data.clientName,
+          ...data.stats, // spread totalCases, activeCases, completedCases, uploadedDocuments
+        });
+      }
+    } catch (err) {
+      console.error("Error fetching client stats:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => {
-    if (!firmId || !role) return;
+  fetchClientStats();
+}, [firmId, role, dispatch]);
 
-    const fetchClientStats = async () => {
-      try {
-        // TODO: Implement API call to fetch client stats
-        // const data = await getClientStats(firmId, user.id);
-        // Update your Redux store or local state with the fetched data
-        console.log("Fetching client stats for firmId:", firmId);
-      } catch (err) {
-        console.error("Error fetching client stats:", err);
-      }
-    };
-
-    fetchClientStats();
-  }, [firmId, role, dispatch]);
 
   if (loading || !user) {
     return (
@@ -120,17 +122,17 @@ export default function ClientView({ firmId, role }: Props) {
 
   const handleViewCases = () => {
     // Navigate to client's cases view
-    router.push("/client-cases");
+    router.push("/get-cases");
   };
 
   const handleViewDocuments = () => {
     // Navigate to client's documents view
-    router.push("/client-documents");
+    router.push("/get-case-documents");
   };
 
   const handleUploadDocument = () => {
     // Navigate to document upload page
-    router.push("/upload-document");
+    router.push("/upload-case-documents");
   };
 
   const handleViewCaseStatus = () => {
@@ -178,9 +180,9 @@ export default function ClientView({ firmId, role }: Props) {
 
   const statCards = [
     {
-      title: "Active Cases",
-      value: clientStats.activeCases,
-      icon: <FileTextOutlined />,
+      title: "Total Cases",
+      value: stats?.totalCases,
+      icon: <FileOutlined />,
       color: "#3b82f6",
       background: "#eff6ff",
       darkBackground: "#1e3a8a",
@@ -190,9 +192,9 @@ export default function ClientView({ firmId, role }: Props) {
       permission: "read_case",
     },
     {
-      title: "Completed Cases",
-      value: clientStats.completedCases,
-      icon: <CheckCircleOutlined />,
+      title: "Active Cases",
+      value: stats?.activeCases,
+      icon: <FileTextOutlined />,
       color: "#059669",
       background: "#ecfdf5",
       darkBackground: "#065f46",
@@ -202,9 +204,9 @@ export default function ClientView({ firmId, role }: Props) {
       permission: "read_case",
     },
     {
-      title: "Uploaded Documents",
-      value: clientStats.uploadedDocuments,
-      icon: <CloudUploadOutlined />,
+      title: "Completed Cases",
+      value:  stats?.completedCases,
+      icon: <CheckCircleOutlined />,
       color: "#7c3aed",
       background: "#f3f4f6",
       darkBackground: "#5b21b6",
@@ -214,9 +216,9 @@ export default function ClientView({ firmId, role }: Props) {
       permission: "upload_case_document",
     },
     {
-      title: "Pending Reviews",
-      value: clientStats.pendingDocuments,
-      icon: <ClockCircleOutlined />,
+      title: "Uploaded Documents",
+      value: stats?.uploadedDocuments,
+      icon: <CloudUploadOutlined />,
       color: "#f59e0b",
       background: "#fffbeb",
       darkBackground: "#92400e",
@@ -246,7 +248,7 @@ export default function ClientView({ firmId, role }: Props) {
                     level={1}
                     className="!text-white dark:!text-white !mb-1 text-4xl font-semibold tracking-tight"
                   >
-                    Welcome {clientStats.clientName}
+                    Welcome {stats?.clientName}
                   </Title>
                   <Text className="text-white/100 dark:text-white text-lg font-normal">
                     Client Dashboard
@@ -478,100 +480,6 @@ export default function ClientView({ firmId, role }: Props) {
                   </Space>
                 </Button>
               </Space>
-            </Card>
-          </Col>
-
-          {/* Case Progress & Updates */}
-          <Col xs={24} lg={8}>
-            <Card
-              title={
-                <Space>
-                  <ClockCircleOutlined className="text-blue-600 dark:text-blue-400" />
-                  <span className="text-slate-900 dark:!text-white font-semibold">
-                    Case Updates
-                  </span>
-                </Space>
-              }
-              className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800"
-              bodyStyle={{ padding: "20px" }}
-            >
-              <Space
-                direction="vertical"
-                style={{ width: "100%" }}
-                size="middle"
-              >
-                <div className="py-3 border-b border-slate-100 dark:border-slate-600">
-                  <Text className="text-slate-900 dark:text-white font-medium block">
-                    Document review completed
-                  </Text>
-                  <Text className="text-slate-400 dark:text-white text-xs">
-                    2 hours ago
-                  </Text>
-                </div>
-
-                <div className="py-3 border-b border-slate-100 dark:border-slate-600">
-                  <Text className="text-slate-900 dark:text-white font-medium block">
-                    Next hearing scheduled
-                  </Text>
-                  <Text className="text-slate-400 dark:text-white text-xs">
-                    5 hours ago
-                  </Text>
-                </div>
-
-                <div className="py-3 border-b border-slate-100 dark:border-slate-600">
-                  <Text className="text-slate-900 dark:text-white font-medium block">
-                    {`Case status updated to "In Progress"`}
-                  </Text>
-                  <Text className="text-slate-400 dark:text-white text-xs">
-                    1 day ago
-                  </Text>
-                </div>
-
-                <Button
-                  type="link"
-                  className="p-0 text-emerald-600 dark:text-emerald-400 font-medium hover:text-emerald-700 dark:hover:text-emerald-300"
-                >
-                  View all updates →
-                </Button>
-              </Space>
-            </Card>
-          </Col>
-
-          {/* Case Progress Chart */}
-          <Col xs={24} lg={8}>
-            <Card
-              title={
-                <Space>
-                  <FileOutlined className="text-emerald-600 dark:text-emerald-400" />
-                  <span className="text-slate-900 dark:!text-white font-semibold">
-                    Case Progress
-                  </span>
-                </Space>
-              }
-              className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800"
-              bodyStyle={{ padding: "20px" }}
-            >
-              <div className="text-center mb-4">
-                <Progress
-                  type="circle"
-                  percent={clientStats.caseProgress}
-                  strokeColor="#10b981"
-                  trailColor="#e5e7eb"
-                  size={120}
-                />
-              </div>
-              
-              <div className="text-center">
-                <Text className="text-slate-600 dark:text-white text-sm block mb-2">
-                  Overall Case Progress
-                </Text>
-                <Text className="text-slate-900 dark:text-white font-semibold text-lg block mb-2">
-                  Next Hearing
-                </Text>
-                <Text className="text-emerald-600 dark:text-emerald-400 font-medium">
-                  {clientStats.nextHearing}
-                </Text>
-              </div>
             </Card>
           </Col>
         </Row>

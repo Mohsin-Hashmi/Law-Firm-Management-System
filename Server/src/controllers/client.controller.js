@@ -7,6 +7,7 @@ const {
   Role,
   UserFirm,
   ClientLawyer,
+  CaseDocument
 } = require("../models");
 const bcrypt = require("bcryptjs");
 
@@ -441,6 +442,67 @@ const getClientPerformance = async (req, res) => {
   }
 };
 
+
+
+const clientStats = async (req, res) => {
+  try {
+    let client;
+    let clientId;
+
+    if (req.user.role === "Super Admin" || req.user.role === "Firm Admin") {
+      clientId = Number(req.params.id);
+      client = await Client.findByPk(clientId, {
+        include: [{ model: User, as: "user", attributes: ["name"] }],
+      });
+    } else if (req.user.role === "Client") {
+      client = await Client.findOne({
+        where: { userId: req.user.id },
+        include: [{ model: User, as: "user", attributes: ["name"] }],
+      });
+      if (client) clientId = client.id;
+    }
+
+    if (!client || !clientId) {
+      return res.status(404).json({ error: "Client not found" });
+    }
+
+    // Case stats
+    const totalCases = await Case.count({ where: { clientId } });
+    const activeCases = await Case.count({ where: { clientId, status: "Open" } });
+    const completedCases = await Case.count({ where: { clientId, status: "Closed" } });
+
+    // Uploaded documents (join CaseDocument → Case → Client)
+    const uploadedDocuments = await CaseDocument.count({
+      include: [
+        {
+          model: Case,
+          as: "case",
+          where: { clientId },
+        },
+      ],
+    });
+
+    res.json({
+      clientId,
+      clientName: client.user?.name,
+      stats: {
+        totalCases,
+        activeCases,
+        completedCases,
+        uploadedDocuments,
+      },
+    });
+  } catch (err) {
+    console.error("Client stats error:", err);
+    res.status(500).json({
+      error: "Failed to fetch client stats",
+      details: err.message,
+    });
+  }
+};
+
+
+
 module.exports = {
   createClient,
   getAllClients,
@@ -449,4 +511,5 @@ module.exports = {
   deleteClient,
   getAllClientsOfLawyer,
   getClientPerformance,
+  clientStats
 };

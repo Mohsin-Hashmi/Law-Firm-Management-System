@@ -53,6 +53,7 @@ import ConfirmationModal from "@/app/components/ConfirmationModal";
 import { Client } from "@/app/types/client";
 import { usePermission } from "@/app/hooks/usePermission";
 import BASE_URL from "@/app/utils/constant";
+import { getAllCasesOfClient } from "@/app/service/adminAPI";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -98,6 +99,8 @@ export default function GetCases() {
         response = await getAllCasesOfFirm(firmId);
       } else if (role === "Lawyer") {
         response = await getAllCasesOfLawyer();
+      } else if (role === "Client" && user?.id) {
+        response = await getAllCasesOfClient(user.id);
       }
 
       setCasesData(response);
@@ -1006,7 +1009,7 @@ export default function GetCases() {
                         className="rounded-xl border border-slate-300 dark:border-slate-600 dark:text-white 
              !bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent"
                       >
-                        Reset 
+                        Reset
                       </Button>
                     </Space>
                   </Col>

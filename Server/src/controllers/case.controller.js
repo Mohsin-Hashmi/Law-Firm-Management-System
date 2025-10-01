@@ -350,47 +350,88 @@ const updateCaseStatus = async (req, res) => {
 // ==================== GET ALL CASES OF CLIENT ====================
 const getAllCasesOfClient = async (req, res) => {
   try {
-    const { clientId } = req.params;
+    const { role, id: userId } = req.user;
     const firmId = getActiveFirmId(req);
 
-    if (!clientId)
+    let clientId = req.params.clientId; // may be undefined
+    if (!clientId && role !== "Client") {
       return res
         .status(400)
         .json({ success: false, message: "Client Id is required" });
-    if (!firmId)
+    }
+
+    if (role === "Client") {
+      // Auto-detect clientId for logged-in clients
+      const clientRecord = await Client.findOne({ where: { userId, firmId } });
+      if (!clientRecord)
+        return res.status(404).json({
+          success: false,
+          message: "Client profile not found for this user",
+        });
+      clientId = clientRecord.id;
+    }
+
+    // Only require clientId if the user is not a client
+    if (!clientId && role !== "Client") {
       return res
         .status(400)
-        .json({ success: false, message: "Firm Id missing in token" });
-
-    const client = await Client.findOne({ where: { id: clientId, firmId } });
-    if (!client)
-      return res
-        .status(404)
-        .json({ success: false, message: "Client not found for this firm" });
+        .json({ success: false, message: "Client Id is required" });
+    }
 
     const cases = await Case.findAll({
       where: { clientId, firmId },
       include: [
+        {
+          model: Client,
+          as: "client",
+          attributes: ["id", "fullName", "email", "phone"],
+          where: { firmId },
+        },
         {
           model: Lawyer,
           as: "lawyers",
           through: { attributes: [] },
           attributes: ["id", "name", "email"],
         },
+        {
+          model: CaseDocument,
+          as: "documents",
+          attributes: [
+            "id",
+            "fileName",
+            "fileType",
+            "filePath",
+            "uploadedById",
+            "uploadedByType",
+            "createdAt",
+          ],
+          include: [
+            {
+              model: Lawyer,
+              as: "lawyerUploader",
+              attributes: ["id", "name"],
+              required: false,
+            },
+            {
+              model: Client,
+              as: "clientUploader",
+              attributes: ["id", "fullName"],
+              required: false,
+            },
+          ],
+        },
       ],
     });
 
-    if (!cases || cases.length === 0)
+    if (!cases || cases.length === 0) {
       return res
         .status(404)
         .json({ success: false, message: "No cases found for this client" });
+    }
 
-    return res.json({
-      success: true,
-      client: { id: client.id, name: client.name },
-      cases,
-    });
+    return res.json({ success: true, count: cases.length, cases });
   } catch (err) {
+    console.error("Error fetching client cases:", err);
     return res
       .status(500)
       .json({ success: false, message: "Server error", error: err.message });
@@ -518,7 +559,6 @@ const getAllCasesOfLawyer = async (req, res) => {
   }
 };
 
-
 /**
  * Case Document APIs
  */
@@ -616,7 +656,10 @@ const addDocumentsByCase = async (req, res) => {
           success: false,
           message: "You are not the client of this case",
         });
-    } else if (req.user.role !== "Firm Admin" && req.user.role !== "Super Admin") {
+    } else if (
+      req.user.role !== "Firm Admin" &&
+      req.user.role !== "Super Admin"
+    ) {
       return res.status(403).json({ success: false, message: "Unauthorized" });
     }
 
@@ -700,7 +743,10 @@ const getAllDocumentsByCase = async (req, res) => {
           success: false,
           message: "You are not the client of this case",
         });
-    } else if (req.user.role !== "Firm Admin" && req.user.role !== "Super Admin") {
+    } else if (
+      req.user.role !== "Firm Admin" &&
+      req.user.role !== "Super Admin"
+    ) {
       return res.status(403).json({ success: false, message: "Unauthorized" });
     }
 
@@ -735,7 +781,10 @@ const getOneDocumentOfCase = async (req, res) => {
     if (!caseId || !docId)
       return res
         .status(400)
-        .json({ success: false, message: "Case Id and Document Id are required" });
+        .json({
+          success: false,
+          message: "Case Id and Document Id are required",
+        });
     if (!firmId)
       return res
         .status(400)
@@ -777,7 +826,10 @@ const getOneDocumentOfCase = async (req, res) => {
           success: false,
           message: "You are not the client of this case",
         });
-    } else if (req.user.role !== "Firm Admin" && req.user.role !== "Super Admin") {
+    } else if (
+      req.user.role !== "Firm Admin" &&
+      req.user.role !== "Super Admin"
+    ) {
       return res.status(403).json({ success: false, message: "Unauthorized" });
     }
 
@@ -816,7 +868,10 @@ const deleteDocumentOfCase = async (req, res) => {
     if (!caseId || !docId)
       return res
         .status(400)
-        .json({ success: false, message: "Case Id and Document Id are required" });
+        .json({
+          success: false,
+          message: "Case Id and Document Id are required",
+        });
     if (!firmId)
       return res
         .status(400)
