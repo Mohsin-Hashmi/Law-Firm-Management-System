@@ -88,6 +88,7 @@ export default function GetClients() {
     try {
       setLoading(true);
       let response: Client[] = [];
+
       if (role === "Firm Admin") {
         if (!firmId) {
           toast.error("Firm ID missing");
@@ -97,18 +98,23 @@ export default function GetClients() {
       } else if (role === "Lawyer") {
         response = await getAllClientsOfLawyer();
       }
+
+      if (!response || response.length === 0) {
+        toast("No clients found"); // neutral info toast
+      } else {
+        toast.success("Fetched clients successfully");
+      }
+
       setClientsData(response);
       dispatch(setClients(response));
-      toast.success("Fetch clients successfully");
+
       console.log("Successfully fetched clients data:", response);
     } catch (error) {
       console.error("Error fetching clients:", error);
       toast.error("Failed to fetch clients data");
-      // Set empty array on error to prevent infinite loading
-      setClientsData([]);
+      setClientsData([]); // prevent infinite loading
     } finally {
-      // Ensure loading is always set to false
-      setLoading(false);
+      setLoading(false); // always stop loading
     }
   };
 
@@ -459,7 +465,6 @@ export default function GetClients() {
                   borderRadius: "6px",
                   color: "#dc2626",
                 }}
-                
               />
               <ConfirmationModal
                 visible={modalVisible}
@@ -574,7 +579,6 @@ export default function GetClients() {
                       >
                         Add New Client
                       </Button>
-                     
                     </Space>
                   </Col>
                 </Row>
@@ -800,7 +804,6 @@ export default function GetClients() {
                       >
                         Refresh
                       </Button>
-                     
                     </Space>
                   </Col>
                 </Row>

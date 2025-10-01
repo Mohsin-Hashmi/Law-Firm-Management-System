@@ -232,23 +232,6 @@ export default function GetCaseDetail({
                 style={{ borderRadius: "6px" }}
               />
             </Tooltip>
-            <Tooltip title="Download">
-              <Button
-                type="text"
-                size="small"
-                icon={<DownloadOutlined />}
-                onClick={() => {
-                  const link = document.createElement("a");
-                  link.href = `http://localhost:5000${record.filePath}`;
-                  link.download = record.fileName;
-                  document.body.appendChild(link);
-                  link.click();
-                  document.body.removeChild(link);
-                }}
-                className="hover:!bg-green-50 dark:text-gray-200 hover:!text-green-600 dark:hover:!bg-green-900/30 dark:hover:!text-green-400"
-                style={{ borderRadius: "6px" }}
-              />
-            </Tooltip>
           </Space>
         </div>
       ),
