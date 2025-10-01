@@ -733,7 +733,7 @@ export const updateUser = async (
 
 export const lawyerStatsData = async () => {
   try {
-    const response = await api.get(`${BASE_URL}/firm-admin/lawyers/stats`, {
+    const response = await api.get(`/firm-admin/lawyers/stats`, {
       withCredentials: true,
     });
     return response.data;
@@ -744,7 +744,7 @@ export const lawyerStatsData = async () => {
 
 export const clientStatsData = async (): Promise<ClientStats | null> => {
   try {
-    const response = await api.get(`${BASE_URL}/firm-admin/client/stats`, {
+    const response = await api.get(`/firm-admin/client/stats`, {
       withCredentials: true,
     });
     return response.data;
