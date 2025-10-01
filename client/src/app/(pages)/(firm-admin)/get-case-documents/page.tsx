@@ -512,7 +512,7 @@ export default function GetCaseDocumentsPage() {
           <div className="min-h-screen transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
             {/* Header */}
             <Card
-              className="bg-[#433878] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+              className="bg-[#1B3C53] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
               bodyStyle={{ padding: "32px 20px" }}
             >
               <Row align="middle" justify="space-between">
@@ -557,6 +557,30 @@ export default function GetCaseDocumentsPage() {
                         View and manage documents across your cases
                       </Text>
                     </div>
+                  </Space>
+                </Col>
+                <Col>
+                  <Space size="middle">
+                    {hasPermission("create_case") && (
+                      <Button
+                        type="primary"
+                        size="large"
+                        icon={<FileTextOutlined />}
+                        onClick={() => router.push("/upload-case-documents")}
+                        style={{
+                          background: "white",
+                          borderColor: "white",
+                          color: "#2563eb",
+                          borderRadius: "12px",
+                          fontWeight: "600",
+                          padding: "8px 24px",
+                          height: "48px",
+                          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                        }}
+                      >
+                        Add Case Document
+                      </Button>
+                    )}
                   </Space>
                 </Col>
               </Row>

@@ -40,6 +40,7 @@ import { getCaseById } from "@/app/service/adminAPI";
 import { toast } from "react-hot-toast";
 import { ThemeProvider } from "next-themes";
 import { use } from "react";
+import BASE_URL from "@/app/utils/constant";
 
 const { Title, Text } = Typography;
 const { Search } = Input;
@@ -59,7 +60,7 @@ interface Client {
 
 interface Lawyer {
   id: number;
-  fullName: string;
+  name: string;
   email: string;
   phone: string;
   specialization?: string;
@@ -456,10 +457,10 @@ export default function GetCaseDetail({
                 >
                   {/* Small avatar in top right */}
                   <Avatar
-                    size={40}
+                    size={32}
                     src={
                       caseData.client?.profileImage
-                        ? `http://localhost:5000${caseData.client.profileImage}`
+                        ? `${BASE_URL}${caseData.client.profileImage}`
                         : undefined
                     }
                     icon={<UserOutlined />}
@@ -511,7 +512,7 @@ export default function GetCaseDetail({
                           key={lawyer.id}
                           src={
                             lawyer.profileImage
-                              ? `http://localhost:5000${lawyer.profileImage}`
+                              ? `${BASE_URL}${lawyer.profileImage}`
                               : undefined
                           }
                           icon={<UserOutlined />}
@@ -529,12 +530,12 @@ export default function GetCaseDetail({
                         className="text-green-600 dark:text-green-500 text-xl font-bold block"
                         ellipsis={{
                           tooltip: caseData.lawyers
-                            .map((l) => l.fullName || "Unknown")
+                            .map((l) => l.name || "Unknown")
                             .join(", "),
                         }}
                       >
                         {caseData.lawyers.length === 1
-                          ? (caseData.lawyers[0].fullName || "Unknown").split(
+                          ? (caseData.lawyers[0].name || "Unknown").split(
                               " "
                             )[0]
                           : `${caseData.lawyers.length} Lawyers`}
@@ -600,19 +601,19 @@ export default function GetCaseDetail({
             >
               <Row gutter={[16, 16]} align="middle" justify="space-between">
                 {/* Search Input */}
-                <Col xs={24} md={16} lg={12}>
+                <Col xs={24} md={18} lg={20}>
                   <Input
                     placeholder="Search documents by name..."
                     prefix={<SearchOutlined className="text-slate-400" />}
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
-                    className="rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white"
+                    className="!w-full rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white"
                     size="large"
                   />
                 </Col>
 
                 {/* Action Buttons */}
-                <Col xs={24} md={12} lg={12}>
+                <Col xs={24} md={3} lg={3}>
                   <Space size="middle" className="flex justify-end w-full">
                     <Button
                       icon={<ReloadOutlined />}
@@ -624,22 +625,6 @@ export default function GetCaseDetail({
             !bg-transparent hover:!bg-transparent active:!bg-transparent focus:!bg-transparent"
                     >
                       Reset Filters
-                    </Button>
-                    <Button
-                      type="primary"
-                      icon={<PlusOutlined />}
-                      onClick={() =>
-                        toast.success("Upload feature coming soon")
-                      }
-                      style={{
-                        background: "white",
-                        borderColor: "white",
-                        color: "#2563eb",
-                        borderRadius: "12px",
-                        fontWeight: "600",
-                      }}
-                    >
-                      Upload Document
                     </Button>
                   </Space>
                 </Col>

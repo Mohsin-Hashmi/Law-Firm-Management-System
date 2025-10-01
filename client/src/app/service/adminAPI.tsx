@@ -79,7 +79,7 @@ export const getMyFirms = async (): Promise<FirmPayload[]> => {
 
 export const deleteFirm = async (firmId: number): Promise<boolean> => {
   try {
-    const response = await axios.delete(`${BASE_URL}/firm-admin/delete-firm`, {
+    const response = await api.delete(`${BASE_URL}/firm-admin/delete-firm`, {
       data: { firmId },
       withCredentials: true,
     });
@@ -94,7 +94,7 @@ export const deleteFirm = async (firmId: number): Promise<boolean> => {
 /**Add Lawyer API */
 export const addLawyer = async (firmId: number, data: FormData) => {
   if (!firmId) throw new Error("firmId is required");
-  const response = await axios.post(
+  const response = await api.post(
     `${BASE_URL}/firm-admin/${firmId}/addlawyers`,
     data,
     {
@@ -124,7 +124,7 @@ export const getStats = async (
     }
 
     console.log("📡 Calling stats API:", url);
-    const response = await axios.get(url, {
+    const response = await api.get(url, {
       withCredentials: true,
     });
 
@@ -138,7 +138,7 @@ export const getStats = async (
 
 export const getLawyers = async (firmId?: number): Promise<Lawyer[]> => {
   try {
-    const response = await axios.get(`${BASE_URL}/firm-admin/firms/lawyers`, {
+    const response = await api.get(`${BASE_URL}/firm-admin/firms/lawyers`, {
       params: { firmId }, // <-- pass firmId in query
       withCredentials: true,
     });
@@ -171,7 +171,7 @@ export const deleteLawyer = async (
   id: number
 ): Promise<{ success: boolean; message: string }> => {
   try {
-    const response = await axios.delete(
+    const response = await api.delete(
       `${BASE_URL}/firm-admin/firm/lawyer/${id}`,
       {
         withCredentials: true,
@@ -206,7 +206,7 @@ export const updateLawyer = async (
       formData.append("profileImage", file);
     }
 
-    const response = await axios.put(
+    const response = await api.put(
       `${BASE_URL}/firm-admin/firm/lawyer/${id}`,
       formData,
       {
@@ -232,7 +232,7 @@ export const switchFirmAPI = async (firmId: number) => {
   if (res.data.token) {
     localStorage.setItem("token", res.data.token);
     localStorage.setItem("authToken", res.data.token);
-    axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
+    api.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
 
     // Update user data in localStorage with new active firm
     const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
@@ -249,7 +249,7 @@ export const switchFirmAPI = async (firmId: number) => {
 
 export const getLawyerPerformance = async (lawyerId: number | string) => {
   try {
-    const response = await axios.get(
+    const response = await api.get(
       `${BASE_URL}/firm-admin/${lawyerId}/performance`,
       {
         withCredentials: true, // only if you are using cookies/sessions
@@ -262,11 +262,27 @@ export const getLawyerPerformance = async (lawyerId: number | string) => {
     throw error;
   }
 };
+export const getClientPerformance = async (clientId: number | string) => {
+  try {
+    const response = await api.get(
+      `${BASE_URL}/firm-admin/${clientId}/client/performance`,
+      {
+        withCredentials: true, // only if you are using cookies/sessions
+      }
+    );
+    console.log("client performance api response", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching client performance:", error);
+    throw error;
+  }
+};
+
 
 /**Create Client API Call */
 export const createClient = async (firmId: number, data: FormData) => {
   try {
-    const response = await axios.post(
+    const response = await api.post(
       `${BASE_URL}/firm-admin/${firmId}/addClient`,
       data,
       {
@@ -439,7 +455,7 @@ export const getAllCasesOfFirm = async (firmId: number): Promise<Case[]> => {
 
 export const getAllCasesOfLawyer = async (): Promise<Case[]> => {
   try {
-    const response = await axios.get<{ cases: Case[] }>(
+    const response = await api.get<{ cases: Case[] }>(
       `${BASE_URL}/firm-admin/lawyer/cases`, // same as backend route
       { withCredentials: true }
     );
@@ -462,8 +478,8 @@ export const getAllCasesOfClient = async (
   clientId: number
 ): Promise<Case[]> => {
   try {
-    const response = await axios.get<{ success: boolean; cases: Case[] }>(
-      `${BASE_URL}/firm-admin/clients/${clientId}/cases`,
+    const response = await api.get<{ success: boolean; cases: Case[] }>(
+      `/firm-admin/clients/${clientId}/cases`,
       { withCredentials: true }
     );
     return response.data.cases;
@@ -481,7 +497,7 @@ export const getAllCasesOfClient = async (
 
 export const getAllClientsOfLawyer = async (): Promise<Client[]> => {
   try {
-    const response = await axios.get(`${BASE_URL}/firm-admin/lawyer/clients`, {
+    const response = await api.get(`${BASE_URL}/firm-admin/lawyer/clients`, {
       withCredentials: true,
     });
     return response.data.clients;
@@ -717,7 +733,7 @@ export const updateUser = async (
 
 export const lawyerStatsData = async () => {
   try {
-    const response = await axios.get(`${BASE_URL}/firm-admin/lawyers/stats`, {
+    const response = await api.get(`${BASE_URL}/firm-admin/lawyers/stats`, {
       withCredentials: true,
     });
     return response.data;
@@ -728,7 +744,7 @@ export const lawyerStatsData = async () => {
 
 export const clientStatsData = async (): Promise<ClientStats | null> => {
   try {
-    const response = await axios.get(`${BASE_URL}/firm-admin/client/stats`, {
+    const response = await api.get(`${BASE_URL}/firm-admin/client/stats`, {
       withCredentials: true,
     });
     return response.data;

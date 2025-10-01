@@ -212,14 +212,16 @@ export default function GetLawyerDetail({
                       size="large"
                       icon={<EditOutlined style={{ fontSize: "14px" }} />}
                       onClick={() => router.push(`/edit-lawyer/${lawyerId}`)}
-                      className="bg-white dark:bg-slate-700 hover:bg-gray-100 dark:hover:bg-slate-600 text-[#E43636] dark:text-white border-white dark:border-slate-600"
-                      style={{
-                        borderRadius: "12px",
-                        fontWeight: "600",
-                        padding: "12px 32px",
-                        height: "48px",
-                        boxShadow: "0 4px 12px rgba(255, 255, 255, 0.3)",
-                      }}
+                     style={{
+                          background: "white",
+                          borderColor: "white",
+                          color: "#2563eb",
+                          borderRadius: "12px",
+                          fontWeight: "600",
+                          padding: "8px 24px",
+                          height: "48px",
+                          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                        }}
                     >
                       Edit Profile
                     </Button>

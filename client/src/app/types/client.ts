@@ -37,4 +37,10 @@ export interface ClientStats {
   activeCases: number;
   completedCases: number;
   uploadedDocuments: number;
+  totalLawyersAssigned: number;
+  openCases:number,
+  closedCases:number,
+  wonCases:number
+  caseStats:CaseStats
+
 }

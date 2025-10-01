@@ -94,7 +94,7 @@ export default function AddLawyer() {
       formData.append("status", status);
       if (profileImage) formData.append("profileImage", profileImage);
       if (!firmId) {
-        toast.error("Firm ID is missing!");
+         router.push("/components/nofirmidfallback")
         return;
       }
       const response = await addLawyer(firmId, formData);

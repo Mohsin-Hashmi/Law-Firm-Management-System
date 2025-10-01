@@ -30,6 +30,7 @@ import { Case, CaseLawyer } from "../types/case";
 import { getLawyers } from "../service/adminAPI";
 import { useAppSelector } from "../store/hooks";
 import { RootState } from "../store/store";
+import { useRouter } from "next/navigation";
 interface AssignLawyerModalProps {
   visible: boolean;
   onClose: () => void;
@@ -43,6 +44,7 @@ const AssignLawyerModal: React.FC<AssignLawyerModalProps> = ({
   selectedCase,
   onLawyerAssigned,
 }) => {
+  const router = useRouter();
   const user = useAppSelector((state: RootState) => state.user.user);
   const firmId = user?.firmId;
   const [loading, setLoading] = useState(false);
@@ -52,7 +54,9 @@ const AssignLawyerModal: React.FC<AssignLawyerModalProps> = ({
 
   // Mock function to fetch lawyers - replace with your actual API call
   const fetchLawyers = async (firmId?: number) => {
-    if (!firmId) return;
+    if (!firmId) {
+       router.push("/components/nofirmidfallback")
+    };
     setLawyersLoading(true);
     try {
       // Replace this with your actual API call

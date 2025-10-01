@@ -38,16 +38,18 @@ import {
   CheckOutlined,
   CloseOutlined,
   BankTwoTone,
+  ArrowLeftOutlined
 } from "@ant-design/icons";
 import { ColumnsType } from "antd/es/table";
 import { Case } from "@/app/types/case";
 import BASE_URL from "@/app/utils/constant";
+import { useRouter } from "next/navigation";
 
 import {
   getAllCasesOfFirm,
   getAllCasesOfLawyer,
   uploadCaseDocuments,
-  getAllCasesOfClient
+  getAllCasesOfClient,
 } from "@/app/service/adminAPI";
 import { usePermission } from "@/app/hooks/usePermission";
 import ConfirmationModal from "@/app/components/ConfirmationModal";
@@ -57,6 +59,7 @@ const { Option } = Select;
 
 export default function UploadCaseDocumentsPage() {
   const { hasPermission } = usePermission();
+  const router= useRouter();
   const user = useAppSelector((state: RootState) => state.user.user);
   const firmId = user?.firmId ?? user?.activeFirmId;
   const role = user?.role;
@@ -481,7 +484,7 @@ export default function UploadCaseDocumentsPage() {
           <div className="min-h-screen transition-colors duration-300 [&_.ant-typography]:dark:!text-white [&_.ant-card-head-title]:dark:!text-white">
             {/* Header */}
             <Card
-              className="bg-[#433878] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+              className="bg-[#1B3C53] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
               bodyStyle={{ padding: "32px 20px" }}
             >
               <Row align="middle" justify="space-between">
@@ -527,6 +530,26 @@ export default function UploadCaseDocumentsPage() {
                       </Text>
                     </div>
                   </Space>
+                </Col>
+                <Col>
+                  <Button
+                    icon={<ArrowLeftOutlined />}
+                    onClick={() => router.back()}
+                    size="large"
+                    style={{
+                      background: "rgba(255,255,255,0.2)",
+                      borderColor: "rgba(255,255,255,0.3)",
+                      color: "white",
+                      borderRadius: "12px",
+                      fontWeight: "600",
+                      padding: "8px 24px",
+                      height: "48px",
+                      backdropFilter: "blur(10px)",
+                    }}
+                    ghost
+                  >
+                    Back
+                  </Button>
                 </Col>
               </Row>
             </Card>

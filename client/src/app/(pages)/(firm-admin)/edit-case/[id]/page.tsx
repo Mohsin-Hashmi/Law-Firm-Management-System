@@ -124,7 +124,7 @@ export default function EditCase() {
 
       // Add validation for required values
       if (!firmId) {
-        toast.error("Firm ID is missing. Please try logging in again.");
+        router.push("/components/nofirmidfallback")
         return;
       }
 

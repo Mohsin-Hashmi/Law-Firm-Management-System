@@ -91,7 +91,7 @@ export default function GetClients() {
 
       if (role === "Firm Admin") {
         if (!firmId) {
-          toast.error("Firm ID missing");
+           router.push("/components/nofirmidfallback")
           return;
         }
         response = await getAllClients(firmId);

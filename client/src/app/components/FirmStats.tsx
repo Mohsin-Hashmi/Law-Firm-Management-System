@@ -26,6 +26,7 @@ import {
   RightOutlined,
   DashboardOutlined,
   TrophyOutlined,
+  FileTextOutlined
 } from "@ant-design/icons";
 import {
   LineChart,
@@ -135,6 +136,109 @@ export default function FirmStats({ firmId, role }: Props) {
   const handleAddCase = () => {
     router.push("/add-case");
   };
+
+  // Add this new condition after the loading check and before the existing error check
+  if (role === "Firm Admin" && !firmId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center  transition-colors duration-300">
+        <div className="max-w-2xl w-full">
+          <Card
+            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg transition-colors duration-300"
+            bodyStyle={{ padding: "64px 48px" }}
+          >
+            <div className="text-center">
+              {/* Icon Container */}
+              <div className="w-20 h-20 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 flex items-center justify-center shadow-lg">
+                <BankOutlined className="text-4xl text-white" />
+              </div>
+
+              {/* Heading */}
+              <Title
+                level={2}
+                className="!text-slate-900 dark:!text-white !mb-3 !font-bold !text-3xl"
+              >
+                Welcome to Your Dashboard
+              </Title>
+
+              {/* Subheading */}
+              <Text className="text-slate-500 dark:text-slate-400 text-base mb-10 block max-w-lg mx-auto leading-relaxed">
+                To get started, you will need to create your law firm profile.
+                This will unlock access to all platform features including
+                client management, case tracking, and team collaboration.
+              </Text>
+
+              {/* Primary Action Button */}
+              <Button
+                type="primary"
+                size="large"
+                icon={<PlusOutlined />}
+                onClick={() => router.push("/add-firm")}
+                className="w-full max-w-sm h-12 rounded-lg font-semibold text-base shadow-md hover:shadow-lg transition-all duration-200"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+                  border: "none",
+                }}
+              >
+                Add New Business
+              </Button>
+
+              {/* Divider */}
+              <div className="relative my-10">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-slate-200 dark:border-slate-700"></div>
+                </div>
+                <div className="relative flex justify-center">
+                  <span className="px-4 text-sm text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800">
+                    What you will get
+                  </span>
+                </div>
+              </div>
+
+              {/* Features Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
+                <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600">
+                  <div className="text-blue-600 dark:text-blue-400 mb-2">
+                    <UserOutlined className="text-xl" />
+                  </div>
+                  <Text className="text-slate-900 dark:text-white font-medium text-sm block mb-1">
+                    Client Management
+                  </Text>
+                  <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                    Organize and track all your clients
+                  </Text>
+                </div>
+
+                <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600">
+                  <div className="text-blue-600 dark:text-blue-400 mb-2">
+                    <FileTextOutlined className="text-xl" />
+                  </div>
+                  <Text className="text-slate-900 dark:text-white font-medium text-sm block mb-1">
+                    Case Tracking
+                  </Text>
+                  <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                    Monitor case progress in real-time
+                  </Text>
+                </div>
+
+                <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600">
+                  <div className="text-blue-600 dark:text-blue-400 mb-2">
+                    <TeamOutlined className="text-xl" />
+                  </div>
+                  <Text className="text-slate-900 dark:text-white font-medium text-sm block mb-1">
+                    Team Collaboration
+                  </Text>
+                  <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                    Work seamlessly with your team
+                  </Text>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
   // Show loading spinner when loading OR when there's no stats yet (during firm switch)
   if (loading || (!stats && !error)) {
     return (
@@ -145,85 +249,7 @@ export default function FirmStats({ firmId, role }: Props) {
       </div>
     );
   }
-  // Add this new condition after the loading check and before the existing error check
-  if (role === "Firm Admin" && !firmId) {
-    return (
-      <DashboardLayout>
-        <div className="min-h-screen transition-colors duration-300">
-          <div className="max-w-full">
-            <Card
-              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm transition-colors duration-300"
-              bodyStyle={{ padding: "48px 32px" }}
-            >
-              <div className="text-center">
-                <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 flex items-center justify-center border-4 border-blue-200 dark:border-blue-700">
-                  <BankOutlined className="text-5xl text-blue-600 dark:text-blue-400" />
-                </div>
 
-                <Title
-                  level={2}
-                  className="!text-slate-900 dark:!text-white !mb-4 !font-semibold"
-                >
-                  No Law Firm Created Yet
-                </Title>
-
-                <Text className="text-slate-600 dark:text-slate-300 text-lg mb-8 block max-w-md mx-auto">
-                  {`You haven't created your law firm yet. Create your firm first to access the dashboard and manage your legal practice.`}
-                </Text>
-
-                <Space
-                  direction="vertical"
-                  size="large"
-                  className="w-full max-w-sm mx-auto"
-                >
-                  <Button
-                    type="primary"
-                    size="large"
-                    icon={<PlusOutlined />}
-                    onClick={() => router.push("/add-firm")}
-                    className="w-full h-12 rounded-xl font-semibold text-base"
-                    style={{
-                      background:
-                        "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
-                      border: "none",
-                      boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
-                    }}
-                  >
-                    Create Your Law Firm
-                  </Button>
-
-                  <Button
-                    size="large"
-                    icon={<UserOutlined />}
-                    onClick={() => router.push("/profile")}
-                    className="w-full h-12 rounded-xl font-medium text-base border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300"
-                  >
-                    Setup Profile First
-                  </Button>
-                </Space>
-
-                <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
-                  <Space
-                    direction="vertical"
-                    size="small"
-                    className="text-center"
-                  >
-                    <Text className="text-blue-800 dark:text-blue-300 font-medium">
-                      Need help getting started?
-                    </Text>
-                    <Text className="text-blue-700 dark:text-blue-400 text-sm">
-                      Creating a firm will give you access to client management,
-                      case tracking, and team collaboration tools.
-                    </Text>
-                  </Space>
-                </div>
-              </div>
-            </Card>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
   if (error)
     return (
       <Card

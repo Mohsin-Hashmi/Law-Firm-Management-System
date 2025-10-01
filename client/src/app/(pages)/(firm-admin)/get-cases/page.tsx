@@ -79,8 +79,14 @@ export default function GetCases() {
   const [selectedCase, setSelectedCase] = useState<Case | null>();
   const [assignLawyerModalVisible, setAssignLawyerModalVisible] =
     useState(false);
+
+  const [isRouterReady, setIsRouterReady] = useState(false);
   const [selectedCaseForLawyer, setSelectedCaseForLawyer] =
     useState<Case | null>(null);
+
+  useEffect(() => {
+    setIsRouterReady(true);
+  }, []);
 
   useEffect(() => {
     filterCases();
@@ -93,7 +99,10 @@ export default function GetCases() {
       let response: Case[] = [];
       if (role === "Firm Admin") {
         if (!firmId) {
-          toast.error("Firm ID missing");
+          if (isRouterReady) {
+            router.push("/components/nofirmidfallback");
+          }
+          toast.error("Firm id is not found")
           return;
         }
         response = await getAllCasesOfFirm(firmId);

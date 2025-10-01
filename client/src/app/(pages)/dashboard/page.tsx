@@ -31,10 +31,10 @@ export default function DashboardPage() {
       </div>
     );
   }
-  if (!firmId) {
-    toast.error("User firm id not exist");
-  } else {
+  if (firmId) {
     toast.success("Welcome to dashboard");
+  } else {
+    router.push("/components/nofirmidfallback")
   }
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>

@@ -51,6 +51,7 @@ import { ClientStats } from "@/app/types/client";
 import { usePermission } from "@/app/hooks/usePermission";
 const { Title, Text } = Typography;
 import BASE_URL from "@/app/utils/constant";
+import { getClientPerformance } from "@/app/service/adminAPI";
 
 export default function GetClientDetail({
   params,
@@ -93,7 +94,7 @@ export default function GetClientDetail({
   const fetchClientStats = async () => {
     try {
       setLoadingStats(true);
-      const data = await clientStatsData(clientId);
+      const data = await getClientPerformance(clientId);
       setClientStats(data);
     } catch (error) {
       console.error("Error fetching client stats:", error);
@@ -235,13 +236,15 @@ export default function GetClientDetail({
                         size="large"
                         icon={<EditOutlined style={{ fontSize: "14px" }} />}
                         onClick={() => router.push(`/edit-client/${clientId}`)}
-                        className="bg-white dark:bg-slate-700 hover:bg-gray-100 dark:hover:bg-slate-600 text-emerald-600 dark:text-white border-white dark:border-slate-600"
                         style={{
+                          background: "white",
+                          borderColor: "white",
+                          color: "#2563eb",
                           borderRadius: "12px",
                           fontWeight: "600",
-                          padding: "12px 32px",
+                          padding: "8px 24px",
                           height: "48px",
-                          boxShadow: "0 4px 12px rgba(255, 255, 255, 0.3)",
+                          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                         }}
                       >
                         Edit Profile
@@ -559,7 +562,7 @@ export default function GetClientDetail({
                             </ResponsiveContainer>
                           </div>
                         ) : (
-                         <div className="flex justify-center items-center py-12">
+                          <div className="flex justify-center items-center py-12">
                             <div className="px-8 py-6 rounded-2xl text-lg font-semibold text-amber-700 dark:text-amber-700 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800  flex items-center space-x-3 shadow-sm">
                               <FileTextOutlined className="text-amber-600 dark:text-amber-400 text-xl" />
                               <span>No Performance Data Yet Available</span>
