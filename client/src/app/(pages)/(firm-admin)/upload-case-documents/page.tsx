@@ -21,7 +21,6 @@ import {
   Tag,
   Tooltip,
   Typography,
-  Modal,
 } from "antd";
 import {
   BankOutlined,
@@ -49,6 +48,7 @@ import {
   uploadCaseDocuments,
 } from "@/app/service/adminAPI";
 import { usePermission } from "@/app/hooks/usePermission";
+import ConfirmationModal from "@/app/components/ConfirmationModal";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -72,7 +72,7 @@ export default function UploadCaseDocumentsPage() {
   const [selectedCase, setSelectedCase] = useState<Case | null>(null);
   const [pendingUploads, setPendingUploads] = useState<File[]>([]);
   const [uploading, setUploading] = useState<boolean>(false);
-  const [confirmModalOpen, setConfirmModalOpen] = useState<boolean>(false);
+  const [confirmUploadModalOpen, setConfirmUploadModalOpen] = useState<boolean>(false);
 
   const fetchCases = async (firmId: number) => {
     try {
@@ -202,14 +202,14 @@ export default function UploadCaseDocumentsPage() {
   };
 
   const handleConfirmUpload = () => {
-    setConfirmModalOpen(true);
+    setConfirmUploadModalOpen(true);
   };
 
   const executeUpload = async () => {
     if (!firmId || !selectedCase || pendingUploads.length === 0) return;
     try {
       setUploading(true);
-      setConfirmModalOpen(false);
+      setConfirmUploadModalOpen(false);
 
       await uploadCaseDocuments(
         role || "Client",
@@ -890,6 +890,7 @@ export default function UploadCaseDocumentsPage() {
                     size="large"
                     icon={<CheckOutlined />}
                     onClick={handleConfirmUpload}
+                    loading={uploading}
                     style={{
                       background: "#1e40af",
                       borderRadius: "12px",
@@ -917,51 +918,20 @@ export default function UploadCaseDocumentsPage() {
           onChange={onFilesSelected}
         />
 
-        {/* Confirmation Modal */}
-        <Modal
-          title={
-            <div className="flex items-center gap-2">
-              <UploadOutlined className="text-blue-600" />
-              <span>Confirm Document Upload</span>
-            </div>
-          }
-          open={confirmModalOpen}
-          onCancel={() => setConfirmModalOpen(false)}
-          footer={[
-            <Button key="cancel" onClick={() => setConfirmModalOpen(false)}>
-              Cancel
-            </Button>,
-            <Button
-              key="upload"
-              type="primary"
-              loading={uploading}
-              onClick={executeUpload}
-              icon={<UploadOutlined />}
-            >
-              Upload Now
-            </Button>,
-          ]}
-        >
-          <div className="py-4">
-            <Text className="block mb-4">
-              You are about to upload <strong>{pendingUploads.length}</strong>{" "}
-              document
-              {pendingUploads.length !== 1 ? "s" : ""} ({getTotalFileSize()} MB)
-              to:
-            </Text>
-            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-              <Text strong className="block">
-                {selectedCase?.title}
-              </Text>
-              <Text className="text-sm text-slate-600 dark:text-slate-400">
-                Case Number: {selectedCase?.caseNumber}
-              </Text>
-            </div>
-            <Text className="block mt-4 text-sm text-slate-500">
-              This action cannot be undone. Are you sure you want to proceed?
-            </Text>
-          </div>
-        </Modal>
+        {/* Confirmation Modal for Upload */}
+        <ConfirmationModal
+          visible={confirmUploadModalOpen}
+          entityName="Documents"
+          action="upload"
+          onConfirm={executeUpload}
+          onCancel={() => setConfirmUploadModalOpen(false)}
+          title="Upload Documents"
+          description={`You are about to upload ${pendingUploads.length} document${
+            pendingUploads.length !== 1 ? "s" : ""
+          } (${getTotalFileSize()} MB) to case "${selectedCase?.title}". Do you want to proceed?`}
+          confirmText="Upload"
+          cancelText="Cancel"
+        />
       </DashboardLayout>
     </ThemeProvider>
   );
