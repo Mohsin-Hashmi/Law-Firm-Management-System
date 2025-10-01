@@ -25,14 +25,12 @@ app.use(cookieParser());
 
 const allowedOrigins = [
   process.env.FRONTEND_ORIGIN, // e.g., https://your-domain
-   "https://legal-law-firm-management-system.vercel.app",
+  "https://legal-law-firm-management-system.vercel.app",
   "https://northmanlegal.vercel.app",
   "http://localhost:3000", // local development
 ].filter(Boolean);
 
-
-
-// Apply CORS to APIs
+// Apply CORS to APIs to handle CORS
 app.use(
   cors({
     origin: function (origin, callback) {
