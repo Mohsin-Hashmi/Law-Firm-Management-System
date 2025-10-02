@@ -96,12 +96,14 @@ interface Case {
 
 import { useAppSelector } from "@/app/store/hooks";
 import { RootState } from "@/app/store/store";
+import { usePermission } from "@/app/hooks/usePermission";
 
 export default function GetCaseDetail({
   params,
 }: {
   params: Promise<{ firmId: string; id: string }>;
 }) {
+  const { hasPermission } = usePermission();
   const router = useRouter();
   const { id } = use(params);
   const caseId = Number(id);
@@ -167,7 +169,7 @@ export default function GetCaseDetail({
     }
 
     // Clean up leading slashes to avoid `//` in the URL
-    const baseUrl = "http://localhost:5000";
+    const baseUrl = `${BASE_URL}`;
     const normalizedUrl = document.filePath.startsWith("/")
       ? `${baseUrl}/${document.filePath}`
       : `${baseUrl}/${document.filePath}`;
@@ -362,24 +364,26 @@ export default function GetCaseDetail({
                     >
                       Back
                     </Button>
-                    <Button
-                      type="primary"
-                      size="large"
-                      icon={<EditOutlined />}
-                      onClick={() => router.push(`/edit-case/${caseData.id}`)}
-                      style={{
-                        background: "white",
-                        borderColor: "white",
-                        color: "#2563eb",
-                        borderRadius: "12px",
-                        fontWeight: "600",
-                        padding: "8px 24px",
-                        height: "48px",
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                      }}
-                    >
-                      Edit Case
-                    </Button>
+                    {hasPermission("update_case") && (
+                      <Button
+                        type="primary"
+                        size="large"
+                        icon={<EditOutlined />}
+                        onClick={() => router.push(`/edit-case/${caseData.id}`)}
+                        style={{
+                          background: "white",
+                          borderColor: "white",
+                          color: "#2563eb",
+                          borderRadius: "12px",
+                          fontWeight: "600",
+                          padding: "8px 24px",
+                          height: "48px",
+                          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                        }}
+                      >
+                        Edit Case
+                      </Button>
+                    )}
                   </Space>
                 </Col>
               </Row>
