@@ -274,7 +274,17 @@ export default function DashboardLayout({
         <header className="h-25 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-5 py-5 shadow-sm dark:shadow-2xl">
           <div className="flex items-center space-x-4">
             <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
-              {role === "Super Admin" && "Super Admin Panel"}
+              {role === "Super Admin" && (
+                <div className="flex items-center space-x-3">
+                  <div className="px-4 py-2 rounded-lg text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center space-x-2">
+                    <BankOutlined className="text-amber-600 dark:text-amber-400" />
+                    <span>
+                      Welcome to your dashboard — You have complete access to
+                      manage firms, lawyers, and clients.
+                    </span>
+                  </div>
+                </div>
+              )}
               {role === "Firm Admin" && ""}
               {role === "Lawyer" && (
                 <div className="flex items-center space-x-3">
