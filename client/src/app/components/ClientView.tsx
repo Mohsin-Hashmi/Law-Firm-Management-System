@@ -42,6 +42,8 @@ import {
   XAxis,
   YAxis,
   Tooltip,
+  Cell,
+  CartesianGrid,
 } from "recharts";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { useRouter } from "next/navigation";
@@ -372,6 +374,7 @@ export default function ClientView({ firmId, role }: Props) {
         </Row>
 
         {/* Action Cards & Analytics */}
+
         <Row gutter={[24, 24]}>
           {/* Quick Actions - Based on Client Permissions */}
           <Col xs={24} lg={8}>
@@ -385,7 +388,8 @@ export default function ClientView({ firmId, role }: Props) {
                 </Space>
               }
               className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800"
-              bodyStyle={{ padding: "20px" }}
+              bodyStyle={{ padding: "20px",  marginTop: "25px"}}
+              style={{ height: "100%" }}
             >
               <Space
                 direction="vertical"
@@ -472,6 +476,96 @@ export default function ClientView({ firmId, role }: Props) {
                   </Space>
                 </Button>
               </Space>
+            </Card>
+          </Col>
+
+          {/* Performance Overview Graph */}
+          <Col xs={24} lg={16}>
+            <Card
+              title={
+                <Space>
+                  <FileTextOutlined className="text-emerald-600 dark:text-emerald-400" />
+                  <span className="text-slate-900 dark:!text-white font-semibold">
+                    Performance Overview
+                  </span>
+                </Space>
+              }
+              className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800"
+              bodyStyle={{ padding: "20px" }}
+            >
+              {stats &&
+              (stats.totalCases > 0 ||
+                stats.activeCases > 0 ||
+                stats.completedCases > 0 ||
+                stats.uploadedDocuments > 0) ? (
+                <div style={{ width: "100%", height: 300 }}>
+                  <ResponsiveContainer>
+                    <BarChart
+                      data={[
+                        {
+                          name: "Total Cases",
+                          value: stats.totalCases || 0,
+                        },
+                        {
+                          name: "Active Cases",
+                          value: stats.activeCases || 0,
+                        },
+                        {
+                          name: "Completed",
+                          value: stats.completedCases || 0,
+                        },
+                        {
+                          name: "Documents",
+                          value: stats.uploadedDocuments || 0,
+                        },
+                      ]}
+                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis
+                        dataKey="name"
+                        stroke="#64748b"
+                        tick={{ fontSize: 12 }}
+                      />
+                      <YAxis stroke="#64748b" tick={{ fontSize: 12 }} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#1e293b", 
+                          borderRadius: "8px",
+                          color: "#fff", 
+                        }}
+                        itemStyle={{ color: "#fff" }} 
+                        labelStyle={{ color: "#fff" }}
+                      />
+                      <Bar
+                        dataKey="value"
+                        radius={[25, 25, 0, 0]}
+                        maxBarSize={60}
+                      >
+                        {[
+                          { fill: "#059669" },
+                          { fill: "#1e40af" },
+                          { fill: "#7c3aed" },
+                          { fill: "#f59e0b" },
+                        ].map((entry, index) => (
+                          <Cell
+                            className="text-white"
+                            key={`cell-${index}`}
+                            fill={entry.fill}
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <div className="flex justify-center items-center py-12">
+                  <div className="px-8 py-6 rounded-2xl text-lg font-semibold text-amber-700 dark:text-amber-700 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center space-x-3 shadow-sm">
+                    <FileTextOutlined className="text-amber-600 dark:text-amber-400 text-xl" />
+                    <span>No Performance Data Available Yet</span>
+                  </div>
+                </div>
+              )}
             </Card>
           </Col>
         </Row>

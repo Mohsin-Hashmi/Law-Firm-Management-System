@@ -27,6 +27,7 @@ import {
   TrophyOutlined,
   ClockCircleOutlined,
   ExclamationCircleOutlined,
+  FileTextOutlined
 } from "@ant-design/icons";
 import {
   LineChart,
@@ -39,6 +40,8 @@ import {
   XAxis,
   YAxis,
   Tooltip,
+  CartesianGrid,
+  Cell
 } from "recharts";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { useRouter } from "next/navigation";
@@ -405,13 +408,15 @@ export default function LawyerStatsData({ firmId, role }: Props) {
                   </span>
                 </Space>
               }
-              className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800"
-              bodyStyle={{ padding: "20px" }}
+              className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800 "
+              bodyStyle={{ padding: "20px", marginTop: "25px" }}
+              style={{ height: "100%" }}
             >
               <Space
                 direction="vertical"
                 style={{ width: "100%" }}
                 size="middle"
+                className="flex flex-col justify-center"
               >
                 <Button
                   type="text"
@@ -492,115 +497,88 @@ export default function LawyerStatsData({ firmId, role }: Props) {
             </Card>
           </Col>
 
-          {/* Recent Activity */}
-          <Col xs={24} lg={8}>
+           <Col xs={24} lg={16}>
             <Card
               title={
                 <Space>
-                  <BarChartOutlined className="text-purple-600 dark:text-purple-400" />
+                  <FileTextOutlined className="text-red-600 dark:text-red-400" />
                   <span className="text-slate-900 dark:!text-white font-semibold">
-                    Recent Activity
+                    Performance Overview
                   </span>
                 </Space>
               }
               className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800"
               bodyStyle={{ padding: "20px" }}
             >
-              <Space
-                direction="vertical"
-                style={{ width: "100%" }}
-                size="middle"
-              >
-                <div className="py-3 border-b border-slate-100 dark:border-slate-600">
-                  <Text className="text-slate-900 dark:text-white font-medium block">
-                    Case hearing scheduled for tomorrow
-                  </Text>
-                  <Text className="text-slate-400 dark:text-white text-xs">
-                    2 hours ago
-                  </Text>
+              {lawyer &&
+              (lawyer.completedCases > 0 ||
+                lawyer.ongoingCases > 0 ||
+                lawyer.pendingCases > 0 ||
+                lawyer.totalClients > 0) ? (
+                <div style={{ width: "100%", height: 300 }}>
+                  <ResponsiveContainer>
+                    <BarChart
+                      data={[
+                        {
+                          name: "Completed",
+                          value: lawyer.completedCases || 0,
+                        },
+                        {
+                          name: "Ongoing",
+                          value: lawyer.ongoingCases || 0,
+                        },
+                        {
+                          name: "Pending",
+                          value: lawyer.pendingCases || 0,
+                        },
+                        {
+                          name: "Clients",
+                          value: lawyer.totalClients || 0,
+                        },
+                      ]}
+                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis
+                        dataKey="name"
+                        stroke="#64748b"
+                        tick={{ fontSize: 12 }}
+                      />
+                      <YAxis stroke="#64748b" tick={{ fontSize: 12 }} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#1e293b", 
+                          borderRadius: "8px",
+                          color: "#fff", 
+                        }}
+                        itemStyle={{ color: "#fff" }} 
+                        labelStyle={{ color: "#fff" }}
+                      />
+                      <Bar
+                        dataKey="value"
+                        radius={[25, 24, 0, 0]}
+                        maxBarSize={60}
+                      >
+                        {[
+                          { fill: "#059669" },
+                          { fill: "#dc2626" },
+                          { fill: "#f59e0b" },
+                          { fill: "#7c3aed" },
+                        ].map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.fill} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
-
-                <div className="py-3 border-b border-slate-100 dark:border-slate-600">
-                  <Text className="text-slate-900 dark:text-white font-medium block">
-                    Document submitted for Review Case
-                  </Text>
-                  <Text className="text-slate-400 dark:text-white text-xs">
-                    5 hours ago
-                  </Text>
-                </div>
-
-                <div className="py-3 border-b border-slate-100 dark:border-slate-600">
-                  <Text className="text-slate-900 dark:text-white font-medium block">
-                    New client consultation completed
-                  </Text>
-                  <Text className="text-slate-400 dark:text-white text-xs">
-                    1 day ago
-                  </Text>
-                </div>
-
-                <Button
-                  type="link"
-                  className="p-0 text-blue-600 dark:text-blue-400 font-medium hover:text-blue-700 dark:hover:text-blue-300"
-                >
-                  View all activities →
-                </Button>
-              </Space>
-            </Card>
-          </Col>
-
-          {/* Performance Metrics */}
-          <Col xs={24} lg={8}>
-            <Card
-              title={
-                <Space>
-                  <TrophyOutlined className="text-amber-600 dark:text-amber-400" />
-                  <span className="text-slate-900 dark:!text-white font-semibold">
-                    Performance
-                  </span>
-                </Space>
-              }
-              className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800"
-              bodyStyle={{ padding: "20px" }}
-            >
-              <Row gutter={[0, 16]}>
-                <Col span={24}>
-                  <div className="text-center p-4 bg-slate-50 dark:bg-slate-700">
-                    <Statistic
-                      title={
-                        <span className="text-slate-600 dark:!text-white text-sm">
-                          Case Success Rate
-                        </span>
-                      }
-                      value={lawyer?.successRate}
-                      suffix="%"
-                      valueStyle={{
-                        fontSize: "28px",
-                        fontWeight: "700",
-                        color: "inherit",
-                      }}
-                      className="text-emerald-600 dark:text-emerald-400 [&_.ant-statistic-content-value]:dark:!text-emerald-400"
-                    />
+              ) : (
+                <div className="flex justify-center items-center py-12">
+                  <div className="px-8 py-6 rounded-2xl text-lg font-semibold text-amber-700 dark:text-amber-700 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center space-x-3 shadow-sm">
+                    <FileTextOutlined className="text-amber-600 dark:text-amber-400 text-xl" />
+                    <span>No Performance Data Available Yet</span>
                   </div>
-                </Col>
-                <Col span={24}>
-                  <div className="text-center p-4 bg-slate-50 dark:bg-slate-700">
-                    <Statistic
-                      title={
-                        <span className="text-slate-600 dark:!text-white text-sm">
-                          Cases This Week
-                        </span>
-                      }
-                      value={lawyer?.activeThisWeek}
-                      valueStyle={{
-                        fontSize: "28px",
-                        fontWeight: "700",
-                        color: "inherit",
-                      }}
-                      className="text-blue-600 dark:text-blue-400 [&_.ant-statistic-content-value]:dark:!text-blue-400"
-                    />
-                  </div>
-                </Col>
-              </Row>
+                </div>
+              )}
             </Card>
           </Col>
         </Row>

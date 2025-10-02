@@ -14,7 +14,6 @@ import {
   Progress,
   Table,
   message,
- 
 } from "antd";
 import {
   FolderOutlined,
@@ -26,8 +25,6 @@ import {
   BarChartOutlined,
   FileTextOutlined,
   RiseOutlined,
- 
-
 } from "@ant-design/icons";
 import { toast } from "react-hot-toast";
 import DashboardLayout from "@/app/components/DashboardLayout";
@@ -441,7 +438,16 @@ export default function GetCases() {
                             strokeColor={getStatusColor(status.status)}
                             trailColor="#f1f5f9"
                             size="default"
-                            format={(percent) => `${percent?.toFixed(1)}%`}
+                            format={(percent = 0) => (
+                              <span
+                                style={{
+                                  color: percent > 0 ? "green" : "red",
+                                  fontWeight: 600,
+                                }}
+                              >
+                                {percent.toFixed(1)}%
+                              </span>
+                            )}
                           />
                         </div>
                       )) || (
