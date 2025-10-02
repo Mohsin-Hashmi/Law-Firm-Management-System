@@ -880,6 +880,7 @@ export default function GetCaseDocumentsPage() {
           closeIcon={
             <CloseOutlined className="text-slate-400 hover:text-slate-600" />
           }
+          className="view-documents-modal"
         >
           <div>
             {/* Header */}
@@ -984,7 +985,7 @@ export default function GetCaseDocumentsPage() {
                                   "_blank"
                                 )
                               }
-                              className="hover:!bg-blue-50 hover:!text-blue-600"
+                              className="hover:!bg-blue-50 hover:!text-blue-600 dark:text-white dark:hover:!bg-slate-700 dark:hover:!text-blue-400"
                             />
                           </Tooltip>
                           {role === "Firm Admin" &&
