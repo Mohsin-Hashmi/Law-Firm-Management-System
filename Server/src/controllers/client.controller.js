@@ -7,7 +7,7 @@ const {
   Role,
   UserFirm,
   ClientLawyer,
-  CaseDocument
+  CaseDocument,
 } = require("../models");
 const bcrypt = require("bcryptjs");
 
@@ -319,65 +319,56 @@ const deleteClient = async (req, res) => {
 /** Get All Clients of Lawyer API */
 const getAllClientsOfLawyer = async (req, res) => {
   try {
-    let { lawyerId } = req.params;
     const { role, id: userId } = req.user;
 
-    if (role === "Lawyer") {
-      const lawyer = await Lawyer.findOne({ where: { userId } });
-      if (!lawyer)
-        return res
-          .status(404)
-          .json({ success: false, message: "Lawyer profile not found" });
-      lawyerId = lawyer.id;
+    if (role !== "Lawyer") {
+      return res.status(403).json({
+        success: false,
+        message: "Only lawyers can access their clients",
+      });
     }
 
-    if (!lawyerId)
-      return res
-        .status(400)
-        .json({ success: false, message: "Lawyer ID is required" });
+    // 🔹 Find lawyer by logged-in user
+    const lawyer = await Lawyer.findOne({ where: { userId } });
+    if (!lawyer) {
+      return res.status(404).json({
+        success: false,
+        message: "Lawyer profile not found",
+      });
+    }
 
-    const clients = await Client.findAll({
+    // 🔹 Use the belongsToMany relation
+    const clients = await lawyer.getClients({
       include: [
-        {
-          model: Lawyer,
-          as: "lawyers",
-          where: { id: lawyerId },
-          through: { attributes: [] },
-          required: true, // ensures only clients linked to this lawyer
-        },
         {
           model: Case,
           as: "cases",
-          required: false, // <-- allow clients without cases
-          include: [
-            {
-              model: Lawyer,
-              as: "lawyers",
-              through: { attributes: [] },
-              required: false,
-            },
-          ],
+          required: false, // allow clients without cases
         },
       ],
-      distinct: true,
     });
 
-    if (!clients.length)
-      return res
-        .status(404)
-        .json({ success: false, message: "No clients found for this lawyer" });
+    if (!clients || clients.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No clients found for this lawyer",
+      });
+    }
 
-    return res
-      .status(200)
-      .json({ success: true, count: clients.length, clients });
+    return res.status(200).json({
+      success: true,
+      count: clients.length,
+      clients,
+    });
   } catch (err) {
     console.error("Get Clients Error:", err);
-    return res
-      .status(500)
-      .json({ success: false, message: "Server error", error: err.message });
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: err.message,
+    });
   }
 };
-
 
 /** Client Performance API */
 const getClientPerformance = async (req, res) => {
@@ -442,8 +433,6 @@ const getClientPerformance = async (req, res) => {
   }
 };
 
-
-
 const clientStats = async (req, res) => {
   try {
     let client;
@@ -468,8 +457,12 @@ const clientStats = async (req, res) => {
 
     // Case stats
     const totalCases = await Case.count({ where: { clientId } });
-    const activeCases = await Case.count({ where: { clientId, status: "Open" } });
-    const completedCases = await Case.count({ where: { clientId, status: "Closed" } });
+    const activeCases = await Case.count({
+      where: { clientId, status: "Open" },
+    });
+    const completedCases = await Case.count({
+      where: { clientId, status: "Closed" },
+    });
 
     // Uploaded documents (join CaseDocument → Case → Client)
     const uploadedDocuments = await CaseDocument.count({
@@ -501,8 +494,6 @@ const clientStats = async (req, res) => {
   }
 };
 
-
-
 module.exports = {
   createClient,
   getAllClients,
@@ -511,5 +502,5 @@ module.exports = {
   deleteClient,
   getAllClientsOfLawyer,
   getClientPerformance,
-  clientStats
+  clientStats,
 };

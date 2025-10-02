@@ -5,14 +5,14 @@ import api from "../utils/axiosConfig";
 import { LoginPayload, SignupPayload } from "../types/auth";
 
 export const loginUser = async (data: LoginPayload) => {
-  const response = await api.post("/auth/login", data);
+  const response = await axios.post(`${BASE_URL}/auth/login`, data, {withCredentials: true});
   
-  // Update token in localStorage if provided
-  if (response.data.token) {
-    localStorage.setItem("token", response.data.token);
-    localStorage.setItem("authToken", response.data.token);
-    axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.token}`;
-  }
+  // // Update token in localStorage if provided
+  // if (response.data.token) {
+  //   localStorage.setItem("token", response.data.token);
+  //   localStorage.setItem("authToken", response.data.token);
+  //   axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.token}`;
+  // }
   
   return response;
 };

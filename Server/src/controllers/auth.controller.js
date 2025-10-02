@@ -87,7 +87,10 @@ const LoginIn = async (req, res) => {
   try {
     console.log("🔵 LOGIN REQUEST RECEIVED");
     console.log("🔵 REQUEST BODY:", req.body);
+
     const { email, password } = req.body;
+
+    // Find user with associations
     const user = await User.findOne({
       where: { email },
       include: [
@@ -116,7 +119,7 @@ const LoginIn = async (req, res) => {
           as: "userFirms",
           include: [
             { model: Firm, as: "firm" },
-            { model: Role, as: "role" }, // optional, if you want role per firm
+            { model: Role, as: "role" },
           ],
         },
       ],
@@ -135,38 +138,56 @@ const LoginIn = async (req, res) => {
         .json({ success: false, message: "Invalid credentials" });
     }
 
-    // Build firms dynamically
+    // ---- Build firms dynamically ----
     let firms = [];
     let activeFirmId = null;
 
-    if (user.role?.name === "Firm Admin") {
-      firms = user.adminFirms.map((af) => ({
-        id: af.firm.id,
-        name: af.firm.name,
-      }));
+    if (user.role?.name === "Firm Admin" || user.role?.name === "Super Admin") {
+      firms = user.adminFirms?.map((af) => ({
+        id: af.firm?.id,
+        name: af.firm?.name,
+      })) || [];
       activeFirmId = firms.length > 0 ? firms[0].id : null;
+
     } else if (user.role?.name === "Lawyer") {
-      firms = user.lawyers.map((lf) => ({
-        id: lf.firm.id,
-        name: lf.firm.name,
-      }));
+      if (Array.isArray(user.lawyers)) {
+        firms = user.lawyers.map((lf) => ({
+          id: lf.firm?.id,
+          name: lf.firm?.name,
+        }));
+      } else if (user.lawyers) {
+        firms = [{
+          id: user.lawyers.firm?.id,
+          name: user.lawyers.firm?.name,
+        }];
+      }
       activeFirmId = firms.length > 0 ? firms[0].id : null;
+
     } else if (user.role?.name === "Client") {
-      firms = user.client.map((cl) => ({
-        id: cl.firm.id,
-        name: cl.firm.name,
-      }));
+      if (Array.isArray(user.client)) {
+        firms = user.client.map((cl) => ({
+          id: cl.firm?.id,
+          name: cl.firm?.name,
+        }));
+      } else if (user.client) {
+        firms = [{
+          id: user.client.firm?.id,
+          name: user.client.firm?.name,
+        }];
+      }
+      activeFirmId = firms.length > 0 ? firms[0].id : null;
+
     } else {
-      // Other roles
-      firms = user.userFirms.map((uf) => ({
-        id: uf.firm.id,
-        name: uf.firm.name,
+      // Other roles (using UserFirm)
+      firms = user.userFirms?.map((uf) => ({
+        id: uf.firm?.id,
+        name: uf.firm?.name,
         roleId: uf.roleId,
-      }));
+      })) || [];
       activeFirmId = firms.length > 0 ? firms[0].id : null;
     }
 
-    // Must change password
+    // ---- Must change password case ----
     if (user.mustChangePassword) {
       return res.status(200).json({
         success: true,
@@ -184,7 +205,7 @@ const LoginIn = async (req, res) => {
       });
     }
 
-    // Generate JWT
+    // ---- Generate JWT ----
     const token = jwt.sign(
       {
         id: user.id,
@@ -195,6 +216,7 @@ const LoginIn = async (req, res) => {
       { expiresIn: "7d" }
     );
 
+    // ---- Set cookie ----
     res.cookie("token", token, {
       httpOnly: true,
       sameSite: "none",
@@ -202,7 +224,7 @@ const LoginIn = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    // Final response
+    // ---- Final response ----
     res.status(200).json({
       success: true,
       message: "Login successful",
@@ -216,10 +238,11 @@ const LoginIn = async (req, res) => {
         firms,
         activeFirmId,
       },
-      token
+      token,
     });
+
   } catch (error) {
-    console.error(error);
+    console.error("❌ LOGIN ERROR:", error);
     res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -227,6 +250,8 @@ const LoginIn = async (req, res) => {
     });
   }
 };
+
+
 
 const Logout = (req, res) => {
   try {

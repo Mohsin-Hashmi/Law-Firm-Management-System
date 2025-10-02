@@ -72,50 +72,41 @@ export default function ClientView({ firmId, role }: Props) {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const user = useAppSelector((state: RootState) => state.user.user);
-    const [loading, setLoading] = useState(true);
-    const [stats, setStats] = useState<ClientStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<ClientStats | null>(null);
 
   const error = null; // Replace with actual error state
 
   // Sample client stats - replace with actual data from your API
 
-useEffect(() => {
-  if (!firmId || !role) return;
+  useEffect(() => {
+    if (!firmId || !role) return;
 
-  const fetchClientStats = async () => {
-    try {
-      setLoading(true);
-      const data = await clientStatsData();
-      if (data) {
-        setStats({
-          clientId: data.clientId,
-          clientName: data.clientName,
-          ...data.stats, // spread totalCases, activeCases, completedCases, uploadedDocuments
-        });
+    const fetchClientStats = async () => {
+      try {
+        setLoading(true);
+        const data = await clientStatsData();
+        if (data) {
+          setStats({
+            clientId: data.clientId,
+            clientName: data.clientName,
+            ...data.stats, // spread totalCases, activeCases, completedCases, uploadedDocuments
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching client stats:", err);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("Error fetching client stats:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  fetchClientStats();
-}, [firmId, role, dispatch]);
-
+    fetchClientStats();
+  }, [firmId, role, dispatch]);
 
   if (loading || !user) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "400px",
-        }}
-      >
+      <div className="flex items-center justify-center min-h-screen">
         <Spin size="large" />
-        <Text className="ml-2">Loading user data...</Text>
       </div>
     );
   }
@@ -137,7 +128,7 @@ useEffect(() => {
 
   const handleViewCaseStatus = () => {
     // Navigate to case status view
-    router.push("/case-status");
+    router.push("/get-cases");
   };
 
   if (loading) {
@@ -205,7 +196,7 @@ useEffect(() => {
     },
     {
       title: "Completed Cases",
-      value:  stats?.completedCases,
+      value: stats?.completedCases,
       icon: <CheckCircleOutlined />,
       color: "#7c3aed",
       background: "#f3f4f6",
@@ -251,7 +242,8 @@ useEffect(() => {
                     Welcome {stats?.clientName}
                   </Title>
                   <Text className="text-white/100 dark:text-white text-lg font-normal">
-                    Client Dashboard
+                    Take charge of your legal journey and manage your
+                    information easily
                   </Text>
                 </div>
               </Space>
@@ -480,41 +472,6 @@ useEffect(() => {
                   </Space>
                 </Button>
               </Space>
-            </Card>
-          </Col>
-        </Row>
-
-        {/* Document Upload Section */}
-        <Row gutter={[24, 24]} style={{ marginTop: "32px" }}>
-          <Col span={24}>
-            <Card
-              title={
-                <Space>
-                  <CloudUploadOutlined className="text-blue-600 dark:text-blue-400" />
-                  <span className="text-slate-900 dark:!text-white font-semibold">
-                    Quick Document Upload
-                  </span>
-                </Space>
-              }
-              className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800"
-              bodyStyle={{ padding: "20px" }}
-            >
-              <Dragger
-                name="files"
-                multiple
-                className="bg-slate-50 dark:bg-slate-700 border-2 border-dashed border-slate-200 dark:border-slate-600 rounded-xl"
-                style={{ padding: "40px 20px" }}
-              >
-                <p className="ant-upload-drag-icon">
-                  <InboxOutlined className="text-4xl text-blue-600 dark:text-blue-400" />
-                </p>
-                <p className="ant-upload-text text-slate-900 dark:text-white">
-                  Click or drag files to this area to upload
-                </p>
-                <p className="ant-upload-hint text-slate-500 dark:text-slate-400">
-                  Support for PDF, DOC, DOCX, and image files. Maximum file size: 10MB
-                </p>
-              </Dragger>
             </Card>
           </Col>
         </Row>

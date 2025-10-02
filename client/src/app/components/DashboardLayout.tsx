@@ -55,19 +55,20 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const role = useAppSelector((state) => state.user.user?.role);
   const user = useAppSelector((state) => state.user.user);
-  
+
   // Initialize collapsed state from localStorage
   const [collapsed, setCollapsed] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const savedState = localStorage.getItem('sidebar-collapsed');
+    if (typeof window !== "undefined") {
+      const savedState = localStorage.getItem("sidebar-collapsed");
       return savedState ? JSON.parse(savedState) : false;
     }
     return false;
   });
-  
+
   const [isSwitchingFirm, setIsSwitchingFirm] = useState(false);
   const [isRoleModalVisible, setIsRoleModalVisible] = useState(false);
-  const [isAssignRoleModalVisible, setIsAssignRoleModalVisible] = useState(false);
+  const [isAssignRoleModalVisible, setIsAssignRoleModalVisible] =
+    useState(false);
   const [isViewFirmsModalOpen, setIsViewFirmsModalOpen] = useState(false);
   const [showReset, setShowReset] = useState(false);
 
@@ -75,8 +76,11 @@ export default function DashboardLayout({
   const handleToggleCollapse = () => {
     const newCollapsedState = !collapsed;
     setCollapsed(newCollapsedState);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('sidebar-collapsed', JSON.stringify(newCollapsedState));
+    if (typeof window !== "undefined") {
+      localStorage.setItem(
+        "sidebar-collapsed",
+        JSON.stringify(newCollapsedState)
+      );
     }
   };
 
@@ -101,8 +105,8 @@ export default function DashboardLayout({
       dispatch(clearFirm(response.data));
       dispatch(clearLawyers(response.data));
       // Clear the saved sidebar state on logout
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('sidebar-collapsed');
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("sidebar-collapsed");
       }
       router.push("/auth/login");
       toast.success("Logged out successfully");
@@ -114,7 +118,7 @@ export default function DashboardLayout({
 
   const handleFirmDeleted = (firmId: number) => {
     console.log(`Firm ${firmId} deleted successfully`);
-     setIsViewFirmsModalOpen(false);
+    setIsViewFirmsModalOpen(false);
   };
 
   const antIcon = <LoadingOutlined style={{ fontSize: 16 }} spin />;
@@ -127,6 +131,8 @@ export default function DashboardLayout({
         return "bg-gradient-to-r from-blue-500 to-cyan-500";
       case "Lawyer":
         return "bg-gradient-to-r from-green-500 to-teal-500";
+      case "Client":
+        return "bg-gradient-to-r from-yellow-400 to-orange-500";
       default:
         return "bg-gradient-to-r from-gray-500 to-gray-600";
     }
@@ -217,7 +223,7 @@ export default function DashboardLayout({
             onOpenViewFirmsModal={handleOpenViewFirmModal}
           />
         </nav>
-        
+
         <RoleModal
           visible={isRoleModalVisible}
           onClose={handleCloseRoleModal}
@@ -225,7 +231,7 @@ export default function DashboardLayout({
             console.log("New role created:", newRole);
           }}
         />
-        
+
         <AssignRoleModal
           visible={isAssignRoleModalVisible}
           onClose={handleCloseAssignRoleModal}
@@ -234,7 +240,7 @@ export default function DashboardLayout({
           }}
         />
 
-        <ViewFirmsModal 
+        <ViewFirmsModal
           visible={isViewFirmsModalOpen}
           onClose={handleCloseViewFirmModal}
           onFirmDeleted={handleFirmDeleted}
@@ -265,12 +271,43 @@ export default function DashboardLayout({
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Top Header */}
-        <header className="h-25 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-2 py-5 shadow-sm dark:shadow-2xl">
+        <header className="h-25 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-5 py-5 shadow-sm dark:shadow-2xl">
           <div className="flex items-center space-x-4">
             <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
               {role === "Super Admin" && "Super Admin Panel"}
               {role === "Firm Admin" && ""}
-              {role === "Lawyer" && "Legal Dashboard"}
+              {role === "Lawyer" && (
+                <div className="flex items-center space-x-3">
+                  <div className="px-4 py-2 rounded-lg text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center space-x-2">
+                    <BankOutlined className="text-amber-600 dark:text-amber-400" />
+                    <span>
+                      Welcome to your dashboard — let’s start building your
+                      legal journey
+                    </span>
+                  </div>
+                </div>
+              )}
+              {role === "Client" && (
+                <div className="flex items-center space-x-3">
+                  <div className="px-4 py-2 rounded-lg text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center space-x-2">
+                    <FileTextOutlined className="text-amber-600 dark:text-amber-400" />
+                    <span>
+                      Welcome Client — Track your cases and stay updated
+                    </span>
+                  </div>
+                </div>
+              )}
+              {role &&
+                !["Super Admin", "Firm Admin", "Lawyer", "Client"].includes(
+                  role
+                ) && (
+                  <div className="flex items-center space-x-3">
+                    <div className="px-4 py-2 rounded-lg text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center space-x-2">
+                      <FileTextOutlined className="text-amber-600 dark:text-amber-400" />
+                      <span>Welcome to your dashboard</span>
+                    </div>
+                  </div>
+                )}
             </h1>
 
             {/* Switch Firm section - positioned next to title */}

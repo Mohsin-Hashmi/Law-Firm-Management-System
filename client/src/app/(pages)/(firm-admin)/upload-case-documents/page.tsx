@@ -44,6 +44,7 @@ import { ColumnsType } from "antd/es/table";
 import { Case } from "@/app/types/case";
 import BASE_URL from "@/app/utils/constant";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 import {
   getAllCasesOfFirm,
@@ -226,7 +227,7 @@ export default function UploadCaseDocumentsPage() {
         pendingUploads
       );
 
-      message.success("Documents uploaded successfully");
+      toast.success("Documents uploaded successfully");
       setPendingUploads([]);
       setSelectedCase(null);
     } catch (e) {

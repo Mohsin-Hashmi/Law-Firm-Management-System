@@ -13,6 +13,7 @@ import { resetPassword } from "../service/authAPI"; // your backend API
 import { updateUser } from "../store/userSlice";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 const { Title, Text } = Typography;
+import { useRouter } from "next/navigation";
 
 interface ResetPasswordModalProps {
   visible: boolean;
@@ -27,6 +28,7 @@ const ResetPasswordModal = ({
   onClose,
   onSuccess,
 }: ResetPasswordModalProps) => {
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.user.user);
   const [loading, setLoading] = useState(false);
@@ -43,6 +45,8 @@ const ResetPasswordModal = ({
       toast.success("Password updated successfully!");
       const updatedUser = { ...user, mustChangePassword: false };
       dispatch(updateUser(updatedUser));
+      router.push("/auth/login");
+      toast("Kindly again login with updated password");
       onSuccess();
       onClose();
     } catch (error) {

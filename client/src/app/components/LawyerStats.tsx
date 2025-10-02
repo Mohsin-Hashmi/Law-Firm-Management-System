@@ -69,7 +69,6 @@ export default function LawyerStatsData({ firmId, role }: Props) {
   const loading = useAppSelector((state: RootState) => state.user.loading);
   const [lawyer, setLawyers] = useState<LawyerStats | null>(null);
 
-
   const error = null; // Replace with actual error state
 
   // Sample stats - replace with actual data from your API
@@ -90,7 +89,8 @@ export default function LawyerStatsData({ firmId, role }: Props) {
       try {
         const data = await lawyerStatsData();
         const normalizedStats = {
-          lawyerName: data.lawyerName || data.stats?.lawyerName || user?.name || "Lawyer",
+          lawyerName:
+            data.lawyerName || data.stats?.lawyerName || user?.name || "Lawyer",
           completedCases: data.stats.completedCases,
           ongoingCases: data.stats.ongoingCases,
           pendingCases: data.stats.pendingCases,
@@ -98,7 +98,7 @@ export default function LawyerStatsData({ firmId, role }: Props) {
           successRate: 75, // placeholder if not returned by API
           activeThisWeek: 3, // placeholder if not returned
         };
-        setLawyers(normalizedStats)
+        setLawyers(normalizedStats);
         dispatch(setLawyerStats(normalizedStats));
         console.log("Fetching lawyer stats for firmId:", firmId);
       } catch (err) {
@@ -108,18 +108,11 @@ export default function LawyerStatsData({ firmId, role }: Props) {
 
     fetchLawyerStats();
   }, [dispatch]);
+
   if (loading || !user) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "400px",
-        }}
-      >
+      <div className="flex items-center justify-center min-h-screen">
         <Spin size="large" />
-        <Text className="ml-2">Loading user data...</Text>
       </div>
     );
   }
@@ -230,7 +223,7 @@ export default function LawyerStatsData({ firmId, role }: Props) {
       <div className="max-w-full">
         {/* Professional Header */}
         <Card
-          className="bg-blue-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg mb-[40px] !transition-none"
+          className="bg-[#E43636] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg mb-[40px] !transition-none"
           bodyStyle={{ padding: "32px 20px" }}
         >
           <Row align="middle" justify="space-between">
@@ -247,7 +240,8 @@ export default function LawyerStatsData({ firmId, role }: Props) {
                     Welcome {lawyer?.lawyerName}
                   </Title>
                   <Text className="text-white/100 dark:text-white text-lg font-normal">
-                    Legal Professional Dashboard
+                    Stay on top of your cases and provide exceptional legal
+                    support
                   </Text>
                 </div>
               </Space>

@@ -278,7 +278,6 @@ export const getClientPerformance = async (clientId: number | string) => {
   }
 };
 
-
 /**Create Client API Call */
 export const createClient = async (firmId: number, data: FormData) => {
   try {
@@ -472,7 +471,6 @@ export const getAllCasesOfLawyer = async (): Promise<Case[]> => {
     throw new Error("Unexpected error while fetching cases of lawyer");
   }
 };
-
 
 export const getAllCasesOfClient = async (
   clientId: number
@@ -736,6 +734,7 @@ export const lawyerStatsData = async () => {
     const response = await axios.get(`${BASE_URL}/firm-admin/lawyers/stats`, {
       withCredentials: true,
     });
+   
     return response.data;
   } catch (error) {
     console.log("Error Fetching Lawyers Stats", error);
