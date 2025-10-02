@@ -31,12 +31,12 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
         <div className="absolute inset-0 bg-black/20"></div>
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="flex flex-col lg:flex-row items-center justify-between min-h-screen py-20 lg:py-32">
+        <div className="container mx-auto px-2 sm:px-6 lg:px-8 relative z-10">
+          <div className="flex flex-col lg:flex-row items-center justify-between min-h-screen py-20 lg:py-20">
             {/* Hero Content */}
             <div className="flex-1 text-center lg:text-left mb-12 lg:mb-0 lg:pr-12">
               <div className="max-w-4xl">
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight mb-8">
+                <h1 className="text-2xl sm:text-5xl lg:text-3xl xl:text-7xl font-bold text-white leading-tight mb-8">
                   Uphold Truth For{" "}
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-500">
                     Justice
@@ -45,7 +45,7 @@ export default function Home() {
                 </h1>
                 
                 <div className="max-w-2xl mx-auto lg:mx-0">
-                  <p className="text-lg sm:text-xl text-slate-300 italic leading-relaxed mb-12">
+                  <p className="text-[30px] sm:text-xl text-slate-300 italic leading-relaxed mb-12">
                     &quot;Easily manage lawyers, assistants, and clients. Keep track
                     of cases, schedules, and billing all from one place.&quot;
                   </p>
@@ -79,7 +79,7 @@ export default function Home() {
                   className="relative z-10 max-w-full h-auto rounded-2xl shadow-2xl transform hover:scale-105 transition-transform duration-500"
                   src={bannerImage}
                   alt="Professional Legal Services"
-                  width={600}
+                  width={700}
                   height={700}
                   priority
                 />
@@ -334,7 +334,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       <Footer />
     </>
   );

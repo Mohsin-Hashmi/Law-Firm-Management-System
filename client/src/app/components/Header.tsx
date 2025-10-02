@@ -12,6 +12,21 @@ export default function Header() {
         </Link>
         <div className="flex gap-x-4">
           <Link 
+            href="/our-services"
+            className="px-4 py-1 text-white font-medium "
+            style={{ borderColor: '#D92C54' }}
+          >
+            Our Services
+          </Link>
+
+           <Link 
+            href="/about-us"
+            className="px-4 py-1 text-white font-medium "
+            style={{ borderColor: '#D92C54' }}
+          >
+            About Us
+          </Link>
+          <Link 
             href="/auth/login"
             className="px-4 py-1 bg-green-500 text-white font-medium rounded-md hover:bg-green-600 transition-colors duration-200 shadow-sm hover:shadow-md text-sm"
           >
@@ -24,6 +39,7 @@ export default function Header() {
           >
             Register
           </Link>
+         
         </div>
       </nav>
     </header>
