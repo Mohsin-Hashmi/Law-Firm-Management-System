@@ -561,7 +561,7 @@ export default function GetCaseDocumentsPage() {
                 </Col>
                 <Col>
                   <Space size="middle">
-                    {hasPermission("create_case") && (
+                    {hasPermission("upload_case_document") && (
                       <Button
                         type="primary"
                         size="large"

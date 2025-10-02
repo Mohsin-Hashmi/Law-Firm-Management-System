@@ -279,13 +279,13 @@ export default function AddFirm() {
             >
               <div style={{ textAlign: "center" }}>
                 <Text
-                  className="text-[14px] text-[#232323] dark:text-[#9ca3af] font-[500]"
+                  className="text-[14px] text-[#232323] dark:text-[#9ca3af] font-[500] italic"
                   style={{
                     marginBottom: "8px",
                     display: "block",
                   }}
                 >
-                  Setup Progress
+                   {`"Setup Progress"`}
                 </Text>
                 <Progress
                   percent={getFormProgress()}
