@@ -35,10 +35,16 @@ import {
   Area,
   BarChart,
   Bar,
+  RadarChart,
+  Radar,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
   ResponsiveContainer,
   XAxis,
   YAxis,
   Tooltip,
+  Legend,
 } from "recharts";
 import { getStats } from "../service/adminAPI";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
@@ -55,10 +61,12 @@ const { Title, Text } = Typography;
 import { usePermission } from "../hooks/usePermission";
 import { PermissionWrapper } from "./PermissionWrapper";
 import DashboardLayout from "./DashboardLayout";
+
 interface Props {
   firmId: number;
   role?: string;
 }
+
 const chartData = [
   { name: "Jan", value: 20 },
   { name: "Feb", value: 35 },
@@ -79,12 +87,12 @@ export default function FirmStats({ firmId, role }: Props) {
   const { cases } = useAppSelector((state: RootState) => state.case);
   const openCasesCount = cases?.filter((c) => c.status === "Open").length || 0;
   const totalCasesCount = cases?.length || 0;
+
   useEffect(() => {
     if (!firmId || !role) return;
 
     const fetchStats = async () => {
       try {
-        // Set loading BEFORE clearing firm data
         dispatch(setLoading(true));
         dispatch(clearFirm());
 
@@ -98,7 +106,7 @@ export default function FirmStats({ firmId, role }: Props) {
           if (clients) {
             dispatch(setClients(clients));
           } else {
-            dispatch(setClients([])); // fallback empty list
+            dispatch(setClients([]));
             console.warn("No clients found or firmId missing:", clients);
           }
         } catch (err) {
@@ -106,7 +114,6 @@ export default function FirmStats({ firmId, role }: Props) {
           dispatch(setClients([]));
         }
 
-        // ✅ Fetch cases safely
         try {
           const cases = await getAllCasesOfFirm(firmId);
           dispatch(setCases(cases || []));
@@ -137,7 +144,6 @@ export default function FirmStats({ firmId, role }: Props) {
     router.push("/add-case");
   };
 
-  // Add this new condition after the loading check and before the existing error check
   if (role === "Firm Admin" && !firmId) {
     return (
       <div className="min-h-screen flex items-center justify-center  transition-colors duration-300">
@@ -147,12 +153,10 @@ export default function FirmStats({ firmId, role }: Props) {
             bodyStyle={{ padding: "64px 48px" }}
           >
             <div className="text-center">
-              {/* Icon Container */}
               <div className="w-20 h-20 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 flex items-center justify-center shadow-lg">
                 <BankOutlined className="text-4xl text-white" />
               </div>
 
-              {/* Heading */}
               <Title
                 level={2}
                 className="!text-slate-900 dark:!text-white !mb-3 !font-bold !text-3xl"
@@ -160,14 +164,12 @@ export default function FirmStats({ firmId, role }: Props) {
                 Welcome to Your Dashboard
               </Title>
 
-              {/* Subheading */}
               <Text className="text-slate-500 dark:text-slate-400 text-base mb-10 block max-w-lg mx-auto leading-relaxed">
                 To get started, you will need to create your law firm profile.
                 This will unlock access to all platform features including
                 client management, case tracking, and team collaboration.
               </Text>
 
-              {/* Primary Action Button */}
               <Button
                 type="primary"
                 size="large"
@@ -183,7 +185,6 @@ export default function FirmStats({ firmId, role }: Props) {
                 Add New Business
               </Button>
 
-              {/* Divider */}
               <div className="relative my-10">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-slate-200 dark:border-slate-700"></div>
@@ -195,7 +196,6 @@ export default function FirmStats({ firmId, role }: Props) {
                 </div>
               </div>
 
-              {/* Features Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
                 <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600">
                   <div className="text-blue-600 dark:text-blue-400 mb-2">
@@ -239,7 +239,7 @@ export default function FirmStats({ firmId, role }: Props) {
       </div>
     );
   }
-  // Show loading spinner when loading OR when there's no stats yet (during firm switch)
+
   if (loading || (!stats && !error)) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -327,11 +327,38 @@ export default function FirmStats({ firmId, role }: Props) {
     },
   ];
 
+  // Prepare radar chart data
+  const radarData = [
+    {
+      subject: "Lawyers",
+      A: stats.lawyersCount || 0,
+      fullMark: Math.max(stats.lawyersCount || 0, 20),
+    },
+    {
+      subject: "Clients",
+      A: stats.clientsCount || 0,
+      fullMark: Math.max(stats.clientsCount || 0, 20),
+    },
+    {
+      subject: "Open Cases",
+      A: openCasesCount || 0,
+      fullMark: Math.max(openCasesCount || 0, 20),
+    },
+    {
+      subject: "Total Cases",
+      A: totalCasesCount || 0,
+      fullMark: Math.max(totalCasesCount || 0, 20),
+    },
+    {
+      subject: "Active Users",
+      A: (stats.activeLawyersCount || 0) + (stats.clientsCount || 0),
+      fullMark: Math.max((stats.activeLawyersCount || 0) + (stats.clientsCount || 0), 20),
+    },
+  ];
+
   return (
     <div className="min-h-screen   transition-colors duration-300  ">
       <div className="max-w-full">
-        {/* Professional Header */}
-
         <Card
           className="bg-blue-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg  mb-[40px] !transition-none"
           bodyStyle={{ padding: "32px 20px" }}
@@ -357,49 +384,11 @@ export default function FirmStats({ firmId, role }: Props) {
             </Col>
             <Col>
               <Space size="middle">
-                {/* <Button
-                  type="primary"
-                  size="large"
-                  icon={<UserAddOutlined />}
-                  onClick={handleAddLawyer}
-                  style={{
-                    background: "white",
-                    borderColor: "white",
-                    color: "#1e40af",
-                    borderRadius: "12px",
-                    fontWeight: "600",
-                    padding: "8px 24px",
-                    height: "48px",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                  }}
-                >
-                  Add Lawyer
-                </Button>
-                <Button
-                  type="primary"
-                  size="large"
-                  icon={<PlusOutlined />}
-                  onClick={handleAddClient}
-                  style={{
-                    background: "rgba(255,255,255,0.2)",
-                    borderColor: "rgba(255,255,255,0.3)",
-                    color: "white",
-                    borderRadius: "12px",
-                    fontWeight: "600",
-                    padding: "8px 24px",
-                    height: "48px",
-                    backdropFilter: "blur(10px)",
-                  }}
-                  ghost
-                >
-                  New Client
-                </Button> */}
               </Space>
             </Col>
           </Row>
         </Card>
 
-        {/* Statistics Grid */}
         <Row gutter={[24, 24]} style={{ marginBottom: "32px" }}>
           {statCards.map((stat, index) => (
             <Col xs={24} sm={12} lg={6} key={index}>
@@ -456,7 +445,6 @@ export default function FirmStats({ firmId, role }: Props) {
                       className="text-blue-600 dark:text-green-500 [&_.ant-statistic-content-value]:dark:!text-green-500 mb-[10px]"
                     />
 
-                    {/* Mini Graph */}
                     <div style={{ width: "100%", height: 50 }}>
                       <ResponsiveContainer>
                         <AreaChart data={chartData}>
@@ -519,9 +507,7 @@ export default function FirmStats({ firmId, role }: Props) {
           ))}
         </Row>
 
-        {/* Action Cards & Analytics */}
         <Row gutter={[24, 24]}>
-          {/* Quick Actions */}
           <Col xs={24} lg={8}>
             <Card
               title={
@@ -600,116 +586,70 @@ export default function FirmStats({ firmId, role }: Props) {
             </Card>
           </Col>
 
-          {/* Recent Activity */}
-          <Col xs={24} lg={8}>
+          <Col xs={24} lg={16}>
             <Card
               title={
                 <Space>
                   <BarChartOutlined className="text-purple-600 dark:text-purple-400" />
                   <span className="text-slate-900 dark:!text-white font-semibold">
-                    Recent Activity
+                    Performance Overview
                   </span>
                 </Space>
               }
               className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800"
               bodyStyle={{ padding: "20px" }}
             >
-              <Space
-                direction="vertical"
-                style={{ width: "100%" }}
-                size="middle"
-              >
-                <div className="py-3 border-b border-slate-100 dark:border-slate-600">
-                  <Text className="text-slate-900 dark:text-white font-medium block">
-                    New attorney onboarding completed
-                  </Text>
-                  <Text className="text-slate-400 dark:text-white text-xs">
-                    2 hours ago
-                  </Text>
+              {stats && (stats.lawyersCount > 0 || stats.clientsCount > 0 || openCasesCount > 0) ? (
+                <div style={{ width: "100%", height: 400 }}>
+                  <ResponsiveContainer>
+                    <RadarChart data={radarData}>
+                      <PolarGrid stroke="#555555" className="dark:stroke-[#e2e8f0]" />
+                      <PolarAngleAxis 
+                        dataKey="subject" 
+                        tick={{ fill: '#555555', fontSize: 12 }}
+                        stroke="#555555"
+                        className="dark:[&_text]:fill-[#64748b] dark:stroke-[#64748b]"
+                      />
+                      <PolarRadiusAxis 
+                        angle={90} 
+                        domain={[0, 'dataMax']}
+                        tick={{ fill: '#232323', fontSize: 10 }}
+                        stroke="#232323"
+                        className="dark:[&_text]:fill-[#64748b] dark:stroke-[#64748b]"
+                      />
+                      <Radar
+                        name="Firm Stats"
+                        dataKey="A"
+                        stroke="#8b5cf6"
+                        fill="#8b5cf6"
+                        fillOpacity={0.6}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#1e293b",
+                          borderRadius: "8px",
+                          color: "#fff",
+                        }}
+                        itemStyle={{ color: "#fff" }}
+                        labelStyle={{ color: "#fff" }}
+                      />
+                      <Legend 
+                        wrapperStyle={{ 
+                          paddingTop: '20px',
+                          color: '#64748b'
+                        }}
+                      />
+                    </RadarChart>
+                  </ResponsiveContainer>
                 </div>
-
-                <div className="py-3 border-b border-slate-100 dark:border-slate-600">
-                  <Text className="text-slate-900 dark:text-white font-medium block">
-                    5 new cases assigned this week
-                  </Text>
-                  <Text className="text-slate-400 dark:text-white text-xs">
-                    1 day ago
-                  </Text>
-                </div>
-
-                <div className="py-3 border-b border-slate-100 dark:border-slate-600">
-                  <Text className="text-slate-900 dark:text-white font-medium block">
-                    Client consultation scheduled
-                  </Text>
-                  <Text className="text-slate-400 dark:text-white text-xs">
-                    2 days ago
-                  </Text>
-                </div>
-
-                <Button
-                  type="link"
-                  className="p-0 text-blue-600 dark:text-blue-400 font-medium hover:text-blue-700 dark:hover:text-blue-300"
-                >
-                  View all activities →
-                </Button>
-              </Space>
-            </Card>
-          </Col>
-
-          {/* Performance Metrics */}
-          <Col xs={24} lg={8}>
-            <Card
-              title={
-                <Space>
-                  <TrophyOutlined className="text-amber-600 dark:text-amber-400" />
-                  <span className="text-slate-900 dark:!text-white font-semibold">
-                    Performance
-                  </span>
-                </Space>
-              }
-              className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800"
-              bodyStyle={{ padding: "20px" }}
-            >
-              <Row gutter={[0, 16]}>
-                <Col span={24}>
-                  <div className="text-center p-4 bg-slate-50 dark:bg-slate-700">
-                    <Statistic
-                      title={
-                        <span className="text-slate-600 dark:!text-white text-sm">
-                          Case Success Rate
-                        </span>
-                      }
-                      value={94.2}
-                      suffix="%"
-                      valueStyle={{
-                        fontSize: "28px",
-                        fontWeight: "700",
-                        color: "inherit",
-                      }}
-                      className="text-emerald-600 dark:text-emerald-400 [&_.ant-statistic-content-value]:dark:!text-emerald-400"
-                    />
+              ) : (
+                <div className="flex justify-center items-center py-12">
+                  <div className="px-8 py-6 rounded-2xl text-lg font-semibold text-amber-700 dark:text-amber-700 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center space-x-3 shadow-sm">
+                    <BarChartOutlined className="text-amber-600 dark:text-amber-400 text-xl" />
+                    <span>No Performance Data Available Yet</span>
                   </div>
-                </Col>
-                <Col span={24}>
-                  <div className="text-center p-4 bg-slate-50 dark:bg-slate-700">
-                    <Statistic
-                      title={
-                        <span className="text-slate-600 dark:!text-white text-sm">
-                          Client Satisfaction
-                        </span>
-                      }
-                      value={96.8}
-                      suffix="%"
-                      valueStyle={{
-                        fontSize: "28px",
-                        fontWeight: "700",
-                        color: "inherit",
-                      }}
-                      className="text-blue-600 dark:text-blue-400 [&_.ant-statistic-content-value]:dark:!text-blue-400"
-                    />
-                  </div>
-                </Col>
-              </Row>
+                </div>
+              )}
             </Card>
           </Col>
         </Row>
