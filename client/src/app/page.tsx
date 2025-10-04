@@ -22,12 +22,10 @@ export default function Home() {
   const role = useAppSelector((state) => state.user?.user?.role);
   console.log(role);
 
-
-
   return (
     <>
       <Header />
-      
+
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
         <div className="absolute inset-0 bg-black/20"></div>
@@ -43,11 +41,12 @@ export default function Home() {
                   </span>{" "}
                   With Northman Law Firm
                 </h1>
-                
+
                 <div className="max-w-2xl mx-auto lg:mx-0">
                   <p className="text-[30px] sm:text-xl text-slate-300 italic leading-relaxed mb-12">
-                    &quot;Easily manage lawyers, assistants, and clients. Keep track
-                    of cases, schedules, and billing all from one place.&quot;
+                    &quot;Easily manage lawyers, assistants, and clients. Keep
+                    track of cases, schedules, and billing all from one
+                    place.&quot;
                   </p>
                 </div>
 
@@ -101,14 +100,14 @@ export default function Home() {
               <div className="inline-flex items-center px-4 py-2 bg-amber-100 text-amber-800 font-semibold text-sm rounded-full mb-6">
                 About Us
               </div>
-              
+
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 leading-tight mb-8">
                 Helping To Overcome And Ease The{" "}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-yellow-600">
                   Legal Burden
                 </span>
               </h2>
-              
+
               <div className="prose prose-lg max-w-2xl mx-auto lg:mx-0">
                 <p className="text-slate-600 leading-relaxed mb-8">
                   We are committed to empowering legal professionals with the
@@ -120,14 +119,24 @@ export default function Home() {
                   services.
                 </p>
               </div>
-              
+
               <Link
                 href="/about-us"
                 className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-slate-900 to-slate-700 hover:from-slate-800 hover:to-slate-600 text-white font-semibold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
               >
                 See Details
-                <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                <svg
+                  className="ml-2 w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                  />
                 </svg>
               </Link>
             </div>
@@ -136,9 +145,9 @@ export default function Home() {
             <div className="flex-1 flex justify-center lg:justify-end">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-slate-200/50 to-amber-200/50 rounded-3xl blur-2xl"></div>
-                <Image 
-                  className="relative z-10 max-w-full h-auto rounded-2xl shadow-2xl" 
-                  src={maskGroup} 
+                <Image
+                  className="relative z-10 max-w-full h-auto rounded-2xl shadow-2xl"
+                  src={maskGroup}
                   alt="Legal professionals at work"
                   width={500}
                   height={600}
@@ -168,12 +177,28 @@ export default function Home() {
           {/* Lawyers Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
             {[
-              { name: "Desy Willy", image: desyLaywer, title: "Senior Business Lawyer" },
-              { name: "Lucas Alex", image: lucusLaywer, title: "Senior Business Lawyer" },
-              { name: "Nada Geo", image: nadaLaywer, title: "Senior Business Lawyer" },
-              { name: "Attorney Will", image: attorneyLaywer, title: "Senior Business Lawyer" },
+              {
+                name: "Desy Willy",
+                image: desyLaywer,
+                title: "Senior Business Lawyer",
+              },
+              {
+                name: "Lucas Alex",
+                image: lucusLaywer,
+                title: "Senior Business Lawyer",
+              },
+              {
+                name: "Nada Geo",
+                image: nadaLaywer,
+                title: "Senior Business Lawyer",
+              },
+              {
+                name: "Attorney Will",
+                image: attorneyLaywer,
+                title: "Senior Business Lawyer",
+              },
             ].map((lawyer, index) => (
-              <div 
+              <div
                 key={lawyer.name}
                 className="group text-center p-6 bg-gradient-to-br from-white to-slate-50 rounded-2xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300"
               >
@@ -231,9 +256,12 @@ export default function Home() {
                   "Success Handled Cases",
                   "Responsible Raised",
                   "Professional Excellence",
-                  "Client Satisfaction"
+                  "Client Satisfaction",
                 ].map((item, index) => (
-                  <div key={index} className="flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300">
+                  <div
+                    key={index}
+                    className="flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300"
+                  >
                     <div className="flex-shrink-0">
                       <Image
                         className="w-6 h-6"
@@ -243,7 +271,9 @@ export default function Home() {
                         height={26}
                       />
                     </div>
-                    <p className="text-lg font-semibold text-slate-800">{item}</p>
+                    <p className="text-lg font-semibold text-slate-800">
+                      {item}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -324,8 +354,18 @@ export default function Home() {
                     className="inline-flex items-center justify-center px-12 py-4 bg-gradient-to-r from-slate-900 to-slate-700 hover:from-slate-800 hover:to-slate-600 text-white font-semibold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
                   >
                     Send Message
-                    <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    <svg
+                      className="ml-2 w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                      />
                     </svg>
                   </button>
                 </div>

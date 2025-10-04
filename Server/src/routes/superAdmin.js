@@ -1,6 +1,6 @@
 const express = require("express");
 const superAdminRoutes = express.Router();
-const { userAuth, superAdminAuth } = require("../middlewares/authMiddleware");
+const { userAuth, superAdminAuth, allowRoles } = require("../middlewares/authMiddleware");
 const {
   getAllFirms,
   getFirmById,
@@ -15,6 +15,7 @@ const {
   getAllClients,
   getClientById,
   deleteClient,
+  getClientPerformanceSuperAdmin,
   getCaseMetadata
 } = require("../controllers/superAdmin.controller");
 
@@ -51,6 +52,12 @@ superAdminRoutes.patch(
 superAdminRoutes.get("/clients", userAuth, superAdminAuth, getAllClients);
 superAdminRoutes.get("/client/:id", userAuth, superAdminAuth, getClientById);
 superAdminRoutes.delete("/client/:id", userAuth, superAdminAuth, deleteClient);
+superAdminRoutes.get(
+  "/:id/performance",
+  userAuth,
+  allowRoles(["Super Admin"]),
+  getClientPerformanceSuperAdmin
+);
 superAdminRoutes.get("/cases/metadata", userAuth, superAdminAuth, getCaseMetadata);
 
 module.exports = superAdminRoutes;

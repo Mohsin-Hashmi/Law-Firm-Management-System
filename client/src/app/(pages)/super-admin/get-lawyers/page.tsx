@@ -40,6 +40,7 @@ import { ThemeProvider } from "next-themes";
 import ConfirmationModal from "@/app/components/ConfirmationModal";
 import type { ColumnsType } from "antd/es/table";
 import BASE_URL from "@/app/utils/constant";
+import { useRouter } from "next/navigation";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -66,6 +67,7 @@ interface Lawyer {
 }
 
 export default function GetLawyers() {
+  const router = useRouter();
   const [lawyers, setLawyers] = useState<Lawyer[]>([]);
   const [filteredLawyers, setFilteredLawyers] = useState<Lawyer[]>([]);
   const [loading, setLoading] = useState(false);
@@ -152,8 +154,12 @@ export default function GetLawyers() {
 
   // Handle update lawyers from API
   const handleUpdate = (lawyer: Lawyer) => {
-    console.log("Update clicked for:", lawyer);
-    // Add your update logic here or navigate to update page
+    console.log("Updating lawyer:", lawyer);
+  };
+
+  const handleviewdetail = (lawyer: Lawyer) => {
+    console.log("lawyer:", lawyer);
+    router.push(`/super-admin/get-lawyer-detail/${lawyer.id}`);
   };
 
   // Handle opening delete modal
@@ -370,7 +376,7 @@ export default function GetLawyers() {
               type="text"
               size="small"
               icon={<EyeOutlined />}
-              onClick={() => console.log("View lawyer details:", record.id)}
+              onClick={() => handleviewdetail(record)}
               className="hover:!bg-blue-50 dark:text-gray-200 hover:!text-blue-600 dark:hover:!bg-blue-900/30 dark:hover:!text-blue-400"
               style={{ borderRadius: "6px" }}
             />
@@ -622,7 +628,7 @@ export default function GetLawyers() {
                 bodyStyle={{ padding: "24px" }}
               >
                 <Row gutter={[16, 16]} align="middle">
-                  <Col xs={24} sm={12} md={8}>
+                  <Col xs={24} sm={12} md={11}>
                     <Input
                       placeholder="Search lawyers by name, email, firm, or specialization"
                       prefix={
@@ -634,7 +640,7 @@ export default function GetLawyers() {
                       size="large"
                     />
                   </Col>
-                  <Col xs={12} sm={6} md={4}>
+                  <Col xs={12} sm={6} md={5}>
                     <Select
                       placeholder="Filter by Status"
                       value={statusFilter}
@@ -655,7 +661,7 @@ export default function GetLawyers() {
                       <Option value="inactive">Inactive</Option>
                     </Select>
                   </Col>
-                  <Col xs={12} sm={6} md={4}>
+                  <Col xs={12} sm={6} md={5}>
                     <Select
                       placeholder="Filter by Specialization"
                       value={specializationFilter}
@@ -685,7 +691,7 @@ export default function GetLawyers() {
                       ))}
                     </Select>
                   </Col>
-                  <Col xs={24} sm={12} md={8}>
+                  <Col xs={24} sm={12} md={3}>
                     <Space>
                       <Button
                         icon={<ReloadOutlined />}
@@ -696,10 +702,6 @@ export default function GetLawyers() {
                       >
                         Refresh
                       </Button>
-                      <Text className="text-slate-500 dark:text-slate-400 text-sm">
-                        Showing {filteredLawyers.length} of {lawyers.length}{" "}
-                        lawyers
-                      </Text>
                     </Space>
                   </Col>
                 </Row>

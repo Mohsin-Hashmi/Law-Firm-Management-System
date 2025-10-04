@@ -96,7 +96,7 @@ caseRoute.get(
 caseRoute.get(
   "/lawyer/cases",
   userAuth,
-  allowRoles(["Firm Admin", "Lawyer"]),
+  allowRoles([ "Firm Admin", "Lawyer"]),
   checkPermission(permissions.READ_CASE),
   getAllCasesOfLawyer
 );

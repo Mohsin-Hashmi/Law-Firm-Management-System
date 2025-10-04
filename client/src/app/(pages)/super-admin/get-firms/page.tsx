@@ -622,7 +622,7 @@ export default function GetFirms() {
                 bodyStyle={{ padding: "24px" }}
               >
                 <Row gutter={[16, 16]} align="middle">
-                  <Col xs={24} sm={12} md={8}>
+                  <Col xs={24} sm={12} md={11}>
                     <Input
                       placeholder="Search firms by name, email, or address"
                       prefix={
@@ -634,7 +634,7 @@ export default function GetFirms() {
                       size="large"
                     />
                   </Col>
-                  <Col xs={12} sm={6} md={4}>
+                  <Col xs={12} sm={6} md={5}>
                     <Select
                       placeholder="Filter by Status"
                       value={statusFilter}
@@ -656,7 +656,7 @@ export default function GetFirms() {
                       <Option value="cancelled">Cancelled</Option>
                     </Select>
                   </Col>
-                  <Col xs={12} sm={6} md={4}>
+                  <Col xs={12} sm={6} md={5}>
                     <Select
                       placeholder="Filter by Plan"
                       value={planFilter}
@@ -678,7 +678,7 @@ export default function GetFirms() {
                       <Option value="premium">Premium</Option>
                     </Select>
                   </Col>
-                  <Col xs={24} sm={12} md={8}>
+                  <Col xs={24} sm={12} md={3}>
                     <Space>
                       <Button
                         icon={<ReloadOutlined />}
@@ -689,9 +689,6 @@ export default function GetFirms() {
                       >
                         Refresh
                       </Button>
-                      <Text className="text-slate-500 dark:text-slate-400 text-sm">
-                        Showing {filteredFirms.length} of {firms.length} firms
-                      </Text>
                     </Space>
                   </Col>
                 </Row>

@@ -18,6 +18,7 @@ export interface LawyerPerformance {
   lawyerId: string;
   name: string;
   totalCases: number;
+  totalClients: number,
   completedCases: number;
   activeCases: number;
   wonCases: number;

@@ -667,6 +667,13 @@ const getLawyerPerformance = async (req, res) => {
           as: "cases",
           through: { attributes: [] },
         },
+        {
+          model: Client,
+          as: "clients",
+          through: {
+            attributes : []
+          }
+        }
       ],
     });
 
@@ -676,6 +683,7 @@ const getLawyerPerformance = async (req, res) => {
 
     // Performance stats
     const totalCases = lawyer.cases.length;
+    const totalClients= lawyer.clients.length
     const completedCases = lawyer.cases.filter(
       (c) => c.status === "Closed"
     ).length;
@@ -689,6 +697,7 @@ const getLawyerPerformance = async (req, res) => {
       lawyerId,
       name: lawyer.name,
       totalCases,
+      totalClients,
       completedCases,
       activeCases,
       wonCases,

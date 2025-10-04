@@ -42,7 +42,7 @@ import { ThemeProvider } from "next-themes";
 import ConfirmationModal from "@/app/components/ConfirmationModal";
 import type { ColumnsType } from "antd/es/table";
 import BASE_URL from "@/app/utils/constant";
-
+import { useRouter } from "next/navigation";
 const { Title, Text } = Typography;
 const { Option } = Select;
 
@@ -74,6 +74,7 @@ interface Client {
 }
 
 export default function GetClients() {
+  const router = useRouter();
   const [clients, setClients] = useState<Client[]>([]);
   const [filteredClients, setFilteredClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(false);
@@ -97,11 +98,21 @@ export default function GetClients() {
     if (searchText) {
       filtered = filtered.filter(
         (client) =>
-          (client.fullName || "").toLowerCase().includes(searchText.toLowerCase()) ||
-          (client.email || "").toLowerCase().includes(searchText.toLowerCase()) ||
-          (client.firm?.name || "").toLowerCase().includes(searchText.toLowerCase()) ||
-          (client.address || "").toLowerCase().includes(searchText.toLowerCase()) ||
-          (client.organization || "").toLowerCase().includes(searchText.toLowerCase())
+          (client.fullName || "")
+            .toLowerCase()
+            .includes(searchText.toLowerCase()) ||
+          (client.email || "")
+            .toLowerCase()
+            .includes(searchText.toLowerCase()) ||
+          (client.firm?.name || "")
+            .toLowerCase()
+            .includes(searchText.toLowerCase()) ||
+          (client.address || "")
+            .toLowerCase()
+            .includes(searchText.toLowerCase()) ||
+          (client.organization || "")
+            .toLowerCase()
+            .includes(searchText.toLowerCase())
       );
     }
 
@@ -117,7 +128,8 @@ export default function GetClients() {
     if (clientTypeFilter !== "all") {
       filtered = filtered.filter(
         (client) =>
-          (client.clientType || "").toLowerCase() === clientTypeFilter.toLowerCase()
+          (client.clientType || "").toLowerCase() ===
+          clientTypeFilter.toLowerCase()
       );
     }
 
@@ -155,6 +167,9 @@ export default function GetClients() {
     // Add your update logic here or navigate to update page
   };
 
+  const handleGetClientDetail = (client: Client) => {
+    router.push(`/super-admin/get-client-detail/${client.id}`);
+  };
   // Handle opening delete modal
   const handleOpenDeleteModal = (client: Client) => {
     setSelectedClient(client);
@@ -217,13 +232,19 @@ export default function GetClients() {
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <Avatar
             size={48}
-            src={record.profileImage ? `${BASE_URL}${record.profileImage}` : undefined}
+            src={
+              record.profileImage
+                ? `${BASE_URL}${record.profileImage}`
+                : undefined
+            }
             style={{
               background: record.profileImage ? undefined : "#f1f5f9",
               border: "2px solid #e5e7eb",
             }}
           >
-            {!record.profileImage && <UserOutlined style={{ color: "#94a3b8" }} />}
+            {!record.profileImage && (
+              <UserOutlined style={{ color: "#94a3b8" }} />
+            )}
           </Avatar>
           <div>
             <Text
@@ -253,7 +274,9 @@ export default function GetClients() {
         <div>
           <Space size="small">
             <BankOutlined style={{ color: "#9ca3af", fontSize: "12px" }} />
-            <Text style={{ fontSize: "13px", color: "#374151", fontWeight: "500" }}>
+            <Text
+              style={{ fontSize: "13px", color: "#374151", fontWeight: "500" }}
+            >
               {record.firm?.name || "N/A"}
             </Text>
           </Space>
@@ -263,10 +286,18 @@ export default function GetClients() {
                 fontSize: "11px",
                 padding: "2px 8px",
                 borderRadius: "6px",
-                color: record.firm?.subscription_plan === "Premium" ? "#fbbf24" 
-                      : record.firm?.subscription_plan === "Basic" ? "#3b82f6" : "#10b981",
-                backgroundColor: record.firm?.subscription_plan === "Premium" ? "#fef3c7" 
-                              : record.firm?.subscription_plan === "Basic" ? "#dbeafe" : "#d1fae5",
+                color:
+                  record.firm?.subscription_plan === "Premium"
+                    ? "#fbbf24"
+                    : record.firm?.subscription_plan === "Basic"
+                    ? "#3b82f6"
+                    : "#10b981",
+                backgroundColor:
+                  record.firm?.subscription_plan === "Premium"
+                    ? "#fef3c7"
+                    : record.firm?.subscription_plan === "Basic"
+                    ? "#dbeafe"
+                    : "#d1fae5",
                 border: "none",
               }}
             >
@@ -306,8 +337,11 @@ export default function GetClients() {
           <Tag
             style={{
               color: clientType === "Organization" ? "#f59e0b" : "#6366f1",
-              backgroundColor: clientType === "Organization" ? "#fef3c7" : "#e0e7ff",
-              border: `1px solid ${clientType === "Organization" ? "#f59e0b" : "#6366f1"}20`,
+              backgroundColor:
+                clientType === "Organization" ? "#fef3c7" : "#e0e7ff",
+              border: `1px solid ${
+                clientType === "Organization" ? "#f59e0b" : "#6366f1"
+              }20`,
               borderRadius: "8px",
               padding: "4px 12px",
               fontSize: "12px",
@@ -334,14 +368,21 @@ export default function GetClients() {
       render: (balance: string) => {
         const amount = parseFloat(balance || "0");
         const hasBalance = amount > 0;
-        
+
         return (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}>
-            <DollarOutlined 
-              style={{ 
-                color: hasBalance ? "#ef4444" : "#10b981", 
-                fontSize: "12px" 
-              }} 
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "4px",
+            }}
+          >
+            <DollarOutlined
+              style={{
+                color: hasBalance ? "#ef4444" : "#10b981",
+                fontSize: "12px",
+              }}
             />
             <Text
               style={{
@@ -394,7 +435,7 @@ export default function GetClients() {
               type="text"
               size="small"
               icon={<EyeOutlined />}
-              onClick={() => console.log("View client details:", record.id)}
+              onClick={() => handleGetClientDetail(record)}
               className="hover:!bg-blue-50 dark:text-gray-200 hover:!text-blue-600 dark:hover:!bg-blue-900/30 dark:hover:!text-blue-400"
               style={{ borderRadius: "6px" }}
             />
@@ -647,7 +688,7 @@ export default function GetClients() {
                 bodyStyle={{ padding: "24px" }}
               >
                 <Row gutter={[16, 16]} align="middle">
-                  <Col xs={24} sm={12} md={8}>
+                  <Col xs={24} sm={12} md={11}>
                     <Input
                       placeholder="Search clients by name, email, firm, or address"
                       prefix={
@@ -659,7 +700,7 @@ export default function GetClients() {
                       size="large"
                     />
                   </Col>
-                  <Col xs={12} sm={6} md={4}>
+                  <Col xs={12} sm={6} md={5}>
                     <Select
                       placeholder="Filter by Status"
                       value={statusFilter}
@@ -680,7 +721,7 @@ export default function GetClients() {
                       <Option value="inactive">Inactive</Option>
                     </Select>
                   </Col>
-                  <Col xs={12} sm={6} md={4}>
+                  <Col xs={12} sm={6} md={5}>
                     <Select
                       placeholder="Filter by Type"
                       value={clientTypeFilter}
@@ -701,7 +742,7 @@ export default function GetClients() {
                       <Option value="organization">Organization</Option>
                     </Select>
                   </Col>
-                  <Col xs={24} sm={12} md={8}>
+                  <Col xs={24} sm={12} md={3}>
                     <Space>
                       <Button
                         icon={<ReloadOutlined />}
@@ -712,9 +753,6 @@ export default function GetClients() {
                       >
                         Refresh
                       </Button>
-                      <Text className="text-slate-500 dark:text-slate-400 text-sm">
-                        Showing {filteredClients.length} of {clients.length} clients
-                      </Text>
                     </Space>
                   </Col>
                 </Row>

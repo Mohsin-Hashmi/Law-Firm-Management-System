@@ -67,7 +67,7 @@ export const getLawyerById = async (id: number) => {
   return response.data;
 };
 
-// Update lawyer status
+// Update lawyer status only
 export const updateLawyerStatus = async (id: number, status: string) => {
   const response = await axios.patch(
     `${BASE_URL}/super-admin/lawyer/${id}/status`,
@@ -111,6 +111,13 @@ export const deleteClient = async (id: number) => {
     `${BASE_URL}/super-admin/client/${id}`,
     { withCredentials: true }
   );
+  return response.data;
+};
+
+export const getClientPerformanceSuperAdmin = async (id: number) => {
+  const response = await axios.get(`${BASE_URL}/super-admin/${id}/performance`, {
+    withCredentials: true,
+  });
   return response.data;
 };
 

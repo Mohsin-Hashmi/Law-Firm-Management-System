@@ -460,6 +460,73 @@ const deleteClient = async (req, res) => {
   }
 };
 
+/** 🔵 Super Admin Client Performance API */
+const getClientPerformanceSuperAdmin = async (req, res) => {
+  try {
+    const { id: clientId } = req.params;
+
+    // 🔹 No firm filter here, Super Admin can access any client
+    const client = await Client.findOne({
+      where: { id: clientId },
+      include: [
+        {
+          model: Case,
+          as: "cases",
+          include: [
+            {
+              model: Lawyer,
+              as: "lawyers",
+              attributes: ["id", "name", "email", "phone", "specialization"],
+              through: { attributes: [] },
+            },
+          ],
+        },
+        {
+          model: Lawyer,
+          as: "lawyers",
+          attributes: ["id", "name", "email", "phone", "specialization"],
+          through: { attributes: [] },
+        },
+      ],
+    });
+
+    if (!client)
+      return res.status(404).json({ message: "Client not found" });
+
+    // 🔹 Calculate performance metrics
+    const totalCases = client.cases.length;
+
+    const caseStats = {
+      open: client.cases.filter((c) => c.status === "Open").length,
+      closed: client.cases.filter((c) => c.status === "Closed").length,
+      onHold: client.cases.filter((c) => c.status === "On Hold").length,
+      appeal: client.cases.filter((c) => c.status === "Appeal").length,
+    };
+
+    const uniqueLawyers = Array.from(
+      new Map(
+        client.cases.flatMap((c) => c.lawyers).map((l) => [l.id, l])
+      ).values()
+    );
+
+    return res.json({
+      clientId: client.id,
+      clientName: client.fullName,
+      clientEmail: client.email,
+      totalCases,
+      caseStats,
+      totalLawyersAssigned: uniqueLawyers.length,
+      lawyers: uniqueLawyers,
+    });
+  } catch (error) {
+    console.error("Error in super admin client performance:", error);
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
+  }
+};
+
+
 /**
  * Showing Cases metadata APIs
  */
@@ -530,5 +597,6 @@ module.exports = {
   getAllClients,
   getClientById,
   deleteClient,
+  getClientPerformanceSuperAdmin,
   getCaseMetadata
 };

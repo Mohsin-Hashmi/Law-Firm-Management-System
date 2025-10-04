@@ -18,6 +18,8 @@ const {
   userAuth,
   firmAdminAuth,
   LawyerAuth,
+  allowRoles
+
 } = require("../middlewares/authMiddleware");
 const multer = require("multer");
 const path = require("path");
@@ -111,7 +113,7 @@ adminRoute.post("/switch-firm", userAuth, firmAdminAuth, switchFirm);
 adminRoute.get(
   "/:id/performance",
   userAuth,
-  firmAdminAuth,
+  allowRoles(["Super Admin", "Firm Admin"]),
   checkPermission(permissions.READ_LAWYER),
   getLawyerPerformance
 );
