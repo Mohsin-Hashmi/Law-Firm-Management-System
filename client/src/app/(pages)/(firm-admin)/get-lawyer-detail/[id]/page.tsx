@@ -53,7 +53,7 @@ export default function GetLawyerDetail({
 }) {
   const router = useRouter();
   const lawyerId = Number(params.id);
-  
+
   // Use token refresh hook to ensure token is up to date
   useTokenRefresh();
 
@@ -212,16 +212,16 @@ export default function GetLawyerDetail({
                       size="large"
                       icon={<EditOutlined style={{ fontSize: "14px" }} />}
                       onClick={() => router.push(`/edit-lawyer/${lawyerId}`)}
-                     style={{
-                          background: "white",
-                          borderColor: "white",
-                          color: "#2563eb",
-                          borderRadius: "12px",
-                          fontWeight: "600",
-                          padding: "8px 24px",
-                          height: "48px",
-                          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                        }}
+                      style={{
+                        background: "white",
+                        borderColor: "white",
+                        color: "#2563eb",
+                        borderRadius: "12px",
+                        fontWeight: "600",
+                        padding: "8px 24px",
+                        height: "48px",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                      }}
                     >
                       Edit Profile
                     </Button>
@@ -532,26 +532,28 @@ export default function GetLawyerDetail({
                   }}
                   bodyStyle={{ padding: "28px" }}
                 >
-                  <Statistic
-                    title={
-                      <span
-                        style={{
-                          color: "#E0E7FF",
-                          fontSize: "14px",
-                          fontWeight: "600",
-                        }}
-                      >
-                        Total Cases
-                      </span>
-                    }
-                    value={lawyerCases.length}
-                    valueStyle={{
-                      color: "#E0E7FF",
-                      fontSize: "36px",
-                      fontWeight: "700",
-                    }}
-                    prefix={<FileTextOutlined style={{ color: "#E0E7FF" }} />}
-                  />
+                  {performanceData && (
+                    <Statistic
+                      title={
+                        <span
+                          style={{
+                            color: "#E0E7FF",
+                            fontSize: "14px",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Total Cases
+                        </span>
+                      }
+                      value={performanceData.totalCases}
+                      valueStyle={{
+                        color: "#E0E7FF",
+                        fontSize: "36px",
+                        fontWeight: "700",
+                      }}
+                      prefix={<FileTextOutlined style={{ color: "#E0E7FF" }} />}
+                    />
+                  )}
                 </Card>
               </Col>
 
@@ -564,26 +566,28 @@ export default function GetLawyerDetail({
                   }}
                   bodyStyle={{ padding: "28px" }}
                 >
-                  <Statistic
-                    title={
-                      <span
-                        style={{
-                          color: "#E0E7FF",
-                          fontSize: "14px",
-                          fontWeight: "600",
-                        }}
-                      >
-                        Total Clients
-                      </span>
-                    }
-                    value={lawyer.clientsCount ?? 0}
-                    valueStyle={{
-                      color: "#E0E7FF",
-                      fontSize: "36px",
-                      fontWeight: "700",
-                    }}
-                    prefix={<TeamOutlined style={{ color: "#E0E7FF" }} />}
-                  />
+                  {performanceData && (
+                    <Statistic
+                      title={
+                        <span
+                          style={{
+                            color: "#E0E7FF",
+                            fontSize: "14px",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Total Clients
+                        </span>
+                      }
+                      value={performanceData.totalClients}
+                      valueStyle={{
+                        color: "#E0E7FF",
+                        fontSize: "36px",
+                        fontWeight: "700",
+                      }}
+                      prefix={<TeamOutlined style={{ color: "#E0E7FF" }} />}
+                    />
+                  )}
                 </Card>
               </Col>
 
