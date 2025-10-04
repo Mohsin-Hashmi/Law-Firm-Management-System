@@ -141,6 +141,7 @@ const LoginIn = async (req, res) => {
     // ---- Build firms dynamically ----
     let firms = [];
     let activeFirmId = null;
+    let statusMessage = null;
 
     if (user.role?.name === "Firm Admin" || user.role?.name === "Super Admin") {
       firms = user.adminFirms?.map((af) => ({
@@ -148,6 +149,20 @@ const LoginIn = async (req, res) => {
         name: af.firm?.name,
       })) || [];
       activeFirmId = firms.length > 0 ? firms[0].id : null;
+
+      // Check firm status for Firm Admin
+      if (user.role?.name === "Firm Admin" && user.adminFirms?.length > 0) {
+        const firm = user.adminFirms[0].firm;
+        if (firm) {
+          if (firm.status === "terminated") {
+            statusMessage = `Your firm "${firm.name}" has been terminated by the platform owner.`;
+          } else if (firm.status === "suspended") {
+            statusMessage = `Your firm "${firm.name}" has been suspended by the platform owner.`;
+          } else if (firm.status === "active") {
+            statusMessage = `Your firm "${firm.name}" is active on the platform.`;
+          }
+        }
+      }
 
     } else if (user.role?.name === "Lawyer") {
       if (Array.isArray(user.lawyers)) {
@@ -163,6 +178,16 @@ const LoginIn = async (req, res) => {
       }
       activeFirmId = firms.length > 0 ? firms[0].id : null;
 
+      // Check lawyer status
+      const lawyer = Array.isArray(user.lawyers) ? user.lawyers[0] : user.lawyers;
+      if (lawyer) {
+        if (lawyer.status === "Inactive") {
+          statusMessage = `Your lawyer account has been deactivated by the platform owner.`;
+        } else if (lawyer.status === "Active") {
+          statusMessage = `Your lawyer account is active on the platform.`;
+        }
+      }
+
     } else if (user.role?.name === "Client") {
       if (Array.isArray(user.client)) {
         firms = user.client.map((cl) => ({
@@ -176,6 +201,20 @@ const LoginIn = async (req, res) => {
         }];
       }
       activeFirmId = firms.length > 0 ? firms[0].id : null;
+
+      // Check client status
+      const client = Array.isArray(user.client) ? user.client[0] : user.client;
+      if (client) {
+        if (client.status === "Suspended") {
+          statusMessage = `Your client account has been suspended by the platform owner.`;
+        } else if (client.status === "Active") {
+          statusMessage = `Your client account is active on the platform.`;
+        } else if (client.status === "Past") {
+          statusMessage = `Your client account is marked as past by the platform owner.`;
+        } else if (client.status === "Potential") {
+          statusMessage = `Your client account is marked as potential by the platform owner.`;
+        }
+      }
 
     } else {
       // Other roles (using UserFirm)
@@ -201,6 +240,7 @@ const LoginIn = async (req, res) => {
           permissions: user.role?.permissions.map((p) => p.name) || [],
           firms,
           activeFirmId,
+          statusMessage,
         },
       });
     }
@@ -237,6 +277,7 @@ const LoginIn = async (req, res) => {
         permissions: user.role?.permissions.map((p) => p.name) || [],
         firms,
         activeFirmId,
+        statusMessage,
       },
       token,
     });

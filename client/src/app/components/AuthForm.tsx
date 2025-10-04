@@ -189,6 +189,11 @@ export default function AuthForm({ type }: AuthFormProps) {
           return;
         }
 
+        // Show status message if present
+        if (user.statusMessage) {
+          toast(user.statusMessage, { duration: 5000 });
+        }
+
         toast.success("Login successful!");
         setEmail("");
         setPassword("");
