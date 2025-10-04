@@ -121,6 +121,16 @@ export const getClientPerformanceSuperAdmin = async (id: number) => {
   return response.data;
 };
 
+// Update client status only
+export const updateClientStatus = async (id: number, status: string) => {
+  const response = await axios.patch(
+    `${BASE_URL}/super-admin/client/${id}/status`,
+    { status },
+    { withCredentials: true }
+  );
+  return response.data;
+};
+
 
 /** ------------------ CASES & PLATFORM APIS ------------------ **/
 

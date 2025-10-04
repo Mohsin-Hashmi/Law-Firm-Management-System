@@ -74,7 +74,9 @@ body {
 .dark .assign-lawyer-modal .ant-modal-content,
 .dark .view-permissions-modal .ant-modal-content,
 .dark .view-documents-modal .ant-modal-content, 
-.dark .reset-password-modal .ant-modal-content{
+.dark .reset-password-modal .ant-modal-content,
+.dark .lawyer-status-modal .ant-modal-content,
+.dark .client-status-modal .ant-modal-content{
   background-color: #1E293B !important;
   border: none !important;
   opacity: 1;
@@ -96,9 +98,7 @@ body {
 .ant-modal-content {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
 }
-.ant-modal-mask {
-  background-color: rgba(0, 0, 0, 0.1) !important;
-}
+
 /* Center align the selected tags inside the select */
 .ant-select-selector {
   display: flex !important;
@@ -114,4 +114,8 @@ body {
 .ant-select-selection-item {
   display: flex !important;
   align-items: center !important;
+}
+
+:root .ant-modal-mask {
+  background-color: rgba(0, 0, 0, 0.1) !important;
 }

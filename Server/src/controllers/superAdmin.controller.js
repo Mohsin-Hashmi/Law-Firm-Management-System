@@ -301,15 +301,28 @@ const deleteLawyer = async (req, res) => {
 const updateLawyerStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    let { status } = req.body;
 
-    const validStatuses = ["Active", "Inactive"]; // match your model ENUM
+    if (!status) {
+      return res.status(400).json({
+        success: false,
+        message: "Status is required",
+      });
+    }
+
+    // Normalize casing and trim
+    status = status.trim().toLowerCase();
+
+    const validStatuses = ["active", "inactive"];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
         success: false,
-        message: `Invalid status. Must be one of: ${validStatuses.join(", ")}`,
+        message: "Invalid status. Must be one of: Active, Inactive",
       });
     }
+
+    // Capitalize for DB consistency
+    const formattedStatus = status === "active" ? "Active" : "Inactive";
 
     const lawyer = await Lawyer.findByPk(id);
     if (!lawyer) {
@@ -319,12 +332,12 @@ const updateLawyerStatus = async (req, res) => {
       });
     }
 
-    lawyer.status = status;
+    lawyer.status = formattedStatus;
     await lawyer.save();
 
     return res.status(200).json({
       success: true,
-      message: `Lawyer status updated to ${status}`,
+      message: `Lawyer status updated to ${formattedStatus}`,
       lawyer,
     });
   } catch (error) {
@@ -336,6 +349,7 @@ const updateLawyerStatus = async (req, res) => {
     });
   }
 };
+
 
 /**
  * Client Management APIs For Super Admin
@@ -427,7 +441,7 @@ const deleteClient = async (req, res) => {
     }
 
     const client = await Client.findByPk(id, {
-      include : [
+      include: [
         {
           model: Firm,
           as: "firm",
@@ -465,7 +479,7 @@ const getClientPerformanceSuperAdmin = async (req, res) => {
   try {
     const { id: clientId } = req.params;
 
-    // 🔹 No firm filter here, Super Admin can access any client
+    //  No firm filter here, Super Admin can access any client
     const client = await Client.findOne({
       where: { id: clientId },
       include: [
@@ -493,7 +507,7 @@ const getClientPerformanceSuperAdmin = async (req, res) => {
     if (!client)
       return res.status(404).json({ message: "Client not found" });
 
-    // 🔹 Calculate performance metrics
+    // Calculate performance metrics
     const totalCases = client.cases.length;
 
     const caseStats = {
@@ -523,6 +537,65 @@ const getClientPerformanceSuperAdmin = async (req, res) => {
     return res
       .status(500)
       .json({ message: "Server error", error: error.message });
+  }
+};
+
+const updateClientStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    let { status } = req.body;
+
+    // Validate required field
+    if (!status) {
+      return res.status(400).json({
+        success: false,
+        message: "Status is required",
+      });
+    }
+
+    // Normalize input
+    status = status.trim().toLowerCase();
+
+    // Allowed statuses (must match ENUM in model)
+    const validStatuses = ["active", "past", "potential", "suspended"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid status. Must be one of: ${validStatuses
+          .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+          .join(", ")}`,
+      });
+    }
+
+    // Capitalize first letter for DB consistency
+    const formattedStatus =
+      status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+
+    // Find client
+    const client = await Client.findByPk(id);
+    if (!client) {
+      return res.status(404).json({
+        success: false,
+        message: "Client not found",
+      });
+    }
+
+    // Update and save
+    client.status = formattedStatus;
+    await client.save();
+
+    return res.status(200).json({
+      success: true,
+      message: `Client status updated to ${formattedStatus}`,
+      client,
+    });
+  } catch (error) {
+    console.error(" Error updating client status:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update client status",
+      error: error.message,
+    });
   }
 };
 
@@ -598,5 +671,6 @@ module.exports = {
   getClientById,
   deleteClient,
   getClientPerformanceSuperAdmin,
+  updateClientStatus,
   getCaseMetadata
 };

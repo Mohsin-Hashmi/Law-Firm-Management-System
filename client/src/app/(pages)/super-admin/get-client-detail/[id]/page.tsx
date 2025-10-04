@@ -230,26 +230,6 @@ export default function GetClientDetail({
                     >
                       Back
                     </Button>
-                    {hasPermission("update_client") && (
-                      <Button
-                        type="primary"
-                        size="large"
-                        icon={<EditOutlined style={{ fontSize: "14px" }} />}
-                        onClick={() => router.push(`/edit-client/${clientId}`)}
-                        style={{
-                          background: "white",
-                          borderColor: "white",
-                          color: "#2563eb",
-                          borderRadius: "12px",
-                          fontWeight: "600",
-                          padding: "8px 24px",
-                          height: "48px",
-                          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                        }}
-                      >
-                        Edit Profile
-                      </Button>
-                    )}
                   </Space>
                 </Col>
               </Row>

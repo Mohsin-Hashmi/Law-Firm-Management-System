@@ -43,6 +43,7 @@ import ConfirmationModal from "@/app/components/ConfirmationModal";
 import type { ColumnsType } from "antd/es/table";
 import BASE_URL from "@/app/utils/constant";
 import { useRouter } from "next/navigation";
+import ClientStatusModal from "@/app/components/ClientStatusModal";
 const { Title, Text } = Typography;
 const { Option } = Select;
 
@@ -85,6 +86,9 @@ export default function GetClients() {
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [clientTypeFilter, setClientTypeFilter] = useState<string>("all");
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [selectedClientForStatus, setSelectedClientForStatus] =
+    useState<Client | null>(null);
 
   // Filter clients based on search and filters
   useEffect(() => {
@@ -163,8 +167,20 @@ export default function GetClients() {
 
   // Handle update clients from API
   const handleUpdate = (client: Client) => {
-    console.log("Update clicked for:", client);
-    // Add your update logic here or navigate to update page
+    setSelectedClientForStatus(client);
+    setIsStatusModalOpen(true);
+  };
+
+  const handleStatusUpdated = (newStatus: string) => {
+    // Update the client in the local state
+    setClients((prevClients) =>
+      prevClients.map((client) =>
+        client.id === selectedClientForStatus?.id
+          ? { ...client, status: newStatus as Client["status"] }
+          : client
+      )
+    );
+    fetchClients();
   };
 
   const handleGetClientDetail = (client: Client) => {
@@ -403,14 +419,22 @@ export default function GetClients() {
       key: "status",
       align: "center",
       render: (status: Client["status"]) => {
-        const color = status === "Active" ? "#10b981" : "#ef4444";
-        const bgColor = status === "Active" ? "#d1fae5" : "#fee2e2";
+        const statusStyles: Record<string, { color: string; bg: string }> = {
+          Active: { color: "#10b981", bg: "#d1fae5" }, // Green
+          Past: { color: "#6b7280", bg: "#e5e7eb" }, // Gray
+          Potential: { color: "#3b82f6", bg: "#dbeafe" }, // Blue
+          Suspended: { color: "#ef4444", bg: "#fee2e2" }, // Red
+        };
+        const { color, bg } = statusStyles[status] || {
+          color: "#6b7280",
+          bg: "#f3f4f6",
+        };
 
         return (
           <Tag
             style={{
-              color: color,
-              backgroundColor: bgColor,
+              color,
+              backgroundColor: bg,
               border: `1px solid ${color}20`,
               borderRadius: "8px",
               padding: "4px 12px",
@@ -440,7 +464,7 @@ export default function GetClients() {
               style={{ borderRadius: "6px" }}
             />
           </Tooltip>
-          <Tooltip title="Edit Client">
+          <Tooltip title="Edit Client Status">
             <Button
               type="text"
               size="small"
@@ -831,6 +855,18 @@ export default function GetClients() {
                 onConfirm={handleConfirmDelete}
                 onCancel={() => setIsModalOpen(false)}
               />
+              {selectedClientForStatus && (
+                <ClientStatusModal
+                  open={isStatusModalOpen}
+                  onClose={() => {
+                    setIsStatusModalOpen(false);
+                    setSelectedClientForStatus(null);
+                  }}
+                  clientId={selectedClientForStatus.id}
+                  currentStatus={selectedClientForStatus.status}
+                  onStatusUpdated={handleStatusUpdated}
+                />
+              )}
             </div>
           </div>
         )}

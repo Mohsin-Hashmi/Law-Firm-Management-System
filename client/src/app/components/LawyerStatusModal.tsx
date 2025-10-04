@@ -11,11 +11,11 @@ import {
   Divider,
 } from "antd";
 import {
-  BankOutlined,
+  UserOutlined,
   CheckCircleOutlined,
   CloseOutlined,
 } from "@ant-design/icons";
-import { updateFirmStatus } from "@/app/service/superAdminAPI";
+import { updateLawyerStatus } from "@/app/service/superAdminAPI";
 import toast from "react-hot-toast";
 import { DownOutlined } from "@ant-design/icons";
 
@@ -25,7 +25,7 @@ const { Option } = Select;
 interface Props {
   open: boolean;
   onClose: () => void;
-  firmId: number;
+  lawyerId: number;
   currentStatus: string;
   onStatusUpdated: (newStatus: string) => void;
 }
@@ -36,10 +36,10 @@ interface CustomSelectProps {
   [key: string]: unknown;
 }
 
-const FirmStatusModal: React.FC<Props> = ({
+const LawyerStatusModal: React.FC<Props> = ({
   open,
   onClose,
-  firmId,
+  lawyerId,
   currentStatus,
   onStatusUpdated,
 }) => {
@@ -85,7 +85,7 @@ const FirmStatusModal: React.FC<Props> = ({
 
     try {
       setLoading(true);
-      const res = await updateFirmStatus(firmId, status);
+      const res = await updateLawyerStatus(lawyerId, status);
       toast.success("Status updated successfully");
       onStatusUpdated(status);
       onClose();
@@ -105,9 +105,7 @@ const FirmStatusModal: React.FC<Props> = ({
     switch (statusValue) {
       case "active":
         return "text-green-600 dark:text-green-400";
-      case "suspended":
-        return "text-yellow-600 dark:text-yellow-400";
-      case "terminated":
+      case "inactive":
         return "text-red-600 dark:text-red-400";
       default:
         return "text-slate-600 dark:text-slate-400";
@@ -117,11 +115,9 @@ const FirmStatusModal: React.FC<Props> = ({
   const getStatusDescription = (statusValue: string) => {
     switch (statusValue) {
       case "active":
-        return "Firm is operational and can access all features";
-      case "suspended":
-        return "Firm access is temporarily restricted";
-      case "terminated":
-        return "Firm account has been permanently deactivated";
+        return "Lawyer is operational and can access all features";
+      case "inactive":
+        return "Lawyer account has been deactivated";
       default:
         return "";
     }
@@ -131,9 +127,7 @@ const FirmStatusModal: React.FC<Props> = ({
     switch (statusValue) {
       case "active":
         return "bg-green-500";
-      case "suspended":
-        return "bg-yellow-500";
-      case "terminated":
+      case "inactive":
         return "bg-red-500";
       default:
         return "bg-slate-500";
@@ -187,7 +181,8 @@ const FirmStatusModal: React.FC<Props> = ({
       width={450}
       centered
       closeIcon={<CloseOutlined className="text-slate-400 hover:text-slate-600" />}
-      className="firm-status-modal"
+      className="lawyer-status-modal"
+      maskStyle={{ backgroundColor: "rgba(0,0,0,0.1)" }}
       style={{
         padding: "5px 10px"
       }}
@@ -248,14 +243,14 @@ const FirmStatusModal: React.FC<Props> = ({
         <div className="mb-3">
           <Space size="middle" className="mb-1">
             <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-              <BankOutlined className="text-blue-600 dark:text-blue-400 text-lg" />
+              <UserOutlined className="text-blue-600 dark:text-blue-400 text-lg" />
             </div>
             <div>
               <Title level={4} className="!text-slate-900 dark:!text-white !mb-1">
-                Update Firm Status
+                Update Lawyer Status
               </Title>
               <Text className="text-slate-500 dark:text-slate-400 text-sm">
-                Change the operational status of this firm
+                Change the operational status of this lawyer
               </Text>
             </div>
           </Space>
@@ -301,19 +296,11 @@ const FirmStatusModal: React.FC<Props> = ({
                 </span>
               </div>
             </Option>
-            <Option value="suspended">
-              <div className="flex items-center space-x-2 py-1">
-                <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
-                <span className={isDarkMode ? "text-slate-200" : "text-slate-800"}>
-                  Suspended
-                </span>
-              </div>
-            </Option>
-            <Option value="terminated">
+            <Option value="inactive">
               <div className="flex items-center space-x-2 py-1">
                 <div className="w-2 h-2 rounded-full bg-red-500"></div>
                 <span className={isDarkMode ? "text-slate-200" : "text-slate-800"}>
-                  Terminated
+                  Inactive
                 </span>
               </div>
             </Option>
@@ -353,4 +340,4 @@ const FirmStatusModal: React.FC<Props> = ({
   );
 };
 
-export default FirmStatusModal;
+export default LawyerStatusModal;

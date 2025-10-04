@@ -41,7 +41,8 @@ import ConfirmationModal from "@/app/components/ConfirmationModal";
 import type { ColumnsType } from "antd/es/table";
 import BASE_URL from "@/app/utils/constant";
 import { useRouter } from "next/navigation";
-
+import LawyerStatusModal from "@/app/components/LawyerStatusModal";
+import { updateLawyerStatus } from "@/app/service/superAdminAPI";
 const { Title, Text } = Typography;
 const { Option } = Select;
 
@@ -79,7 +80,9 @@ export default function GetLawyers() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [specializationFilter, setSpecializationFilter] =
     useState<string>("all");
-
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [selectedLawyerForStatus, setSelectedLawyerForStatus] =
+    useState<Lawyer | null>(null);
   // Filter lawyers based on search and filters
   useEffect(() => {
     filterLawyers();
@@ -160,6 +163,44 @@ export default function GetLawyers() {
   const handleviewdetail = (lawyer: Lawyer) => {
     console.log("lawyer:", lawyer);
     router.push(`/super-admin/get-lawyer-detail/${lawyer.id}`);
+  };
+
+  const handleStatusModalUpdate = (lawyer: Lawyer) => {
+    setSelectedLawyerForStatus(lawyer);
+    setIsStatusModalOpen(true);
+  };
+
+  const handleStatusUpdated = async (newStatus: string) => {
+    if (!selectedLawyerForStatus) return;
+
+    try {
+      const formattedStatus =
+        newStatus.charAt(0).toUpperCase() + newStatus.slice(1).toLowerCase();
+
+      message.loading({ content: "Updating status...", key: "status" });
+
+      const response = await updateLawyerStatus(
+        selectedLawyerForStatus.id,
+        formattedStatus
+      );
+
+      setLawyers((prev) =>
+        prev.map((lawyer) =>
+          lawyer.id === selectedLawyerForStatus.id
+            ? { ...lawyer, status: formattedStatus as "Active" | "Inactive" }
+            : lawyer
+        )
+      );
+
+      message.success({
+        content: `Lawyer status updated to ${formattedStatus}`,
+        key: "status",
+      });
+    } catch (error) {
+      toast.error("Failed to update lawyer status");
+    } finally {
+      setIsStatusModalOpen(false);
+    }
   };
 
   // Handle opening delete modal
@@ -381,14 +422,23 @@ export default function GetLawyers() {
               style={{ borderRadius: "6px" }}
             />
           </Tooltip>
-          <Tooltip title="Edit Lawyer">
+          <Tooltip title="Edit Lawyer Status">
             <Button
               type="text"
               size="small"
               icon={<EditOutlined />}
-              onClick={() => handleUpdate(record)}
+              onClick={() => handleStatusModalUpdate(record)}
               className="hover:!bg-amber-50 dark:text-gray-200 hover:!text-amber-600 dark:hover:!bg-amber-900/30 dark:hover:!text-amber-400"
               style={{ borderRadius: "6px" }}
+            />
+            <LawyerStatusModal
+              open={isStatusModalOpen}
+              onClose={() => setIsStatusModalOpen(false)}
+              lawyerId={selectedLawyerForStatus?.id || 0}
+              currentStatus={
+                selectedLawyerForStatus?.status.toLowerCase() || "active"
+              }
+              onStatusUpdated={handleStatusUpdated}
             />
           </Tooltip>
           <Tooltip title="Delete Lawyer">

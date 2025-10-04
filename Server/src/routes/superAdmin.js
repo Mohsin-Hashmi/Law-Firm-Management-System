@@ -16,6 +16,7 @@ const {
   getClientById,
   deleteClient,
   getClientPerformanceSuperAdmin,
+  updateClientStatus,
   getCaseMetadata
 } = require("../controllers/superAdmin.controller");
 
@@ -58,6 +59,7 @@ superAdminRoutes.get(
   allowRoles(["Super Admin"]),
   getClientPerformanceSuperAdmin
 );
+superAdminRoutes.patch("/client/:id/status", userAuth, superAdminAuth, updateClientStatus)
 superAdminRoutes.get("/cases/metadata", userAuth, superAdminAuth, getCaseMetadata);
 
 module.exports = superAdminRoutes;

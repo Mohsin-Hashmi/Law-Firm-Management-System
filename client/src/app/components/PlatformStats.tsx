@@ -402,7 +402,7 @@ export default function PlatformStats() {
       <div className="max-w-full">
         {/* Professional Header */}
         <Card
-          className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-slate-800 dark:to-slate-700 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg mb-8"
+          className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-slate-800 dark:to-slate-700 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg mb-8 "
           bodyStyle={{ padding: "32px 24px" }}
         >
           <Row align="middle" justify="space-between">
@@ -449,7 +449,15 @@ export default function PlatformStats() {
               <Card
                 className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
                 bodyStyle={{ padding: "24px" }}
-                hoverable
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-4px)";
+                  e.currentTarget.style.boxShadow =
+                    "0 10px 25px rgba(0,0,0,0.15)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.1)";
+                }}
               >
                 <div className="flex justify-between items-start">
                   <div className="flex-1">

@@ -4,18 +4,17 @@ import React, { useState, useEffect } from "react";
 import {
   Modal,
   Select,
-  message,
   Typography,
   Space,
   Button,
   Divider,
 } from "antd";
 import {
-  BankOutlined,
+  UserOutlined,
   CheckCircleOutlined,
   CloseOutlined,
 } from "@ant-design/icons";
-import { updateFirmStatus } from "@/app/service/superAdminAPI";
+import { updateClientStatus } from "../service/superAdminAPI";
 import toast from "react-hot-toast";
 import { DownOutlined } from "@ant-design/icons";
 
@@ -25,7 +24,7 @@ const { Option } = Select;
 interface Props {
   open: boolean;
   onClose: () => void;
-  firmId: number;
+  clientId: number;
   currentStatus: string;
   onStatusUpdated: (newStatus: string) => void;
 }
@@ -36,10 +35,10 @@ interface CustomSelectProps {
   [key: string]: unknown;
 }
 
-const FirmStatusModal: React.FC<Props> = ({
+const ClientStatusModal: React.FC<Props> = ({
   open,
   onClose,
-  firmId,
+  clientId,
   currentStatus,
   onStatusUpdated,
 }) => {
@@ -85,7 +84,7 @@ const FirmStatusModal: React.FC<Props> = ({
 
     try {
       setLoading(true);
-      const res = await updateFirmStatus(firmId, status);
+      const res = await updateClientStatus(clientId, status);
       toast.success("Status updated successfully");
       onStatusUpdated(status);
       onClose();
@@ -102,12 +101,14 @@ const FirmStatusModal: React.FC<Props> = ({
   };
 
   const getStatusColor = (statusValue: string) => {
-    switch (statusValue) {
+    switch (statusValue.toLowerCase()) {
       case "active":
         return "text-green-600 dark:text-green-400";
+      case "past":
+        return "text-gray-600 dark:text-gray-400";
+      case "potential":
+        return "text-blue-600 dark:text-blue-400";
       case "suspended":
-        return "text-yellow-600 dark:text-yellow-400";
-      case "terminated":
         return "text-red-600 dark:text-red-400";
       default:
         return "text-slate-600 dark:text-slate-400";
@@ -115,25 +116,29 @@ const FirmStatusModal: React.FC<Props> = ({
   };
 
   const getStatusDescription = (statusValue: string) => {
-    switch (statusValue) {
+    switch (statusValue.toLowerCase()) {
       case "active":
-        return "Firm is operational and can access all features";
+        return "Client is actively engaged and can access all services";
+      case "past":
+        return "Former client with completed engagement";
+      case "potential":
+        return "Prospective client under consideration";
       case "suspended":
-        return "Firm access is temporarily restricted";
-      case "terminated":
-        return "Firm account has been permanently deactivated";
+        return "Client account has been temporarily suspended";
       default:
         return "";
     }
   };
 
   const getStatusDotColor = (statusValue: string) => {
-    switch (statusValue) {
+    switch (statusValue.toLowerCase()) {
       case "active":
         return "bg-green-500";
+      case "past":
+        return "bg-gray-500";
+      case "potential":
+        return "bg-blue-500";
       case "suspended":
-        return "bg-yellow-500";
-      case "terminated":
         return "bg-red-500";
       default:
         return "bg-slate-500";
@@ -145,14 +150,14 @@ const FirmStatusModal: React.FC<Props> = ({
     if (isDarkMode) {
       return {
         borderRadius: "8px",
-        backgroundColor: "rgb(30 41 59)", // slate-800
-        border: "1px solid rgb(71 85 105)", // slate-600
+        backgroundColor: "rgb(30 41 59)",
+        border: "1px solid rgb(71 85 105)",
       };
     } else {
       return {
         borderRadius: "8px",
         backgroundColor: "white",
-        border: "1px solid rgb(226 232 240)", // slate-200
+        border: "1px solid rgb(226 232 240)",
       };
     }
   };
@@ -187,7 +192,8 @@ const FirmStatusModal: React.FC<Props> = ({
       width={450}
       centered
       closeIcon={<CloseOutlined className="text-slate-400 hover:text-slate-600" />}
-      className="firm-status-modal"
+      className="client-status-modal"
+      maskStyle={{ backgroundColor: "rgba(0,0,0,0.1)" }}
       style={{
         padding: "5px 10px"
       }}
@@ -248,14 +254,14 @@ const FirmStatusModal: React.FC<Props> = ({
         <div className="mb-3">
           <Space size="middle" className="mb-1">
             <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-              <BankOutlined className="text-blue-600 dark:text-blue-400 text-lg" />
+              <UserOutlined className="text-blue-600 dark:text-blue-400 text-lg" />
             </div>
             <div>
               <Title level={4} className="!text-slate-900 dark:!text-white !mb-1">
-                Update Firm Status
+                Update Client Status
               </Title>
               <Text className="text-slate-500 dark:text-slate-400 text-sm">
-                Change the operational status of this firm
+                Change the engagement status of this client
               </Text>
             </div>
           </Space>
@@ -301,19 +307,27 @@ const FirmStatusModal: React.FC<Props> = ({
                 </span>
               </div>
             </Option>
-            <Option value="suspended">
+            <Option value="past">
               <div className="flex items-center space-x-2 py-1">
-                <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                <div className="w-2 h-2 rounded-full bg-gray-500"></div>
                 <span className={isDarkMode ? "text-slate-200" : "text-slate-800"}>
-                  Suspended
+                  Past
                 </span>
               </div>
             </Option>
-            <Option value="terminated">
+            <Option value="potential">
+              <div className="flex items-center space-x-2 py-1">
+                <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                <span className={isDarkMode ? "text-slate-200" : "text-slate-800"}>
+                  Potential
+                </span>
+              </div>
+            </Option>
+            <Option value="suspended">
               <div className="flex items-center space-x-2 py-1">
                 <div className="w-2 h-2 rounded-full bg-red-500"></div>
                 <span className={isDarkMode ? "text-slate-200" : "text-slate-800"}>
-                  Terminated
+                  Suspended
                 </span>
               </div>
             </Option>
@@ -353,4 +367,4 @@ const FirmStatusModal: React.FC<Props> = ({
   );
 };
 
-export default FirmStatusModal;
+export default ClientStatusModal;
