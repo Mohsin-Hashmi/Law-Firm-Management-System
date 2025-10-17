@@ -406,6 +406,7 @@ export default function GetLawyers() {
                           background: "rgba(255,255,255,0.15)",
                           borderRadius: "16px",
                           display: "flex",
+                          flexWrap: "wrap",
                           alignItems: "center",
                           justifyContent: "center",
                           border: "2px solid rgba(255,255,255,0.2)",
@@ -455,6 +456,8 @@ export default function GetLawyers() {
                             borderRadius: "12px",
                             fontWeight: "600",
                             padding: "8px 24px",
+                            margin: "0 auto",
+                            display:"block",
                             height: "48px",
                             boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                           }}
