@@ -545,7 +545,7 @@ export default function GetClients() {
                             fontWeight: "600",
                             letterSpacing: "-0.025em",
                           }}
-                          className="sm:text-[20px] sm:text-[12px]"
+                          className="sm:text-[20px] "
                         >
                           Client Management
                         </Title>
@@ -555,6 +555,7 @@ export default function GetClients() {
                             fontSize: "18px",
                             fontWeight: "400",
                           }}
+                          className="sm:text-[12px]"
                         >
                           Manage your firms clients and their legal matters
                         </Text>
