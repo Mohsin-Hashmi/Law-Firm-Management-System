@@ -529,6 +529,7 @@ export default function GetClients() {
                           justifyContent: "center",
                           border: "2px solid rgba(255,255,255,0.2)",
                         }}
+                        
                       >
                         <UserOutlined
                           style={{ fontSize: "32px", color: "white" }}
@@ -544,6 +545,7 @@ export default function GetClients() {
                             fontWeight: "600",
                             letterSpacing: "-0.025em",
                           }}
+                          className="sm:text-[20px] sm:text-[12px]"
                         >
                           Client Management
                         </Title>
