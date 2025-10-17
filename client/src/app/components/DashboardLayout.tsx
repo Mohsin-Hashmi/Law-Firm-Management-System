@@ -139,7 +139,7 @@ export default function DashboardLayout({
   };
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 transition-colors duration-300">
+    <div className="flex h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 transition-colors duration-300 overflow-hidden">
       {/* Loading Overlay when switching firms */}
       {isSwitchingFirm && (
         <div className="fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm z-[9999] flex items-center justify-center">
@@ -162,10 +162,19 @@ export default function DashboardLayout({
       />
 
       {/* Sidebar */}
+      {/* Mobile backdrop */}
+      <div
+        className={`fixed inset-0 bg-black/40 z-[999] md:hidden transition-opacity ${collapsed ? "pointer-events-none opacity-0" : "opacity-100"}`}
+        onClick={() => setCollapsed(true)}
+      />
+
       <aside
-        className={`${
-          collapsed ? "w-[80px]" : "w-[280px]"
-        } bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 flex flex-col shadow-xl dark:shadow-2xl transition-all duration-300 ease-in-out`}
+        className={`
+          ${collapsed ? "w-[80px]" : "w-[280px]"}
+          bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 flex flex-col shadow-xl dark:shadow-2xl transition-all duration-300 ease-in-out
+          fixed z-[1000] h-full md:static md:h-auto
+          ${collapsed ? "-left-[80px] md:left-0" : "left-0 md:left-0"}
+        `}
       >
         {/* Logo Section */}
         <div className="h-25 flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-slate-700">
@@ -271,8 +280,18 @@ export default function DashboardLayout({
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Top Header */}
-        <header className="h-25 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-5 py-5 shadow-sm dark:shadow-2xl">
+        <header className="h-25 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-4 sm:px-5 py-4 sm:py-5 shadow-sm dark:shadow-2xl">
           <div className="flex items-center space-x-4">
+            {/* Mobile menu toggle for sidebar */}
+            <button
+              className="md:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+              onClick={() => setCollapsed(false)}
+              aria-label="Open sidebar"
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
             <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
               {role === "Super Admin" && (
                 <div className="flex items-center space-x-3">

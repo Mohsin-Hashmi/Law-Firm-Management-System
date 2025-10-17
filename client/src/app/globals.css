@@ -10,6 +10,7 @@ body {
   font-family: 'Inter', sans-serif;
   font-size:medium;
   font-weight:400;
+  overflow-x: hidden; /* avoid horizontal scroll on narrow screens */
 }
 
 * {
@@ -21,7 +22,7 @@ body {
 .container {
   max-width: 1200px;
   width: 100%;
-  padding: 0 15px;
+  padding: 0 15px; /* baseline padding; components add responsive paddings */
   margin: 0 auto;
 }
 

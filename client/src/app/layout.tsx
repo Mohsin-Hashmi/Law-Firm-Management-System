@@ -33,13 +33,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    
     <html lang="en" suppressHydrationWarning>
       <body
         // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        className={spaceGrotesk.className}
+        className={`${spaceGrotesk.className} overflow-x-hidden`}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          <div className="min-h-screen flex flex-col">
+            {children}
+          </div>
+        </Providers>
         <Toaster position="top-right" reverseOrder={false} />
       </body>
     </html>

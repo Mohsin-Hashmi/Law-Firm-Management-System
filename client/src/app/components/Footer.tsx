@@ -11,16 +11,16 @@ import mailLogo from "../../../public/images/mailLogo01.webp";
 export default function Footer() {
   return (
     <>
-      <footer className="bg-[#172435] py-[40px]">
+      <footer className="bg-[#172435] py-[32px] sm:py-[40px]">
         <div className="container">
           <Image
-            className="m-auto max-w-[200px] pb-[30px]"
+            className="m-auto max-w-[180px] sm:max-w-[200px] pb-[20px] sm:pb-[30px]"
             src={footerLogo}
             alt="footer logo"
           />
-          <hr className="max-w-[800px] m-auto" />
-          <div className="flex justify-between items-start py-[40px] border-b">
-            <div className="max-w-[230px] text-[#FFFFFF]">
+          <hr className="max-w-[800px] m-auto border-white/10" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 py-[32px] sm:py-[40px] border-b border-white/10">
+            <div className="max-w-[320px] text-[#FFFFFF]">
               <h3 className="text-2xl font-semibold mb-[20px]">About Us</h3>
               <p className="mb-[20px]">
                 Lorem ipsum dolor sit amet consectetur. Commodo pulvinar
@@ -65,7 +65,7 @@ export default function Footer() {
                 <li className="mb-3 hover:text-gray-300 hover:underline [text-underline-offset:4px]">
                   <Link href="">Cases</Link>
                 </li>
-                <li className="mb-3hover:text-gray-300 hover:underline [text-underline-offset:4px]">
+                <li className="mb-3 hover:text-gray-300 hover:underline [text-underline-offset:4px]">
                   <Link href="">News</Link>
                 </li>
               </ol>
@@ -98,7 +98,7 @@ export default function Footer() {
               </span>
             </div>
           </div>
-          <p className="text-center mt-[40px] text-[#FFFFFF]">Copyright @2022 Northman All Right Reserved</p>
+          <p className="text-center mt-[24px] sm:mt-[40px] text-[#FFFFFF] text-sm">Copyright @2022 Northman All Right Reserved</p>
         </div>
       </footer>
     </>
