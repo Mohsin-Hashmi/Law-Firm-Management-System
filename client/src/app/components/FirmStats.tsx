@@ -361,22 +361,22 @@ export default function FirmStats({ firmId, role }: Props) {
       <div className="max-w-full">
         <Card
           className="bg-blue-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg  mb-[40px] !transition-none"
-          bodyStyle={{ padding: "32px 20px" }}
+          bodyStyle={{ padding: "20px 16px" }}
         >
           <Row align="middle" justify="space-between">
             <Col>
               <Space size="large">
-                <div className="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 dark:bg-white/10 border-white/20 dark:border-white/30">
-                  <BankOutlined className="text-[32px] text-white" />
+                <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 dark:bg-white/10 border-white/20 dark:border-white/30">
+                  <BankOutlined className="text-[20px] sm:text-[24px] md:text-[28px] lg:text-[32px] text-white" />
                 </div>
                 <div>
                   <Title
                     level={1}
-                    className="!text-white dark:!text-white !mb-1 text-4xl font-semibold tracking-tight"
+                    className="!text-white dark:!text-white !mb-1 text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight"
                   >
                     {stats.firmName}
                   </Title>
-                  <Text className="text-white/100 dark:text-white text-lg font-normal">
+                  <Text className="text-white/100 dark:text-white text-sm sm:text-base md:text-lg font-normal">
                     Law Firm Management Dashboard
                   </Text>
                 </div>
