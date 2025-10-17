@@ -787,64 +787,66 @@ export default function GetClients() {
                 className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm transition-colors duration-300"
                 bodyStyle={{ padding: 0 }}
               >
-                <Table<Client>
-                  dataSource={filteredClients}
-                  columns={columns}
-                  rowKey="id"
-                  loading={loading}
-                  pagination={{
-                    pageSize: 10,
-                    showSizeChanger: true,
-                    showQuickJumper: true,
-                    showTotal: (total, range) =>
-                      `${range[0]}-${range[1]} of ${total} clients`,
-                    className: "dark:text-slate-300",
-                    style: { marginRight: "24px", marginBottom: "16px" },
-                  }}
-                  className="dark:[&_.ant-table]:!bg-slate-800 
+                <div className="overflow-x-auto">
+                  <Table<Client>
+                    dataSource={filteredClients}
+                    columns={columns}
+                    rowKey="id"
+                    loading={loading}
+                    pagination={{
+                      pageSize: 10,
+                      showSizeChanger: true,
+                      showQuickJumper: true,
+                      showTotal: (total, range) =>
+                        `${range[0]}-${range[1]} of ${total} clients`,
+                      className: "dark:text-slate-300",
+                      style: { marginRight: "24px", marginBottom: "16px" },
+                    }}
+                    className="dark:[&_.ant-table]:!bg-slate-800 
                     dark:[&_.ant-table-thead>tr>th]:!bg-slate-900 
                     dark:[&_.ant-table-thead>tr>th]:!text-slate-200 
                     dark:[&_.ant-table-tbody>tr>td]:!bg-slate-800 
                     dark:[&_.ant-table-tbody>tr>td]:!text-slate-300"
-                  style={{
-                    borderRadius: "16px",
-                    overflow: "hidden",
-                  }}
-                  scroll={{ x: "max-content" }}
-                  locale={{
-                    emptyText: (
-                      <div
-                        style={{
-                          textAlign: "center",
-                          padding: "48px",
-                        }}
-                        className="text-slate-500 dark:text-slate-400"
-                      >
-                        <TeamOutlined
-                          style={{ fontSize: "48px", marginBottom: "16px" }}
-                        />
-                        <Title
-                          level={4}
-                          className="!text-slate-500 dark:!text-slate-300"
+                    style={{
+                      borderRadius: "16px",
+                      overflow: "hidden",
+                    }}
+                    scroll={{ x: "max-content" }}
+                    locale={{
+                      emptyText: (
+                        <div
+                          style={{
+                            textAlign: "center",
+                            padding: "48px",
+                          }}
+                          className="text-slate-500 dark:text-slate-400"
                         >
-                          No clients found
-                        </Title>
-                        <Text className="dark:text-slate-400">
-                          Start by adding your first client
-                        </Text>
-                        <br />
-                        <Button
-                          type="primary"
-                          icon={<PlusOutlined />}
-                          onClick={() => console.log("Add first client")}
-                          style={{ marginTop: "16px" }}
-                        >
-                          Add First Client
-                        </Button>
-                      </div>
-                    ),
-                  }}
-                />
+                          <TeamOutlined
+                            style={{ fontSize: "48px", marginBottom: "16px" }}
+                          />
+                          <Title
+                            level={4}
+                            className="!text-slate-500 dark:!text-slate-300"
+                          >
+                            No clients found
+                          </Title>
+                          <Text className="dark:text-slate-400">
+                            Start by adding your first client
+                          </Text>
+                          <br />
+                          <Button
+                            type="primary"
+                            icon={<PlusOutlined />}
+                            onClick={() => console.log("Add first client")}
+                            style={{ marginTop: "16px" }}
+                          >
+                            Add First Client
+                          </Button>
+                        </div>
+                      ),
+                    }}
+                  />
+                </div>
               </Card>
 
               {/* Confirmation Modal */}

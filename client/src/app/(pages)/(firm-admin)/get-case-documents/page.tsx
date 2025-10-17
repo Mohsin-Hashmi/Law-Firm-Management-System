@@ -815,33 +815,35 @@ export default function GetCaseDocumentsPage() {
               className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm"
               bodyStyle={{ padding: 0 }}
             >
-              <Table
-                columns={columns}
-                dataSource={filteredCases}
-                rowKey="id"
-                loading={false}
-                pagination={{
-                  current: currentPage,
-                  total: filteredCases.length,
-                  pageSize: pageSize,
-                  onChange: (page) => setCurrentPage(page),
-                  onShowSizeChange: (current, size) => {
-                    setPageSize(size);
-                    setCurrentPage(1);
-                  },
-                  showSizeChanger: true,
-                  showQuickJumper: true,
-                  showTotal: (total, range) =>
-                    `${range[0]}-${range[1]} of ${total} cases`,
-                }}
-                scroll={{ x: 1200 }}
-                className="dark:[&_.ant-table]:!bg-slate-800 
-                         dark:[&_.ant-table-thead>tr>th]:!bg-slate-900 
-                         dark:[&_.ant-table-thead>tr>th]:!text-slate-200 
-                         dark:[&_.ant-table-tbody>tr>td]:!bg-slate-800 
-                         dark:[&_.ant-table-tbody>tr>td]:!text-slate-300
-                         dark:[&_.ant-table-tbody>tr:hover>td]:!bg-slate-700"
-              />
+              <div className="overflow-x-auto">
+                <Table
+                  columns={columns}
+                  dataSource={filteredCases}
+                  rowKey="id"
+                  loading={false}
+                  pagination={{
+                    current: currentPage,
+                    total: filteredCases.length,
+                    pageSize: pageSize,
+                    onChange: (page) => setCurrentPage(page),
+                    onShowSizeChange: (current, size) => {
+                      setPageSize(size);
+                      setCurrentPage(1);
+                    },
+                    showSizeChanger: true,
+                    showQuickJumper: true,
+                    showTotal: (total, range) =>
+                      `${range[0]}-${range[1]} of ${total} cases`,
+                  }}
+                  scroll={{ x: "max-content" }}
+                  className="dark:[&_.ant-table]:!bg-slate-800 
+                           dark:[&_.ant-table-thead>tr>th]:!bg-slate-900 
+                           dark:[&_.ant-table-thead>tr>th]:!text-slate-200 
+                           dark:[&_.ant-table-tbody>tr>td]:!bg-slate-800 
+                           dark:[&_.ant-table-tbody>tr>td]:!text-slate-300
+                           dark:[&_.ant-table-tbody>tr:hover>td]:!bg-slate-700"
+                />
+              </div>
             </Card>
           </div>
         )}

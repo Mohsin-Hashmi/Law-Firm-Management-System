@@ -1035,73 +1035,75 @@ export default function GetCases() {
                   className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm transition-colors duration-300"
                   bodyStyle={{ padding: 0 }}
                 >
-                  <Table
-                    columns={columns}
-                    dataSource={filteredCases}
-                    rowKey="id"
-                    loading={loading}
-                    pagination={{
-                      current: currentPage,
-                      total: filteredCases.length,
-                      pageSize: pageSize,
-                      onChange: (page) => setCurrentPage(page),
-                      onShowSizeChange: (current, size) => {
-                        setPageSize(size);
-                        setCurrentPage(1);
-                      },
-                      showSizeChanger: true,
-                      showQuickJumper: true,
-                      showTotal: (total, range) =>
-                        `${range[0]}-${range[1]} of ${total} cases`,
-                      className: "dark:text-slate-300",
-                      style: { marginRight: "24px", marginBottom: "16px" },
-                    }}
-                    className="dark:[&_.ant-table]:!bg-slate-800 
-                         dark:[&_.ant-table-thead>tr>th]:!bg-slate-900 
-                         dark:[&_.ant-table-thead>tr>th]:!text-slate-200 
-                         dark:[&_.ant-table-tbody>tr>td]:!bg-slate-800 
-                         dark:[&_.ant-table-tbody>tr>td]:!text-slate-300
-                         dark:[&_.ant-table-tbody>tr:hover>td]:!bg-slate-700"
-                    style={{
-                      borderRadius: "16px",
-                      overflow: "hidden",
-                    }}
-                    scroll={{ x: 1200 }}
-                    locale={{
-                      emptyText: (
-                        <div
-                          style={{
-                            textAlign: "center",
-                            padding: "48px",
-                          }}
-                          className="text-slate-500 dark:text-slate-400"
-                        >
-                          <FileTextOutlined
-                            style={{ fontSize: "48px", marginBottom: "16px" }}
-                          />
-                          <Title
-                            level={4}
-                            className="!text-slate-500 dark:!text-slate-300"
+                  <div className="overflow-x-auto">
+                    <Table
+                      columns={columns}
+                      dataSource={filteredCases}
+                      rowKey="id"
+                      loading={loading}
+                      pagination={{
+                        current: currentPage,
+                        total: filteredCases.length,
+                        pageSize: pageSize,
+                        onChange: (page) => setCurrentPage(page),
+                        onShowSizeChange: (current, size) => {
+                          setPageSize(size);
+                          setCurrentPage(1);
+                        },
+                        showSizeChanger: true,
+                        showQuickJumper: true,
+                        showTotal: (total, range) =>
+                          `${range[0]}-${range[1]} of ${total} cases`,
+                        className: "dark:text-slate-300",
+                        style: { marginRight: "24px", marginBottom: "16px" },
+                      }}
+                      className="dark:[&_.ant-table]:!bg-slate-800 
+                           dark:[&_.ant-table-thead>tr>th]:!bg-slate-900 
+                           dark:[&_.ant-table-thead>tr>th]:!text-slate-200 
+                           dark:[&_.ant-table-tbody>tr>td]:!bg-slate-800 
+                           dark:[&_.ant-table-tbody>tr>td]:!text-slate-300
+                           dark:[&_.ant-table-tbody>tr:hover>td]:!bg-slate-700"
+                      style={{
+                        borderRadius: "16px",
+                        overflow: "hidden",
+                      }}
+                      scroll={{ x: "max-content" }}
+                      locale={{
+                        emptyText: (
+                          <div
+                            style={{
+                              textAlign: "center",
+                              padding: "48px",
+                            }}
+                            className="text-slate-500 dark:text-slate-400"
                           >
-                            No cases found
-                          </Title>
-                          <Text className="dark:text-slate-400">
-                            No cases match your current filters or create a new
-                            case.
-                          </Text>
-                          <br />
-                          <Button
-                            type="primary"
-                            icon={<PlusOutlined />}
-                            onClick={() => router.push("/add-case")}
-                            style={{ marginTop: "16px" }}
-                          >
-                            Add First Case
-                          </Button>
-                        </div>
-                      ),
-                    }}
-                  />
+                            <FileTextOutlined
+                              style={{ fontSize: "48px", marginBottom: "16px" }}
+                            />
+                            <Title
+                              level={4}
+                              className="!text-slate-500 dark:!text-slate-300"
+                            >
+                              No cases found
+                            </Title>
+                            <Text className="dark:text-slate-400">
+                              No cases match your current filters or create a new
+                              case.
+                            </Text>
+                            <br />
+                            <Button
+                              type="primary"
+                              icon={<PlusOutlined />}
+                              onClick={() => router.push("/add-case")}
+                              style={{ marginTop: "16px" }}
+                            >
+                              Add First Case
+                            </Button>
+                          </div>
+                        ),
+                      }}
+                    />
+                  </div>
                 </Card>
               )}
               <ConfirmationModal

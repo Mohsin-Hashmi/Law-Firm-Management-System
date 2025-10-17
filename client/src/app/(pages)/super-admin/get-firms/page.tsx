@@ -699,64 +699,66 @@ export default function GetFirms() {
                 className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm transition-colors duration-300"
                 bodyStyle={{ padding: 0 }}
               >
-                <Table<Firm>
-                  dataSource={filteredFirms}
-                  columns={columns}
-                  rowKey="id"
-                  loading={loading}
-                  pagination={{
-                    pageSize: 10,
-                    showSizeChanger: true,
-                    showQuickJumper: true,
-                    showTotal: (total, range) =>
-                      `${range[0]}-${range[1]} of ${total} firms`,
-                    className: "dark:text-slate-300",
-                    style: { marginRight: "24px", marginBottom: "16px" },
-                  }}
-                  className="dark:[&_.ant-table]:!bg-slate-800 
+                <div className="overflow-x-auto">
+                  <Table<Firm>
+                    dataSource={filteredFirms}
+                    columns={columns}
+                    rowKey="id"
+                    loading={loading}
+                    pagination={{
+                      pageSize: 10,
+                      showSizeChanger: true,
+                      showQuickJumper: true,
+                      showTotal: (total, range) =>
+                        `${range[0]}-${range[1]} of ${total} firms`,
+                      className: "dark:text-slate-300",
+                      style: { marginRight: "24px", marginBottom: "16px" },
+                    }}
+                    className="dark:[&_.ant-table]:!bg-slate-800 
                     dark:[&_.ant-table-thead>tr>th]:!bg-slate-900 
                     dark:[&_.ant-table-thead>tr>th]:!text-slate-200 
                     dark:[&_.ant-table-tbody>tr>td]:!bg-slate-800 
                     dark:[&_.ant-table-tbody>tr>td]:!text-slate-300"
-                  style={{
-                    borderRadius: "16px",
-                    overflow: "hidden",
-                  }}
-                  scroll={{ x: "max-content" }}
-                  locale={{
-                    emptyText: (
-                      <div
-                        style={{
-                          textAlign: "center",
-                          padding: "48px",
-                        }}
-                        className="text-slate-500 dark:text-slate-400"
-                      >
-                        <BankOutlined
-                          style={{ fontSize: "48px", marginBottom: "16px" }}
-                        />
-                        <Title
-                          level={4}
-                          className="!text-slate-500 dark:!text-slate-300"
+                    style={{
+                      borderRadius: "16px",
+                      overflow: "hidden",
+                    }}
+                    scroll={{ x: "max-content" }}
+                    locale={{
+                      emptyText: (
+                        <div
+                          style={{
+                            textAlign: "center",
+                            padding: "48px",
+                          }}
+                          className="text-slate-500 dark:text-slate-400"
                         >
-                          No firms found
-                        </Title>
-                        <Text className="dark:text-slate-400">
-                          Start by adding your first law firm
-                        </Text>
-                        <br />
-                        <Button
-                          type="primary"
-                          icon={<PlusOutlined />}
-                          onClick={() => console.log("Add first firm")}
-                          style={{ marginTop: "16px" }}
-                        >
-                          Add First Firm
-                        </Button>
-                      </div>
-                    ),
-                  }}
-                />
+                          <BankOutlined
+                            style={{ fontSize: "48px", marginBottom: "16px" }}
+                          />
+                          <Title
+                            level={4}
+                            className="!text-slate-500 dark:!text-slate-300"
+                          >
+                            No firms found
+                          </Title>
+                          <Text className="dark:text-slate-400">
+                            Start by adding your first law firm
+                          </Text>
+                          <br />
+                          <Button
+                            type="primary"
+                            icon={<PlusOutlined />}
+                            onClick={() => console.log("Add first firm")}
+                            style={{ marginTop: "16px" }}
+                          >
+                            Add First Firm
+                          </Button>
+                        </div>
+                      ),
+                    }}
+                  />
+                </div>
               </Card>
 
               {/* Confirmation Modal */}
