@@ -305,24 +305,10 @@ export default function GetCases() {
     {
       title: "Case Details",
       key: "caseDetails",
-      width: 280,
-      fixed: "left",
       render: (_: unknown, record: Case) => (
         <div className="flex items-center gap-3">
-          <div
-            style={{
-              width: "48px",
-              height: "48px",
-              backgroundColor: "#1e293b",
-              borderRadius: "12px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
-              <BankTwoTone twoToneColor="#2563eb" style={{ fontSize: 22 }} />
-            </div>
+          <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex-shrink-0">
+            <BankTwoTone twoToneColor="#2563eb" style={{ fontSize: 22 }} />
           </div>
           <div className="flex-1 min-w-0">
             <Text

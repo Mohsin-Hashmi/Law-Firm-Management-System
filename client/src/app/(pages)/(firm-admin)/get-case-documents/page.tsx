@@ -290,11 +290,9 @@ export default function GetCaseDocumentsPage() {
     {
       title: "Case Details",
       key: "caseDetails",
-      width: 280,
-      fixed: "left",
       render: (_: unknown, record: Case) => (
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
+          <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex-shrink-0">
             <BankTwoTone twoToneColor="#2563eb" style={{ fontSize: 22 }} />
           </div>
           <div className="flex-1 min-w-0">
@@ -307,6 +305,14 @@ export default function GetCaseDocumentsPage() {
             <Text className="block text-slate-500 dark:text-slate-400 font-mono text-sm">
               {record.caseNumber}
             </Text>
+            {record.description && (
+              <Text
+                className="block text-slate-600 dark:text-slate-400 text-xs mt-1 italic"
+                ellipsis={{ tooltip: record.description }}
+              >
+                {`"${record.description}"`}
+              </Text>
+            )}
           </div>
         </div>
       ),

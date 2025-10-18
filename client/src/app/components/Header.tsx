@@ -57,43 +57,46 @@ export default function Header() {
         </button>
       </nav>
 
-      {/* Mobile menu panel */}
-      {mobileOpen && (
-        <div className="md:hidden border-t border-white/10">
-          <div className="container py-3 flex flex-col gap-2">
+      
+      {/* Mobile menu panel with smooth transition */}
+      <div
+        className={`md:hidden overflow-hidden transition-all duration-700 ease-in-out border-t border-white/10 ${mobileOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          }`}
+      >
+        <div className="container py-3 flex flex-col gap-2">
+          <Link
+            href="/our-services"
+            className="px-3 py-2 text-white rounded hover:bg-white/10"
+            onClick={() => setMobileOpen(false)}
+          >
+            Our Services
+          </Link>
+          <Link
+            href="/about-us"
+            className="px-3 py-2 text-white rounded hover:bg-white/10"
+            onClick={() => setMobileOpen(false)}
+          >
+            About Us
+          </Link>
+          <div className="flex items-center gap-2 pt-2">
             <Link
-              href="/our-services"
-              className="px-3 py-2 text-white rounded hover:bg-white/10"
+              href="/auth/login"
+              className="flex-1 px-4 py-2 bg-green-500 text-center text-white font-medium rounded-md hover:bg-green-600 transition-colors text-sm"
               onClick={() => setMobileOpen(false)}
             >
-              Our Services
+              Login
             </Link>
             <Link
-              href="/about-us"
-              className="px-3 py-2 text-white rounded hover:bg-white/10"
+              href="/auth/signup"
+              className="flex-1 px-4 py-2 text-white text-center font-medium rounded-md border-2 border-[#D92C54] bg-[#D92C54] hover:bg-[#B8233E] transition-colors text-sm"
               onClick={() => setMobileOpen(false)}
             >
-              About Us
+              Register
             </Link>
-            <div className="flex items-center gap-2 pt-2">
-              <Link
-                href="/auth/login"
-                className="flex-1 px-4 py-2 bg-green-500 text-center text-white font-medium rounded-md hover:bg-green-600 transition-colors text-sm"
-                onClick={() => setMobileOpen(false)}
-              >
-                Login
-              </Link>
-              <Link
-                href="/auth/signup"
-                className="flex-1 px-4 py-2 text-white text-center font-medium rounded-md border-2 border-[#D92C54] bg-[#D92C54] hover:bg-[#B8233E] transition-colors text-sm"
-                onClick={() => setMobileOpen(false)}
-              >
-                Register
-              </Link>
-            </div>
           </div>
         </div>
-      )}
+      </div>
+
     </header>
   );
 }
