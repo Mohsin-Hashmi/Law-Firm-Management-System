@@ -91,7 +91,7 @@ export default function GetClients() {
 
       if (role === "Firm Admin") {
         if (!firmId) {
-           router.push("/components/nofirmidfallback")
+          router.push("/components/nofirmidfallback")
           return;
         }
         response = await getAllClients(firmId);
@@ -513,62 +513,41 @@ export default function GetClients() {
               {/* Header Section */}
               <Card
                 className="bg-emerald-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
-                bodyStyle={{ padding: "32px 20px" }}
+                bodyStyle={{ padding: "20px 16px" }}
               >
                 <Row align="middle" justify="space-between">
-                  <Col>
-                    <Space size="large">
-                      <div
-                        style={{
-                          width: "80px",
-                          height: "80px",
-                          background: "rgba(255,255,255,0.15)",
-                          borderRadius: "16px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          border: "2px solid rgba(255,255,255,0.2)",
-                        }}
-                        
-                      >
-                        <UserOutlined
-                          style={{ fontSize: "32px", color: "white" }}
-                        />
+                  <Col xs={24} sm={24} md={18} lg={18}>
+                    {/* Mobile Layout: Stacked vertically */}
+                    <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6">
+                      {/* Logo */}
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 dark:bg-white/10 border-white/20 dark:border-white/30 flex-shrink-0">
+                        <UserOutlined className="text-[24px] sm:text-[28px] md:text-[32px] text-white" />
                       </div>
-                      <div>
+
+                      {/* Text Content */}
+                      <div className="text-center sm:text-left flex-1">
                         <Title
                           level={1}
-                          style={{
-                            color: "white",
-                            margin: 0,
-                            fontSize: "36px",
-                            fontWeight: "600",
-                            letterSpacing: "-0.025em",
-                          }}
-                          className="sm:text-[20px] "
+                          className="!text-white dark:!text-white !mb-1 text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight"
                         >
                           Client Management
                         </Title>
-                        <Text
-                          style={{
-                            color: "rgba(255,255,255,0.8)",
-                            fontSize: "18px",
-                            fontWeight: "400",
-                          }}
-                          className="sm:text-[12px]"
-                        >
+                        <Text className="text-white/80 dark:text-white/80 text-sm sm:text-base md:text-lg font-normal block">
                           Manage your firms clients and their legal matters
                         </Text>
                       </div>
-                    </Space>
+                    </div>
                   </Col>
-                  <Col>
-                    <Space size="middle">
+
+                  {/* Add Client Button Column */}
+                  <Col xs={24} sm={24} md={6} lg={6} className="mt-4 md:mt-0">
+                    <div className="flex justify-center md:justify-end">
                       <Button
                         type="primary"
                         size="large"
                         icon={<UserAddOutlined />}
                         onClick={() => router.push("/create-client")}
+                        className="w-full sm:w-auto"
                         style={{
                           background: "white",
                           borderColor: "white",
@@ -582,7 +561,7 @@ export default function GetClients() {
                       >
                         Add New Client
                       </Button>
-                    </Space>
+                    </div>
                   </Col>
                 </Row>
               </Card>

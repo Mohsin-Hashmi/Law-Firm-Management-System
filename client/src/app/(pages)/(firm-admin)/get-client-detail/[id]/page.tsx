@@ -186,36 +186,40 @@ export default function GetClientDetail({
             {/* Header Section */}
             <Card
               className="bg-emerald-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
-              bodyStyle={{ padding: "32px" }}
+              bodyStyle={{ padding: "20px 16px" }}
             >
               <Row align="middle" justify="space-between">
-                <Col>
-                  <Space size="large">
-                    <div
-                      className="w-20 h-20 flex items-center justify-center rounded-2xl 
-                     border-2 border-white/30 bg-white/10 backdrop-blur-md"
-                    >
-                      <UserOutlined className="text-white text-3xl" />
+                <Col xs={24} sm={24} md={14} lg={14}>
+                  {/* Mobile Layout: Stacked vertically */}
+                  <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6">
+                    {/* Logo */}
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 dark:bg-white/10 border-white/20 dark:border-white/30 flex-shrink-0">
+                      <UserOutlined className="text-[24px] sm:text-[28px] md:text-[32px] text-white" />
                     </div>
-                    <div>
+
+                    {/* Text Content */}
+                    <div className="text-center sm:text-left flex-1">
                       <Title
                         level={1}
-                        className="!text-white !m-0 text-3xl font-semibold tracking-tight"
+                        className="!text-white dark:!text-white !mb-1 text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight"
                       >
                         Client Profile
                       </Title>
-                      <Text className="text-white/80 text-lg">
+                      <Text className="text-white/80 dark:text-white/80 text-sm sm:text-base md:text-lg font-normal block">
                         Detailed information about your client
                       </Text>
                     </div>
-                  </Space>
+                  </div>
                 </Col>
-                <Col>
-                  <Space size="middle">
+
+                {/* Action Buttons Column */}
+                <Col xs={24} sm={24} md={10} lg={10} className="mt-4 md:mt-0">
+                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-3 w-full sm:justify-end">
                     <Button
                       icon={<ArrowLeftOutlined style={{ fontSize: "14px" }} />}
                       onClick={() => router.back()}
                       size="large"
+                      className="w-full sm:w-auto order-2 sm:order-1"
                       style={{
                         background: "rgba(255,255,255,0.2)",
                         borderColor: "rgba(255,255,255,0.3)",
@@ -236,10 +240,11 @@ export default function GetClientDetail({
                         size="large"
                         icon={<EditOutlined style={{ fontSize: "14px" }} />}
                         onClick={() => router.push(`/edit-client/${clientId}`)}
+                        className="w-full sm:w-auto order-1 sm:order-2"
                         style={{
                           background: "white",
                           borderColor: "white",
-                          color: "#2563eb",
+                          color: "#059669",
                           borderRadius: "12px",
                           fontWeight: "600",
                           padding: "8px 24px",
@@ -250,7 +255,7 @@ export default function GetClientDetail({
                         Edit Profile
                       </Button>
                     )}
-                  </Space>
+                  </div>
                 </Col>
               </Row>
             </Card>
@@ -1174,17 +1179,18 @@ export default function GetClientDetail({
             {/* Action Buttons */}
             <Card
               className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mt-[40px]"
-              bodyStyle={{ padding: "24px" }}
+              bodyStyle={{ padding: "16px" }}
             >
               <Row justify="center">
-                <Col>
-                  <Space size="large">
+                <Col xs={24} sm={24} md={22} lg={20}>
+                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:justify-center">
                     {hasPermission("update_client") && (
                       <Button
                         type="primary"
                         size="large"
                         icon={<EditOutlined />}
                         onClick={() => router.push(`/edit-client/${clientId}`)}
+                        className="w-full sm:w-auto order-1"
                         style={{
                           background: "#059669",
                           borderColor: "#059669",
@@ -1203,6 +1209,7 @@ export default function GetClientDetail({
                         size="large"
                         icon={<TeamOutlined />}
                         onClick={() => router.push("/get-clients")}
+                        className="w-full sm:w-auto order-2"
                         style={{
                           borderRadius: "12px",
                           border: "1px solid #d1d5db",
@@ -1220,6 +1227,7 @@ export default function GetClientDetail({
                         size="large"
                         icon={<FileTextOutlined />}
                         onClick={() => router.push(`/get-cases`)}
+                        className="w-full sm:w-auto order-3"
                         style={{
                           borderRadius: "12px",
                           border: "1px solid #059669",
@@ -1232,7 +1240,7 @@ export default function GetClientDetail({
                         View All Cases
                       </Button>
                     )}
-                  </Space>
+                  </div>
                 </Col>
               </Row>
             </Card>

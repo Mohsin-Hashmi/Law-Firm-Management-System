@@ -252,73 +252,55 @@ export default function AddCase() {
             {/* Header Section */}
             <Card
               className="bg-[#433878] dark:bg-slate-800 border-0 rounded-2xl shadow-lg mb-6"
-              bodyStyle={{ padding: "32px" }}
+              bodyStyle={{ padding: "20px 16px" }}
             >
               <Row align="middle" justify="space-between">
-                <Col>
-                  <Space size="large" align="center">
-                    <div
-                      style={{
-                        width: "80px",
-                        height: "80px",
-                        background: "rgba(255,255,255,0.15)",
-                        borderRadius: "16px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        border: "2px solid rgba(255,255,255,0.2)",
-                      }}
-                    >
-                      <FolderOpenOutlined
-                        style={{ fontSize: "28px", color: "white" }}
-                      />
+                <Col xs={24} sm={24} md={18} lg={18}>
+                  {/* Mobile Layout: Stacked vertically */}
+                  <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6">
+                    {/* Logo */}
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 dark:bg-white/10 border-white/20 dark:border-white/30 flex-shrink-0">
+                      <FolderOpenOutlined className="text-[24px] sm:text-[28px] md:text-[32px] text-white" />
                     </div>
-                    <div>
+
+                    {/* Text Content */}
+                    <div className="text-center sm:text-left flex-1">
                       <Title
                         level={1}
-                        style={{
-                          color: "white",
-                          margin: 0,
-                          fontSize: "36px",
-                          fontWeight: "700",
-                          lineHeight: "1.1",
-                        }}
+                        className="!text-white dark:!text-white !mb-1 text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight"
                       >
                         Create New Case
                       </Title>
-                      <Text
-                        style={{
-                          color: "rgba(255,255,255,0.85)",
-                          fontSize: "18px",
-                          fontWeight: "400",
-                          display: "block",
-                        }}
-                      >
-                        Start a new legal case with client and lawyer
-                        assignments
+                      <Text className="text-white/85 dark:text-white/85 text-sm sm:text-base md:text-lg font-normal block">
+                        Start a new legal case with client and lawyer assignments
                       </Text>
                     </div>
-                  </Space>
+                  </div>
                 </Col>
-                <Col>
-                  <Button
-                    icon={<ArrowLeftOutlined />}
-                    onClick={() => router.back()}
-                    size="large"
-                    style={{
-                      background: "rgba(255,255,255,0.2)",
-                      borderColor: "rgba(255,255,255,0.3)",
-                      color: "white",
-                      borderRadius: "12px",
-                      fontWeight: "600",
-                      padding: "8px 24px",
-                      height: "44px",
-                      backdropFilter: "blur(10px)",
-                    }}
-                    ghost
-                  >
-                    Back
-                  </Button>
+
+                {/* Back Button Column */}
+                <Col xs={24} sm={24} md={6} lg={6} className="mt-4 md:mt-0">
+                  <div className="flex justify-center md:justify-end">
+                    <Button
+                      icon={<ArrowLeftOutlined />}
+                      onClick={() => router.back()}
+                      size="large"
+                      className="w-full sm:w-auto"
+                      style={{
+                        background: "rgba(255,255,255,0.2)",
+                        borderColor: "rgba(255,255,255,0.3)",
+                        color: "white",
+                        borderRadius: "12px",
+                        fontWeight: "600",
+                        padding: "8px 24px",
+                        height: "48px",
+                        backdropFilter: "blur(10px)",
+                      }}
+                      ghost
+                    >
+                      Back
+                    </Button>
+                  </div>
                 </Col>
               </Row>
             </Card>
@@ -939,11 +921,10 @@ export default function AddCase() {
                                     statusOptions.find(
                                       (s) => s.value === values.status
                                     )?.color || "#374151",
-                                  backgroundColor: `${
-                                    statusOptions.find(
-                                      (s) => s.value === values.status
-                                    )?.color || "#374151"
-                                  }20`,
+                                  backgroundColor: `${statusOptions.find(
+                                    (s) => s.value === values.status
+                                  )?.color || "#374151"
+                                    }20`,
                                 }}
                               >
                                 {statusOptions.find(
@@ -1030,12 +1011,14 @@ export default function AddCase() {
 
               {/* Submit Section */}
               <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
-                <div className="flex justify-center items-center gap-4">
+                <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 px-4 sm:px-0">
                   <Button
                     size="large"
                     onClick={() => router.back()}
+                    className="w-full sm:w-auto order-2 sm:order-1"
                     style={{
                       border: "1px solid #d1d5db",
+                      borderRadius: "12px",
                       fontWeight: "600",
                       padding: "12px 32px",
                       height: "48px",
@@ -1051,17 +1034,17 @@ export default function AddCase() {
                     size="large"
                     icon={<SaveOutlined />}
                     loading={loading}
+                    className="w-full sm:w-auto order-1 sm:order-2"
                     style={{
                       background: isHovered ? "#1d4ed8" : "#1e40af",
                       borderColor: isHovered ? "#1d4ed8" : "#1e40af",
+                      borderRadius: "12px",
                       padding: "12px 40px",
                       fontSize: "15px",
                       fontWeight: "600",
                       height: "48px",
                       boxShadow: "0 4px 12px rgba(30, 64, 175, 0.25)",
-                      transform: isHovered
-                        ? "translateY(-1px)"
-                        : "translateY(0)",
+                      transform: isHovered ? "translateY(-1px)" : "translateY(0)",
                       transition: "all 0.2s ease",
                     }}
                     onMouseEnter={() => setIsHovered(true)}
@@ -1070,14 +1053,15 @@ export default function AddCase() {
                   >
                     Create Case
                   </Button>
-                  <ConfirmationModal
-                    visible={isCreateModalVisible}
-                    entityName={"Case"}
-                    action="create"
-                    onConfirm={handleConfirmCreate}
-                    onCancel={hideCreateModal}
-                  />
                 </div>
+
+                <ConfirmationModal
+                  visible={isCreateModalVisible}
+                  entityName={"Case"}
+                  action="create"
+                  onConfirm={handleConfirmCreate}
+                  onCancel={hideCreateModal}
+                />
 
                 <div className="text-center mt-4">
                   <Text className="text-slate-500 dark:text-slate-400 text-sm">

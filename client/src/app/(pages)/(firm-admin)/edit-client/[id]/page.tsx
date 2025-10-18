@@ -110,43 +110,43 @@ export default function EditClient({ params }: { params: { id: number } }) {
   };
 
   const handleSubmit = async (values: ClientPayload) => {
-  try {
-    setSubmitting(true);
+    try {
+      setSubmitting(true);
 
-    // Prepare the client data object
-    const clientData: ClientPayload = {
-      fullName: values.fullName,
-      email: values.email,
-      phone: values.phone,
-      address: values.address,
-      clientType: values.clientType,
-      organization: values.organization,
-      status: values.status,
-      billingAddress: values.billingAddress,
-      outstandingBalance: values.outstandingBalance,
-      gender: values.gender,
-      dob: values.dob ? dayjs(values.dob).format("YYYY-MM-DD") : undefined,
-      firmId: client?.firmId || 1, // Use existing firmId or default
-    };
+      // Prepare the client data object
+      const clientData: ClientPayload = {
+        fullName: values.fullName,
+        email: values.email,
+        phone: values.phone,
+        address: values.address,
+        clientType: values.clientType,
+        organization: values.organization,
+        status: values.status,
+        billingAddress: values.billingAddress,
+        outstandingBalance: values.outstandingBalance,
+        gender: values.gender,
+        dob: values.dob ? dayjs(values.dob).format("YYYY-MM-DD") : undefined,
+        firmId: client?.firmId || 1, // Use existing firmId or default
+      };
 
-    // Get the file if one was selected (THIS WAS MISSING)
-    const file =
-      fileList.length > 0 && fileList[0].originFileObj
-        ? (fileList[0].originFileObj as File)
-        : undefined;
+      // Get the file if one was selected (THIS WAS MISSING)
+      const file =
+        fileList.length > 0 && fileList[0].originFileObj
+          ? (fileList[0].originFileObj as File)
+          : undefined;
 
-    // Call the API with the correct parameters (ADD FILE PARAMETER)
-    const response = await updateClient(clientId, clientData, file);
+      // Call the API with the correct parameters (ADD FILE PARAMETER)
+      const response = await updateClient(clientId, clientData, file);
 
-    toast.success("Client profile updated successfully!");
-    router.push(`/get-client-detail/${clientId}`);
-  } catch (error) {
-    console.error("Error updating client:", error);
-    toast.error("Failed to update client profile");
-  } finally {
-    setSubmitting(false);
-  }
-};
+      toast.success("Client profile updated successfully!");
+      router.push(`/get-client-detail/${clientId}`);
+    } catch (error) {
+      console.error("Error updating client:", error);
+      toast.error("Failed to update client profile");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const handleImageChange: UploadProps["onChange"] = ({
     fileList: newFileList,
@@ -230,71 +230,55 @@ export default function EditClient({ params }: { params: { id: number } }) {
             {/* Header Section */}
             <Card
               className="bg-emerald-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
-              bodyStyle={{ padding: "32px" }}
+              bodyStyle={{ padding: "20px 16px" }}
             >
               <Row align="middle" justify="space-between">
-                <Col>
-                  <Space size="large">
-                    <div
-                      style={{
-                        width: "80px",
-                        height: "80px",
-                        background: "rgba(255,255,255,0.15)",
-                        borderRadius: "16px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        border: "2px solid rgba(255,255,255,0.2)",
-                      }}
-                    >
-                      <EditOutlined
-                        style={{ fontSize: "32px", color: "white" }}
-                      />
+                <Col xs={24} sm={24} md={18} lg={18}>
+                  {/* Mobile Layout: Stacked vertically */}
+                  <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6">
+                    {/* Logo */}
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 dark:bg-white/10 border-white/20 dark:border-white/30 flex-shrink-0">
+                      <EditOutlined className="text-[24px] sm:text-[28px] md:text-[32px] text-white" />
                     </div>
-                    <div>
+
+                    {/* Text Content */}
+                    <div className="text-center sm:text-left flex-1">
                       <Title
                         level={1}
-                        style={{
-                          color: "white",
-                          margin: 0,
-                          fontSize: "36px",
-                          fontWeight: "600",
-                          letterSpacing: "-0.025em",
-                        }}
+                        className="!text-white dark:!text-white !mb-1 text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight"
                       >
                         Edit Client Profile
                       </Title>
-                      <Text
-                        style={{
-                          color: "rgba(255,255,255,0.8)",
-                          fontSize: "18px",
-                          fontWeight: "400",
-                        }}
-                      >
+                      <Text className="text-white/80 dark:text-white/80 text-sm sm:text-base md:text-lg font-normal block">
                         Update client information and contact details
                       </Text>
                     </div>
-                  </Space>
+                  </div>
                 </Col>
-                <Col>
-                  <Button
-                    icon={<ArrowLeftOutlined />}
-                    onClick={() => router.back()}
-                    size="large"
-                    style={{
-                      background: "rgba(255,255,255,0.2)",
-                      borderColor: "rgba(255,255,255,0.3)",
-                      color: "white",
-                      borderRadius: "12px",
-                      fontWeight: "600",
-                      padding: "8px 24px",
-                      height: "48px",
-                      backdropFilter: "blur(10px)",
-                    }}
-                    ghost
-                  >
-                    Back
-                  </Button>
+
+                {/* Back Button Column */}
+                <Col xs={24} sm={24} md={6} lg={6} className="mt-4 md:mt-0">
+                  <div className="flex justify-center md:justify-end">
+                    <Button
+                      icon={<ArrowLeftOutlined />}
+                      onClick={() => router.back()}
+                      size="large"
+                      className="w-full sm:w-auto"
+                      style={{
+                        background: "rgba(255,255,255,0.2)",
+                        borderColor: "rgba(255,255,255,0.3)",
+                        color: "white",
+                        borderRadius: "12px",
+                        fontWeight: "600",
+                        padding: "8px 24px",
+                        height: "48px",
+                        backdropFilter: "blur(10px)",
+                      }}
+                      ghost
+                    >
+                      Back
+                    </Button>
+                  </div>
                 </Col>
               </Row>
             </Card>
@@ -330,7 +314,7 @@ export default function EditClient({ params }: { params: { id: number } }) {
                       <Avatar
                         size={160}
                         src={previewImage || undefined}
-                        icon={!previewImage ? <UserOutlined /> : undefined }
+                        icon={!previewImage ? <UserOutlined /> : undefined}
                         style={{
                           background: previewImage ? "transparent" : "#F1F5F9 dark:#1E293B",
                           border: "4px solid #e5e7eb",
@@ -785,14 +769,15 @@ export default function EditClient({ params }: { params: { id: number } }) {
               {/* Action Buttons */}
               <Card
                 className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mt-[40px] mb-[40px]"
-                bodyStyle={{ padding: "24px" }}
+                bodyStyle={{ padding: "16px" }}
               >
                 <Row justify="center">
-                  <Col>
-                    <Space size="large">
+                  <Col xs={24} sm={24} md={20} lg={16}>
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:justify-center">
                       <Button
                         size="large"
                         onClick={() => router.back()}
+                        className="w-full sm:w-auto order-2 sm:order-1"
                         style={{
                           borderRadius: "12px",
                           border: "1px solid #d1d5db",
@@ -811,6 +796,7 @@ export default function EditClient({ params }: { params: { id: number } }) {
                         loading={submitting}
                         icon={<SaveOutlined />}
                         onClick={showUpdateModal}
+                        className="w-full sm:w-auto order-1 sm:order-2"
                         style={{
                           background: "#059669",
                           borderColor: "#059669",
@@ -821,18 +807,19 @@ export default function EditClient({ params }: { params: { id: number } }) {
                           boxShadow: "0 4px 12px rgba(5, 150, 105, 0.3)",
                         }}
                       >
-                       Update Client Profile
+                        Update Client Profile
                       </Button>
-                      <ConfirmationModal
-                        visible={isUpdatedModalVisible}
-                        entityName={client?.fullName || "Client"}
-                        action="update"
-                        onConfirm={handleConfirmUpdate}
-                        onCancel={hideUpdateModal}
-                      />
-                    </Space>
+                    </div>
                   </Col>
                 </Row>
+
+                <ConfirmationModal
+                  visible={isUpdatedModalVisible}
+                  entityName={client?.fullName || "Client"}
+                  action="update"
+                  onConfirm={handleConfirmUpdate}
+                  onCancel={hideUpdateModal}
+                />
               </Card>
             </Form>
 
@@ -907,36 +894,36 @@ export default function EditClient({ params }: { params: { id: number } }) {
                       </Space>
                       {(form.getFieldValue("organization") ||
                         client.organization) && (
-                        <Space>
-                          <BankOutlined style={{ color: "#9ca3af" }} />
-                          <Text style={{ color: "#64748b" }}>
-                            {form.getFieldValue("organization") ||
-                              client.organization}
-                          </Text>
-                        </Space>
-                      )}
+                          <Space>
+                            <BankOutlined style={{ color: "#9ca3af" }} />
+                            <Text style={{ color: "#64748b" }}>
+                              {form.getFieldValue("organization") ||
+                                client.organization}
+                            </Text>
+                          </Space>
+                        )}
                     </Space>
                     {(form.getFieldValue("outstandingBalance") ||
                       client.outstandingBalance) && (
-                      <Space size="small" className="items-center">
-                        <DollarOutlined
-                          style={{
-                            color: "var(--text-secondary, #9ca3af)", // adapts in dark/light via CSS variables
-                          }}
-                        />
-                        <Text
-                          className="text-slate-700 dark:text-slate-300 font-medium"
-                          style={{ fontSize: 14 }}
-                        >
-                          Outstanding: $
-                          {(
-                            form.getFieldValue("outstandingBalance") ||
-                            client.outstandingBalance ||
-                            0
-                          ).toFixed(2)}
-                        </Text>
-                      </Space>
-                    )}
+                        <Space size="small" className="items-center">
+                          <DollarOutlined
+                            style={{
+                              color: "var(--text-secondary, #9ca3af)", // adapts in dark/light via CSS variables
+                            }}
+                          />
+                          <Text
+                            className="text-slate-700 dark:text-slate-300 font-medium"
+                            style={{ fontSize: 14 }}
+                          >
+                            Outstanding: $
+                            {(
+                              form.getFieldValue("outstandingBalance") ||
+                              client.outstandingBalance ||
+                              0
+                            ).toFixed(2)}
+                          </Text>
+                        </Space>
+                      )}
 
                     <div>
                       {(() => {

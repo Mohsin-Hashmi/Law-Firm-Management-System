@@ -60,7 +60,7 @@ const { Option } = Select;
 
 export default function UploadCaseDocumentsPage() {
   const { hasPermission } = usePermission();
-  const router= useRouter();
+  const router = useRouter();
   const user = useAppSelector((state: RootState) => state.user.user);
   const firmId = user?.firmId ?? user?.activeFirmId;
   const role = user?.role;
@@ -490,71 +490,55 @@ export default function UploadCaseDocumentsPage() {
             {/* Header */}
             <Card
               className="bg-[#1B3C53] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
-              bodyStyle={{ padding: "32px 20px" }}
+              bodyStyle={{ padding: "20px 16px" }}
             >
               <Row align="middle" justify="space-between">
-                <Col>
-                  <Space size="large">
-                    <div
-                      style={{
-                        width: "80px",
-                        height: "80px",
-                        background: "rgba(255,255,255,0.15)",
-                        borderRadius: "16px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        border: "2px solid rgba(255,255,255,0.2)",
-                      }}
-                    >
-                      <UploadOutlined
-                        style={{ fontSize: "32px", color: "white" }}
-                      />
+                <Col xs={24} sm={24} md={18} lg={18}>
+                  {/* Mobile Layout: Stacked vertically */}
+                  <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6">
+                    {/* Logo */}
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 dark:bg-white/10 border-white/20 dark:border-white/30 flex-shrink-0">
+                      <UploadOutlined className="text-[24px] sm:text-[28px] md:text-[32px] text-white" />
                     </div>
-                    <div>
+
+                    {/* Text Content */}
+                    <div className="text-center sm:text-left flex-1">
                       <Title
                         level={1}
-                        style={{
-                          color: "white",
-                          margin: 0,
-                          fontSize: "36px",
-                          fontWeight: "600",
-                          letterSpacing: "-0.025em",
-                        }}
+                        className="!text-white dark:!text-white !mb-1 text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight"
                       >
                         Upload Case Documents
                       </Title>
-                      <Text
-                        style={{
-                          color: "rgba(255,255,255,0.8)",
-                          fontSize: "18px",
-                          fontWeight: "400",
-                        }}
-                      >
+                      <Text className="text-white/80 dark:text-white/80 text-sm sm:text-base md:text-lg font-normal block">
                         Select a case to add documents
                       </Text>
                     </div>
-                  </Space>
+                  </div>
                 </Col>
-                <Col>
-                  <Button
-                    icon={<ArrowLeftOutlined />}
-                    onClick={() => router.back()}
-                    size="large"
-                    style={{
-                      background: "rgba(255,255,255,0.2)",
-                      borderColor: "rgba(255,255,255,0.3)",
-                      color: "white",
-                      borderRadius: "12px",
-                      fontWeight: "600",
-                      padding: "8px 24px",
-                      height: "48px",
-                      backdropFilter: "blur(10px)",
-                    }}
-                    ghost
-                  >
-                    Back
-                  </Button>
+
+                {/* Back Button Column */}
+                <Col xs={24} sm={24} md={6} lg={6} className="mt-4 md:mt-0">
+                  <div className="flex justify-center md:justify-end">
+                    <Button
+                      icon={<ArrowLeftOutlined />}
+                      onClick={() => router.back()}
+                      size="large"
+                      className="w-full sm:w-auto"
+                      style={{
+                        background: "rgba(255,255,255,0.2)",
+                        borderColor: "rgba(255,255,255,0.3)",
+                        color: "white",
+                        borderRadius: "12px",
+                        fontWeight: "600",
+                        padding: "8px 24px",
+                        height: "48px",
+                        backdropFilter: "blur(10px)",
+                      }}
+                      ghost
+                    >
+                      Back
+                    </Button>
+                  </div>
                 </Col>
               </Row>
             </Card>
@@ -961,13 +945,10 @@ export default function UploadCaseDocumentsPage() {
           onConfirm={executeUpload}
           onCancel={() => setConfirmUploadModalOpen(false)}
           title="Upload Documents"
-          description={`You are about to upload ${
-            pendingUploads.length
-          } document${
-            pendingUploads.length !== 1 ? "s" : ""
-          } (${getTotalFileSize()} MB) to case "${
-            selectedCase?.title
-          }". Do you want to proceed?`}
+          description={`You are about to upload ${pendingUploads.length
+            } document${pendingUploads.length !== 1 ? "s" : ""
+            } (${getTotalFileSize()} MB) to case "${selectedCase?.title
+            }". Do you want to proceed?`}
           confirmText="Upload"
           cancelText="Cancel"
         />
