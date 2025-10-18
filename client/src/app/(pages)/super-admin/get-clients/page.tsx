@@ -450,8 +450,6 @@ export default function GetClients() {
     {
       title: "Actions",
       key: "actions",
-      fixed: "right",
-      width: 120,
       render: (_: unknown, record: Client) => (
         <Space size="small">
           <Tooltip title="View Details">

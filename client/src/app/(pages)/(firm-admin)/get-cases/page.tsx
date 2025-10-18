@@ -637,8 +637,6 @@ export default function GetCases() {
     {
       title: "Actions",
       key: "actions",
-      width: 140,
-      fixed: "right",
       render: (_: unknown, record: Case) => (
         <Space size="small">
           {hasPermission("read_case") && (

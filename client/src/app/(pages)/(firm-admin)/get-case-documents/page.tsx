@@ -488,8 +488,6 @@ export default function GetCaseDocumentsPage() {
     {
       title: "Actions",
       key: "actions",
-      width: 80,
-      fixed: "right",
       render: (_: unknown, record: Case) => (
         <Tooltip title="View Documents">
           <Button

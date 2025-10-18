@@ -340,8 +340,6 @@ export default function GetFirms() {
     {
       title: "Actions",
       key: "actions",
-      fixed: "right",
-      width: 120,
       render: (_: unknown, record: Firm) => (
         <Space size="small">
           <Tooltip title="View Details">
