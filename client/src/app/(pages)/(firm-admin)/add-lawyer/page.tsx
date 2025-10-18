@@ -94,7 +94,7 @@ export default function AddLawyer() {
       formData.append("status", status);
       if (profileImage) formData.append("profileImage", profileImage);
       if (!firmId) {
-         router.push("/components/nofirmidfallback")
+        router.push("/components/nofirmidfallback")
         return;
       }
       const response = await addLawyer(firmId, formData);
@@ -159,72 +159,55 @@ export default function AddLawyer() {
             {/* Header Section */}
             <Card
               className="bg-[#E43636] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
-              bodyStyle={{ padding: "32px" }}
+              bodyStyle={{ padding: "20px 16px" }}
             >
               <Row align="middle" justify="space-between">
-                <Col>
-                  <Space size="large">
-                    <div
-                      style={{
-                        width: "80px",
-                        height: "80px",
-                        background: "rgba(255,255,255,0.15)",
-                        borderRadius: "16px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        border: "2px solid rgba(255,255,255,0.2)",
-                      }}
-                    >
-                      <UserAddOutlined
-                        style={{ fontSize: "32px", color: "white" }}
-                      />
+                <Col xs={24} sm={24} md={18} lg={18}>
+                  {/* Mobile Layout: Stacked vertically */}
+                  <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6">
+                    {/* Logo */}
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 dark:bg-white/10 border-white/20 dark:border-white/30 flex-shrink-0">
+                      <UserAddOutlined className="text-[24px] sm:text-[28px] md:text-[32px] text-white" />
                     </div>
-                    <div>
+
+                    {/* Text Content */}
+                    <div className="text-center sm:text-left flex-1">
                       <Title
                         level={1}
-                        style={{
-                          color: "white",
-                          margin: 0,
-                          fontSize: "36px",
-                          fontWeight: "600",
-                          letterSpacing: "-0.025em",
-                        }}
+                        className="!text-white dark:!text-white !mb-1 text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight"
                       >
                         Add New Lawyer
                       </Title>
-                      <Text
-                        style={{
-                          color: "#ffffff",
-                          fontSize: "18px",
-                          fontWeight: "400",
-                        }}
-                      >
-                        Complete the form below to add a new lawyer to your
-                        firms legal team
+                      <Text className="text-white dark:text-white text-sm sm:text-base md:text-lg font-normal block">
+                        Complete the form below to add a new lawyer to your firms legal team
                       </Text>
                     </div>
-                  </Space>
+                  </div>
                 </Col>
-                <Col>
-                  <Button
-                    icon={<ArrowLeftOutlined />}
-                    onClick={() => router.back()}
-                    size="large"
-                    style={{
-                      background: "rgba(255,255,255,0.2)",
-                      borderColor: "rgba(255,255,255,0.3)",
-                      color: "white",
-                      borderRadius: "12px",
-                      fontWeight: "600",
-                      padding: "8px 24px",
-                      height: "48px",
-                      backdropFilter: "blur(10px)",
-                    }}
-                    ghost
-                  >
-                    Back
-                  </Button>
+
+                {/* Back Button Column */}
+                <Col xs={24} sm={24} md={6} lg={6} className="mt-4 md:mt-0">
+                  <div className="flex justify-center md:justify-end">
+                    <Button
+                      icon={<ArrowLeftOutlined />}
+                      onClick={() => router.back()}
+                      size="large"
+                      className="w-full sm:w-auto"
+                      style={{
+                        background: "rgba(255,255,255,0.2)",
+                        borderColor: "rgba(255,255,255,0.3)",
+                        color: "white",
+                        borderRadius: "12px",
+                        fontWeight: "600",
+                        padding: "8px 24px",
+                        height: "48px",
+                        backdropFilter: "blur(10px)",
+                      }}
+                      ghost
+                    >
+                      Back
+                    </Button>
+                  </div>
                 </Col>
               </Row>
             </Card>
@@ -243,7 +226,7 @@ export default function AddLawyer() {
                   }}
                 >
                   {`"Lawyer Registration Progress"`}
-                  
+
                 </Text>
                 <Progress
                   percent={getFormProgress()}
@@ -660,16 +643,18 @@ export default function AddLawyer() {
               {/* Action Buttons */}
               <Card
                 className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mt-[40px]"
-                bodyStyle={{ padding: "24px" }}
+                bodyStyle={{ padding: "16px" }}
               >
                 <Row justify="center">
-                  <Col>
-                    <Space size="large">
+                  <Col xs={24} sm={24} md={20} lg={16}>
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:justify-center">
                       <Button
                         size="large"
                         onClick={() => router.back()}
+                        className="w-full sm:w-auto order-2 sm:order-1"
                         style={{
                           border: "1px solid #d1d5db",
+                          borderRadius: "12px",
                           fontWeight: "600",
                           padding: "12px 32px",
                           height: "48px",
@@ -687,12 +672,12 @@ export default function AddLawyer() {
                           try {
                             // validateFields will throw if any required field is empty
                             await form.validateFields();
-
                             showCreationModal();
                           } catch (err) {
                             console.log("Validation failed:", err);
                           }
                         }}
+                        className="w-full sm:w-auto order-1 sm:order-2"
                         style={{
                           background: "#1e40af",
                           borderColor: "#1e40af",
@@ -705,26 +690,26 @@ export default function AddLawyer() {
                       >
                         Add Lawyer To Firm
                       </Button>
-                      <ConfirmationModal
-                        visible={isCreateModalVisible}
-                        entityName={name || "Lawyer"}
-                        action="create"
-                        onConfirm={handleConfirmCreate}
-                        onCancel={hideCreateModal}
-                      />
-                    </Space>
+                    </div>
 
-                    <div style={{ marginTop: "24px", textAlign: "center" }}>
+                    <div className="mt-6 text-center">
                       <Text
                         className="text-[#9ca3af] dark:text-[#6b7280]"
                         style={{ fontSize: "14px" }}
                       >
-                        By adding this attorney, you confirm they have agreed to
-                        join your firm
+                        By adding this attorney, you confirm they have agreed to join your firm
                       </Text>
                     </div>
                   </Col>
                 </Row>
+
+                <ConfirmationModal
+                  visible={isCreateModalVisible}
+                  entityName={name || "Lawyer"}
+                  action="create"
+                  onConfirm={handleConfirmCreate}
+                  onCancel={hideCreateModal}
+                />
               </Card>
             </Form>
           </div>

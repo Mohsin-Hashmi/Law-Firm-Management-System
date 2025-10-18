@@ -206,14 +206,14 @@ export default function AddFirm() {
             >
               <Row align="middle" justify="space-between">
                 <Col xs={24} sm={24} md={18} lg={18}>
-                 
+
                   <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6">
-                   
+
                     <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 dark:bg-white/10 border-white/20 dark:border-white/30 flex-shrink-0">
                       <BankOutlined className="text-[24px] sm:text-[28px] md:text-[32px] text-white" />
                     </div>
 
-                   
+
                     <div className="text-center sm:text-left flex-1">
                       <Title
                         level={1}
@@ -731,11 +731,12 @@ export default function AddFirm() {
                 <Divider style={{ margin: "48px 0" }} />
 
                 {/* Submit Section */}
-                <div style={{ textAlign: "center" }}>
-                  <Space size="large">
+                <div className="text-center">
+                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4 sm:px-0">
                     <Button
                       size="large"
                       onClick={() => router.back()}
+                      className="w-full sm:w-auto order-2 sm:order-1"
                       style={{
                         borderRadius: "12px",
                         padding: "12px 32px",
@@ -754,6 +755,7 @@ export default function AddFirm() {
                       size="large"
                       icon={<SaveOutlined />}
                       loading={loading}
+                      className="w-full sm:w-auto order-1 sm:order-2"
                       style={{
                         background: isHovered ? "#1d4ed8" : "#1e40af",
                         borderColor: isHovered ? "#1d4ed8" : "#1e40af",
@@ -763,9 +765,7 @@ export default function AddFirm() {
                         fontWeight: "600",
                         height: "48px",
                         boxShadow: "0 4px 12px rgba(30, 64, 175, 0.25)",
-                        transform: isHovered
-                          ? "translateY(-1px)"
-                          : "translateY(0)",
+                        transform: isHovered ? "translateY(-1px)" : "translateY(0)",
                         transition: "all 0.2s ease",
                       }}
                       onMouseEnter={() => setIsHovered(true)}
@@ -774,23 +774,24 @@ export default function AddFirm() {
                     >
                       Create Law Firm
                     </Button>
-                    <ConfirmationModal
-                      visible={isConfirmOpen}
-                      entityName="Law Firm"
-                      action="create"
-                      onCancel={() => setIsConfirmOpen(false)}
-                      onConfirm={() => {
-                        setIsConfirmOpen(false);
-                        handleCreateFirm();
-                      }}
-                      title="Create Law Firm?"
-                      description="Are you sure you want to create this new law firm with the details you entered? This action cannot be undone."
-                      confirmText="Yes, Create"
-                      cancelText="No, Cancel"
-                    />
-                  </Space>
+                  </div>
 
-                  <div style={{ marginTop: "24px" }}>
+                  <ConfirmationModal
+                    visible={isConfirmOpen}
+                    entityName="Law Firm"
+                    action="create"
+                    onCancel={() => setIsConfirmOpen(false)}
+                    onConfirm={() => {
+                      setIsConfirmOpen(false);
+                      handleCreateFirm();
+                    }}
+                    title="Create Law Firm?"
+                    description="Are you sure you want to create this new law firm with the details you entered? This action cannot be undone."
+                    confirmText="Yes, Create"
+                    cancelText="No, Cancel"
+                  />
+
+                  <div className="mt-6">
                     <Text
                       className="text-[#9ca3af] dark:text-[#6b7280]"
                       style={{ fontSize: "14px" }}
