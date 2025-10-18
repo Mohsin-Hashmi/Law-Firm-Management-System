@@ -364,28 +364,27 @@ export default function FirmStats({ firmId, role }: Props) {
           bodyStyle={{ padding: "20px 16px" }}
         >
           <Row align="middle" justify="space-between">
-            <Col>
-              <Space size="large">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 dark:bg-white/10 border-white/20 dark:border-white/30">
-                  <BankOutlined className="text-[20px] sm:text-[24px] md:text-[28px] lg:text-[32px] text-white" />
+            <Col xs={24} sm={24} md={18} lg={18}>
+              
+              <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6">
+                
+                <div className="w-16 h-16 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 dark:bg-white/10 border-white/20 dark:border-white/30 flex-shrink-0">
+                  <BankOutlined className="text-[24px] sm:text-[24px] md:text-[28px] lg:text-[32px] text-white" />
                 </div>
-                <div>
+                <div className="text-center sm:text-left flex-1">
                   <Title
                     level={1}
                     className="!text-white dark:!text-white !mb-1 text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight"
                   >
                     {stats.firmName}
                   </Title>
-                  <Text className="text-white/100 dark:text-white text-sm sm:text-base md:text-lg font-normal">
+                  <Text className="text-white/90 dark:text-white text-sm sm:text-base md:text-lg font-normal block">
                     Law Firm Management Dashboard
                   </Text>
                 </div>
-              </Space>
+              </div>
             </Col>
-            <Col>
-              <Space size="middle">
-              </Space>
-            </Col>
+
           </Row>
         </Card>
 
@@ -604,14 +603,14 @@ export default function FirmStats({ firmId, role }: Props) {
                   <ResponsiveContainer>
                     <RadarChart data={radarData}>
                       <PolarGrid stroke="#555555" className="dark:stroke-[#e2e8f0]" />
-                      <PolarAngleAxis 
-                        dataKey="subject" 
+                      <PolarAngleAxis
+                        dataKey="subject"
                         tick={{ fill: '#555555', fontSize: 12 }}
                         stroke="#555555"
                         className="dark:[&_text]:fill-[#64748b] dark:stroke-[#64748b]"
                       />
-                      <PolarRadiusAxis 
-                        angle={90} 
+                      <PolarRadiusAxis
+                        angle={90}
                         domain={[0, 'dataMax']}
                         tick={{ fill: '#232323', fontSize: 10 }}
                         stroke="#232323"
@@ -633,8 +632,8 @@ export default function FirmStats({ firmId, role }: Props) {
                         itemStyle={{ color: "#fff" }}
                         labelStyle={{ color: "#fff" }}
                       />
-                      <Legend 
-                        wrapperStyle={{ 
+                      <Legend
+                        wrapperStyle={{
                           paddingTop: '20px',
                           color: '#64748b'
                         }}
