@@ -406,23 +406,25 @@ export default function PlatformStats() {
           bodyStyle={{ padding: "20px 16px" }}
         >
           <Row align="middle" justify="space-between">
-            <Col>
-              <Space size="large">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 border-white/20">
-                  <CrownOutlined className="text-[20px] sm:text-[24px] md:text-[28px] lg:text-[32px] text-white" />
+            <Col xs={24} sm={24} md={18} lg={18}>
+              
+              <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6">
+                
+                <div className="w-16 h-16 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 border-white/20 flex-shrink-0">
+                  <CrownOutlined className="text-[24px] sm:text-[24px] md:text-[28px] lg:text-[32px] text-white" />
                 </div>
-                <div>
+                <div className="text-center sm:text-left flex-1">
                   <Title
                     level={1}
                     className="!text-white !mb-1 text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight"
                   >
                     Super Admin Dashboard
                   </Title>
-                  <Text className="text-white/90 text-sm sm:text-base md:text-lg font-normal">
+                  <Text className="text-white/90 text-sm sm:text-base md:text-lg font-normal block">
                     Platform-wide Analytics & Management
                   </Text>
                 </div>
-              </Space>
+              </div>
             </Col>
             <Col>
               <Space direction="vertical" align="end">

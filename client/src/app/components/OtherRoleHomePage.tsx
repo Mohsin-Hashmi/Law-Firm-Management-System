@@ -112,31 +112,33 @@ export default function OtherRoleHomePage({ role, name }: OtherRoleProps) {
         {/* Professional Header */}
         <Card
           className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-slate-800 dark:to-slate-700 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg mb-8 !transition-none"
-          bodyStyle={{ padding: "32px 20px" }}
+          bodyStyle={{ padding: "20px 16px" }}
         >
           <Row align="middle" justify="space-between">
-            <Col>
-              <Space size="large">
-                <div className="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 dark:bg-white/10 border-white/20 dark:border-white/30">
+            <Col xs={24} sm={24} md={18} lg={18}>
+              
+              <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6">
+                
+                <div className="w-16 h-16 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 dark:bg-white/10 border-white/20 dark:border-white/30 flex-shrink-0">
                   <Avatar
-                    size={64}
+                    size={48}
                     icon={<UserOutlined />}
                     className="bg-white/20 border-2 border-white/30"
                     style={{ color: "white" }}
                   />
                 </div>
-                <div>
+                <div className="text-center sm:text-left flex-1">
                   <Title
                     level={1}
-                    className="!text-white dark:!text-white !mb-1 text-4xl font-semibold tracking-tight"
+                    className="!text-white dark:!text-white !mb-1 text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight"
                   >
                     Welcome {name}!
                   </Title>
-                  <Text className="text-white/90 dark:text-white text-lg font-normal">
+                  <Text className="text-white/90 dark:text-white text-sm sm:text-base md:text-lg font-normal block">
                     {role} • {firm?.firmName || "Law Firm"} Dashboard
                   </Text>
                 </div>
-              </Space>
+              </div>
             </Col>
           </Row>
         </Card>
