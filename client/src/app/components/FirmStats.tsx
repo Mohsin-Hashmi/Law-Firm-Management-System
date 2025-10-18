@@ -357,7 +357,7 @@ export default function FirmStats({ firmId, role }: Props) {
   ];
 
   return (
-    <div className="min-h-screen   transition-colors duration-300  ">
+    <div className="min-h-screen   transition-colors duration-300">
       <div className="max-w-full">
         <Card
           className="bg-blue-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg  mb-[40px] !transition-none"

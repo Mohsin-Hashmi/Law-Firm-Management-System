@@ -393,62 +393,43 @@ export default function GetLawyers() {
             <div className="max-w-full">
               {/* Header Section */}
               <Card
-                className="bg-[#E43636]  dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
-                bodyStyle={{ padding: "32px 20px" }}
+                className="bg-[#E43636] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
+                bodyStyle={{ padding: "20px 16px" }}
               >
                 <Row align="middle" justify="space-between">
-                  <Col>
-                    <Space size="large">
-                      <div
-                        style={{
-                          width: "80px",
-                          height: "80px",
-                          background: "rgba(255,255,255,0.15)",
-                          borderRadius: "16px",
-                          display: "flex",
-                          flexWrap: "wrap",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          border: "2px solid rgba(255,255,255,0.2)",
-                        }}
-                      >
-                        <TeamOutlined
-                          style={{ fontSize: "32px", color: "white" }}
-                        />
+                  <Col xs={24} sm={24} md={18} lg={18}>
+                    {/* Mobile Layout: Stacked vertically */}
+                    <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6">
+                      {/* Logo */}
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 dark:bg-white/10 border-white/20 dark:border-white/30 flex-shrink-0">
+                        <TeamOutlined className="text-[24px] sm:text-[28px] md:text-[32px] text-white" />
                       </div>
-                      <div>
+
+                      {/* Text Content */}
+                      <div className="text-center sm:text-left flex-1">
                         <Title
                           level={1}
-                          style={{
-                            color: "white",
-                            margin: 0,
-                            fontSize: "36px",
-                            fontWeight: "600",
-                            letterSpacing: "-0.025em",
-                          }}
+                          className="!text-white dark:!text-white !mb-1 text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight"
                         >
                           Legal Team
                         </Title>
-                        <Text
-                          style={{
-                            color: "rgba(255,255,255,0.8)",
-                            fontSize: "18px",
-                            fontWeight: "400",
-                          }}
-                        >
+                        <Text className="text-white/80 dark:text-white/80 text-sm sm:text-base md:text-lg font-normal block">
                           Manage your firms attorneys and legal professionals
                         </Text>
                       </div>
-                    </Space>
+                    </div>
                   </Col>
-                  <Col>
-                    <Space size="middle">
-                      {hasPermission("create_lawyer") && (
+
+                  {/* Add Button Column */}
+                  <Col xs={24} sm={24} md={6} lg={6} className="mt-4 md:mt-0">
+                    {hasPermission("create_lawyer") && (
+                      <div className="flex justify-center md:justify-end">
                         <Button
                           type="primary"
                           size="large"
                           icon={<UserAddOutlined />}
                           onClick={() => router.push("/add-lawyer")}
+                          className="w-full sm:w-auto"
                           style={{
                             background: "white",
                             borderColor: "white",
@@ -456,16 +437,14 @@ export default function GetLawyers() {
                             borderRadius: "12px",
                             fontWeight: "600",
                             padding: "8px 24px",
-                            margin: "0 auto",
-                            display:"block",
                             height: "48px",
                             boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                           }}
                         >
                           Add New Lawyer
                         </Button>
-                      )}
-                    </Space>
+                      </div>
+                    )}
                   </Col>
                 </Row>
               </Card>
@@ -693,7 +672,7 @@ export default function GetLawyers() {
                         Refresh
                       </Button>
 
-                      
+
                     </Space>
                   </Col>
                 </Row>

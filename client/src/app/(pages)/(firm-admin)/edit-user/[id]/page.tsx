@@ -34,7 +34,7 @@ import {
   SettingOutlined,
   IeOutlined,
   CheckCircleOutlined
-  
+
 } from "@ant-design/icons";
 
 import {
@@ -87,7 +87,7 @@ export default function EditUser({
         ...user,
         status: user.status
           ? user.status.charAt(0).toUpperCase() +
-            user.status.slice(1).toLowerCase()
+          user.status.slice(1).toLowerCase()
           : "Active", // default if no status
       });
     }
@@ -295,71 +295,55 @@ export default function EditUser({
             {/* Header Section */}
             <Card
               className="bg-[#3A3A3A] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
-              bodyStyle={{ padding: "32px" }}
+              bodyStyle={{ padding: "20px 16px" }}
             >
               <Row align="middle" justify="space-between">
-                <Col>
-                  <Space size="large">
-                    <div
-                      style={{
-                        width: "80px",
-                        height: "80px",
-                        background: "rgba(255,255,255,0.15)",
-                        borderRadius: "16px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        border: "2px solid rgba(255,255,255,0.2)",
-                      }}
-                    >
-                      <EditOutlined
-                        style={{ fontSize: "32px", color: "white" }}
-                      />
+                <Col xs={24} sm={24} md={18} lg={18}>
+                  {/* Mobile Layout: Stacked vertically */}
+                  <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6">
+                    {/* Logo */}
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 dark:bg-white/10 border-white/20 dark:border-white/30 flex-shrink-0">
+                      <EditOutlined className="text-[24px] sm:text-[28px] md:text-[32px] text-white" />
                     </div>
-                    <div>
+
+                    {/* Text Content */}
+                    <div className="text-center sm:text-left flex-1">
                       <Title
                         level={1}
-                        style={{
-                          color: "white",
-                          margin: 0,
-                          fontSize: "36px",
-                          fontWeight: "600",
-                          letterSpacing: "-0.025em",
-                        }}
+                        className="!text-white dark:!text-white !mb-1 text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight"
                       >
                         Edit User Profile
                       </Title>
-                      <Text
-                        style={{
-                          color: "#fff",
-                          fontSize: "18px",
-                          fontWeight: "400",
-                        }}
-                      >
+                      <Text className="text-white dark:text-white text-sm sm:text-base md:text-lg font-normal block">
                         Update user roles, permissions and account status
                       </Text>
                     </div>
-                  </Space>
+                  </div>
                 </Col>
-                <Col>
-                  <Button
-                    icon={<ArrowLeftOutlined />}
-                    onClick={() => router.back()}
-                    size="large"
-                    style={{
-                      background: "rgba(255,255,255,0.2)",
-                      borderColor: "rgba(255,255,255,0.3)",
-                      color: "white",
-                      borderRadius: "12px",
-                      fontWeight: "600",
-                      padding: "8px 24px",
-                      height: "48px",
-                      backdropFilter: "blur(10px)",
-                    }}
-                    ghost
-                  >
-                    Back
-                  </Button>
+
+                {/* Back Button Column */}
+                <Col xs={24} sm={24} md={6} lg={6} className="mt-4 md:mt-0">
+                  <div className="flex justify-center md:justify-end">
+                    <Button
+                      icon={<ArrowLeftOutlined />}
+                      onClick={() => router.back()}
+                      size="large"
+                      className="w-full sm:w-auto"
+                      style={{
+                        background: "rgba(255,255,255,0.2)",
+                        borderColor: "rgba(255,255,255,0.3)",
+                        color: "white",
+                        borderRadius: "12px",
+                        fontWeight: "600",
+                        padding: "8px 24px",
+                        height: "48px",
+                        backdropFilter: "blur(10px)",
+                      }}
+                      ghost
+                    >
+                      Back
+                    </Button>
+                  </div>
                 </Col>
               </Row>
             </Card>
@@ -546,14 +530,14 @@ export default function EditUser({
                       </div>
                     </Form.Item>
 
-                    
-                      <Space className="mb-3">
-                        <SettingOutlined style={{ color: "#9ca3af" }} />
-                        <Text style={{ color: "#64748b", fontSize: "14px" }}>
-                          Permissions
-                        </Text>
-                      </Space>
-                    
+
+                    <Space className="mb-3">
+                      <SettingOutlined style={{ color: "#9ca3af" }} />
+                      <Text style={{ color: "#64748b", fontSize: "14px" }}>
+                        Permissions
+                      </Text>
+                    </Space>
+
 
                     {/* Permissions Selection */}
                     <div style={{ maxHeight: "300px", overflowY: "auto" }}>
@@ -588,8 +572,8 @@ export default function EditUser({
                                 const newPermissions = checked
                                   ? [...selectedPermissions, permission.name]
                                   : selectedPermissions.filter(
-                                      (p) => p !== permission.name
-                                    );
+                                    (p) => p !== permission.name
+                                  );
                                 setSelectedPermissions(newPermissions);
                               }}
                               size="small"
@@ -611,147 +595,148 @@ export default function EditUser({
               {/* Changes Summary - Elegant Design matching Case Summary */}
               {(addedPermissions.length > 0 ||
                 removedPermissions.length > 0) && (
-                <div className="!mt-6 bg-gradient-to-br from-blue-50 via-blue-50/80 to-indigo-50/60 dark:from-slate-800/60 dark:via-slate-700/40 dark:to-slate-800/80 border border-blue-200/80 dark:border-slate-600/70 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
-                  {/* Header */}
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="flex items-center justify-center w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
-                      <EditOutlined className="text-blue-600 dark:text-blue-400 text-lg" />
+                  <div className="!mt-6 bg-gradient-to-br from-blue-50 via-blue-50/80 to-indigo-50/60 dark:from-slate-800/60 dark:via-slate-700/40 dark:to-slate-800/80 border border-blue-200/80 dark:border-slate-600/70 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                    {/* Header */}
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center justify-center w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
+                        <EditOutlined className="text-blue-600 dark:text-blue-400 text-lg" />
+                      </div>
+                      <div>
+                        <Title
+                          level={4}
+                          className="text-slate-800 dark:text-slate-100 !mb-0"
+                          style={{
+                            fontSize: "18px",
+                            fontWeight: 600,
+                            letterSpacing: "-0.025em",
+                          }}
+                        >
+                          Permission Changes Summary
+                        </Title>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-0">
+                          Review changes before updating
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <Title
-                        level={4}
-                        className="text-slate-800 dark:text-slate-100 !mb-0"
-                        style={{
-                          fontSize: "18px",
-                          fontWeight: 600,
-                          letterSpacing: "-0.025em",
-                        }}
-                      >
-                        Permission Changes Summary
-                      </Title>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-0">
-                        Review changes before updating
+
+                    {/* Changes Content */}
+                    <div className="space-y-3">
+                      {/* Total Changes Overview */}
+                      <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
+                        <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
+                          Total Changes:
+                        </Text>
+                        <span className="text-slate-800 dark:text-white font-semibold text-sm bg-slate-100 dark:bg-slate-600/30 px-2 py-1 rounded-md">
+                          {addedPermissions.length + removedPermissions.length}{" "}
+                          permission
+                          {addedPermissions.length + removedPermissions.length !==
+                            1
+                            ? "s"
+                            : ""}
+                        </span>
+                      </div>
+
+                      {/* Added Permissions */}
+                      {addedPermissions.length > 0 && (
+                        <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
+                          <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
+                            To Add:
+                          </Text>
+                          <span className="text-emerald-600 dark:text-emerald-400 font-semibold text-sm bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-md">
+                            +{addedPermissions.length} permissions
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Removed Permissions */}
+                      {removedPermissions.length > 0 && (
+                        <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
+                          <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
+                            To Remove:
+                          </Text>
+                          <span className="text-red-600 dark:text-red-400 font-semibold text-sm bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-md">
+                            -{removedPermissions.length} permissions
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Added Permissions Details */}
+                      {addedPermissions.length > 0 && (
+                        <div className="mt-4 pt-4 border-t border-blue-200/50 dark:border-slate-600/50">
+                          <Text className="text-slate-700 dark:text-slate-200 font-medium text-sm block mb-2">
+                            Permissions to Add:
+                          </Text>
+                          <div className="flex flex-wrap gap-2">
+                            {addedPermissions.map((perm) => (
+                              <Tag
+                                key={perm}
+                                className="rounded-lg px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border-none font-medium text-sm"
+                                icon={<CheckOutlined />}
+                              >
+                                {perm
+                                  .replace(/_/g, " ")
+                                  .replace(/\b\w/g, (l) => l.toUpperCase())}
+                              </Tag>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Removed Permissions Details */}
+                      {removedPermissions.length > 0 && (
+                        <div className="mt-4 pt-4 border-t border-blue-200/50 dark:border-slate-600/50">
+                          <Text className="text-slate-700 dark:text-slate-200 font-medium text-sm block mb-2">
+                            Permissions to Remove:
+                          </Text>
+                          <div className="flex flex-wrap gap-2">
+                            {removedPermissions.map((perm) => (
+                              <Tag
+                                key={perm}
+                                className="rounded-lg px-3 py-1 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border-none font-medium text-sm line-through opacity-75"
+                                icon={<CloseOutlined />}
+                              >
+                                {perm
+                                  .replace(/_/g, " ")
+                                  .replace(/\b\w/g, (l) => l.toUpperCase())}
+                              </Tag>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Footer */}
+                    <div className="mt-5 pt-4 border-t border-blue-200/50 dark:border-slate-600/50">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                        <svg
+                          className="w-3 h-3"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        Permission changes ready for review
                       </p>
                     </div>
                   </div>
-
-                  {/* Changes Content */}
-                  <div className="space-y-3">
-                    {/* Total Changes Overview */}
-                    <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
-                      <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
-                        Total Changes:
-                      </Text>
-                      <span className="text-slate-800 dark:text-white font-semibold text-sm bg-slate-100 dark:bg-slate-600/30 px-2 py-1 rounded-md">
-                        {addedPermissions.length + removedPermissions.length}{" "}
-                        permission
-                        {addedPermissions.length + removedPermissions.length !==
-                        1
-                          ? "s"
-                          : ""}
-                      </span>
-                    </div>
-
-                    {/* Added Permissions */}
-                    {addedPermissions.length > 0 && (
-                      <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
-                        <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
-                          To Add:
-                        </Text>
-                        <span className="text-emerald-600 dark:text-emerald-400 font-semibold text-sm bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-md">
-                          +{addedPermissions.length} permissions
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Removed Permissions */}
-                    {removedPermissions.length > 0 && (
-                      <div className="flex items-center justify-between group hover:bg-white/60 dark:hover:bg-slate-600/20 rounded-lg p-2 transition-colors duration-150">
-                        <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">
-                          To Remove:
-                        </Text>
-                        <span className="text-red-600 dark:text-red-400 font-semibold text-sm bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-md">
-                          -{removedPermissions.length} permissions
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Added Permissions Details */}
-                    {addedPermissions.length > 0 && (
-                      <div className="mt-4 pt-4 border-t border-blue-200/50 dark:border-slate-600/50">
-                        <Text className="text-slate-700 dark:text-slate-200 font-medium text-sm block mb-2">
-                          Permissions to Add:
-                        </Text>
-                        <div className="flex flex-wrap gap-2">
-                          {addedPermissions.map((perm) => (
-                            <Tag
-                              key={perm}
-                              className="rounded-lg px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border-none font-medium text-sm"
-                              icon={<CheckOutlined />}
-                            >
-                              {perm
-                                .replace(/_/g, " ")
-                                .replace(/\b\w/g, (l) => l.toUpperCase())}
-                            </Tag>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Removed Permissions Details */}
-                    {removedPermissions.length > 0 && (
-                      <div className="mt-4 pt-4 border-t border-blue-200/50 dark:border-slate-600/50">
-                        <Text className="text-slate-700 dark:text-slate-200 font-medium text-sm block mb-2">
-                          Permissions to Remove:
-                        </Text>
-                        <div className="flex flex-wrap gap-2">
-                          {removedPermissions.map((perm) => (
-                            <Tag
-                              key={perm}
-                              className="rounded-lg px-3 py-1 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border-none font-medium text-sm line-through opacity-75"
-                              icon={<CloseOutlined />}
-                            >
-                              {perm
-                                .replace(/_/g, " ")
-                                .replace(/\b\w/g, (l) => l.toUpperCase())}
-                            </Tag>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Footer */}
-                  <div className="mt-5 pt-4 border-t border-blue-200/50 dark:border-slate-600/50">
-                    <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                      <svg
-                        className="w-3 h-3"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      Permission changes ready for review
-                    </p>
-                  </div>
-                </div>
-              )}
+                )}
 
               {/* Action Buttons */}
               <Card
                 className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mt-[40px] mb-[40px]"
-                bodyStyle={{ padding: "24px" }}
+                bodyStyle={{ padding: "16px" }}
               >
                 <Row justify="center">
-                  <Col>
-                    <Space size="large">
+                  <Col xs={24} sm={24} md={20} lg={16}>
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:justify-center">
                       <Button
                         size="large"
                         onClick={() => router.back()}
+                        className="w-full sm:w-auto order-2 sm:order-1"
                         style={{
                           borderRadius: "12px",
                           border: "1px solid #d1d5db",
@@ -770,6 +755,7 @@ export default function EditUser({
                         icon={<SaveOutlined />}
                         onClick={showUpdateModal}
                         loading={submitting}
+                        className="w-full sm:w-auto order-1 sm:order-2"
                         style={{
                           background: "#1e40af",
                           borderColor: "#1e40af",
@@ -782,7 +768,7 @@ export default function EditUser({
                       >
                         Update User Profile
                       </Button>
-                    </Space>
+                    </div>
                   </Col>
                 </Row>
               </Card>
