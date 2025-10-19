@@ -9,16 +9,31 @@ interface ProtectedLayoutProps {
 export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = () => {
+      console.log("🔍 Checking auth for pathname:", pathname);
+      
       // Public routes that don't need authentication
-      const publicRoutes = ['/auth/login', '/auth/signup', '/auth/forgot-password', '/'];
+      const publicRoutes = [
+        '/auth/login', 
+        '/auth/signup', 
+        '/auth/forgot-password', 
+        '/',
+        '/about',
+        '/services',
+        '/our-services',
+        '/contact'
+      ];
       
       // Check if current route is public
-      const isPublicRoute = publicRoutes.some(route => pathname === route || pathname.startsWith(route + '/'));
+      const isPublicRoute = publicRoutes.some(route => 
+        pathname === route || pathname.startsWith(route + '/')
+      );
+      
+      console.log("🔍 Is public route?", isPublicRoute);
       
       if (isPublicRoute) {
         setIsAuthenticated(true);
@@ -26,7 +41,7 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
         return;
       }
 
-      // Check for token in localStorage AND cookies
+      // Check for token
       const localToken = localStorage.getItem('token') || localStorage.getItem('authToken');
       const cookieToken = document.cookie
         .split('; ')
@@ -35,42 +50,19 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
       
       const token = localToken || cookieToken;
       
+      console.log("🔍 Token exists?", !!token);
+      
       if (!token) {
         console.log("🚫 No token found, redirecting to login");
+        setIsAuthenticated(false);
+        setIsLoading(false);
         router.push(`/auth/login?redirect=${encodeURIComponent(pathname)}&message=Please login to continue`);
         return;
       }
 
-      // Check role-based access
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        try {
-          const user = JSON.parse(userStr);
-          const role = user.role;
-
-          // Define role-based route access
-          const roleRoutes: Record<string, string[]> = {
-            'Super Admin': ['/super-admin', '/dashboard'],
-            'Firm Admin': ['/firm-admin', '/dashboard'],
-            'Lawyer': ['/lawyer', '/firm-lawyer', '/dashboard'],
-            'Client': ['/client', '/dashboard'],
-          };
-
-          // Check if user has access to current route
-          if (role && roleRoutes[role]) {
-            const hasAccess = roleRoutes[role].some(route => pathname.startsWith(route));
-            
-            if (!hasAccess && !pathname.startsWith('/dashboard')) {
-              console.log("🚫 User doesn't have access to this route");
-              router.push('/unauthorized');
-              return;
-            }
-          }
-        } catch (error) {
-          console.error("Error parsing user data:", error);
-        }
-      }
-
+      // If token exists, allow access
+      // Role-based restrictions should be handled by your backend API
+      console.log("✅ Token found, allowing access");
       setIsAuthenticated(true);
       setIsLoading(false);
     };
@@ -90,9 +82,15 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
     );
   }
 
-  // Don't render protected content until authenticated
-  if (!isAuthenticated) {
-    return null;
+  // Don't render if not authenticated
+  if (isAuthenticated === false) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <p className="text-gray-600">Redirecting to login...</p>
+        </div>
+      </div>
+    );
   }
 
   return <>{children}</>;
