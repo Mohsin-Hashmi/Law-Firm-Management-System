@@ -26,12 +26,18 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
         return;
       }
 
-      // Check for token in localStorage or cookies
-      const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+      // Check for token in localStorage AND cookies
+      const localToken = localStorage.getItem('token') || localStorage.getItem('authToken');
+      const cookieToken = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+      
+      const token = localToken || cookieToken;
       
       if (!token) {
         console.log("🚫 No token found, redirecting to login");
-        router.push(`/auth/login?redirect=${encodeURIComponent(pathname)}`);
+        router.push(`/auth/login?redirect=${encodeURIComponent(pathname)}&message=Please login to continue`);
         return;
       }
 
@@ -46,15 +52,15 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
           const roleRoutes: Record<string, string[]> = {
             'Super Admin': ['/super-admin', '/dashboard'],
             'Firm Admin': ['/firm-admin', '/dashboard'],
-            'Lawyer': ['/lawyer', '/dashboard'],
-            'Assistant': ['/assistant', '/dashboard'],
+            'Lawyer': ['/lawyer', '/firm-lawyer', '/dashboard'],
+            'Client': ['/client', '/dashboard'],
           };
 
           // Check if user has access to current route
           if (role && roleRoutes[role]) {
             const hasAccess = roleRoutes[role].some(route => pathname.startsWith(route));
             
-            if (!hasAccess) {
+            if (!hasAccess && !pathname.startsWith('/dashboard')) {
               console.log("🚫 User doesn't have access to this route");
               router.push('/unauthorized');
               return;
