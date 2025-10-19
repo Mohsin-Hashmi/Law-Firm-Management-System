@@ -296,8 +296,19 @@ const LoginIn = async (req, res) => {
 
 const Logout = (req, res) => {
   try {
-    res.cookie("token", null, { expires: new Date(Date.now()) });
-    res.json({ message: "User logged out successfully" });
+    
+    res.cookie("token", "", {
+      httpOnly: true,
+      sameSite: "none",
+      secure: true,
+      expires: new Date(0), // Set to epoch time (January 1, 1970)
+      path: "/", // Important! Must match the path used when setting
+    });
+
+    res.status(200).json({ 
+      success: true,
+      message: "User logged out successfully" 
+    });
   } catch (err) {
     res.status(500).json({
       success: false,

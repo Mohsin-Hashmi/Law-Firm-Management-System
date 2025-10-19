@@ -22,19 +22,25 @@ export const signupUser = async (data: SignupPayload) => {
 };
 
 export const logoutUser = async () => {
-  // Clear tokens before logout
-  localStorage.removeItem("token");
-  localStorage.removeItem("authToken");
-  localStorage.removeItem("user");
-  delete axios.defaults.headers.common["Authorization"];
-  
-  return await api.post("/auth/logout", {});
-};
-
-export const resetPassword = async (userId: number, newPassword: string) => {
-  const response = await api.post("/auth/reset-password", {
-    userId,
-    newPassword,
-  });
-  return response.data;
+  try {
+   
+    const response = await api.post("/auth/logout", {}, {
+      withCredentials: true // Important! Allows cookie to be cleared
+    });
+    
+    
+    localStorage.removeItem("token");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    delete axios.defaults.headers.common["Authorization"];
+    
+    return response;
+  } catch (error) {
+    // Even if API fails, clear local storage
+    localStorage.removeItem("token");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    delete axios.defaults.headers.common["Authorization"];
+    throw error;
+  }
 };

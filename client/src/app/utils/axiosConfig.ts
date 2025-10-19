@@ -5,6 +5,7 @@ import BASE_URL from "./constant";
 const api = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
+  headers: {     "Content-Type": "application/json",   },
 });
 
 // Request interceptor to add token to headers
