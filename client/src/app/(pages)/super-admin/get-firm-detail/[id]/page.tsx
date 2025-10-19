@@ -149,44 +149,44 @@ export default function GetFirmDetail({ params }: { params: { id: number } }) {
             {/* Header Section */}
             <Card
               className="bg-green-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
-              bodyStyle={{ padding: "32px" }}
+              bodyStyle={{ padding: "20px 16px" }}
             >
               <Row align="middle" justify="space-between">
-                <Col>
-                  <Space size="large">
-                    <div
-                      className="w-20 h-20 flex items-center justify-center rounded-2xl 
-                     border-2 border-white/30 bg-white/10 backdrop-blur-md"
-                    >
-                      <BankOutlined className="text-white text-3xl" />
+                <Col xs={24} sm={24} md={18} lg={18}>
+                  {/* Mobile Layout: Stacked vertically */}
+                  <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6">
+                    {/* Logo */}
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 dark:bg-white/10 border-white/20 dark:border-white/30 flex-shrink-0">
+                      <BankOutlined className="text-[24px] sm:text-[28px] md:text-[32px] text-white" />
                     </div>
-                    <div>
+
+                    {/* Text Content */}
+                    <div className="text-center sm:text-left flex-1">
                       <Title
                         level={1}
-                        className="!text-white !m-0 text-3xl font-semibold tracking-tight"
+                        className="!text-white dark:!text-white !mb-1 text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight"
                       >
                         Law Firm Profile
                       </Title>
-                      <Text className="text-white text-lg">
+                      <Text className="text-white dark:text-white text-sm sm:text-base md:text-lg font-normal block">
                         Comprehensive information about the law firm
                       </Text>
                     </div>
-                  </Space>
+                  </div>
                 </Col>
-                <Col>
-                  <Space size="middle">
+
+                {/* Back Button Column */}
+                <Col xs={24} sm={24} md={6} lg={6} className="mt-4 md:mt-0">
+                  <div className="flex justify-center md:justify-end">
                     <Button
                       icon={<ArrowLeftOutlined />}
                       onClick={() => router.back()}
                       size="large"
-                      className="rounded-xl font-semibold px-6 h-12 
-                     bg-white/20 border-white/30 text-white backdrop-blur 
-                     hover:!bg-white/30 hover:!text-white"
+                      className="w-full sm:w-auto rounded-xl font-semibold px-6 h-12 bg-white/20 border-white/30 text-white backdrop-blur hover:!bg-white/30 hover:!text-white"
                     >
                       Back
                     </Button>
-                   
-                  </Space>
+                  </div>
                 </Col>
               </Row>
             </Card>
@@ -459,7 +459,6 @@ export default function GetFirmDetail({ params }: { params: { id: number } }) {
                     justifyContent: "center",
                   }}
                   bodyStyle={{ padding: "24px" }}
-                  
                 >
                   <Statistic
                     title={
@@ -921,8 +920,6 @@ export default function GetFirmDetail({ params }: { params: { id: number } }) {
               <Row justify="center">
                 <Col>
                   <Space size="large">
-                   
-
                     <Button
                       size="large"
                       icon={<TeamOutlined />}

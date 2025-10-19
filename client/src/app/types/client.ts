@@ -24,8 +24,9 @@ export interface Client extends ClientPayload {
 }
 
 export interface CaseStats {
-  open: number;
-  closed: number;
+  openCases: number;
+  closedCases: number;
+  wonCases:number,
   onHold: number;
   appeal: number;
 }
@@ -33,14 +34,12 @@ export interface CaseStats {
 export interface ClientStats {
   clientId: number;
   clientName: string;
+  clientEmail: string;
   totalCases: number;
   activeCases: number;
   completedCases: number;
   uploadedDocuments: number;
   totalLawyersAssigned: number;
-  openCases:number,
-  closedCases:number,
-  wonCases:number
-  caseStats:CaseStats
-
+  caseStats: CaseStats;
+  lawyers: Lawyer[];
 }

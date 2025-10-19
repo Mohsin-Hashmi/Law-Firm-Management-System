@@ -120,17 +120,17 @@ export default function GetClientDetail({
       },
       {
         name: "Active Cases",
-        value: clientStats.openCases || 0,
+        value: clientStats.caseStats.openCases || 0,
         fill: "#1e40af",
       },
       {
         name: "Completed Cases",
-        value: clientStats.closedCases || 0,
+        value: clientStats.caseStats.closedCases || 0,
         fill: "#d97706",
       },
       {
         name: "Won Cases",
-        value: clientStats.wonCases || 0,
+        value: clientStats.caseStats.wonCases || 0,
         fill: "#7c3aed",
       },
     ];
@@ -500,11 +500,11 @@ export default function GetClientDetail({
                       <Card
                         bordered={false}
                         className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 w-full"
-                        bodyStyle={{ padding: "20px" }}
+                        bodyStyle={{ padding: "16px sm:padding-20px" }}
                       >
                         <Title
                           level={4}
-                          className="text-[#111827] dark:text-[#FFFFFF] mb-[16px]"
+                          className="text-[#111827] dark:text-[#FFFFFF] mb-[16px] text-base sm:text-lg"
                         >
                           Case Performance Overview
                         </Title>
@@ -516,61 +516,72 @@ export default function GetClientDetail({
                         ) : clientStats &&
                           (clientStats.totalCases > 0 ||
                             (clientStats.totalLawyersAssigned || 0) > 0 ||
-                            clientStats.openCases > 0 ||
-                            clientStats.closedCases > 0 ||
-                            (clientStats.wonCases || 0) > 0 ||
+                            clientStats.caseStats.openCases > 0 ||
+                            clientStats.caseStats.closedCases > 0 ||
+                            (clientStats.caseStats.wonCases || 0) > 0 ||
                             (clientStats.completedCases || 0) > 0) ? (
-                          <div style={{ width: "100%", height: 300 }}>
-                            <ResponsiveContainer width={600} height={270}>
-                              <BarChart
-                                data={prepareChartData()}
-                                margin={{
-                                  top: 20,
-                                  right: 30,
-                                  left: 20,
-                                  bottom: 5,
-                                }}
-                              >
-                                <XAxis
-                                  dataKey="name"
-                                  axisLine={false}
-                                  tickLine={false}
-                                  tick={{ fontSize: 12, fill: "#6b7280" }}
-                                />
-                                <YAxis
-                                  axisLine={false}
-                                  tickLine={false}
-                                  tick={{ fontSize: 12, fill: "#6b7280" }}
-                                />
-                                <RechartsTooltip
-                                  contentStyle={{
-                                    backgroundColor: "#f9fafb",
-                                    border: "1px solid #e5e7eb",
-                                    borderRadius: "8px",
-                                    boxShadow:
-                                      "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                          <div className="w-full overflow-x-auto">
+                            <div
+                              className="min-w-[300px] w-full"
+                              style={{ height: 300 }}
+                            >
+                              <ResponsiveContainer width="100%" height="100%">
+                                <BarChart
+                                  data={prepareChartData()}
+                                  margin={{
+                                    top: 20,
+                                    right: 10,
+                                    left: 0,
+                                    bottom: 5,
                                   }}
-                                />
-                                <Bar
-                                  dataKey="value"
-                                  radius={[10, 10, 0, 0]}
-                                  maxBarSize={50}
                                 >
-                                  {prepareChartData().map((entry, index) => (
-                                    <Cell
-                                      key={`cell-${index}`}
-                                      fill={entry.fill}
-                                    />
-                                  ))}
-                                </Bar>
-                              </BarChart>
-                            </ResponsiveContainer>
+                                  <XAxis
+                                    dataKey="name"
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fontSize: 11, fill: "#6b7280" }}
+                                    angle={-45}
+                                    textAnchor="end"
+                                    height={60}
+                                  />
+                                  <YAxis
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fontSize: 11, fill: "#6b7280" }}
+                                    width={40}
+                                  />
+                                  <RechartsTooltip
+                                    contentStyle={{
+                                      backgroundColor: "#f9fafb",
+                                      border: "1px solid #e5e7eb",
+                                      borderRadius: "8px",
+                                      boxShadow:
+                                        "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                                    }}
+                                  />
+                                  <Bar
+                                    dataKey="value"
+                                    radius={[10, 10, 0, 0]}
+                                    maxBarSize={50}
+                                  >
+                                    {prepareChartData().map((entry, index) => (
+                                      <Cell
+                                        key={`cell-${index}`}
+                                        fill={entry.fill}
+                                      />
+                                    ))}
+                                  </Bar>
+                                </BarChart>
+                              </ResponsiveContainer>
+                            </div>
                           </div>
                         ) : (
                           <div className="flex justify-center items-center py-12">
-                            <div className="px-8 py-6 rounded-2xl text-lg font-semibold text-amber-700 dark:text-amber-700 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800  flex items-center space-x-3 shadow-sm">
-                              <FileTextOutlined className="text-amber-600 dark:text-amber-400 text-xl" />
-                              <span>No Performance Data Yet Available</span>
+                            <div className="px-4 sm:px-8 py-4 sm:py-6 rounded-2xl text-sm sm:text-lg font-semibold text-amber-700 dark:text-amber-700 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center space-x-2 sm:space-x-3 shadow-sm max-w-full">
+                              <FileTextOutlined className="text-amber-600 dark:text-amber-400 text-lg sm:text-xl flex-shrink-0" />
+                              <span className="break-words">
+                                No Performance Data Yet Available
+                              </span>
                             </div>
                           </div>
                         )}
@@ -636,7 +647,7 @@ export default function GetClientDetail({
                         Open Cases
                       </span>
                     }
-                    value={clientStats?.caseStats?.open || 0}
+                    value={clientStats?.caseStats?.openCases || 0}
                     valueStyle={{
                       color: "#E0E7FF",
                       fontSize: "36px",
@@ -669,7 +680,7 @@ export default function GetClientDetail({
                         Closed Cases
                       </span>
                     }
-                    value={clientStats?.caseStats?.closed || 0}
+                    value={clientStats?.caseStats?.closedCases || 0}
                     valueStyle={{
                       color: "#F1F5F9",
                       fontSize: "36px",

@@ -27,7 +27,7 @@ import {
   TrophyOutlined,
   ClockCircleOutlined,
   ExclamationCircleOutlined,
-  FileTextOutlined
+  FileTextOutlined,
 } from "@ant-design/icons";
 import {
   LineChart,
@@ -41,7 +41,7 @@ import {
   YAxis,
   Tooltip,
   CartesianGrid,
-  Cell
+  Cell,
 } from "recharts";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { useRouter } from "next/navigation";
@@ -231,9 +231,7 @@ export default function LawyerStatsData({ firmId, role }: Props) {
         >
           <Row align="middle" justify="space-between">
             <Col xs={24} sm={24} md={18} lg={18}>
-              
               <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6">
-                
                 <div className="w-16 h-16 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 dark:bg-white/10 border-white/20 dark:border-white/30 flex-shrink-0">
                   <UserOutlined className="text-[24px] sm:text-[24px] md:text-[28px] lg:text-[32px] text-white" />
                 </div>
@@ -499,7 +497,7 @@ export default function LawyerStatsData({ firmId, role }: Props) {
             </Card>
           </Col>
 
-           <Col xs={24} lg={16}>
+          <Col xs={24} lg={16}>
             <Card
               title={
                 <Space>
@@ -549,11 +547,11 @@ export default function LawyerStatsData({ firmId, role }: Props) {
                       <YAxis stroke="#64748b" tick={{ fontSize: 12 }} />
                       <Tooltip
                         contentStyle={{
-                          backgroundColor: "#1e293b", 
+                          backgroundColor: "#1e293b",
                           borderRadius: "8px",
-                          color: "#fff", 
+                          color: "#fff",
                         }}
-                        itemStyle={{ color: "#fff" }} 
+                        itemStyle={{ color: "#fff" }}
                         labelStyle={{ color: "#fff" }}
                       />
                       <Bar
@@ -574,10 +572,12 @@ export default function LawyerStatsData({ firmId, role }: Props) {
                   </ResponsiveContainer>
                 </div>
               ) : (
-                <div className="flex justify-center items-center py-12">
-                  <div className="px-8 py-6 rounded-2xl text-lg font-semibold text-amber-700 dark:text-amber-700 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center space-x-3 shadow-sm">
-                    <FileTextOutlined className="text-amber-600 dark:text-amber-400 text-xl" />
-                    <span>No Performance Data Available Yet</span>
+                <div className="flex justify-center items-center py-8 sm:py-12 px-4">
+                  <div className="px-4 sm:px-8 py-4 sm:py-6 rounded-2xl text-sm sm:text-lg font-semibold text-amber-700 dark:text-amber-700 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-start sm:items-center space-x-2 sm:space-x-3 shadow-sm max-w-full">
+                    <FileTextOutlined className="text-amber-600 dark:text-amber-400 text-lg sm:text-xl flex-shrink-0 mt-0.5 sm:mt-0" />
+                    <span className="break-words text-left sm:text-center">
+                      No Performance Data Yet Available
+                    </span>
                   </div>
                 </div>
               )}

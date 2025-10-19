@@ -26,7 +26,7 @@ import {
   RightOutlined,
   DashboardOutlined,
   TrophyOutlined,
-  FileTextOutlined
+  FileTextOutlined,
 } from "@ant-design/icons";
 import {
   LineChart,
@@ -352,7 +352,10 @@ export default function FirmStats({ firmId, role }: Props) {
     {
       subject: "Active Users",
       A: (stats.activeLawyersCount || 0) + (stats.clientsCount || 0),
-      fullMark: Math.max((stats.activeLawyersCount || 0) + (stats.clientsCount || 0), 20),
+      fullMark: Math.max(
+        (stats.activeLawyersCount || 0) + (stats.clientsCount || 0),
+        20
+      ),
     },
   ];
 
@@ -365,9 +368,7 @@ export default function FirmStats({ firmId, role }: Props) {
         >
           <Row align="middle" justify="space-between">
             <Col xs={24} sm={24} md={18} lg={18}>
-              
               <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6">
-                
                 <div className="w-16 h-16 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 dark:bg-white/10 border-white/20 dark:border-white/30 flex-shrink-0">
                   <BankOutlined className="text-[24px] sm:text-[24px] md:text-[28px] lg:text-[32px] text-white" />
                 </div>
@@ -384,7 +385,6 @@ export default function FirmStats({ firmId, role }: Props) {
                 </div>
               </div>
             </Col>
-
           </Row>
         </Card>
 
@@ -598,21 +598,27 @@ export default function FirmStats({ firmId, role }: Props) {
               className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800"
               bodyStyle={{ padding: "20px" }}
             >
-              {stats && (stats.lawyersCount > 0 || stats.clientsCount > 0 || openCasesCount > 0) ? (
+              {stats &&
+              (stats.lawyersCount > 0 ||
+                stats.clientsCount > 0 ||
+                openCasesCount > 0) ? (
                 <div style={{ width: "100%", height: 400 }}>
                   <ResponsiveContainer>
                     <RadarChart data={radarData}>
-                      <PolarGrid stroke="#555555" className="dark:stroke-[#e2e8f0]" />
+                      <PolarGrid
+                        stroke="#555555"
+                        className="dark:stroke-[#e2e8f0]"
+                      />
                       <PolarAngleAxis
                         dataKey="subject"
-                        tick={{ fill: '#555555', fontSize: 12 }}
+                        tick={{ fill: "#555555", fontSize: 12 }}
                         stroke="#555555"
                         className="dark:[&_text]:fill-[#64748b] dark:stroke-[#64748b]"
                       />
                       <PolarRadiusAxis
                         angle={90}
-                        domain={[0, 'dataMax']}
-                        tick={{ fill: '#232323', fontSize: 10 }}
+                        domain={[0, "dataMax"]}
+                        tick={{ fill: "#232323", fontSize: 10 }}
                         stroke="#232323"
                         className="dark:[&_text]:fill-[#64748b] dark:stroke-[#64748b]"
                       />
@@ -634,18 +640,20 @@ export default function FirmStats({ firmId, role }: Props) {
                       />
                       <Legend
                         wrapperStyle={{
-                          paddingTop: '20px',
-                          color: '#64748b'
+                          paddingTop: "20px",
+                          color: "#64748b",
                         }}
                       />
                     </RadarChart>
                   </ResponsiveContainer>
                 </div>
               ) : (
-                <div className="flex justify-center items-center py-12">
-                  <div className="px-8 py-6 rounded-2xl text-lg font-semibold text-amber-700 dark:text-amber-700 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center space-x-3 shadow-sm">
-                    <BarChartOutlined className="text-amber-600 dark:text-amber-400 text-xl" />
-                    <span>No Performance Data Available Yet</span>
+                <div className="flex justify-center items-center py-8 sm:py-12 px-4">
+                  <div className="px-4 sm:px-8 py-4 sm:py-6 rounded-2xl text-sm sm:text-lg font-semibold text-amber-700 dark:text-amber-700 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-start sm:items-center space-x-2 sm:space-x-3 shadow-sm max-w-full">
+                    <FileTextOutlined className="text-amber-600 dark:text-amber-400 text-lg sm:text-xl flex-shrink-0 mt-0.5 sm:mt-0" />
+                    <span className="break-words text-left sm:text-center">
+                      No Performance Data Yet Available
+                    </span>
                   </div>
                 </div>
               )}

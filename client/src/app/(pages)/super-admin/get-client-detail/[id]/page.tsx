@@ -72,9 +72,9 @@ export default function GetClientDetail({
     if (clientId) fetchClientDetail();
   }, [clientId]);
 
-    useEffect(() => {
-      if (clientId) fetchClientStats();
-    }, [clientId]);
+  useEffect(() => {
+    if (clientId) fetchClientStats();
+  }, [clientId]);
 
   const fetchClientDetail = async () => {
     try {
@@ -91,17 +91,17 @@ export default function GetClientDetail({
     }
   };
 
-    const fetchClientStats = async () => {
-      try {
-        setLoadingStats(true);
-        const data = await getClientPerformanceSuperAdmin(clientId);
-        setClientStats(data);
-      } catch (error) {
-        console.error("Error fetching client stats:", error);
-      } finally {
-        setLoadingStats(false);
-      }
-    };
+  const fetchClientStats = async () => {
+    try {
+      setLoadingStats(true);
+      const data = await getClientPerformanceSuperAdmin(clientId);
+      setClientStats(data);
+    } catch (error) {
+      console.error("Error fetching client stats:", error);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
 
   // Prepare chart data from client stats
   const prepareChartData = () => {
@@ -120,17 +120,17 @@ export default function GetClientDetail({
       },
       {
         name: "Active Cases",
-        value: clientStats.openCases || 0,
+        value: clientStats.caseStats.openCases || 0,
         fill: "#1e40af",
       },
       {
         name: "Completed Cases",
-        value: clientStats.closedCases || 0,
+        value: clientStats.caseStats.closedCases || 0,
         fill: "#d97706",
       },
       {
         name: "Won Cases",
-        value: clientStats.wonCases || 0,
+        value: clientStats.caseStats.wonCases || 0,
         fill: "#7c3aed",
       },
     ];
@@ -186,36 +186,40 @@ export default function GetClientDetail({
             {/* Header Section */}
             <Card
               className="bg-emerald-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
-              bodyStyle={{ padding: "32px" }}
+              bodyStyle={{ padding: "20px 16px" }}
             >
               <Row align="middle" justify="space-between">
-                <Col>
-                  <Space size="large">
-                    <div
-                      className="w-20 h-20 flex items-center justify-center rounded-2xl 
-                     border-2 border-white/30 bg-white/10 backdrop-blur-md"
-                    >
-                      <UserOutlined className="text-white text-3xl" />
+                <Col xs={24} sm={24} md={18} lg={18}>
+                  {/* Mobile Layout: Stacked vertically */}
+                  <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6">
+                    {/* Logo */}
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 dark:bg-white/10 border-white/20 dark:border-white/30 flex-shrink-0">
+                      <UserOutlined className="text-[24px] sm:text-[28px] md:text-[32px] text-white" />
                     </div>
-                    <div>
+
+                    {/* Text Content */}
+                    <div className="text-center sm:text-left flex-1">
                       <Title
                         level={1}
-                        className="!text-white !m-0 text-3xl font-semibold tracking-tight"
+                        className="!text-white dark:!text-white !mb-1 text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight"
                       >
                         Client Profile
                       </Title>
-                      <Text className="text-white/80 text-lg">
+                      <Text className="text-white/80 dark:text-white/80 text-sm sm:text-base md:text-lg font-normal block">
                         Detailed information about your client
                       </Text>
                     </div>
-                  </Space>
+                  </div>
                 </Col>
-                <Col>
-                  <Space size="middle">
+
+                {/* Back Button Column */}
+                <Col xs={24} sm={24} md={6} lg={6} className="mt-4 md:mt-0">
+                  <div className="flex justify-center md:justify-end">
                     <Button
                       icon={<ArrowLeftOutlined style={{ fontSize: "14px" }} />}
                       onClick={() => router.back()}
                       size="large"
+                      className="w-full sm:w-auto"
                       style={{
                         background: "rgba(255,255,255,0.2)",
                         borderColor: "rgba(255,255,255,0.3)",
@@ -230,7 +234,7 @@ export default function GetClientDetail({
                     >
                       Back
                     </Button>
-                  </Space>
+                  </div>
                 </Col>
               </Row>
             </Card>
@@ -475,11 +479,11 @@ export default function GetClientDetail({
                       <Card
                         bordered={false}
                         className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 w-full"
-                        bodyStyle={{ padding: "20px" }}
+                        bodyStyle={{ padding: "16px sm:padding-20px" }}
                       >
                         <Title
                           level={4}
-                          className="text-[#111827] dark:text-[#FFFFFF] mb-[16px]"
+                          className="text-[#111827] dark:text-[#FFFFFF] mb-[16px] text-base sm:text-lg"
                         >
                           Case Performance Overview
                         </Title>
@@ -491,61 +495,72 @@ export default function GetClientDetail({
                         ) : clientStats &&
                           (clientStats.totalCases > 0 ||
                             (clientStats.totalLawyersAssigned || 0) > 0 ||
-                            clientStats.openCases > 0 ||
-                            clientStats.closedCases > 0 ||
-                            (clientStats.wonCases || 0) > 0 ||
+                            clientStats.caseStats.openCases > 0 ||
+                            clientStats.caseStats.closedCases > 0 ||
+                            (clientStats.caseStats.wonCases || 0) > 0 ||
                             (clientStats.completedCases || 0) > 0) ? (
-                          <div style={{ width: "100%", height: 300 }}>
-                            <ResponsiveContainer width={600} height={270}>
-                              <BarChart
-                                data={prepareChartData()}
-                                margin={{
-                                  top: 20,
-                                  right: 30,
-                                  left: 20,
-                                  bottom: 5,
-                                }}
-                              >
-                                <XAxis
-                                  dataKey="name"
-                                  axisLine={false}
-                                  tickLine={false}
-                                  tick={{ fontSize: 12, fill: "#6b7280" }}
-                                />
-                                <YAxis
-                                  axisLine={false}
-                                  tickLine={false}
-                                  tick={{ fontSize: 12, fill: "#6b7280" }}
-                                />
-                                <RechartsTooltip
-                                  contentStyle={{
-                                    backgroundColor: "#f9fafb",
-                                    border: "1px solid #e5e7eb",
-                                    borderRadius: "8px",
-                                    boxShadow:
-                                      "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                          <div className="w-full overflow-x-auto">
+                            <div
+                              className="min-w-[300px] w-full"
+                              style={{ height: 300 }}
+                            >
+                              <ResponsiveContainer width="100%" height="100%">
+                                <BarChart
+                                  data={prepareChartData()}
+                                  margin={{
+                                    top: 20,
+                                    right: 10,
+                                    left: 0,
+                                    bottom: 5,
                                   }}
-                                />
-                                <Bar
-                                  dataKey="value"
-                                  radius={[10, 10, 0, 0]}
-                                  maxBarSize={50}
                                 >
-                                  {prepareChartData().map((entry, index) => (
-                                    <Cell
-                                      key={`cell-${index}`}
-                                      fill={entry.fill}
-                                    />
-                                  ))}
-                                </Bar>
-                              </BarChart>
-                            </ResponsiveContainer>
+                                  <XAxis
+                                    dataKey="name"
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fontSize: 11, fill: "#6b7280" }}
+                                    angle={-45}
+                                    textAnchor="end"
+                                    height={60}
+                                  />
+                                  <YAxis
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fontSize: 11, fill: "#6b7280" }}
+                                    width={40}
+                                  />
+                                  <RechartsTooltip
+                                    contentStyle={{
+                                      backgroundColor: "#f9fafb",
+                                      border: "1px solid #e5e7eb",
+                                      borderRadius: "8px",
+                                      boxShadow:
+                                        "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                                    }}
+                                  />
+                                  <Bar
+                                    dataKey="value"
+                                    radius={[10, 10, 0, 0]}
+                                    maxBarSize={50}
+                                  >
+                                    {prepareChartData().map((entry, index) => (
+                                      <Cell
+                                        key={`cell-${index}`}
+                                        fill={entry.fill}
+                                      />
+                                    ))}
+                                  </Bar>
+                                </BarChart>
+                              </ResponsiveContainer>
+                            </div>
                           </div>
                         ) : (
                           <div className="flex justify-center items-center py-12">
-                            <div className="px-8 py-6 rounded-2xl text-lg font-semibold text-amber-700 dark:text-amber-700 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800  flex items-center space-x-3 shadow-sm">
-                              <FileTextOutlined className="text-amber-600 dark:text-amber-400 text-xl" />
-                              <span>No Performance Data Yet Available</span>
+                            <div className="px-4 sm:px-8 py-4 sm:py-6 rounded-2xl text-sm sm:text-lg font-semibold text-amber-700 dark:text-amber-700 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center space-x-2 sm:space-x-3 shadow-sm max-w-full">
+                              <FileTextOutlined className="text-amber-600 dark:text-amber-400 text-lg sm:text-xl flex-shrink-0" />
+                              <span className="break-words">
+                                No Performance Data Yet Available
+                              </span>
                             </div>
                           </div>
                         )}
@@ -611,7 +626,7 @@ export default function GetClientDetail({
                         Open Cases
                       </span>
                     }
-                    value={clientStats?.caseStats?.open || 0}
+                    value={clientStats?.caseStats?.openCases || 0}
                     valueStyle={{
                       color: "#E0E7FF",
                       fontSize: "36px",
@@ -644,7 +659,7 @@ export default function GetClientDetail({
                         Closed Cases
                       </span>
                     }
-                    value={clientStats?.caseStats?.closed || 0}
+                    value={clientStats?.caseStats?.closedCases || 0}
                     valueStyle={{
                       color: "#F1F5F9",
                       fontSize: "36px",
@@ -1154,35 +1169,17 @@ export default function GetClientDetail({
             {/* Action Buttons */}
             <Card
               className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mt-[40px]"
-              bodyStyle={{ padding: "24px" }}
+              bodyStyle={{ padding: "16px" }}
             >
               <Row justify="center">
-                <Col>
-                  <Space size="large">
-                    {hasPermission("update_client") && (
-                      <Button
-                        type="primary"
-                        size="large"
-                        icon={<EditOutlined />}
-                        onClick={() => router.push(`/edit-client/${clientId}`)}
-                        style={{
-                          background: "#059669",
-                          borderColor: "#059669",
-                          borderRadius: "12px",
-                          fontWeight: "600",
-                          padding: "12px 32px",
-                          height: "48px",
-                          boxShadow: "0 4px 12px rgba(5, 150, 105, 0.3)",
-                        }}
-                      >
-                        Edit Client Profile
-                      </Button>
-                    )}
+                <Col xs={24} sm={24} md={22} lg={20}>
+                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:justify-center">
                     {hasPermission("read_client") && (
                       <Button
                         size="large"
                         icon={<TeamOutlined />}
-                        onClick={() => router.push("/get-clients")}
+                        onClick={() => router.push("/super-admin/get-clients")}
+                        className="w-full sm:w-auto order-1"
                         style={{
                           borderRadius: "12px",
                           border: "1px solid #d1d5db",
@@ -1199,7 +1196,8 @@ export default function GetClientDetail({
                       <Button
                         size="large"
                         icon={<FileTextOutlined />}
-                        onClick={() => router.push(`/get-cases`)}
+                        onClick={() => router.push(`/super-admin/get-cases`)}
+                        className="w-full sm:w-auto order-2"
                         style={{
                           borderRadius: "12px",
                           border: "1px solid #059669",
@@ -1212,7 +1210,7 @@ export default function GetClientDetail({
                         View All Cases
                       </Button>
                     )}
-                  </Space>
+                  </div>
                 </Col>
               </Row>
             </Card>

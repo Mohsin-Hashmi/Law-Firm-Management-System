@@ -164,7 +164,9 @@ export default function DashboardLayout({
       {/* Sidebar */}
       {/* Mobile backdrop */}
       <div
-        className={`fixed inset-0 bg-black/40 z-[999] md:hidden transition-opacity ${collapsed ? "pointer-events-none opacity-0" : "opacity-100"}`}
+        className={`fixed inset-0 bg-black/40 z-[999] md:hidden transition-opacity ${
+          collapsed ? "pointer-events-none opacity-0" : "opacity-100"
+        }`}
         onClick={() => setCollapsed(true)}
       />
 
@@ -288,285 +290,332 @@ export default function DashboardLayout({
               onClick={() => setCollapsed(false)}
               aria-label="Open sidebar"
             >
-              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             </button>
-            <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
-              {role === "Super Admin" && (
-                <div className="flex items-center space-x-3">
-                  <div className="px-4 py-2 rounded-lg text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center space-x-2">
-                    <BankOutlined className="text-amber-600 dark:text-amber-400" />
-                    <span>
+            <div className="space-y-4">
+              {/* Welcome Messages */}
+              <div className="w-full">
+                {role === "Super Admin" && (
+                  <div className="px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-start sm:items-center space-x-2">
+                    <BankOutlined className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5 sm:mt-0" />
+                    <span className="break-words">
                       Welcome to your dashboard — You have complete access to
                       manage firms, lawyers, and clients.
                     </span>
                   </div>
-                </div>
-              )}
-              {role === "Firm Admin" && ""}
-              {role === "Lawyer" && (
-                <div className="flex items-center space-x-3">
-                  <div className="px-4 py-2 rounded-lg text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center space-x-2">
-                    <BankOutlined className="text-amber-600 dark:text-amber-400" />
-                    <span>
-                      Welcome to your dashboard — let’s start building your
+                )}
+
+                {role === "Lawyer" && (
+                  <div className="px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-start sm:items-center space-x-2">
+                    <BankOutlined className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5 sm:mt-0" />
+                    <span className="break-words">
+                      Welcome to your dashboard — lets start building your
                       legal journey
                     </span>
                   </div>
-                </div>
-              )}
-              {role === "Client" && (
-                <div className="flex items-center space-x-3">
-                  <div className="px-4 py-2 rounded-lg text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center space-x-2">
-                    <FileTextOutlined className="text-amber-600 dark:text-amber-400" />
-                    <span>
+                )}
+
+                {role === "Client" && (
+                  <div className="px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-start sm:items-center space-x-2">
+                    <FileTextOutlined className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5 sm:mt-0" />
+                    <span className="break-words">
                       Welcome Client — Track your cases and stay updated
                     </span>
                   </div>
-                </div>
-              )}
-              {role &&
-                !["Super Admin", "Firm Admin", "Lawyer", "Client"].includes(
-                  role
-                ) && (
-                  <div className="flex items-center space-x-3">
-                    <div className="px-4 py-2 rounded-lg text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center space-x-2">
-                      <FileTextOutlined className="text-amber-600 dark:text-amber-400" />
-                      <span>Welcome to your dashboard</span>
-                    </div>
-                  </div>
                 )}
-            </h1>
 
-            {/* Switch Firm section - positioned next to title */}
-            {role === "Firm Admin" && (
-              <>
-                {!user?.firms || user.firms.length === 0 ? (
-                  // No firms created yet
-                  <div className="flex items-center space-x-3">
-                    <div className="px-4 py-2 rounded-lg text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center space-x-2">
-                      <BankOutlined className="text-amber-600 dark:text-amber-400" />
-                      <span>Create Your First Business To Get Started</span>
+                {role &&
+                  !["Super Admin", "Firm Admin", "Lawyer", "Client"].includes(
+                    role
+                  ) && (
+                    <div className="px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-start sm:items-center space-x-2">
+                      <FileTextOutlined className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5 sm:mt-0" />
+                      <span className="break-words">
+                        Welcome to your dashboard
+                      </span>
                     </div>
-                  </div>
-                ) : user.firms.length === 1 ? (
-                  // Only one firm created
-                  <div className="flex items-center space-x-3">
-                    <div className="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 flex items-center space-x-2">
-                      <BankOutlined className="text-slate-500 dark:text-slate-400" />
-                      <span>You Have Only One Business Now</span>
-                    </div>
-                  </div>
-                ) : (
-                  // Multiple firms - show dropdown
-                  <div className="flex items-center space-x-3">
-                    <div className="hidden md:block">
-                      <div className="px-3 py-1 rounded-md text-base font-medium text-white bg-blue-500">
-                        <p>Switch Your Business</p>
+                  )}
+              </div>
+
+              {/* Firm Admin Section */}
+              {role === "Firm Admin" && (
+                <>
+                  {!user?.firms || user.firms.length === 0 ? (
+                    // No firms created yet
+                    <div className="w-full">
+                      <div className="px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-start sm:items-center space-x-2">
+                        <BankOutlined className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5 sm:mt-0" />
+                        <span className="break-words">
+                          Create Your First Business To Get Started
+                        </span>
                       </div>
                     </div>
-                    <Select
-                      value={user?.activeFirmId}
-                      disabled={isSwitchingFirm}
-                      style={{
-                        width: 40,
-                        height: 32,
-                      }}
-                      className="vercel-firm-selector"
-                      placeholder=""
-                      size="small"
-                      suffixIcon={
-                        isSwitchingFirm ? (
-                          <LoadingOutlined spin />
-                        ) : (
-                          <div className="flex items-center justify-center h-full">
-                            <svg
-                              width="18"
-                              height="18"
-                              viewBox="0 0 12 12"
-                              fill="none"
-                              className="text-slate-400 dark:text-slate-500"
-                            >
-                              <path
-                                d="M2.5 4.5L6 8L9.5 4.5"
-                                stroke="currentColor"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
+                  ) : user.firms.length === 1 ? (
+                    // Only one firm created
+                    <div className="w-full">
+                      <div className="px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 flex items-start sm:items-center space-x-2">
+                        <BankOutlined className="text-slate-500 dark:text-slate-400 flex-shrink-0 mt-0.5 sm:mt-0" />
+                        <span className="break-words">
+                          You Have Only One Business Now
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    // Multiple firms - show dropdown with responsive layout
+                    <div className="w-full">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                        {/* Label - hidden on mobile */}
+                        <div className="hidden sm:block">
+                          <div className="px-3 py-1.5 rounded-md text-sm font-medium text-white bg-blue-500 whitespace-nowrap">
+                            Switch Your Business
                           </div>
-                        )
-                      }
-                      dropdownStyle={{
-                        borderRadius: "12px",
-                        border: "1px solid #e5e7eb",
-                        boxShadow:
-                          "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-                        padding: "8px 8px",
-                        minWidth: "500px",
-                      }}
-                      popupClassName="vercel-dropdown-popup"
-                      onChange={async (value) => {
-                        setIsSwitchingFirm(true);
-                        try {
-                          await switchFirmAPI(value);
-                          dispatch(switchFirm(value));
-                          const lawyers = await getLawyers(value);
-                          dispatch(setLawyers(lawyers));
+                        </div>
 
-                          // Consolidated route handling
-                          const routesToRedirect = [
-                            "/get-lawyer-detail",
-                            "/edit-lawyer",
-                            "/get-client-detail",
-                            "/edit-client",
-                            "/add-lawyer",
-                            "/create-client",
-                            "/add-case",
-                            "/get-user-roles",
-                            "/add-firm",
-                          ];
-
-                          if (
-                            routesToRedirect.some((route) =>
-                              pathname.startsWith(route)
-                            )
-                          ) {
-                            router.push("/dashboard");
-                          }
-
-                          toast.success("Switched firm successfully");
-                        } catch (err) {
-                          console.error("Error switching firm:", err);
-                          toast.error("Failed to switch firm");
-                        } finally {
-                          setIsSwitchingFirm(false);
-                        }
-                      }}
-                      aria-label="Switch firm"
-                    >
-                      {user.firms.map((firm) => (
-                        <Select.Option key={`firm-${firm.id}`} value={firm.id}>
-                          <div className="flex items-center space-x-2 py-1">
-                            <div className="w-6 h-6 rounded bg-blue-400 dark:bg-slate-700 flex items-center justify-center text-xs font-medium text-white">
-                              {firm.name.charAt(0).toUpperCase()}
-                            </div>
-                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
-                              {firm.name}
-                            </span>
+                        {/* Mobile Label */}
+                        <div className="block sm:hidden w-full">
+                          <div className="px-3 py-2 rounded-lg text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                            Switch Your Business
                           </div>
-                        </Select.Option>
-                      ))}
-                    </Select>
-                  </div>
-                )}
+                        </div>
 
-                {/* Custom styles - only render once */}
-                <style jsx global>{`
-                  .vercel-firm-selector .ant-select-selector {
-                    background: transparent !important;
-                    border: none !important;
-                    border-radius: 6px !important;
-                    box-shadow: none !important;
-                    transition: all 0.15s ease !important;
-                    padding: 0 !important;
-                    height: 32px !important;
-                    width: 32px !important;
-                    display: flex !important;
-                    align-items: center !important;
-                    justify-content: center !important;
-                    cursor: pointer !important;
-                  }
+                        {/* Dropdown - Full width on mobile */}
+                        <div className="w-full sm:w-auto">
+                          <Select
+                            value={user?.activeFirmId}
+                            disabled={isSwitchingFirm}
+                            style={{
+                              width: "100%",
+                              minWidth: "200px",
+                            }}
+                            className="vercel-firm-selector-responsive"
+                            placeholder="Select a business"
+                            size="large"
+                            suffixIcon={
+                              isSwitchingFirm ? (
+                                <LoadingOutlined spin />
+                              ) : (
+                                <div className="flex items-center justify-center h-full">
+                                  <svg
+                                    width="18"
+                                    height="18"
+                                    viewBox="0 0 12 12"
+                                    fill="none"
+                                    className="text-slate-400 dark:text-slate-500"
+                                  >
+                                    <path
+                                      d="M2.5 4.5L6 8L9.5 4.5"
+                                      stroke="currentColor"
+                                      strokeWidth="1.5"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                  </svg>
+                                </div>
+                              )
+                            }
+                            dropdownStyle={{
+                              borderRadius: "12px",
+                              border: "1px solid #e5e7eb",
+                              boxShadow:
+                                "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+                              padding: "8px 8px",
+                              maxWidth: "calc(100vw - 32px)",
+                              width: "auto",
+                            }}
+                            popupClassName="vercel-dropdown-popup"
+                            onChange={async (value) => {
+                              setIsSwitchingFirm(true);
+                              try {
+                                await switchFirmAPI(value);
+                                dispatch(switchFirm(value));
+                                const lawyers = await getLawyers(value);
+                                dispatch(setLawyers(lawyers));
 
-                  .vercel-firm-selector .ant-select-selector:hover {
-                    background: #f5f5f5 !important;
-                    border-radius: 6px !important;
-                  }
+                                const routesToRedirect = [
+                                  "/get-lawyer-detail",
+                                  "/edit-lawyer",
+                                  "/get-client-detail",
+                                  "/edit-client",
+                                  "/add-lawyer",
+                                  "/create-client",
+                                  "/add-case",
+                                  "/get-user-roles",
+                                  "/add-firm",
+                                ];
 
-                  .dark .vercel-firm-selector .ant-select-selector:hover {
-                    background: #333333 !important;
-                  }
+                                if (
+                                  routesToRedirect.some((route) =>
+                                    pathname.startsWith(route)
+                                  )
+                                ) {
+                                  router.push("/dashboard");
+                                }
 
-                  .vercel-firm-selector.ant-select-focused
-                    .ant-select-selector {
-                    background: #f0f0f0 !important;
-                    box-shadow: none !important;
-                  }
+                                toast.success("Switched firm successfully");
+                              } catch (err) {
+                                console.error("Error switching firm:", err);
+                                toast.error("Failed to switch firm");
+                              } finally {
+                                setIsSwitchingFirm(false);
+                              }
+                            }}
+                            aria-label="Switch firm"
+                          >
+                            {user.firms.map((firm) => (
+                              <Select.Option
+                                key={`firm-${firm.id}`}
+                                value={firm.id}
+                              >
+                                <div className="flex items-center space-x-2 py-1">
+                                  <div className="w-6 h-6 rounded bg-blue-400 dark:bg-slate-700 flex items-center justify-center text-xs font-medium text-white flex-shrink-0">
+                                    {firm.name.charAt(0).toUpperCase()}
+                                  </div>
+                                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
+                                    {firm.name}
+                                  </span>
+                                </div>
+                              </Select.Option>
+                            ))}
+                          </Select>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
-                  .dark
-                    .vercel-firm-selector.ant-select-focused
-                    .ant-select-selector {
-                    background: #404040 !important;
-                  }
+                  {/* Custom styles */}
+                  <style jsx global>{`
+                    /* Responsive Selector Styles */
+                    .vercel-firm-selector-responsive .ant-select-selector {
+                      background: white !important;
+                      border: 1px solid #e5e7eb !important;
+                      border-radius: 8px !important;
+                      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+                      transition: all 0.15s ease !important;
+                      padding: 4px 11px !important;
+                      height: 40px !important;
+                      display: flex !important;
+                      align-items: center !important;
+                    }
 
-                  .vercel-firm-selector .ant-select-selection-item {
-                    display: none !important;
-                  }
+                    .dark
+                      .vercel-firm-selector-responsive
+                      .ant-select-selector {
+                      background: #1e293b !important;
+                      border: 1px solid #334155 !important;
+                    }
 
-                  /* Dropdown styles */
-                  .vercel-dropdown-popup {
-                    background: #ffffff !important;
-                    border: 1px solid #e5e7eb !important;
-                    border-radius: 8px !important;
-                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-                      0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
-                  }
+                    .vercel-firm-selector-responsive
+                      .ant-select-selector:hover {
+                      border-color: #3b82f6 !important;
+                    }
 
-                  .dark .vercel-dropdown-popup {
-                    background: #1e293b !important;
-                    border: 1px solid #333333 !important;
-                  }
+                    .dark
+                      .vercel-firm-selector-responsive
+                      .ant-select-selector:hover {
+                      border-color: #60a5fa !important;
+                    }
 
-                  .vercel-dropdown-popup .ant-select-item {
-                    border-radius: 4px !important;
-                    margin: 2px 4px !important;
-                    padding: 8px !important;
-                    transition: all 0.15s ease !important;
-                    color: #171717 !important;
-                    font-size: 13px !important;
-                    min-height: auto !important;
-                  }
+                    .vercel-firm-selector-responsive.ant-select-focused
+                      .ant-select-selector {
+                      border-color: #3b82f6 !important;
+                      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+                    }
 
-                  .dark .vercel-dropdown-popup .ant-select-item {
-                    color: #ededed !important;
-                  }
+                    .dark
+                      .vercel-firm-selector-responsive.ant-select-focused
+                      .ant-select-selector {
+                      border-color: #60a5fa !important;
+                      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
+                    }
 
-                  .vercel-dropdown-popup .ant-select-item:hover {
-                    background: #ffffff !important;
-                  }
+                    .vercel-firm-selector-responsive
+                      .ant-select-selection-item {
+                      color: #1f2937 !important;
+                      font-size: 14px !important;
+                      font-weight: 500 !important;
+                    }
 
-                  .dark .vercel-dropdown-popup .ant-select-item:hover {
-                    background: #262626 !important;
-                  }
+                    .dark
+                      .vercel-firm-selector-responsive
+                      .ant-select-selection-item {
+                      color: #f3f4f6 !important;
+                    }
 
-                  .vercel-dropdown-popup .ant-select-item-option-selected {
-                    background: #f0f0f0 !important;
-                    font-weight: 500 !important;
-                    color: #000000 !important;
-                  }
+                    /* Dropdown styles */
+                    .vercel-dropdown-popup {
+                      background: #ffffff !important;
+                      border: 1px solid #e5e7eb !important;
+                      border-radius: 8px !important;
+                      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                        0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+                    }
 
-                  .dark
+                    .dark .vercel-dropdown-popup {
+                      background: #1e293b !important;
+                      border: 1px solid #334155 !important;
+                    }
+
+                    .vercel-dropdown-popup .ant-select-item {
+                      border-radius: 4px !important;
+                      margin: 2px 4px !important;
+                      padding: 8px !important;
+                      transition: all 0.15s ease !important;
+                      color: #171717 !important;
+                      font-size: 13px !important;
+                      min-height: auto !important;
+                    }
+
+                    .dark .vercel-dropdown-popup .ant-select-item {
+                      color: #ededed !important;
+                    }
+
+                    .vercel-dropdown-popup .ant-select-item:hover {
+                      background: #f3f4f6 !important;
+                    }
+
+                    .dark .vercel-dropdown-popup .ant-select-item:hover {
+                      background: #334155 !important;
+                    }
+
+                    .vercel-dropdown-popup .ant-select-item-option-selected {
+                      background: #eff6ff !important;
+                      font-weight: 500 !important;
+                      color: #1e40af !important;
+                    }
+
+                    .dark
+                      .vercel-dropdown-popup
+                      .ant-select-item-option-selected {
+                      background: #1e3a8a !important;
+                      color: #bfdbfe !important;
+                    }
+
                     .vercel-dropdown-popup
-                    .ant-select-item-option-selected {
-                    background: #333333 !important;
-                    color: #ffffff !important;
-                  }
+                      .ant-select-item-option-selected:hover {
+                      background: #dbeafe !important;
+                    }
 
-                  .vercel-dropdown-popup
-                    .ant-select-item-option-selected:hover {
-                    background: #e5e5e5 !important;
-                  }
-
-                  .dark
-                    .vercel-dropdown-popup
-                    .ant-select-item-option-selected:hover {
-                    background: #404040 !important;
-                  }
-                `}</style>
-              </>
-            )}
+                    .dark
+                      .vercel-dropdown-popup
+                      .ant-select-item-option-selected:hover {
+                      background: #1e40af !important;
+                    }
+                  `}</style>
+                </>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center space-x-4">

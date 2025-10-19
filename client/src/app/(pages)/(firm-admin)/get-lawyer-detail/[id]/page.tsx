@@ -511,10 +511,12 @@ export default function GetLawyerDetail({
                             </ResponsiveContainer>
                           </div>
                         ) : (
-                          <div className="flex justify-center items-center py-12">
-                            <div className="px-8 py-6 rounded-2xl text-lg font-semibold text-amber-700 dark:text-amber-700 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800  flex items-center space-x-3 shadow-sm">
-                              <FileTextOutlined className="text-amber-600 dark:text-amber-400 text-xl" />
-                              <span>No Performance Data Yet Available</span>
+                          <div className="flex justify-center items-center py-8 sm:py-12 px-4">
+                            <div className="px-4 sm:px-8 py-4 sm:py-6 rounded-2xl text-sm sm:text-lg font-semibold text-amber-700 dark:text-amber-700 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-start sm:items-center space-x-2 sm:space-x-3 shadow-sm max-w-full">
+                              <FileTextOutlined className="text-amber-600 dark:text-amber-400 text-lg sm:text-xl flex-shrink-0 mt-0.5 sm:mt-0" />
+                              <span className="break-words text-left sm:text-center">
+                                No Performance Data Yet Available
+                              </span>
                             </div>
                           </div>
                         )}

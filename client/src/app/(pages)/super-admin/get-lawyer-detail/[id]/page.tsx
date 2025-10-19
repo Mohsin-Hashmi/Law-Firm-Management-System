@@ -152,36 +152,40 @@ export default function GetLawyerDetail({
             {/* Header Section */}
             <Card
               className="bg-[#E43636] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mb-[40px]"
-              bodyStyle={{ padding: "32px" }}
+              bodyStyle={{ padding: "20px 16px" }}
             >
               <Row align="middle" justify="space-between">
-                <Col>
-                  <Space size="large">
-                    <div
-                      className="w-20 h-20 flex items-center justify-center rounded-2xl 
-                     border-2 border-white/30 bg-white/10 backdrop-blur-md"
-                    >
-                      <UserOutlined className="text-white text-3xl" />
+                <Col xs={24} sm={24} md={14} lg={14}>
+                  {/* Mobile Layout: Stacked vertically */}
+                  <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6">
+                    {/* Logo */}
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 dark:bg-white/10 border-white/20 dark:border-white/30 flex-shrink-0">
+                      <UserOutlined className="text-[24px] sm:text-[28px] md:text-[32px] text-white" />
                     </div>
-                    <div>
+
+                    {/* Text Content */}
+                    <div className="text-center sm:text-left flex-1">
                       <Title
                         level={1}
-                        className="!text-white !m-0 text-3xl font-semibold tracking-tight"
+                        className="!text-white dark:!text-white !mb-1 text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight"
                       >
                         Lawyer Profile
                       </Title>
-                      <Text className="text-white text-lg">
+                      <Text className="text-white dark:text-white text-sm sm:text-base md:text-lg font-normal block">
                         Detailed information about your legal professional
                       </Text>
                     </div>
-                  </Space>
+                  </div>
                 </Col>
-                <Col>
-                  <Space size="middle">
+
+                {/* Action Buttons Column */}
+                <Col xs={24} sm={24} md={10} lg={10} className="mt-4 md:mt-0">
+                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-3 w-full sm:justify-end">
                     <Button
                       icon={<ArrowLeftOutlined style={{ fontSize: "14px" }} />}
                       onClick={() => router.back()}
                       size="large"
+                      className="w-full sm:w-auto order-2 sm:order-1"
                       style={{
                         background: "rgba(255,255,255,0.2)",
                         borderColor: "rgba(255,255,255,0.3)",
@@ -196,25 +200,7 @@ export default function GetLawyerDetail({
                     >
                       Back
                     </Button>
-                    <Button
-                      type="primary"
-                      size="large"
-                      icon={<EditOutlined style={{ fontSize: "14px" }} />}
-                      onClick={() => router.push(`/edit-lawyer/${lawyerId}`)}
-                      style={{
-                        background: "white",
-                        borderColor: "white",
-                        color: "#2563eb",
-                        borderRadius: "12px",
-                        fontWeight: "600",
-                        padding: "8px 24px",
-                        height: "48px",
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                      }}
-                    >
-                      Edit Profile
-                    </Button>
-                  </Space>
+                  </div>
                 </Col>
               </Row>
             </Card>
@@ -495,10 +481,12 @@ export default function GetLawyerDetail({
                             </ResponsiveContainer>
                           </div>
                         ) : (
-                          <div className="flex justify-center items-center py-12">
-                            <div className="px-8 py-6 rounded-2xl text-lg font-semibold text-amber-700 dark:text-amber-700 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800  flex items-center space-x-3 shadow-sm">
-                              <FileTextOutlined className="text-amber-600 dark:text-amber-400 text-xl" />
-                              <span>No Performance Data Yet Available</span>
+                          <div className="flex justify-center items-center py-8 sm:py-12 px-4">
+                            <div className="px-4 sm:px-8 py-4 sm:py-6 rounded-2xl text-sm sm:text-lg font-semibold text-amber-700 dark:text-amber-700 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-start sm:items-center space-x-2 sm:space-x-3 shadow-sm max-w-full">
+                              <FileTextOutlined className="text-amber-600 dark:text-amber-400 text-lg sm:text-xl flex-shrink-0 mt-0.5 sm:mt-0" />
+                              <span className="break-words text-left sm:text-center">
+                                No Performance Data Yet Available
+                              </span>
                             </div>
                           </div>
                         )}
@@ -896,35 +884,19 @@ export default function GetLawyerDetail({
             </Row>
 
             {/* Action Buttons */}
+            {/* Action Buttons */}
             <Card
               className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mt-[40px]"
-              bodyStyle={{ padding: "24px" }}
+              bodyStyle={{ padding: "16px" }}
             >
               <Row justify="center">
-                <Col>
-                  <Space size="large">
-                    <Button
-                      type="primary"
-                      size="large"
-                      icon={<EditOutlined />}
-                      onClick={() => router.push(`/edit-lawyer/${lawyerId}`)}
-                      style={{
-                        background: "#1e40af",
-                        borderColor: "#1e40af",
-                        borderRadius: "12px",
-                        fontWeight: "600",
-                        padding: "12px 32px",
-                        height: "48px",
-                        boxShadow: "0 4px 12px rgba(30, 64, 175, 0.3)",
-                      }}
-                    >
-                      Edit Lawyer Profile
-                    </Button>
-
+                <Col xs={24} sm={24} md={20} lg={16}>
+                  <div className="flex justify-center">
                     <Button
                       size="large"
                       icon={<TeamOutlined />}
-                      onClick={() => router.push("/get-lawyers")}
+                      onClick={() => router.push("/super-admin/get-lawyers")}
+                      className="w-full sm:w-auto"
                       style={{
                         borderRadius: "12px",
                         border: "1px solid #d1d5db",
@@ -936,7 +908,7 @@ export default function GetLawyerDetail({
                     >
                       View All Lawyers
                     </Button>
-                  </Space>
+                  </div>
                 </Col>
               </Row>
             </Card>
