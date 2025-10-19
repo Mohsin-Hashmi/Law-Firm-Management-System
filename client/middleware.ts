@@ -5,12 +5,18 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
   const { pathname } = request.nextUrl;
 
-   if (!token && request.nextUrl.pathname.startsWith("/dashboard")) {
-    return NextResponse.redirect(new URL("/auth/login", request.url));
-  }
+  console.log("Middleware running for:", pathname);
+  console.log("Token exists:", !!token);
 
-  // Protected routes (actual URLs, not file paths)
-  const protectedRoutes = ["/dashboard", "/firm-admin", "/super-admin", "/firm-lawyer"];
+  // Protected routes
+  const protectedRoutes = [
+    "/dashboard",
+    "/firm-admin",
+    "/super-admin",
+    "/firm-lawyer",
+    "/lawyer",
+    "/assistant"
+  ];
 
   const isProtectedRoute = protectedRoutes.some((route) =>
     pathname.startsWith(route)
@@ -18,6 +24,7 @@ export function middleware(request: NextRequest) {
 
   // If accessing a protected route without token → redirect to login
   if (isProtectedRoute && !token) {
+    console.log("Redirecting to login - no token");
     const loginUrl = new URL("/auth/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
@@ -25,6 +32,7 @@ export function middleware(request: NextRequest) {
 
   // If accessing login page with token → redirect to dashboard
   if (pathname === "/auth/login" && token) {
+    console.log("Redirecting to dashboard - already logged in");
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
@@ -33,10 +41,14 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/dashboard/:path*",
-    "/firm-admin/:path*",
-    "/super-admin/:path*",
-    "/firm-lawyer/:path*",
-    "/auth/login",
+    /*
+     * Match all request paths except:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public files (public folder)
+     * - api routes (if you want to handle them separately)
+     */
+    "/((?!_next/static|_next/image|favicon.ico|images|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
