@@ -481,7 +481,9 @@ export default function DashboardLayout({
                           <div className="px-3 py-2 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 flex items-center justify-between cursor-pointer">
                             <div className="flex items-center space-x-2">
                               <BankOutlined className="text-slate-500 dark:text-slate-400" />
-                              <span className="font-semibold">One Business</span>
+                              <span className="font-semibold">
+                                One Business
+                              </span>
                             </div>
                             <DownOutlined className="text-slate-500 dark:text-slate-400 text-xs" />
                           </div>
@@ -496,7 +498,7 @@ export default function DashboardLayout({
                         disabled={isSwitchingFirm}
                         style={{
                           width: "100%",
-                          minWidth: "280px",
+                          minWidth: "70px",
                         }}
                         className="vercel-firm-selector-responsive"
                         placeholder="Select a business"
@@ -524,14 +526,16 @@ export default function DashboardLayout({
                             </div>
                           )
                         }
+                        optionLabelProp="label"
                         dropdownStyle={{
+                          width: "300px",
                           borderRadius: "12px",
                           border: "1px solid #e5e7eb",
                           boxShadow:
                             "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
                           padding: "8px",
                           maxWidth: "calc(100vw - 32px)",
-                          width: "auto",
+                          
                         }}
                         popupClassName="vercel-dropdown-popup"
                         onChange={async (value) => {
@@ -541,27 +545,7 @@ export default function DashboardLayout({
                             dispatch(switchFirm(value));
                             const lawyers = await getLawyers(value);
                             dispatch(setLawyers(lawyers));
-
-                            const routesToRedirect = [
-                              "/get-lawyer-detail",
-                              "/edit-lawyer",
-                              "/get-client-detail",
-                              "/edit-client",
-                              "/add-lawyer",
-                              "/create-client",
-                              "/add-case",
-                              "/get-user-roles",
-                              "/add-firm",
-                            ];
-
-                            if (
-                              routesToRedirect.some((route) =>
-                                pathname.startsWith(route)
-                              )
-                            ) {
-                              router.push("/dashboard");
-                            }
-
+                            router.push("/dashboard");
                             toast.success("Switched firm successfully");
                           } catch (err) {
                             console.error("Error switching firm:", err);
@@ -570,17 +554,26 @@ export default function DashboardLayout({
                             setIsSwitchingFirm(false);
                           }
                         }}
-                        aria-label="Switch firm"
                       >
                         {user.firms.map((firm) => (
                           <Select.Option
                             key={`firm-${firm.id}`}
                             value={firm.id}
-                          >
-                            <div className="flex items-center justify-center py-1">
-                              <div className="w-8 h-8 rounded bg-blue-500 dark:bg-blue-600 flex items-center justify-center text-sm font-semibold text-white shadow-sm">
+                            // 👇 Styled label shown when selected
+                            label={
+                              <div className="w-8 h-8 rounded-full bg-blue-500 dark:bg-blue-600 flex items-center justify-center text-sm font-semibold text-white shadow-sm">
                                 {firm.name.charAt(0).toUpperCase()}
                               </div>
+                            }
+                          >
+                            {/* 👇 Full dropdown view with name */}
+                            <div className="flex items-center space-x-2 py-1">
+                              <div className="w-8 h-8 rounded-full bg-blue-500 dark:bg-blue-600 flex items-center justify-center text-sm font-semibold text-white shadow-sm">
+                                {firm.name.charAt(0).toUpperCase()}
+                              </div>
+                              <span className="text-sm text-slate-800 dark:text-slate-200 truncate">
+                                {firm.name}
+                              </span>
                             </div>
                           </Select.Option>
                         ))}
@@ -594,7 +587,7 @@ export default function DashboardLayout({
                           border-radius: 8px !important;
                           box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
                           transition: all 0.15s ease !important;
-                          padding: 4px 11px !important;
+                          padding: 4px 4px !important;
                           height: 40px !important;
                           display: flex !important;
                           align-items: center !important;
@@ -635,7 +628,7 @@ export default function DashboardLayout({
                           .ant-select-selection-item {
                           display: flex !important;
                           align-items: center !important;
-                          justify-content: center !important;
+                          justify-content: start !important;
                         }
 
                         .vercel-dropdown-popup {
@@ -711,8 +704,9 @@ export default function DashboardLayout({
             <ThemeToggle />
 
             {/* User Avatar */}
-            <div className="flex items-center space-x-3 pl-4 border-l border-slate-200 dark:border-slate-600">
-              <div className="hidden md:block text-right">
+            <div className="flex items-center space-x-3 pl-4 sm:pl-0 border-l border-slate-200 dark:border-slate-600">
+              {/* Hide user info on small screens */}
+              <div className="hidden sm:block text-right">
                 <p className="text-sm font-semibold text-slate-900 dark:text-white">
                   {user?.name || "User"}
                 </p>
@@ -720,6 +714,8 @@ export default function DashboardLayout({
                   {user?.email || "user@example.com"}
                 </p>
               </div>
+
+              {/* Always show profile icon */}
               <div
                 className={`w-10 h-10 rounded-full ${getRoleColor(
                   role || ""
