@@ -14,6 +14,7 @@ import { usePermission } from "../hooks/usePermission";
 import AssignRoleModal from "./AssignRoleModal";
 import ViewFirmsModal from "./ViewFirmsModal";
 import { NavLinks } from "./sidebar/NavLinks";
+import { Dropdown, Menu } from "antd";
 import {
   HomeOutlined,
   InfoCircleOutlined,
@@ -29,6 +30,7 @@ import {
   LoadingOutlined,
   BankOutlined,
   FileTextOutlined,
+  DownOutlined,
   DashboardOutlined,
   CreditCardOutlined,
   DollarOutlined,
@@ -49,12 +51,12 @@ export default function DashboardLayout({
 }: {
   children?: React.ReactNode;
 }) {
-  const { hasPermission } = usePermission();
   const dispatch = useAppDispatch();
   const router = useRouter();
   const pathname = usePathname();
   const role = useAppSelector((state) => state.user.user?.role);
   const user = useAppSelector((state) => state.user.user);
+  const [isWelcomeOpen, setIsWelcomeOpen] = useState(false);
 
   // Initialize collapsed state from localStorage
   const [collapsed, setCollapsed] = useState(() => {
@@ -136,6 +138,39 @@ export default function DashboardLayout({
       default:
         return "bg-gradient-to-r from-gray-500 to-gray-600";
     }
+  };
+  const WelcomeContent = ({ role }: { role: string }) => {
+    const messages = {
+      "Super Admin": {
+        icon: <BankOutlined className="text-amber-600 dark:text-amber-400" />,
+        text: "Welcome to your dashboard — You have complete access to manage firms, lawyers, and clients.",
+      },
+      Lawyer: {
+        icon: <BankOutlined className="text-amber-600 dark:text-amber-400" />,
+        text: "Welcome to your dashboard — let's start building your legal journey",
+      },
+      Client: {
+        icon: (
+          <FileTextOutlined className="text-amber-600 dark:text-amber-400" />
+        ),
+        text: "Welcome Client — Track your cases and stay updated",
+      },
+      Default: {
+        icon: (
+          <FileTextOutlined className="text-amber-600 dark:text-amber-400" />
+        ),
+        text: "Welcome to your dashboard",
+      },
+    };
+
+    const message = messages[role as keyof typeof messages] || messages.Default;
+
+    return (
+      <div className="px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-start sm:items-center space-x-2">
+        <span className="flex-shrink-0 mt-0.5 sm:mt-0">{message.icon}</span>
+        <span className="break-words">{message.text}</span>
+      </div>
+    );
   };
 
   return (
@@ -307,46 +342,56 @@ export default function DashboardLayout({
             <div className="space-y-4">
               {/* Welcome Messages */}
               <div className="w-full">
-                {role === "Super Admin" && (
-                  <div className="px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-start sm:items-center space-x-2">
-                    <BankOutlined className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5 sm:mt-0" />
-                    <span className="break-words">
-                      Welcome to your dashboard — You have complete access to
-                      manage firms, lawyers, and clients.
-                    </span>
-                  </div>
-                )}
-
-                {role === "Lawyer" && (
-                  <div className="px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-start sm:items-center space-x-2">
-                    <BankOutlined className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5 sm:mt-0" />
-                    <span className="break-words">
-                      Welcome to your dashboard — lets start building your
-                      legal journey
-                    </span>
-                  </div>
-                )}
-
-                {role === "Client" && (
-                  <div className="px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-start sm:items-center space-x-2">
-                    <FileTextOutlined className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5 sm:mt-0" />
-                    <span className="break-words">
-                      Welcome Client — Track your cases and stay updated
-                    </span>
-                  </div>
-                )}
-
-                {role &&
-                  !["Super Admin", "Firm Admin", "Lawyer", "Client"].includes(
-                    role
-                  ) && (
-                    <div className="px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-start sm:items-center space-x-2">
-                      <FileTextOutlined className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5 sm:mt-0" />
-                      <span className="break-words">
-                        Welcome to your dashboard
-                      </span>
-                    </div>
+                {/* Desktop View - Show full message */}
+                <div className="hidden sm:block">
+                  {role === "Super Admin" && (
+                    <WelcomeContent role="Super Admin" />
                   )}
+                  {role === "Lawyer" && <WelcomeContent role="Lawyer" />}
+                  {role === "Client" && <WelcomeContent role="Client" />}
+                  {role &&
+                    !["Super Admin", "Firm Admin", "Lawyer", "Client"].includes(
+                      role
+                    ) && <WelcomeContent role="Default" />}
+                </div>
+
+                {/* Mobile View - Compact dropdown */}
+                <div className="block sm:hidden">
+                  <Dropdown
+                    open={isWelcomeOpen}
+                    onOpenChange={setIsWelcomeOpen}
+                    dropdownRender={() => (
+                      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 p-3 max-w-[calc(100vw-32px)]">
+                        {role === "Super Admin" && (
+                          <WelcomeContent role="Super Admin" />
+                        )}
+                        {role === "Lawyer" && <WelcomeContent role="Lawyer" />}
+                        {role === "Client" && <WelcomeContent role="Client" />}
+                        {role &&
+                          ![
+                            "Super Admin",
+                            "Firm Admin",
+                            "Lawyer",
+                            "Client",
+                          ].includes(role) && <WelcomeContent role="Default" />}
+                      </div>
+                    )}
+                    trigger={["click"]}
+                    placement="bottomLeft"
+                  >
+                    <div className="px-3 py-2 rounded-lg text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center justify-between cursor-pointer active:bg-amber-100 dark:active:bg-amber-900/30 transition-colors">
+                      <div className="flex items-center space-x-2">
+                        <BankOutlined className="text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                        <span className="font-semibold">Welcome Message</span>
+                      </div>
+                      <DownOutlined
+                        className={`text-amber-600 dark:text-amber-400 text-xs transition-transform ${
+                          isWelcomeOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </div>
+                  </Dropdown>
+                </div>
               </div>
 
               {/* Firm Admin Section */}
@@ -355,11 +400,40 @@ export default function DashboardLayout({
                   {!user?.firms || user.firms.length === 0 ? (
                     // No firms created yet
                     <div className="w-full">
-                      <div className="px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-start sm:items-center space-x-2">
-                        <BankOutlined className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5 sm:mt-0" />
-                        <span className="break-words">
-                          Create Your First Business To Get Started
-                        </span>
+                      {/* Desktop View */}
+                      <div className="hidden sm:block">
+                        <div className="px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-start sm:items-center space-x-2">
+                          <BankOutlined className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5 sm:mt-0" />
+                          <span className="break-words">
+                            Create Your First Business To Get Started
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Mobile View - Compact */}
+                      <div className="block sm:hidden">
+                        <Dropdown
+                          dropdownRender={() => (
+                            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 p-3 max-w-[calc(100vw-32px)]">
+                              <div className="px-3 py-2 rounded-lg text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-start space-x-2">
+                                <BankOutlined className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                                <span className="break-words">
+                                  Create Your First Business To Get Started
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                          trigger={["click"]}
+                          placement="bottomLeft"
+                        >
+                          <div className="px-3 py-2 rounded-lg text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center justify-between cursor-pointer">
+                            <div className="flex items-center space-x-2">
+                              <BankOutlined className="text-amber-600 dark:text-amber-400" />
+                              <span className="font-semibold">Get Started</span>
+                            </div>
+                            <DownOutlined className="text-amber-600 dark:text-amber-400 text-xs" />
+                          </div>
+                        </Dropdown>
                       </div>
                     </div>
                   ) : user.firms.length === 1 ? (
