@@ -351,12 +351,9 @@ export default function DashboardLayout({
                     {role === "Lawyer" && <WelcomeContent role="Lawyer" />}
                     {role === "Client" && <WelcomeContent role="Client" />}
                     {role &&
-                      ![
-                        "Super Admin",
-                        "Firm Admin",
-                        "Lawyer",
-                        "Client",
-                      ].includes(role) && <WelcomeContent role="Default" />}
+                      !["Super Admin", "Firm Admin", "Lawyer", "Client"].includes(
+                        role
+                      ) && <WelcomeContent role="Default" />}
                   </div>
 
                   {/* Mobile View - Compact dropdown */}
@@ -369,21 +366,15 @@ export default function DashboardLayout({
                           {role === "Super Admin" && (
                             <WelcomeContent role="Super Admin" />
                           )}
-                          {role === "Lawyer" && (
-                            <WelcomeContent role="Lawyer" />
-                          )}
-                          {role === "Client" && (
-                            <WelcomeContent role="Client" />
-                          )}
+                          {role === "Lawyer" && <WelcomeContent role="Lawyer" />}
+                          {role === "Client" && <WelcomeContent role="Client" />}
                           {role &&
                             ![
                               "Super Admin",
                               "Firm Admin",
                               "Lawyer",
                               "Client",
-                            ].includes(role) && (
-                              <WelcomeContent role="Default" />
-                            )}
+                            ].includes(role) && <WelcomeContent role="Default" />}
                         </div>
                       )}
                       trigger={["click"]}
