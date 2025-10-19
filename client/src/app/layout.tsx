@@ -5,7 +5,7 @@ import "./globals.css";
 import Providers from "./store/Providers";
 import { Toaster } from "react-hot-toast";
 import { Space_Grotesk } from "next/font/google";
-
+import ProtectedLayout from "./components/ProtectedLayout";
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
 //   subsets: ["latin"],
@@ -39,9 +39,9 @@ export default function RootLayout({
         className={`${spaceGrotesk.className} overflow-x-hidden`}
       >
         <Providers>
-          <div className="min-h-screen flex flex-col">
-            {children}
-          </div>
+          <ProtectedLayout>
+            <div className="min-h-screen flex flex-col">{children}</div>
+          </ProtectedLayout>
         </Providers>
         <Toaster position="top-right" reverseOrder={false} />
       </body>
