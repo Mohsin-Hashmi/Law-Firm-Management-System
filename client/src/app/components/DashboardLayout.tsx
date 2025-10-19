@@ -340,354 +340,69 @@ export default function DashboardLayout({
               </svg>
             </button>
             <div className="space-y-4">
-              {/* Welcome Messages */}
-              <div className="w-full">
-                {/* Desktop View - Show full message */}
-                <div className="hidden sm:block">
-                  {role === "Super Admin" && (
-                    <WelcomeContent role="Super Admin" />
-                  )}
-                  {role === "Lawyer" && <WelcomeContent role="Lawyer" />}
-                  {role === "Client" && <WelcomeContent role="Client" />}
-                  {role &&
-                    !["Super Admin", "Firm Admin", "Lawyer", "Client"].includes(
-                      role
-                    ) && <WelcomeContent role="Default" />}
-                </div>
-
-                {/* Mobile View - Compact dropdown */}
-                <div className="block sm:hidden">
-                  <Dropdown
-                    open={isWelcomeOpen}
-                    onOpenChange={setIsWelcomeOpen}
-                    dropdownRender={() => (
-                      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 p-3 max-w-[calc(100vw-32px)]">
-                        {role === "Super Admin" && (
-                          <WelcomeContent role="Super Admin" />
-                        )}
-                        {role === "Lawyer" && <WelcomeContent role="Lawyer" />}
-                        {role === "Client" && <WelcomeContent role="Client" />}
-                        {role &&
-                          ![
-                            "Super Admin",
-                            "Firm Admin",
-                            "Lawyer",
-                            "Client",
-                          ].includes(role) && <WelcomeContent role="Default" />}
-                      </div>
+              {/* Welcome Messages - Only show for non-Firm Admin roles */}
+              {role !== "Firm Admin" && (
+                <div className="w-full">
+                  {/* Desktop View - Show full message */}
+                  <div className="hidden sm:block">
+                    {role === "Super Admin" && (
+                      <WelcomeContent role="Super Admin" />
                     )}
-                    trigger={["click"]}
-                    placement="bottomLeft"
-                  >
-                    <div className="px-3 py-2 rounded-lg text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center justify-between cursor-pointer active:bg-amber-100 dark:active:bg-amber-900/30 transition-colors">
-                      <div className="flex items-center space-x-2">
-                        <BankOutlined className="text-amber-600 dark:text-amber-400 flex-shrink-0" />
-                        <span className="font-semibold">Welcome Message</span>
-                      </div>
-                      <DownOutlined
-                        className={`text-amber-600 dark:text-amber-400 text-xs transition-transform ${
-                          isWelcomeOpen ? "rotate-180" : ""
-                        }`}
-                      />
-                    </div>
-                  </Dropdown>
-                </div>
-              </div>
+                    {role === "Lawyer" && <WelcomeContent role="Lawyer" />}
+                    {role === "Client" && <WelcomeContent role="Client" />}
+                    {role &&
+                      ![
+                        "Super Admin",
+                        "Firm Admin",
+                        "Lawyer",
+                        "Client",
+                      ].includes(role) && <WelcomeContent role="Default" />}
+                  </div>
 
-              {/* Firm Admin Section */}
-              {role === "Firm Admin" && (
-                <>
-                  {!user?.firms || user.firms.length === 0 ? (
-                    // No firms created yet
-                    <div className="w-full">
-                      {/* Desktop View */}
-                      <div className="hidden sm:block">
-                        <div className="px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-start sm:items-center space-x-2">
-                          <BankOutlined className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5 sm:mt-0" />
-                          <span className="break-words">
-                            Create Your First Business To Get Started
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Mobile View - Compact */}
-                      <div className="block sm:hidden">
-                        <Dropdown
-                          dropdownRender={() => (
-                            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 p-3 max-w-[calc(100vw-32px)]">
-                              <div className="px-3 py-2 rounded-lg text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-start space-x-2">
-                                <BankOutlined className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-                                <span className="break-words">
-                                  Create Your First Business To Get Started
-                                </span>
-                              </div>
-                            </div>
+                  {/* Mobile View - Compact dropdown */}
+                  <div className="block sm:hidden">
+                    <Dropdown
+                      open={isWelcomeOpen}
+                      onOpenChange={setIsWelcomeOpen}
+                      dropdownRender={() => (
+                        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 p-3 max-w-[calc(100vw-32px)]">
+                          {role === "Super Admin" && (
+                            <WelcomeContent role="Super Admin" />
                           )}
-                          trigger={["click"]}
-                          placement="bottomLeft"
-                        >
-                          <div className="px-3 py-2 rounded-lg text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center justify-between cursor-pointer">
-                            <div className="flex items-center space-x-2">
-                              <BankOutlined className="text-amber-600 dark:text-amber-400" />
-                              <span className="font-semibold">Get Started</span>
-                            </div>
-                            <DownOutlined className="text-amber-600 dark:text-amber-400 text-xs" />
-                          </div>
-                        </Dropdown>
-                      </div>
-                    </div>
-                  ) : user.firms.length === 1 ? (
-                    // Only one firm created
-                    <div className="w-full">
-                      <div className="px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 flex items-start sm:items-center space-x-2">
-                        <BankOutlined className="text-slate-500 dark:text-slate-400 flex-shrink-0 mt-0.5 sm:mt-0" />
-                        <span className="break-words">
-                          You Have Only One Business Now
-                        </span>
-                      </div>
-                    </div>
-                  ) : (
-                    // Multiple firms - show dropdown with responsive layout
-                    <div className="w-full">
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                        {/* Label - hidden on mobile */}
-                        <div className="hidden sm:block">
-                          <div className="px-3 py-1.5 rounded-md text-sm font-medium text-white bg-blue-500 whitespace-nowrap">
-                            Switch Your Business
-                          </div>
+                          {role === "Lawyer" && (
+                            <WelcomeContent role="Lawyer" />
+                          )}
+                          {role === "Client" && (
+                            <WelcomeContent role="Client" />
+                          )}
+                          {role &&
+                            ![
+                              "Super Admin",
+                              "Firm Admin",
+                              "Lawyer",
+                              "Client",
+                            ].includes(role) && (
+                              <WelcomeContent role="Default" />
+                            )}
                         </div>
-
-                        {/* Mobile Label */}
-                        <div className="block sm:hidden w-full">
-                          <div className="px-3 py-2 rounded-lg text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-                            Switch Your Business
-                          </div>
+                      )}
+                      trigger={["click"]}
+                      placement="bottomLeft"
+                    >
+                      <div className="px-3 py-2 rounded-lg text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center justify-between cursor-pointer active:bg-amber-100 dark:active:bg-amber-900/30 transition-colors">
+                        <div className="flex items-center space-x-2">
+                          <BankOutlined className="text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                          <span className="font-semibold">Welcome Message</span>
                         </div>
-
-                        {/* Dropdown - Full width on mobile */}
-                        <div className="w-full sm:w-auto">
-                          <Select
-                            value={user?.activeFirmId}
-                            disabled={isSwitchingFirm}
-                            style={{
-                              width: "100%",
-                              minWidth: "200px",
-                            }}
-                            className="vercel-firm-selector-responsive"
-                            placeholder="Select a business"
-                            size="large"
-                            suffixIcon={
-                              isSwitchingFirm ? (
-                                <LoadingOutlined spin />
-                              ) : (
-                                <div className="flex items-center justify-center h-full">
-                                  <svg
-                                    width="18"
-                                    height="18"
-                                    viewBox="0 0 12 12"
-                                    fill="none"
-                                    className="text-slate-400 dark:text-slate-500"
-                                  >
-                                    <path
-                                      d="M2.5 4.5L6 8L9.5 4.5"
-                                      stroke="currentColor"
-                                      strokeWidth="1.5"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                  </svg>
-                                </div>
-                              )
-                            }
-                            dropdownStyle={{
-                              borderRadius: "12px",
-                              border: "1px solid #e5e7eb",
-                              boxShadow:
-                                "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-                              padding: "8px 8px",
-                              maxWidth: "calc(100vw - 32px)",
-                              width: "auto",
-                            }}
-                            popupClassName="vercel-dropdown-popup"
-                            onChange={async (value) => {
-                              setIsSwitchingFirm(true);
-                              try {
-                                await switchFirmAPI(value);
-                                dispatch(switchFirm(value));
-                                const lawyers = await getLawyers(value);
-                                dispatch(setLawyers(lawyers));
-
-                                const routesToRedirect = [
-                                  "/get-lawyer-detail",
-                                  "/edit-lawyer",
-                                  "/get-client-detail",
-                                  "/edit-client",
-                                  "/add-lawyer",
-                                  "/create-client",
-                                  "/add-case",
-                                  "/get-user-roles",
-                                  "/add-firm",
-                                ];
-
-                                if (
-                                  routesToRedirect.some((route) =>
-                                    pathname.startsWith(route)
-                                  )
-                                ) {
-                                  router.push("/dashboard");
-                                }
-
-                                toast.success("Switched firm successfully");
-                              } catch (err) {
-                                console.error("Error switching firm:", err);
-                                toast.error("Failed to switch firm");
-                              } finally {
-                                setIsSwitchingFirm(false);
-                              }
-                            }}
-                            aria-label="Switch firm"
-                          >
-                            {user.firms.map((firm) => (
-                              <Select.Option
-                                key={`firm-${firm.id}`}
-                                value={firm.id}
-                              >
-                                <div className="flex items-center space-x-2 py-1">
-                                  <div className="w-6 h-6 rounded bg-blue-400 dark:bg-slate-700 flex items-center justify-center text-xs font-medium text-white flex-shrink-0">
-                                    {firm.name.charAt(0).toUpperCase()}
-                                  </div>
-                                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
-                                    {firm.name}
-                                  </span>
-                                </div>
-                              </Select.Option>
-                            ))}
-                          </Select>
-                        </div>
+                        <DownOutlined
+                          className={`text-amber-600 dark:text-amber-400 text-xs transition-transform ${
+                            isWelcomeOpen ? "rotate-180" : ""
+                          }`}
+                        />
                       </div>
-                    </div>
-                  )}
-
-                  {/* Custom styles */}
-                  <style jsx global>{`
-                    /* Responsive Selector Styles */
-                    .vercel-firm-selector-responsive .ant-select-selector {
-                      background: white !important;
-                      border: 1px solid #e5e7eb !important;
-                      border-radius: 8px !important;
-                      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
-                      transition: all 0.15s ease !important;
-                      padding: 4px 11px !important;
-                      height: 40px !important;
-                      display: flex !important;
-                      align-items: center !important;
-                    }
-
-                    .dark
-                      .vercel-firm-selector-responsive
-                      .ant-select-selector {
-                      background: #1e293b !important;
-                      border: 1px solid #334155 !important;
-                    }
-
-                    .vercel-firm-selector-responsive
-                      .ant-select-selector:hover {
-                      border-color: #3b82f6 !important;
-                    }
-
-                    .dark
-                      .vercel-firm-selector-responsive
-                      .ant-select-selector:hover {
-                      border-color: #60a5fa !important;
-                    }
-
-                    .vercel-firm-selector-responsive.ant-select-focused
-                      .ant-select-selector {
-                      border-color: #3b82f6 !important;
-                      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
-                    }
-
-                    .dark
-                      .vercel-firm-selector-responsive.ant-select-focused
-                      .ant-select-selector {
-                      border-color: #60a5fa !important;
-                      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
-                    }
-
-                    .vercel-firm-selector-responsive
-                      .ant-select-selection-item {
-                      color: #1f2937 !important;
-                      font-size: 14px !important;
-                      font-weight: 500 !important;
-                    }
-
-                    .dark
-                      .vercel-firm-selector-responsive
-                      .ant-select-selection-item {
-                      color: #f3f4f6 !important;
-                    }
-
-                    /* Dropdown styles */
-                    .vercel-dropdown-popup {
-                      background: #ffffff !important;
-                      border: 1px solid #e5e7eb !important;
-                      border-radius: 8px !important;
-                      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-                        0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
-                    }
-
-                    .dark .vercel-dropdown-popup {
-                      background: #1e293b !important;
-                      border: 1px solid #334155 !important;
-                    }
-
-                    .vercel-dropdown-popup .ant-select-item {
-                      border-radius: 4px !important;
-                      margin: 2px 4px !important;
-                      padding: 8px !important;
-                      transition: all 0.15s ease !important;
-                      color: #171717 !important;
-                      font-size: 13px !important;
-                      min-height: auto !important;
-                    }
-
-                    .dark .vercel-dropdown-popup .ant-select-item {
-                      color: #ededed !important;
-                    }
-
-                    .vercel-dropdown-popup .ant-select-item:hover {
-                      background: #f3f4f6 !important;
-                    }
-
-                    .dark .vercel-dropdown-popup .ant-select-item:hover {
-                      background: #334155 !important;
-                    }
-
-                    .vercel-dropdown-popup .ant-select-item-option-selected {
-                      background: #eff6ff !important;
-                      font-weight: 500 !important;
-                      color: #1e40af !important;
-                    }
-
-                    .dark
-                      .vercel-dropdown-popup
-                      .ant-select-item-option-selected {
-                      background: #1e3a8a !important;
-                      color: #bfdbfe !important;
-                    }
-
-                    .vercel-dropdown-popup
-                      .ant-select-item-option-selected:hover {
-                      background: #dbeafe !important;
-                    }
-
-                    .dark
-                      .vercel-dropdown-popup
-                      .ant-select-item-option-selected:hover {
-                      background: #1e40af !important;
-                    }
-                  `}</style>
-                </>
+                    </Dropdown>
+                  </div>
+                </div>
               )}
             </div>
           </div>
