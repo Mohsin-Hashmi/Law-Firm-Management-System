@@ -561,7 +561,7 @@ export default function DashboardLayout({
                             value={firm.id}
                             // 👇 Styled label shown when selected
                             label={
-                              <div className="w-8 h-8 rounded-full bg-blue-500 dark:bg-blue-600 flex items-center justify-center text-sm font-semibold text-white shadow-sm">
+                              <div className="w-6 h-6 rounded-full bg-blue-500 dark:bg-blue-600 flex items-center justify-center text-sm font-semibold text-white shadow-sm">
                                 {firm.name.charAt(0).toUpperCase()}
                               </div>
                             }
