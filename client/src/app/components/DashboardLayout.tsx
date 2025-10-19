@@ -481,7 +481,9 @@ export default function DashboardLayout({
                           <div className="px-3 py-2 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 flex items-center justify-between cursor-pointer">
                             <div className="flex items-center space-x-2">
                               <BankOutlined className="text-slate-500 dark:text-slate-400" />
-                              <span className="font-semibold">One Business</span>
+                              <span className="font-semibold">
+                                One Business
+                              </span>
                             </div>
                             <DownOutlined className="text-slate-500 dark:text-slate-400 text-xs" />
                           </div>
