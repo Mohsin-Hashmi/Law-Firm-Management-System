@@ -225,7 +225,8 @@ export default function AddClient() {
                         Add New Client
                       </Title>
                       <Text className="text-white/85 dark:text-white/85 text-sm sm:text-base md:text-lg font-normal block">
-                        Register a new client with complete contact and billing information
+                        Register a new client with complete contact and billing
+                        information
                       </Text>
                     </div>
                   </div>
@@ -809,9 +810,10 @@ export default function AddClient() {
                             color:
                               statusOptions.find((s) => s.value === status)
                                 ?.color || "#374151",
-                            backgroundColor: `${statusOptions.find((s) => s.value === status)
-                              ?.color || "#374151"
-                              }20`,
+                            backgroundColor: `${
+                              statusOptions.find((s) => s.value === status)
+                                ?.color || "#374151"
+                            }20`,
                           }}
                         >
                           {statusOptions.find((s) => s.value === status)
@@ -893,58 +895,87 @@ export default function AddClient() {
 
               {/* Submit Section */}
               <Card
-                className="bg-emerald-600 dark:bg-slate-800 border-0 rounded-2xl shadow-lg mb-6"
-                bodyStyle={{ padding: "20px 16px" }}
+                className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 mt-[40px]"
+                bodyStyle={{ padding: "16px" }}
               >
-                <Row align="middle" justify="space-between">
-                  <Col xs={24} sm={24} md={18} lg={18}>
-                    {/* Mobile Layout: Stacked vertically */}
-                    <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6">
-                      {/* Logo */}
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center border-2 bg-white/15 dark:bg-white/10 border-white/20 dark:border-white/30 flex-shrink-0">
-                        <UserOutlined className="text-[24px] sm:text-[28px] md:text-[32px] text-white" />
-                      </div>
-
-                      {/* Text Content */}
-                      <div className="text-center sm:text-left flex-1">
-                        <Title
-                          level={1}
-                          className="!text-white dark:!text-white !mb-1 text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight"
-                        >
-                          Add New Client
-                        </Title>
-                        <Text className="text-white/85 dark:text-white/85 text-sm sm:text-base md:text-lg font-normal block">
-                          Register a new client with complete contact and billing information
-                        </Text>
-                      </div>
-                    </div>
-                  </Col>
-
-                  {/* Back Button Column */}
-                  <Col xs={24} sm={24} md={6} lg={6} className="mt-4 md:mt-0">
-                    <div className="flex justify-center md:justify-end">
+                <Row justify="center">
+                  <Col xs={24} sm={24} md={20} lg={16}>
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:justify-center">
+                      {/* Cancel Button */}
                       <Button
-                        icon={<ArrowLeftOutlined />}
-                        onClick={() => router.back()}
                         size="large"
-                        className="w-full sm:w-auto"
+                        onClick={() => router.back()}
+                        className="w-full sm:w-auto order-2 sm:order-1"
                         style={{
-                          background: "rgba(255,255,255,0.2)",
-                          borderColor: "rgba(255,255,255,0.3)",
-                          color: "white",
+                          border: "1px solid #d1d5db",
                           borderRadius: "12px",
                           fontWeight: "600",
-                          padding: "8px 24px",
+                          padding: "12px 32px",
                           height: "48px",
-                          backdropFilter: "blur(10px)",
+                          color: "#374151",
                         }}
-                        ghost
                       >
-                        Back
+                        Cancel
                       </Button>
+
+                      {/* Create Client Button */}
+                      <Button
+                        type="primary"
+                        htmlType="submit"
+                        size="large"
+                        icon={<SaveOutlined />}
+                        loading={loading}
+                        onClick={async () => {
+                          try {
+                            await form.validateFields(); // validate form
+                            showCreationModal(); // show confirmation modal
+                          } catch (err) {
+                            console.log("Validation failed:", err);
+                          }
+                        }}
+                        onMouseEnter={() => setIsHovered(true)}
+                        onMouseLeave={() => setIsHovered(false)}
+                        className="w-full sm:w-auto order-1 sm:order-2"
+                        style={{
+                          background: isHovered ? "#1d4ed8" : "#1e40af",
+                          borderColor: isHovered ? "#1d4ed8" : "#1e40af",
+                          borderRadius: "12px",
+                          fontSize: "15px",
+                          fontWeight: "600",
+                          padding: "12px 40px",
+                          height: "48px",
+                          boxShadow: "0 4px 12px rgba(30, 64, 175, 0.25)",
+                          transform: isHovered
+                            ? "translateY(-1px)"
+                            : "translateY(0)",
+                          transition: "all 0.2s ease",
+                        }}
+                      >
+                        Create Client
+                      </Button>
+                    </div>
+
+                    {/* Optional description or info line */}
+                    <div className="mt-6 text-center">
+                      <Text
+                        className="text-[#9ca3af] dark:text-[#6b7280]"
+                        style={{ fontSize: "14px" }}
+                      >
+                        By creating this client, you confirm that all
+                        information provided is accurate.
+                      </Text>
                     </div>
                   </Col>
                 </Row>
+
+                {/* Confirmation Modal */}
+                <ConfirmationModal
+                  visible={isCreateModalVisible}
+                  entityName={fullName || "Client"}
+                  action="create"
+                  onConfirm={handleConfirmCreate}
+                  onCancel={hideCreateModal}
+                />
               </Card>
             </Form>
           </div>
