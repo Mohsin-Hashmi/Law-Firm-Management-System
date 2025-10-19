@@ -6,6 +6,7 @@ import Image from "next/image";
 import wellcomeMessageImg from "../../../../public/images/wellcomeMessage.webp";
 import maskGroupImg from "../../../../public/images/maskGroup.webp";
 import successStoryImg from "../../../../public/images/successStoryImg.webp";
+import successStortImg02 from "../../../../public/images/successStoryImg02.webp";
 
 export default function OurServices() {
   const role = useAppSelector((state) => state.user.user?.role);
@@ -46,7 +47,7 @@ export default function OurServices() {
     },
     {
       title: "General Lawyer",
-      image: wellcomeMessageImg,
+      image: successStortImg02,
       subServices: [
         "Civil Litigation",
         "Criminal Defense",
