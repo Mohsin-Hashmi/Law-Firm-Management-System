@@ -44,7 +44,7 @@ export default function AboutSection() {
 
       <section className="text-[#3A3A38]">
         <div className="container">
-          <div className="flex items-center justify-between gap-x-[50px] w-full">
+          <div className="flex items-center justify-between flex-wrap gap-x-[50px] w-full">
             <Image
               className="min-w-[350px] min-h-[300px] object-contain"
               src={wellcomeMessageImg}
