@@ -660,65 +660,68 @@ export default function FirmStats({ firmId, role }: Props) {
               bodyStyle={{ padding: "20px" }}
               style={{ height: "100%" }}
             >
-              {stats &&
-              (stats.lawyersCount > 0 ||
-                stats.clientsCount > 0 ||
-                openCasesCount > 0) ? (
-                <div style={{ width: "100%", height: 400 }}>
-                  <ResponsiveContainer>
-                    <RadarChart data={radarData}>
-                      <PolarGrid
-                        stroke="#555555"
-                        className="dark:stroke-[#e2e8f0]"
-                      />
-                      <PolarAngleAxis
-                        dataKey="subject"
-                        tick={{ fill: "#555555", fontSize: 12 }}
-                        stroke="#555555"
-                        className="dark:[&_text]:fill-[#64748b] dark:stroke-[#64748b]"
-                      />
-                      <PolarRadiusAxis
-                        angle={90}
-                        domain={[0, "dataMax"]}
-                        tick={{ fill: "#232323", fontSize: 10 }}
-                        stroke="#232323"
-                        className="dark:[&_text]:fill-[#64748b] dark:stroke-[#64748b]"
-                      />
-                      <Radar
-                        name="Firm Stats"
-                        dataKey="A"
-                        stroke="#8b5cf6"
-                        fill="#8b5cf6"
-                        fillOpacity={0.6}
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "#1e293b",
-                          borderRadius: "8px",
-                          color: "#fff",
-                        }}
-                        itemStyle={{ color: "#fff" }}
-                        labelStyle={{ color: "#fff" }}
-                      />
-                      <Legend
-                        wrapperStyle={{
-                          paddingTop: "20px",
-                          color: "#64748b",
-                        }}
-                      />
-                    </RadarChart>
-                  </ResponsiveContainer>
-                </div>
-              ) : (
-                <div className="flex justify-center items-center py-8 sm:py-12 px-4">
+              <div
+                className="flex items-center justify-center"
+                style={{ minHeight: "400px" }}
+              >
+                {stats &&
+                (stats.lawyersCount > 0 ||
+                  stats.clientsCount > 0 ||
+                  openCasesCount > 0) ? (
+                  <div style={{ width: "100%", height: 400 }}>
+                    <ResponsiveContainer>
+                      <RadarChart data={radarData}>
+                        <PolarGrid
+                          stroke="#555555"
+                          className="dark:stroke-[#e2e8f0]"
+                        />
+                        <PolarAngleAxis
+                          dataKey="subject"
+                          tick={{ fill: "#555555", fontSize: 12 }}
+                          stroke="#555555"
+                          className="dark:[&_text]:fill-[#64748b] dark:stroke-[#64748b]"
+                        />
+                        <PolarRadiusAxis
+                          angle={90}
+                          domain={[0, "dataMax"]}
+                          tick={{ fill: "#232323", fontSize: 10 }}
+                          stroke="#232323"
+                          className="dark:[&_text]:fill-[#64748b] dark:stroke-[#64748b]"
+                        />
+                        <Radar
+                          name="Firm Stats"
+                          dataKey="A"
+                          stroke="#8b5cf6"
+                          fill="#8b5cf6"
+                          fillOpacity={0.6}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "#1e293b",
+                            borderRadius: "8px",
+                            color: "#fff",
+                          }}
+                          itemStyle={{ color: "#fff" }}
+                          labelStyle={{ color: "#fff" }}
+                        />
+                        <Legend
+                          wrapperStyle={{
+                            paddingTop: "20px",
+                            color: "#64748b",
+                          }}
+                        />
+                      </RadarChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : (
                   <div className="px-4 sm:px-8 py-4 sm:py-6 rounded-2xl text-sm sm:text-lg font-semibold text-amber-700 dark:text-amber-700 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-start sm:items-center space-x-2 sm:space-x-3 shadow-sm max-w-full">
                     <FileTextOutlined className="text-amber-600 dark:text-amber-400 text-lg sm:text-xl flex-shrink-0 mt-0.5 sm:mt-0" />
                     <span className="break-words text-left sm:text-center">
                       No Performance Data Yet Available
                     </span>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </Card>
           </Col>
         </Row>
