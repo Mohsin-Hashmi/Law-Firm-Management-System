@@ -27,6 +27,7 @@ import {
   DashboardOutlined,
   TrophyOutlined,
   FileTextOutlined,
+  BulbOutlined,
 } from "@ant-design/icons";
 import {
   LineChart,
@@ -359,11 +360,29 @@ export default function FirmStats({ firmId, role }: Props) {
     },
   ];
 
+  const quickTips = [
+    {
+      icon: <UserAddOutlined className="text-blue-600 dark:text-blue-400" />,
+      title: "Onboard Efficiently",
+      description: "Add lawyers and clients to streamline workflow",
+    },
+    {
+      icon: <FileOutlined className="text-emerald-600 dark:text-emerald-400" />,
+      title: "Track Cases",
+      description: "Monitor case progress and deadlines in real-time",
+    },
+    {
+      icon: <TeamOutlined className="text-purple-600 dark:text-purple-400" />,
+      title: "Collaborate",
+      description: "Enable team members to work together seamlessly",
+    },
+  ];
+
   return (
-    <div className="min-h-screen   transition-colors duration-300">
+    <div className="min-h-screen transition-colors duration-300">
       <div className="max-w-full">
         <Card
-          className="bg-blue-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg  mb-[40px] !transition-none"
+          className="bg-blue-600 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-lg mb-[40px] !transition-none"
           bodyStyle={{ padding: "20px 16px" }}
         >
           <Row align="middle" justify="space-between">
@@ -508,81 +527,123 @@ export default function FirmStats({ firmId, role }: Props) {
 
         <Row gutter={[24, 24]}>
           <Col xs={24} lg={8}>
-            <Card
-              title={
-                <Space>
-                  <DashboardOutlined className="text-blue-600 dark:text-blue-400" />
-                  <span className="text-slate-900 dark:!text-white font-semibold">
-                    Quick Actions
-                  </span>
-                </Space>
-              }
-              className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800"
-              bodyStyle={{ padding: "20px" }}
-            >
-              <Space
-                direction="vertical"
-                style={{ width: "100%" }}
-                size="middle"
+            <div className="flex flex-col gap-6">
+              <Card
+                title={
+                  <Space>
+                    <DashboardOutlined className="text-blue-600 dark:text-blue-400" />
+                    <span className="text-slate-900 dark:!text-white font-semibold">
+                      Quick Actions
+                    </span>
+                  </Space>
+                }
+                className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800"
+                bodyStyle={{ padding: "20px" }}
               >
-                <Button
-                  type="text"
-                  block
-                  onClick={handleAddLawyer}
-                  className="text-left h-12 rounded-xl border border-slate-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600"
+                <Space
+                  direction="vertical"
+                  style={{ width: "100%" }}
+                  size="middle"
                 >
-                  <Space
-                    style={{ width: "100%", justifyContent: "space-between" }}
+                  <Button
+                    type="text"
+                    block
+                    onClick={handleAddLawyer}
+                    className="text-left h-12 rounded-xl border border-slate-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600"
                   >
-                    <Space>
-                      <UserAddOutlined className="text-blue-600 dark:text-blue-400" />
-                      <span className="text-slate-700 dark:text-white font-medium">
-                        Add New Lawyer
-                      </span>
+                    <Space
+                      style={{ width: "100%", justifyContent: "space-between" }}
+                    >
+                      <Space>
+                        <UserAddOutlined className="text-blue-600 dark:text-blue-400" />
+                        <span className="text-slate-700 dark:text-white font-medium">
+                          Add New Lawyer
+                        </span>
+                      </Space>
+                      <RightOutlined className="text-slate-400 dark:text-white" />
                     </Space>
-                    <RightOutlined className="text-slate-400 dark:text-white" />
-                  </Space>
-                </Button>
+                  </Button>
 
-                <Button
-                  type="text"
-                  block
-                  onClick={handleAddClient}
-                  className="text-left h-12 rounded-xl border border-slate-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600"
-                >
-                  <Space
-                    style={{ width: "100%", justifyContent: "space-between" }}
+                  <Button
+                    type="text"
+                    block
+                    onClick={handleAddClient}
+                    className="text-left h-12 rounded-xl border border-slate-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600"
                   >
-                    <Space>
-                      <TeamOutlined className="text-emerald-600 dark:text-emerald-400" />
-                      <span className="text-slate-700 dark:text-white font-medium">
-                        Register New Client
-                      </span>
+                    <Space
+                      style={{ width: "100%", justifyContent: "space-between" }}
+                    >
+                      <Space>
+                        <TeamOutlined className="text-emerald-600 dark:text-emerald-400" />
+                        <span className="text-slate-700 dark:text-white font-medium">
+                          Register New Client
+                        </span>
+                      </Space>
+                      <RightOutlined className="text-slate-400 dark:text-white" />
                     </Space>
-                    <RightOutlined className="text-slate-400 dark:text-white" />
-                  </Space>
-                </Button>
+                  </Button>
 
-                <Button
-                  type="text"
-                  block
-                  onClick={handleAddCase}
-                  className="text-left h-12 rounded-xl border border-slate-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600"
-                >
-                  <Space
-                    style={{ width: "100%", justifyContent: "space-between" }}
+                  <Button
+                    type="text"
+                    block
+                    onClick={handleAddCase}
+                    className="text-left h-12 rounded-xl border border-slate-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600"
                   >
-                    <Space>
-                      <FileOutlined className="text-red-600 dark:text-red-400" />
-                      <span className="text-slate-700 dark:text-white font-medium">
-                        Create New Case
-                      </span>
+                    <Space
+                      style={{ width: "100%", justifyContent: "space-between" }}
+                    >
+                      <Space>
+                        <FileOutlined className="text-red-600 dark:text-red-400" />
+                        <span className="text-slate-700 dark:text-white font-medium">
+                          Create New Case
+                        </span>
+                      </Space>
+                      <RightOutlined className="text-slate-400 dark:text-white" />
                     </Space>
-                    <RightOutlined className="text-slate-400 dark:text-white" />
+                  </Button>
+                </Space>
+              </Card>
+
+              <Card
+                title={
+                  <Space>
+                    <BulbOutlined className="text-amber-600 dark:text-amber-400" />
+                    <span className="text-slate-900 dark:!text-white font-semibold">
+                      Quick Tips
+                    </span>
                   </Space>
-                </Button>
-              </Space>
-            </Card>
+                }
+                className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800"
+                bodyStyle={{ padding: "20px" }}
+              >
+                <Space
+                  direction="vertical"
+                  style={{ width: "100%" }}
+                  size="middle"
+                >
+                  {quickTips.map((tip, index) => (
+                    <div
+                      key={index}
+                      className="p-3 rounded-xl bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600"
+                    >
+                      <Space align="start" size="middle">
+                        <div className="w-10 h-10 rounded-lg bg-white dark:bg-slate-600 flex items-center justify-center flex-shrink-0">
+                          <span className="text-lg">{tip.icon}</span>
+                        </div>
+                        <div className="flex-1">
+                          <Text className="text-slate-900 dark:text-white font-semibold text-sm block mb-1">
+                            {tip.title}
+                          </Text>
+                          <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                            {tip.description}
+                          </Text>
+                        </div>
+                      </Space>
+                    </div>
+                  ))}
+                </Space>
+              </Card>
+            </div>
           </Col>
 
           <Col xs={24} lg={16}>
@@ -597,6 +658,7 @@ export default function FirmStats({ firmId, role }: Props) {
               }
               className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800"
               bodyStyle={{ padding: "20px" }}
+              style={{ height: "100%" }}
             >
               {stats &&
               (stats.lawyersCount > 0 ||

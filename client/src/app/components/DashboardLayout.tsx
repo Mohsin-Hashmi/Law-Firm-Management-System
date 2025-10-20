@@ -704,7 +704,7 @@ export default function DashboardLayout({
             <ThemeToggle />
 
             {/* User Avatar */}
-            <div className="flex items-center space-x-3 pl-4 sm:pl-0 border-l border-slate-200 dark:border-slate-600">
+            <div className="flex items-center space-x-3 pl-4 border-l border-slate-200 dark:border-slate-600">
               {/* Hide user info on small screens */}
               <div className="hidden sm:block text-right">
                 <p className="text-sm font-semibold text-slate-900 dark:text-white">
