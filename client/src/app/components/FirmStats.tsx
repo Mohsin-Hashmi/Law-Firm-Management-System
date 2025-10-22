@@ -145,6 +145,10 @@ export default function FirmStats({ firmId, role }: Props) {
     router.push("/add-case");
   };
 
+  const handleUploadCaseDocument = () => {
+    router.push("/upload-case-documents");
+  };
+
   if (role === "Firm Admin" && !firmId) {
     return (
       <div className="min-h-screen flex items-center justify-center  transition-colors duration-300">
@@ -527,7 +531,7 @@ export default function FirmStats({ firmId, role }: Props) {
 
         <Row gutter={[24, 24]}>
           <Col xs={24} lg={8}>
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col" style={{ height: "100%" }}>
               <Card
                 title={
                   <Space>
@@ -539,6 +543,7 @@ export default function FirmStats({ firmId, role }: Props) {
                 }
                 className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800"
                 bodyStyle={{ padding: "20px" }}
+                style={{ marginBottom: "24px" }}
               >
                 <Space
                   direction="vertical"
@@ -601,6 +606,25 @@ export default function FirmStats({ firmId, role }: Props) {
                       <RightOutlined className="text-slate-400 dark:text-white" />
                     </Space>
                   </Button>
+
+                  <Button
+                    type="text"
+                    block
+                    onClick={handleUploadCaseDocument}
+                    className="text-left h-12 rounded-xl border border-slate-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600"
+                  >
+                    <Space
+                      style={{ width: "100%", justifyContent: "space-between" }}
+                    >
+                      <Space>
+                        <FileTextOutlined className="text-purple-600 dark:text-purple-400" />
+                        <span className="text-slate-700 dark:text-white font-medium">
+                          Add Case Document
+                        </span>
+                      </Space>
+                      <RightOutlined className="text-slate-400 dark:text-white" />
+                    </Space>
+                  </Button>
                 </Space>
               </Card>
 
@@ -615,6 +639,7 @@ export default function FirmStats({ firmId, role }: Props) {
                 }
                 className="rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800"
                 bodyStyle={{ padding: "20px" }}
+                style={{ flex: 1 }}
               >
                 <Space
                   direction="vertical"
