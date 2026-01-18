@@ -479,7 +479,8 @@ const getAllCasesOfLawyer = async (req, res) => {
     const { role, id: userId } = req.user;
     const firmId = getActiveFirmId(req);
 
-    let lawyerId = req.params.lawyerId; // may be undefined
+    let lawyerId = req?.params?.lawyerId; // may be undefined
+    console.log("Lawyer id to get cases is:", lawyerId);
 
     if (role === "Lawyer") {
       // Auto-detect lawyerId for logged-in lawyers

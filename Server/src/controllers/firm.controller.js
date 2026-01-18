@@ -428,6 +428,13 @@ const getAllLawyer = async (req, res) => {
 
     const lawyers = await Lawyer.findAll({ where: { firmId } });
 
+    if(!lawyers){
+      return res.status(404).json({
+        success:false,
+        message:"Lawyers not found for this firm"
+      })
+    }
+
     return res.status(200).json({
       success: true,
       allLawyers: lawyers,

@@ -293,8 +293,7 @@ export const createClient = async (firmId: number, data: FormData) => {
     if (axios.isAxiosError(error)) {
       // AxiosError type-safe handling
       throw new Error(
-        `Error creating client: ${
-          error.response?.data?.message || error.message
+        `Error creating client: ${error.response?.data?.message || error.message
         }`
       );
     }
@@ -315,8 +314,7 @@ export const getAllClients = async (firmId: number): Promise<Client[]> => {
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(
-        `Error fetching clients: ${
-          error.response?.data?.message || error.message
+        `Error fetching clients: ${error.response?.data?.message || error.message
         }`
       );
     }
@@ -443,8 +441,7 @@ export const getAllCasesOfFirm = async (firmId: number): Promise<Case[]> => {
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(
-        `Error fetching cases of firm: ${
-          error.response?.data?.message || error.message
+        `Error fetching cases of firm: ${error.response?.data?.message || error.message
         }`
       );
     }
@@ -452,19 +449,18 @@ export const getAllCasesOfFirm = async (firmId: number): Promise<Case[]> => {
   }
 };
 
-export const getAllCasesOfLawyer = async (): Promise<Case[]> => {
+export const getAllCasesOfLawyer = async (lawyerId: number): Promise<Case[]> => {
   try {
     const response = await axios.get<{ cases: Case[] }>(
       `${BASE_URL}/firm-admin/lawyer/cases`, // same as backend route
-      { withCredentials: true }
+      { params: { lawyerId }, withCredentials: true }
     );
 
     return response.data.cases;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(
-        `Error fetching cases of lawyer: ${
-          error.response?.data?.message || error.message
+        `Error fetching cases of lawyer: ${error.response?.data?.message || error.message
         }`
       );
     }
@@ -484,8 +480,7 @@ export const getAllCasesOfClient = async (
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(
-        `Error fetching client cases: ${
-          error.response?.data?.message || error.message
+        `Error fetching client cases: ${error.response?.data?.message || error.message
         }`
       );
     }
@@ -502,8 +497,7 @@ export const getAllClientsOfLawyer = async (): Promise<Client[]> => {
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(
-        `Error fetching cases of lawyer: ${
-          error.response?.data?.message || error.message
+        `Error fetching cases of lawyer: ${error.response?.data?.message || error.message
         }`
       );
     }
@@ -521,8 +515,7 @@ export const getCaseById = async (id: number) => {
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(
-        `Error fetching cases of firm: ${
-          error.response?.data?.message || error.message
+        `Error fetching cases of firm: ${error.response?.data?.message || error.message
         }`
       );
     }
@@ -540,8 +533,7 @@ export const deleteCaseByFirm = async (firmId: number, id: number) => {
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(
-        `Error fetching cases of firm: ${
-          error.response?.data?.message || error.message
+        `Error fetching cases of firm: ${error.response?.data?.message || error.message
         }`
       );
     }
@@ -560,8 +552,7 @@ export const updateCaseByFirm = async (id: number, data: FormData) => {
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(
-        `Error fetching cases of firm: ${
-          error.response?.data?.message || error.message
+        `Error fetching cases of firm: ${error.response?.data?.message || error.message
         }`
       );
     }
@@ -588,8 +579,7 @@ export const updateCaseStatus = async (
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(
-        `Error fetching cases of firm: ${
-          error.response?.data?.message || error.message
+        `Error fetching cases of firm: ${error.response?.data?.message || error.message
         }`
       );
     }
@@ -614,8 +604,7 @@ export const getPermissions = async () => {
     console.log("Error in get permission API", error);
     if (axios.isAxiosError(error)) {
       throw new Error(
-        `Error fetching cases of firm: ${
-          error.response?.data?.message || error.message
+        `Error fetching cases of firm: ${error.response?.data?.message || error.message
         }`
       );
     }
@@ -734,7 +723,7 @@ export const lawyerStatsData = async () => {
     const response = await axios.get(`${BASE_URL}/firm-admin/lawyers/stats`, {
       withCredentials: true,
     });
-   
+
     return response.data;
   } catch (error) {
     console.log("Error Fetching Lawyers Stats", error);

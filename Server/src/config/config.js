@@ -1,10 +1,10 @@
 const dotenv = require("dotenv");
 
 // Load the right env file based on NODE_ENV
+dotenv.config({ path: ".env.local" });
+// Override for production
 if (process.env.NODE_ENV === "production") {
   dotenv.config({ path: ".env" });
-} else {
-  dotenv.config({ path: ".env.local" });
 }
 
 console.log("ENV NODE_ENV:", process.env.NODE_ENV);

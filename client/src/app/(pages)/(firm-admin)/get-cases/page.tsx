@@ -65,6 +65,7 @@ export default function GetCases() {
   const user = useAppSelector((state: RootState) => state.user.user);
   const firmId = user?.firmId ?? user?.activeFirmId;
   const role = user?.role;
+  const lawyerId = user?.id;
   const [cases, setCasesData] = useState<Case[]>([]);
   const [filteredCases, setFilteredCases] = useState<Case[]>([]);
   const [loading, setLoading] = useState(true);
@@ -93,36 +94,36 @@ export default function GetCases() {
   }, [cases, searchText, statusFilter, caseTypeFilter]);
 
   /**Get All Cases API */
-  const fetchCases = async (firmId: number) => {
+  const fetchCases = async (firmId: number, lawyerId?: number) => {
     try {
       setLoading(true);
       let response: Case[] = [];
+
       if (role === "Firm Admin") {
-        if (!firmId) {
-          if (isRouterReady) {
-            router.push("/components/nofirmidfallback");
-          }
-          toast.error("Firm id is not found")
-          return;
+        const requests: Promise<Case[]>[] = [
+          getAllCasesOfFirm(firmId),
+        ];
+
+        if (lawyerId) {
+          requests.push(getAllCasesOfLawyer(lawyerId));
         }
-        response = await getAllCasesOfFirm(firmId);
-      } else if (role === "Lawyer") {
-        response = await getAllCasesOfLawyer();
-      } else if (role === "Client" && user?.id) {
+
+        const results = await Promise.all(requests);
+        response = results.flat();
+      }
+      else if (role === "Lawyer" && lawyerId) {
+        response = await getAllCasesOfLawyer(lawyerId);
+      }
+      else if (role === "Client" && user?.id) {
         response = await getAllCasesOfClient(user.id);
       }
 
-      setCasesData(response);
-      dispatch(setCases(response));
-      toast.success("Fetch cases successfully");
-      console.log("Successfully fetched cases data:", response);
-    } catch (error) {
-      console.error("Error fetching cases:", error);
-      // toast.error("Failed to fetch cases data");
-      // Set empty array on error to prevent infinite loading
-      setCasesData([]);
+      setCases(response);
+      setFilteredCases(response);
+    } catch (e) {
+      setCases([]);
+      setFilteredCases([]);
     } finally {
-      // Ensure loading is always set to false
       setLoading(false);
     }
   };
@@ -132,12 +133,12 @@ export default function GetCases() {
       // Clear previous data before fetching new data
       setCasesData([]);
       setFilteredCases([]);
-      fetchCases(firmId);
+      fetchCases(firmId, lawyerId);
     } else {
       // If no firmId, stop loading
       setLoading(false);
     }
-  }, [role, firmId]);
+  }, [role, firmId, lawyerId]);
 
   useEffect(() => {
     if (firmId) {

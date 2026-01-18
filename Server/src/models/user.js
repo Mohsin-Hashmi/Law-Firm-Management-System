@@ -27,6 +27,18 @@ module.exports = (sequelize, DataTypes) => {
         otherKey: "firmId",
         as: "firms",
       });
+
+      //new association for payment
+      User.hasMany(models.Payment, {
+        foreignKey: "userId",
+        as: "payments",
+      })
+
+      //new association for user profile
+      User.hasOne(models.UserProfile, {
+        foreignKey: "userId",
+        as: "profile",
+      })
     }
   }
 

@@ -1,4 +1,7 @@
 const dotenv = require("dotenv");
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config({ path: '.env.local' });
+}
 dotenv.config();
 const express = require("express");
 const app = express();
@@ -13,6 +16,8 @@ const adminRoute = require("./routes/admin");
 const clientRoute = require("./routes/client");
 const caseRoute = require("./routes/case");
 const roleRoutes = require("./routes/role");
+const stripeRoute = require("./routes/stripe");
+const userProfileRouter = require("./routes/user-profile");
 const cors = require("cors");
 const { User, Role, sequelize } = require("./models");
 const bcrypt = require("bcryptjs");
@@ -35,7 +40,12 @@ app.use(
   cors({
     origin: function (origin, callback) {
       if (!origin) return callback(null, true); // allow requests with no origin
-      if (allowedOrigins.includes(origin)) {
+
+      // Check if origin is localhost (including subdomains and any port)
+      const isLocalhost = origin.match(/^http:\/\/(?:[a-zA-Z0-9-]+\.)*localhost(?::\d+)?$/) ||
+        origin.match(/^http:\/\/127\.0\.0\.1(?::\d+)?$/);
+
+      if (isLocalhost || allowedOrigins.includes(origin)) {
         return callback(null, true);
       } else {
         return callback(new Error("Not allowed by CORS"));
@@ -53,7 +63,9 @@ app.use(
   cors({
     origin: function (origin, callback) {
       if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) {
+      const isLocalhost = origin.match(/^http:\/\/(?:[a-zA-Z0-9-]+\.)*localhost(?::\d+)?$/) ||
+        origin.match(/^http:\/\/127\.0\.0\.1(?::\d+)?$/);
+      if (isLocalhost || allowedOrigins.includes(origin)) {
         return callback(null, true);
       } else {
         return callback(new Error("Not allowed by CORS"));
@@ -65,7 +77,7 @@ app.use(
   express.static(path.join(__dirname, "../uploads"))
 );
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 5000;
 
 // ====Creating the Super Admin=====
 const createSuperAdmin = async () => {
@@ -111,9 +123,6 @@ app.use((req, res, next) => {
 });
 
 // =====Routes=====
-app.get("/", (req, res) => {
-  res.send("server is running");
-});
 app.use("/auth", authRoutes);
 app.use("/super-admin", superAdminRoutes);
 app.use("/firm-admin", adminRoute);
@@ -121,6 +130,8 @@ app.use("/firm-admin", clientRoute);
 app.use("/firm-admin", caseRoute);
 app.use("/lawyers", lawyerRoutes);
 app.use("/roles", roleRoutes);
+app.use("/stripe", stripeRoute);
+app.use("/user-profile", userProfileRouter);
 
 // ✅ Global Error Handler
 app.use((err, req, res, next) => {

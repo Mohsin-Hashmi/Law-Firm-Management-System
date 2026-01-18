@@ -63,6 +63,7 @@ export default function GetCaseDocumentsPage() {
   const user = useAppSelector((state: RootState) => state.user.user);
   const firmId = user?.firmId ?? user?.activeFirmId;
   const role = user?.role;
+  const lawyerId = user?.id;
 
   const [cases, setCases] = useState<Case[]>([]);
   const [filteredCases, setFilteredCases] = useState<Case[]>([]);
@@ -167,17 +168,26 @@ export default function GetCaseDocumentsPage() {
     }
   };
 
-  const fetchCases = async (firmId: number) => {
+  const fetchCases = async (firmId: number, lawyerId?: number) => {
     try {
       setLoading(true);
       let response: Case[] = [];
+
       if (role === "Firm Admin") {
-        response = await getAllCasesOfFirm(firmId);
-      } else if (role === "Lawyer") {
-        response = await getAllCasesOfLawyer();
-      } else if (role === "Client" && user?.id) {
+        const [firmCases, lawyerCases] = await Promise.all([
+          getAllCasesOfFirm(firmId),
+          getAllCasesOfLawyer(lawyerId!),
+        ]);
+
+        response = [...firmCases, ...lawyerCases];
+      }
+      else if (role === "Lawyer") {
+        response = await getAllCasesOfLawyer(lawyerId!);
+      }
+      else if (role === "Client" && user?.id) {
         response = await getAllCasesOfClient(user.id);
       }
+
       setCases(response);
       setFilteredCases(response);
     } catch (e) {
@@ -188,9 +198,10 @@ export default function GetCaseDocumentsPage() {
     }
   };
 
+
   useEffect(() => {
-    if (firmId) fetchCases(firmId);
-  }, [firmId, role]);
+    if (firmId) fetchCases(firmId, lawyerId);
+  }, [firmId, role, lawyerId]);
 
   useEffect(() => {
     let filtered = [...cases];

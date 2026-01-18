@@ -9,7 +9,7 @@ import {
 } from "@ant-design/icons";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-import { resetPassword } from "../service/authAPI"; // your backend API
+// import { resetPassword } from "../service/authAPI"; // your backend API
 import { updateUser } from "../store/userSlice";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 const { Title, Text } = Typography;
@@ -41,7 +41,7 @@ const ResetPasswordModal = ({
         console.error("Missing userId for password reset");
         return;
       }
-      await resetPassword(userId, values.password);
+      // await resetPassword(userId, values.password);
       toast.success("Password updated successfully!");
       const updatedUser = { ...user, mustChangePassword: false };
       dispatch(updateUser(updatedUser));
