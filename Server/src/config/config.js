@@ -1,44 +1,47 @@
 const dotenv = require("dotenv");
 
-// Load the right env file based on NODE_ENV
-dotenv.config({ path: ".env.local" });
-// Override for production
-if (process.env.NODE_ENV === "production") {
-  dotenv.config({ path: ".env" });
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config({ path: ".env.local" });
 }
+dotenv.config();
 
-console.log("ENV NODE_ENV:", process.env.NODE_ENV);
-console.log("ENV DB_HOST:", process.env.DB_HOST);
+const getConnectionUrlVariable = () => {
+  if (process.env.DB_URL) return "DB_URL";
+  if (process.env.DATABASE_URL) return "DATABASE_URL";
+  if (process.env.MYSQL_URL) return "MYSQL_URL";
+  return null;
+};
 
-module.exports = {
-  development: {
-    username: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT || 3306,
+const buildConfig = () => {
+  const config = {
+    username: process.env.DB_USER || process.env.MYSQLUSER,
+    password: process.env.DB_PASS || process.env.MYSQLPASSWORD,
+    database: process.env.DB_NAME || process.env.MYSQLDATABASE,
+    host: process.env.DB_HOST || process.env.MYSQLHOST,
+    port: process.env.DB_PORT || process.env.MYSQLPORT || 3306,
     dialect: process.env.DB_DIALECT || "mysql",
-  },
-  test: {
-    username: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT || 3306,
-    dialect: process.env.DB_DIALECT || "mysql",
-  },
-  production: {
-    username: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT || 3306,
-    dialect: process.env.DB_DIALECT || "mysql",
-    dialectOptions: {
+    logging: false,
+  };
+
+  const connectionUrlVariable = getConnectionUrlVariable();
+  if (connectionUrlVariable) {
+    config.use_env_variable = connectionUrlVariable;
+  }
+
+  if (process.env.DB_SSL === "true") {
+    config.dialectOptions = {
       ssl: {
         require: true,
-        rejectUnauthorized: false,
+        rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== "false",
       },
-    },
-  },
+    };
+  }
+
+  return config;
+};
+
+module.exports = {
+  development: buildConfig(),
+  test: buildConfig(),
+  production: buildConfig(),
 };

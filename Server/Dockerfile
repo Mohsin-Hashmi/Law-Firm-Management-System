@@ -29,15 +29,17 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy app source and entrypoint
 COPY src ./src
 COPY entrypoint.sh ./entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+RUN mkdir -p /app/uploads/clients /app/uploads/lawyers /app/uploads/case-documents \
+  && chmod +x /app/entrypoint.sh
 
 # Expose port
 EXPOSE 4000
 
 # Healthcheck
-HEALTHCHECK --interval=30s --timeout=3s --retries=3 CMD curl -fsS http://127.0.0.1:${PORT:-4000}/ || exit 1
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 CMD curl -fsS http://127.0.0.1:${PORT:-4000}/health || exit 1
 
 # Drop privileges
+RUN chown -R nodeuser:nodejs /app
 USER nodeuser
 
 # Start: run migrations then start server

@@ -2,6 +2,9 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
+    const table = await queryInterface.describeTable('userfirms');
+    if (table.status) return;
+
     await queryInterface.addColumn('userfirms', 'status', {
       type: Sequelize.ENUM('active', 'inactive'),
       defaultValue: 'active',

@@ -79,6 +79,14 @@ app.use(
 
 const PORT = process.env.PORT || 5000;
 
+app.get("/", (req, res) => {
+  res.status(200).json({ success: true, status: "ok" });
+});
+
+app.get("/health", (req, res) => {
+  res.status(200).json({ success: true, status: "healthy" });
+});
+
 // ====Creating the Super Admin=====
 const createSuperAdmin = async () => {
   const SUPER_ADMIN_EMAIL = process.env.SUPER_ADMIN_EMAIL;
@@ -86,6 +94,11 @@ const createSuperAdmin = async () => {
   const SUPER_ADMIN_NAME = "Super Admin";
 
   try {
+    if (!SUPER_ADMIN_EMAIL || !SUPER_ADMIN_PASSWORD) {
+      console.warn("Super Admin env vars are not set; skipping bootstrap user.");
+      return;
+    }
+
     let superAdminRole = await Role.findOne({ where: { name: "Super Admin" } });
     if (!superAdminRole) {
       superAdminRole = await Role.create({ name: "Super Admin" });

@@ -320,7 +320,8 @@ const Logout = (req, res) => {
 
 const resetPassword = async (req, res) => {
   try {
-    const { userId, newPassword } = req.body;
+    const { newPassword } = req.body;
+    const userId = req.user.id;
 
     if (!newPassword || newPassword.length < 6) {
       return res.status(400).json({
@@ -330,6 +331,7 @@ const resetPassword = async (req, res) => {
     }
 
     const user = await User.findByPk(userId);
+    console.log('user found for reset password:', user);
     if (!user) {
       return res
         .status(404)

@@ -1,16 +1,10 @@
 const { Sequelize } = require("sequelize");
-require("dotenv").config();
+const env = process.env.NODE_ENV || "development";
+const config = require("./src/config/config.js")[env];
 
-const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASS,
-  {
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT || 3306,
-    dialect: process.env.DB_DIALECT || "mysql",
-  }
-);
+const sequelize = config.use_env_variable
+  ? new Sequelize(process.env[config.use_env_variable], config)
+  : new Sequelize(config.database, config.username, config.password, config);
 
 (async () => {
   try {

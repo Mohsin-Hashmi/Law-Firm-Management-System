@@ -32,7 +32,7 @@ module.exports = {
       { name: "view_case_documents", createdAt: new Date(), updatedAt: new Date() },
       { name: "upload_case_document", createdAt: new Date(), updatedAt: new Date() },
       { name: "delete_case_document", createdAt: new Date(), updatedAt: new Date() },
-    ]);
+    ], { ignoreDuplicates: true });
   },
 
   async down(queryInterface, Sequelize) {

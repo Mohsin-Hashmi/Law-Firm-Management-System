@@ -3,6 +3,14 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
+    const tables = await queryInterface.showAllTables();
+    const hasUserFirms = tables.some((table) => {
+      const tableName = typeof table === "object" ? table.tableName : table;
+      return tableName === "userfirms";
+    });
+
+    if (hasUserFirms) return;
+
     await queryInterface.createTable('userfirms', {
       id: {
         allowNull: false,
@@ -27,7 +35,7 @@ module.exports = {
       roleId: {
         type: Sequelize.INTEGER,
         allowNull: true,
-        references: { model: 'Roles', key: 'id' },   
+        references: { model: 'roles', key: 'id' },   
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL',
       },
@@ -45,6 +53,14 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('userfirms');
+    const tables = await queryInterface.showAllTables();
+    const hasUserFirms = tables.some((table) => {
+      const tableName = typeof table === "object" ? table.tableName : table;
+      return tableName === "userfirms";
+    });
+
+    if (hasUserFirms) {
+      await queryInterface.dropTable('userfirms');
+    }
   },
 };

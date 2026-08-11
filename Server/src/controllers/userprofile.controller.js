@@ -9,6 +9,12 @@ const {
 const getUserProfile = async (req, res) => {
     try {
         const userId = req?.user?.id;
+        if (!userId) {
+            return res.status(400).json({
+                success: false,
+                message: "User not found"
+            })
+        }
         const user = await User.findByPk(userId, {
             attributes: { exclude: ["password"] },
             include: [
@@ -42,6 +48,12 @@ const updateUserProfile = async (req, res) => {
     try {
         const userId = req?.user?.id;
         const { firstName, lastName, phone, avatar } = req.body;
+        if (!userId) {
+            return res.status(400).json({
+                success: false,
+                message: "User not found"
+            })
+        }
         const user = await User.findByPk(userId, {
             attributes: {
                 exclude: ['password']
@@ -84,8 +96,41 @@ const updateUserProfile = async (req, res) => {
     }
 }
 
-const deleteUserProfile = () => {
-
+const deleteUserProfile = async (req, res) => {
+    const t = await sequelize.transaction();
+    try {
+        const userId = req.user.id;
+        if (!userId) {
+            return res.status(400).json({
+                success: false,
+                message: "User not found"
+            })
+        }
+        const userProfile = await UserProfile.findOne({
+            where: {
+                userId: userId
+            }
+        }, { transaction: t });
+        if (!userProfile) {
+            return res.status(404).json({
+                success: false,
+                message: "User profile not found"
+            })
+        }
+        await userProfile.destroy({ transaction: t });
+        await t.commit();
+        return res.status(200).json({
+            success: true,
+            message: "User profile deleted successfully"
+        })
+    } catch (error) {
+        await t.rollback();
+        res.status(500).json({
+            success: false,
+            message: "Failed to delete user profile",
+            error: error.message
+        })
+    }
 }
 
 module.exports = {

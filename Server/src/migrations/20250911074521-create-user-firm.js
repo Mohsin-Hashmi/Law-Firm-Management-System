@@ -2,33 +2,18 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('UserFirms', {
-      id: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER
-      },
-      userId: {
-        type: Sequelize.INTEGER
-      },
-      firmId: {
-        type: Sequelize.INTEGER
-      },
-      roleId: {
-        type: Sequelize.INTEGER
-      },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE
-      }
-    });
+    // Legacy duplicate migration. The application uses lowercase `userfirms`,
+    // created by 20250911070000-create-role.js.
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('UserFirms');
+    const tables = await queryInterface.showAllTables();
+    const hasUserFirms = tables.some((table) => {
+      const tableName = typeof table === "object" ? table.tableName : table;
+      return tableName === "UserFirms";
+    });
+
+    if (hasUserFirms) {
+      await queryInterface.dropTable('UserFirms');
+    }
   }
 };
