@@ -14,10 +14,41 @@ import {
 } from "../types/user";
 import { addFirm, switchFirm } from "../store/userSlice";
 import { AppDispatch } from "../store/store";
+import { IS_DEMO_MODE } from "../utils/demoMode";
+import { getDemoCasesByClient, getDemoCasesByFirm, getDemoCasesByLawyer, getDemoCaseById } from "../dummy/cases";
+import { getDemoClientById, getDemoClientsByFirm } from "../dummy/clients";
+import { getDemoDocumentsByCase } from "../dummy/documents";
+import { demoFirms, getDemoFirmById } from "../dummy/firms";
+import { getDemoLawyerById, getDemoLawyersByFirm } from "../dummy/lawyers";
+import { demoPermissionRecords } from "../dummy/permissions";
+import { demoRoles, demoUsersWithRoles, getDemoUserById } from "../dummy/roles";
+import {
+  buildClientStats,
+  buildFirmStats,
+  buildLawyerStats,
+  demoAxiosResponse,
+  demoDelay,
+} from "../dummy/responses";
 /**Create firm API call */
 export const createFirm =
   (data: FirmPayload, role?: string) => async (dispatch: AppDispatch) => {
     try {
+      if (IS_DEMO_MODE) {
+        const newFirm = {
+          id: 199,
+          name: data.name,
+        };
+        dispatch(addFirm(newFirm));
+        dispatch(switchFirm(newFirm.id));
+
+        return demoAxiosResponse({
+          success: true,
+          message: "Demo firm created",
+          newFirm,
+          token: "demo-portfolio-token",
+        });
+      }
+
       const rolePath = role === "Super Admin" ? "super-admin" : "firm-admin";
 
       const response = await api.post(`/${rolePath}/firm`, data);
@@ -66,6 +97,10 @@ export const createFirm =
 
 export const getMyFirms = async (): Promise<FirmPayload[]> => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay(demoFirms as FirmPayload[]);
+    }
+
     const response = await api.get("/firm-admin/my-firms");
 
     console.log("firms response:", response.data);
@@ -79,6 +114,10 @@ export const getMyFirms = async (): Promise<FirmPayload[]> => {
 
 export const deleteFirm = async (firmId: number): Promise<boolean> => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay(true);
+    }
+
     const response = await axios.delete(`${BASE_URL}/firm-admin/delete-firm`, {
       data: { firmId },
       withCredentials: true,
@@ -94,6 +133,25 @@ export const deleteFirm = async (firmId: number): Promise<boolean> => {
 /**Add Lawyer API */
 export const addLawyer = async (firmId: number, data: FormData) => {
   if (!firmId) throw new Error("firmId is required");
+  if (IS_DEMO_MODE) {
+    return demoAxiosResponse({
+      success: true,
+      message: "Demo lawyer added",
+      lawyer: {
+        id: Date.now(),
+        firmId,
+        name: String(data.get("name") || "New Demo Lawyer"),
+        email: String(data.get("email") || "new.lawyer@northmanlegal.demo"),
+        phone: String(data.get("phone") || "+1 (312) 555-0199"),
+        specialization: String(data.get("specialization") || "General Practice"),
+        status: "Active",
+        profileImage: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    });
+  }
+
   const response = await axios.post(
     `${BASE_URL}/firm-admin/${firmId}/addlawyers`,
     data,
@@ -110,6 +168,10 @@ export const getStats = async (
   role?: string
 ): Promise<FirmStats> => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay(buildFirmStats(firmId || 101) as FirmStats);
+    }
+
     console.log("Fetching stats... firmId:", firmId, "role:", role);
 
     let url = "";
@@ -138,6 +200,10 @@ export const getStats = async (
 
 export const getLawyers = async (firmId?: number): Promise<Lawyer[]> => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay(getDemoLawyersByFirm(firmId || 101) as Lawyer[]);
+    }
+
     const response = await axios.get(`${BASE_URL}/firm-admin/firms/lawyers`, {
       params: { firmId }, // <-- pass firmId in query
       withCredentials: true,
@@ -155,6 +221,10 @@ export const getLawyers = async (firmId?: number): Promise<Lawyer[]> => {
 /** Get Lawyer by ID */
 export const getLawyerById = async (id: number): Promise<Lawyer | null> => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay(getDemoLawyerById(id) as Lawyer | null);
+    }
+
     const response = await api.get(`/firm-admin/firm/lawyer/${id}`);
 
     console.log("lawyer detail response:", response.data);
@@ -171,6 +241,10 @@ export const deleteLawyer = async (
   id: number
 ): Promise<{ success: boolean; message: string }> => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay({ success: true, message: "Demo lawyer deleted" });
+    }
+
     const response = await axios.delete(
       `${BASE_URL}/firm-admin/firm/lawyer/${id}`,
       {
@@ -191,6 +265,16 @@ export const updateLawyer = async (
   file?: File // optional new profile image
 ): Promise<Lawyer> => {
   try {
+    if (IS_DEMO_MODE) {
+      const existing = getDemoLawyerById(id);
+      return demoDelay({
+        ...existing,
+        ...lawyerData,
+        id,
+        updatedAt: new Date().toISOString(),
+      } as Lawyer);
+    }
+
     const formData = new FormData();
 
     // Append text fields if provided
@@ -226,6 +310,24 @@ export const updateLawyer = async (
 
 // Switch firm API
 export const switchFirmAPI = async (firmId: number) => {
+  if (IS_DEMO_MODE) {
+    const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+    const updatedUser = {
+      ...currentUser,
+      activeFirmId: firmId,
+      firmId,
+    };
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    localStorage.setItem("token", "demo-portfolio-token");
+    localStorage.setItem("authToken", "demo-portfolio-token");
+
+    return demoDelay({
+      success: true,
+      token: "demo-portfolio-token",
+      user: updatedUser,
+    });
+  }
+
   const res = await api.post("/firm-admin/switch-firm", { firmId });
 
   // Update token in localStorage if new token is provided
@@ -249,6 +351,22 @@ export const switchFirmAPI = async (firmId: number) => {
 
 export const getLawyerPerformance = async (lawyerId: number | string) => {
   try {
+    if (IS_DEMO_MODE) {
+      const lawyer = getDemoLawyerById(lawyerId) || getDemoLawyersByFirm(101)[0];
+      const cases = getDemoCasesByLawyer(lawyer.id);
+      return demoDelay({
+        lawyerId: String(lawyer.id),
+        name: lawyer.name,
+        totalCases: cases.length,
+        totalClients: new Set(cases.map((caseItem) => caseItem.client.id)).size,
+        completedCases: cases.filter((caseItem) => caseItem.status === "Closed").length,
+        activeCases: cases.filter((caseItem) => caseItem.status === "Open").length,
+        wonCases: 2,
+        lostCases: 0,
+        successRate: 92,
+      });
+    }
+
     const response = await axios.get(
       `${BASE_URL}/firm-admin/${lawyerId}/performance`,
       {
@@ -264,6 +382,10 @@ export const getLawyerPerformance = async (lawyerId: number | string) => {
 };
 export const getClientPerformance = async (clientId: number | string) => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay(buildClientStats(Number(clientId)));
+    }
+
     const response = await axios.get(
       `${BASE_URL}/firm-admin/${clientId}/client/performance`,
       {
@@ -281,6 +403,24 @@ export const getClientPerformance = async (clientId: number | string) => {
 /**Create Client API Call */
 export const createClient = async (firmId: number, data: FormData) => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay({
+        success: true,
+        message: "Demo client created",
+        client: {
+          id: Date.now(),
+          firmId,
+          fullName: String(data.get("fullName") || "New Demo Client"),
+          email: String(data.get("email") || "new.client@example.demo"),
+          phone: String(data.get("phone") || "+1 (312) 555-0299"),
+          clientType: String(data.get("clientType") || "Individual"),
+          status: String(data.get("status") || "Active"),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      });
+    }
+
     const response = await axios.post(
       `${BASE_URL}/firm-admin/${firmId}/addClient`,
       data,
@@ -305,6 +445,10 @@ export const createClient = async (firmId: number, data: FormData) => {
 /**Get All Clients API Call */
 export const getAllClients = async (firmId: number): Promise<Client[]> => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay(getDemoClientsByFirm(firmId || 101) as Client[]);
+    }
+
     const response = await axios.get<{ clients: Client[] }>(
       `${BASE_URL}/firm-admin/firm/clients`,
       { params: { firmId }, withCredentials: true }
@@ -325,6 +469,10 @@ export const getAllClients = async (firmId: number): Promise<Client[]> => {
 /**Get Client by id API Call */
 export const getClientById = async (id: number) => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay(getDemoClientById(id) as Client);
+    }
+
     const response = await axios.get<{
       success: boolean;
       message: string;
@@ -348,6 +496,16 @@ export const updateClient = async (
   file?: File // optional new profile image
 ): Promise<Client> => {
   try {
+    if (IS_DEMO_MODE) {
+      const existing = getDemoClientById(id);
+      return demoDelay({
+        ...existing,
+        ...clientData,
+        id,
+        updatedAt: new Date().toISOString(),
+      } as Client);
+    }
+
     const formData = new FormData();
 
     // Append text fields if provided
@@ -396,6 +554,10 @@ export const updateClient = async (
 };
 export const deleteClient = async (id: number) => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay({ success: true, message: "Demo client deleted" });
+    }
+
     const response = await axios.delete<{ message: string }>(
       `${BASE_URL}/firm-admin/firm/client/${id}`,
       {
@@ -414,6 +576,21 @@ export const deleteClient = async (id: number) => {
 
 export const createCase = async (firmId: number, data: FormData) => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay({
+        success: true,
+        message: "Demo case created",
+        case: {
+          id: Date.now(),
+          firmId,
+          title: String(data.get("title") || "New Demo Case"),
+          caseNumber: String(data.get("caseNumber") || "NLG-2026-DEMO"),
+          status: String(data.get("status") || "Open"),
+          openedAt: new Date().toISOString(),
+        },
+      });
+    }
+
     const response = await axios.post(
       `${BASE_URL}/firm-admin/${firmId}/addCase`,
       data,
@@ -431,6 +608,10 @@ export const createCase = async (firmId: number, data: FormData) => {
 
 export const getAllCasesOfFirm = async (firmId: number): Promise<Case[]> => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay(getDemoCasesByFirm(firmId || 101) as Case[]);
+    }
+
     const response = await axios.get<{ cases: Case[] }>(
       `${BASE_URL}/firm-admin/firm/cases`,
 
@@ -449,8 +630,12 @@ export const getAllCasesOfFirm = async (firmId: number): Promise<Case[]> => {
   }
 };
 
-export const getAllCasesOfLawyer = async (lawyerId: number): Promise<Case[]> => {
+export const getAllCasesOfLawyer = async (lawyerId?: number): Promise<Case[]> => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay(getDemoCasesByLawyer(lawyerId || 201) as Case[]);
+    }
+
     const response = await axios.get<{ cases: Case[] }>(
       `${BASE_URL}/firm-admin/lawyer/cases`, // same as backend route
       { params: { lawyerId }, withCredentials: true }
@@ -472,6 +657,10 @@ export const getAllCasesOfClient = async (
   clientId: number
 ): Promise<Case[]> => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay(getDemoCasesByClient(clientId || 301) as Case[]);
+    }
+
     const response = await axios.get<{ success: boolean; cases: Case[] }>(
       `${BASE_URL}/firm-admin/clients/${clientId}/cases`,
       { withCredentials: true }
@@ -490,6 +679,10 @@ export const getAllCasesOfClient = async (
 
 export const getAllClientsOfLawyer = async (): Promise<Client[]> => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay(getDemoClientsByFirm(101) as Client[]);
+    }
+
     const response = await axios.get(`${BASE_URL}/firm-admin/lawyer/clients`, {
       withCredentials: true,
     });
@@ -507,6 +700,13 @@ export const getAllClientsOfLawyer = async (): Promise<Client[]> => {
 
 export const getCaseById = async (id: number) => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay({
+        success: true,
+        case: getDemoCaseById(id),
+      });
+    }
+
     const resposne = await axios.get(
       `${BASE_URL}/firm-admin/firm/cases/${id}`,
       { withCredentials: true }
@@ -525,6 +725,10 @@ export const getCaseById = async (id: number) => {
 
 export const deleteCaseByFirm = async (firmId: number, id: number) => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay({ success: true, message: "Demo case deleted", case: { id, firmId } });
+    }
+
     const response = await axios.delete(
       `${BASE_URL}/firm-admin/firm/${firmId}/cases/${id}`,
       { withCredentials: true }
@@ -543,6 +747,18 @@ export const deleteCaseByFirm = async (firmId: number, id: number) => {
 
 export const updateCaseByFirm = async (id: number, data: FormData) => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay({
+        success: true,
+        message: "Demo case updated",
+        case: {
+          ...getDemoCaseById(id),
+          title: String(data.get("title") || getDemoCaseById(id)?.title || "Updated Demo Case"),
+          updatedAt: new Date().toISOString(),
+        },
+      });
+    }
+
     const resposne = await axios.put(
       `${BASE_URL}/firm-admin/firm/cases/${id}`,
       data,
@@ -566,6 +782,13 @@ export const updateCaseStatus = async (
   status: string
 ) => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay({
+        ...getDemoCaseById(id),
+        status,
+      });
+    }
+
     const response = await axios.patch(
       `${BASE_URL}/firm-admin/firm/${firmId}/cases/${id}/status`,
       {
@@ -596,6 +819,10 @@ export const updateCaseStatus = async (
 
 export const getPermissions = async () => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay({ success: true, permissions: demoPermissionRecords });
+    }
+
     const response = await axios.get(`${BASE_URL}/roles/get-permissions`, {
       withCredentials: true,
     });
@@ -614,6 +841,18 @@ export const getPermissions = async () => {
 
 export const createRole = async (roleData: CreateRolePayload) => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay({
+        success: true,
+        message: "Demo role created",
+        role: {
+          id: Date.now(),
+          name: roleData.name,
+          permissions: roleData.permissions,
+        },
+      });
+    }
+
     const response = await axios.post(
       `${BASE_URL}/roles/create-role`,
       roleData,
@@ -629,6 +868,14 @@ export const createRole = async (roleData: CreateRolePayload) => {
 
 export const assignRole = async (formData: AssignRolePayload) => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay({
+        success: true,
+        message: "Demo role assigned",
+        user: formData,
+      });
+    }
+
     const response = await axios.post(
       `${BASE_URL}/roles/assign-role`,
       formData,
@@ -645,6 +892,10 @@ export const assignRole = async (formData: AssignRolePayload) => {
 
 export const fetchRoles = async () => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay({ success: true, roles: demoRoles });
+    }
+
     const response = await axios.get(`${BASE_URL}/roles/get-roles`, {
       withCredentials: true,
     });
@@ -657,6 +908,14 @@ export const fetchRoles = async () => {
 
 export const fetchUsersWithRolesAndPermissions = async () => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay({
+        success: true,
+        firm: getDemoFirmById(101),
+        users: demoUsersWithRoles,
+      });
+    }
+
     const response = await axios.get(
       `${BASE_URL}/roles/get-users-with-role-and-permissions`,
       {
@@ -672,6 +931,10 @@ export const fetchUsersWithRolesAndPermissions = async () => {
 
 export const deleteUserById = async (id: number) => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay({ success: true, message: "Demo user deleted" });
+    }
+
     const response = await axios.delete(`${BASE_URL}/roles/delete-user/${id}`, {
       withCredentials: true,
     });
@@ -686,6 +949,27 @@ export const fetchUserById = async (
   id: number
 ): Promise<GetUserByIdResponse> => {
   try {
+    if (IS_DEMO_MODE) {
+      const user = getDemoUserById(id);
+      return demoDelay({
+        success: !!user,
+        user: user
+          ? {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              firmId: user.firmId,
+              role: {
+                id: user.role.id,
+                name: user.role.name,
+                permissions: user.permissions,
+              },
+              status: user.status as "active" | "inactive",
+            }
+          : null,
+      });
+    }
+
     const response = await axios.get(`${BASE_URL}/roles/get-user/${id}`, {
       withCredentials: true,
     });
@@ -701,6 +985,19 @@ export const updateUser = async (
   updateData: UpdateUserPayload
 ): Promise<UpdateUserResponse> => {
   try {
+    if (IS_DEMO_MODE) {
+      return demoDelay({
+        success: true,
+        message: "Demo user updated",
+        user: {
+          id,
+          firmId: 101,
+          status: updateData.status || "active",
+          permissions: updateData.addPermissions || [],
+        },
+      });
+    }
+
     const response = await axios.put<UpdateUserResponse>(
       `${BASE_URL}/roles/update-user/${id}`,
       updateData,
@@ -720,6 +1017,14 @@ export const updateUser = async (
 
 export const lawyerStatsData = async () => {
   try {
+    if (IS_DEMO_MODE) {
+      const currentUser =
+        typeof window !== "undefined"
+          ? JSON.parse(localStorage.getItem("user") || "{}")
+          : {};
+      return demoDelay(buildLawyerStats(currentUser.id || 201));
+    }
+
     const response = await axios.get(`${BASE_URL}/firm-admin/lawyers/stats`, {
       withCredentials: true,
     });
@@ -732,6 +1037,14 @@ export const lawyerStatsData = async () => {
 
 export const clientStatsData = async (): Promise<ClientStats | null> => {
   try {
+    if (IS_DEMO_MODE) {
+      const currentUser =
+        typeof window !== "undefined"
+          ? JSON.parse(localStorage.getItem("user") || "{}")
+          : {};
+      return demoDelay(buildClientStats(currentUser.id || 301) as ClientStats);
+    }
+
     const response = await axios.get(`${BASE_URL}/firm-admin/client/stats`, {
       withCredentials: true,
     });
@@ -761,6 +1074,10 @@ export const getCaseDocuments = async (
   firmId: number,
   caseId: number
 ) => {
+  if (IS_DEMO_MODE) {
+    return demoDelay(getDemoDocumentsByCase(caseId));
+  }
+
   let url = "";
 
   if (role === "Firm Admin" || role === "Super Admin") {
@@ -781,6 +1098,22 @@ export const uploadCaseDocuments = async (
   caseId: number,
   files: File[]
 ): Promise<UploadCaseDocumentsResponse> => {
+  if (IS_DEMO_MODE) {
+    return demoDelay({
+      success: true,
+      message: "Demo documents uploaded",
+      documents: files.map((file, index) => ({
+        id: Date.now() + index,
+        fileName: file.name,
+        fileType: file.type || "application/octet-stream",
+        filePath: `demo-documents/${file.name}`,
+        uploadedById: 1,
+        uploadedByType: role,
+        createdAt: new Date().toISOString(),
+      })),
+    });
+  }
+
   const form = new FormData();
   files.forEach((file) => form.append("documents", file));
 
@@ -807,6 +1140,10 @@ export const deleteCaseDocument = async (
   caseId: number,
   docId: number
 ) => {
+  if (IS_DEMO_MODE) {
+    return demoDelay({ success: true, message: "Demo document deleted" });
+  }
+
   const response = await axios.delete(
     `${BASE_URL}/firm-admin/firm/${firmId}/cases/${caseId}/documents/${docId}`,
     { withCredentials: true }

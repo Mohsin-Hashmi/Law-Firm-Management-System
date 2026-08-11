@@ -118,10 +118,12 @@ export default function GetCases() {
         response = await getAllCasesOfClient(user.id);
       }
 
-      setCases(response);
+      setCasesData(response);
+      dispatch(setCases(response));
       setFilteredCases(response);
     } catch (e) {
-      setCases([]);
+      setCasesData([]);
+      dispatch(setCases([]));
       setFilteredCases([]);
     } finally {
       setLoading(false);
@@ -139,13 +141,6 @@ export default function GetCases() {
       setLoading(false);
     }
   }, [role, firmId, lawyerId]);
-
-  useEffect(() => {
-    if (firmId) {
-      setCasesData([]);
-      fetchCases(firmId);
-    }
-  }, [role, firmId]);
 
   const handleAssignLawyer = (case_: Case) => {
     setSelectedCaseForLawyer(case_);

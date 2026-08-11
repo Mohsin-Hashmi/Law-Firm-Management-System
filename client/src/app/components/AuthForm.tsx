@@ -18,7 +18,13 @@ import { toast } from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { addUser } from "../store/userSlice";
 import { FaGoogle } from "react-icons/fa";
-import { json } from "stream/consumers";
+import {
+  DEMO_ADMIN_EMAIL,
+  DEMO_ADMIN_PASSWORD,
+  DEMO_SUPER_ADMIN_EMAIL,
+  DEMO_SUPER_ADMIN_PASSWORD,
+  IS_DEMO_MODE,
+} from "../utils/demoMode";
 
 type AuthFormProps = {
   type: "login" | "signup";
@@ -43,6 +49,17 @@ export default function AuthForm({ type }: AuthFormProps) {
     confirmPassword: "",
   });
   const [firmSubdomain, setFirmSubdomain] = useState("");
+
+  const fillDemoCredentials = (variant: "admin" | "super-admin") => {
+    if (variant === "admin") {
+      setEmail(DEMO_ADMIN_EMAIL);
+      setPassword(DEMO_ADMIN_PASSWORD);
+    } else {
+      setEmail(DEMO_SUPER_ADMIN_EMAIL);
+      setPassword(DEMO_SUPER_ADMIN_PASSWORD);
+    }
+    setError((current) => ({ ...current, email: "", password: "" }));
+  };
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -263,6 +280,35 @@ export default function AuthForm({ type }: AuthFormProps) {
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
+              {type === "login" && IS_DEMO_MODE && (
+                <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-800">
+                        Demo Admin
+                      </p>
+                      <p className="text-xs text-slate-600">
+                        {DEMO_ADMIN_EMAIL} / {DEMO_ADMIN_PASSWORD}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => fillDemoCredentials("admin")}
+                      className="rounded-md bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-slate-700"
+                    >
+                      Use Admin
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => fillDemoCredentials("super-admin")}
+                    className="mt-2 text-xs font-medium text-slate-600 underline-offset-2 hover:text-slate-900 hover:underline"
+                  >
+                    Use Super Admin instead
+                  </button>
+                </div>
+              )}
+
               {type === "signup" && (
                 <div className="space-y-1">
                   <label className="block text-sm font-semibold text-slate-700">

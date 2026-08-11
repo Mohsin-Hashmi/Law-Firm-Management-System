@@ -130,13 +130,6 @@ export default function GetClients() {
     }
   }, [firmId]);
 
-  useEffect(() => {
-    if (firmId) {
-      setClientsData([]);
-      fetchClients(firmId);
-    }
-  }, [firmId]);
-
   const filterClients = () => {
     let filtered = clients;
 
